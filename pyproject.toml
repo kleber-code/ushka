@@ -1,0 +1,19 @@
+[project]
+name = "ushka"
+version = "0.0.1"
+description = "Ushka is a minimal, experimental Python micro-framework for hobbyists and solo developers. Its goal is to enable rapid API development with **zero boilerplate** by using file-based routing."
+authors = [
+    {name = "kleber-code", email = "kleber.code@gmail.com"},
+]
+dependencies = ["uvicorn>=0.38.0"]
+requires-python = ">=3.13"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[tool.pdm]
+distribution = true
