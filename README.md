@@ -1,5 +1,11 @@
 # Ushka
 
+[![PyPI Version](https://img.shields.io/pypi/v/ushka)](https://pypi.org/project/ushka/)
+![Python Versions](https://img.shields.io/pypi/pyversions/ushka)
+![License](https://img.shields.io/pypi/l/ushka)
+[![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Build](https://img.shields.io/github/actions/workflow/status/kleber-code/ushka/python-publish.yml?branch=main)](https://github.com/kleber-code/ushka/actions)
+
 Ushka is a minimal, experimental Python ASGI web framework based on file-based routing.
 
 ## ⚠️ Alpha Stage: Not Production Ready
@@ -65,10 +71,6 @@ from ushka import Ushka
 from pathlib import Path
 
 app = Ushka()
-
-# Autodiscover routes from the 'routes' directory
-routes_path = Path(__file__).parent.joinpath("routes")
-app.router.autodiscover(base_path=routes_path)
 
 if __name__ == "__main__":
     print("Starting Ushka server on http://127.0.0.1:8000")
