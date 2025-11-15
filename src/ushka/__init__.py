@@ -1,41 +1,13 @@
-from ushka.http.request import Request
-from ushka.http.response import Response
+from .application import Ushka
+from .http.request import Request
+from .http.response import Response
 
-class Ushka:
 
-    async def handle_http_request(self, scope, receive, send):
+app = Ushka()
 
-        request = Request(scope, receive)
-        
-        response = Response("Hello, World!")
 
-        await response(send)
+async def hello():
+    return "Hello"
 
-    async def handle_lifespan(self, receive, send):
-        while True:
-            message = await receive()
-            if message["type"] == "lifespan.startup":
-                await send({"type": "lifespan.startup.complete"})
-            elif message["type"] == "lifespan.shutdown":
-                await send({"type": "lifespan.shutdown.complete"})
-            return
 
-    async def handle_asgi_call(self, scope, receive, send):
-
-        if scope["type"] == "http":
-
-            await self.handle_http_request(scope, receive, send)
-
-        elif scope["type"] == "lifespan":
-
-            await self.handle_lifespan(receive, send)
-
-        else:
-
-            response = Response("Not Supported", 501)
-
-            await response(send)
-
-    async def __call__(self, scope, receive, send):
-
-        await self.handle_asgi_call(scope, receive, send)
+app.router.add_route("GET", "/home", hello)
