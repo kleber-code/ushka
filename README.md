@@ -1,126 +1,113 @@
 # Ushka
 
-[](https://www.google.com/search?q=https://pypi.org/project/ushka/)
-[](https://www.google.com/search?q=https://travis-ci.com/your_username/ushka)
-[](https://opensource.org/licenses/MIT)
-
-Ushka is a minimal, experimental Python micro-framework for hobbyists and solo developers. Its goal is to enable rapid API development with **zero boilerplate** by using file-based routing.
-
-No decorators, no complex configuration. Just create a file in the `routes/` directory, and it becomes an API endpoint.
+Ushka is a minimal, experimental Python ASGI web framework based on file-based routing.
 
 ## ⚠️ Alpha Stage: Not Production Ready
 
-This is an **early alpha release**. The project is in active, unstable development.
+This is an **early alpha release**. The project is in active, unstable development. The API may change at any time.
 
-  * The API **will** change frequently without warning.
-  * It is **not suitable for production use**.
-  * It is intended for experimentation and feedback only.
+## Core Concept: File-Based Routing
 
-## Philosophy
+The filesystem is the API. Ushka scans a `routes/` directory and maps the file and directory structure directly to URL paths.
 
-  * **File-Based Routing:** The filesystem is the API.
-  * **Zero Boilerplate:** No decorators, no manual route registration.
-  * **Get Out of the Way:** The framework should be invisible.
-  * **Built for One:** Designed for the speed and simplicity a solo dev needs.
+*   A file like `routes/hello.py` becomes the endpoint `/hello`.
+*   A file named `routes/index.py` becomes the root endpoint `/`.
+*   Nested directories become nested paths. `routes/api/v1/status.py` becomes `/api/v1/status`.
+*   Dynamic paths are created using square brackets in the filename. `routes/users/[id].py` becomes the endpoint `/users/[id]`.
+*   The HTTP method is determined by the function name inside the file (e.g., `get()`, `post()`).
 
------
+---
 
-## Core Alpha Feature: File-Based Routing
+## Example
 
-This is the only major feature implemented in the current alpha.
+This example uses **autodiscovery** to create a simple API.
 
-You don't need to import `app` or use decorators. Ushka scans the `routes/` directory and maps file and function names directly to HTTP routes.
+### Project Structure
 
-The name of the `.py` file determines the URL path, and the function names (`get`, `post`, `put`, `delete`) map to the HTTP methods.
-
-### Example
-
-Create a file named `routes/hello.py`:
-
-```python
-# routes/hello.py
-
-# This function automatically becomes:
-# GET /hello
-def get():
-    return {"message": "Hello from Ushka!"}
-
-# This function automatically becomes:
-# POST /hello
-def post():
-    # Ushka will provide request data (form, json) as arguments
-    # (Note: This part of the API is still unstable)
-    return {"message": "You posted data"}, 201
+```
+examples/
+├── app.py
+└── routes/
+    ├── hello.py
+    ├── index.py
+    └── hello/
+        └── [name].py
 ```
 
-That's it. No other code is needed.
+### 1. The Route Handlers (`examples/routes/`)
 
------
+These files contain the functions that will handle requests.
 
-## How to Run (Alpha Test)
+**`examples/routes/index.py`** (handles `GET /`)
+```python
+def get():
+    return "Welcome to the autodiscovered example!"
+```
 
-1.  **Install it:**
+**`examples/routes/hello.py`** (handles `GET /hello`)
+```python
+def get():
+    return "Hello, World!"
+```
 
+**`examples/routes/hello/[name].py`** (handles `GET /hello/[name]`)
+```python
+def get(name: str):
+    return f"Hello, {name}!"
+```
+
+### 2. The Main Application (`examples/app.py`)
+
+This file creates the Ushka application and tells it to automatically discover the routes.
+
+```python
+from ushka import Ushka
+from pathlib import Path
+
+app = Ushka()
+
+# Autodiscover routes from the 'routes' directory
+routes_path = Path(__file__).parent.joinpath("routes")
+app.router.autodiscover(base_path=routes_path)
+
+if __name__ == "__main__":
+    print("Starting Ushka server on http://127.0.0.1:8000")
+    app.run("127.0.0.1", 8000)
+```
+
+### How to Run the Example
+
+1.  **Navigate to the project root.**
+2.  **Run the application:**
     ```bash
-    pip install ushka
+    python examples/app.py
     ```
+3.  **Test the routes in your browser or with `curl`:**
+    *   `curl http://127.0.0.1:8000/`
+    *   `curl http://127.0.0.1:8000/hello`
+    *   `curl http://127.0.0.1:8000/hello/Developer`
 
-2.  **Create your project:**
+---
 
-    ```bash
-    mkdir my_test_app
-    cd my_test_app
-    mkdir routes
-    ```
+## Manual Routing
 
-3.  **Create your entry file `app.py`:**
+For more complex scenarios, you can add routes manually. This is useful if you prefer not to use file-based routing.
 
-    ```python
-    # app.py
-    from ushka import Ushka
+```python
+from ushka import Ushka
 
-    # This is all you need.
-    # Ushka will find the 'routes/' folder.
-    app = Ushka()
-    ```
+app = Ushka()
 
-4.  **Create your first route `routes/hello.py`:**
+def my_handler():
+    return "This was added manually."
 
-    ```python
-    # routes/hello.py
-    def get():
-        return {"message": "It works!"}
-    ```
+app.router.add_route("GET", "/manual", my_handler)
+```
 
-5.  **Run the dev server:**
+## Roadmap
 
-    ```bash
-    ushka run
-    ```
-
-    *(Note: The `ushka run` command assumes your file is named `app.py`)*
-
-6.  **Test it:**
-
-    ```bash
-    curl http://127.0.0.1:8000/hello
-    ```
-
-    **Response:** `{"message": "It works!"}`
-
------
-
-## Roadmap (Moving from Alpha to Beta)
-
-The current alpha is minimal. Here is the plan to make it useful:
-
-1.  **Stabilize the Router:** Finalize API for dynamic routes (e.g., `routes/users/[id].py`).
-2.  **Request Object:** Create a simple, clean `Request` object (for headers, queries, etc.).
-3.  **Response Object:** Create a `Response` object for setting status codes and headers easily.
-4.  **File-Based Middleware:** Add support for `_middleware.py` files to protect route groups.
-5.  **Simple CLI:** Improve the CLI (e.g., `ushka new` to scaffold a project).
-6.  **Dependency Injection:** *After* the core is stable, explore a simple DI system for services (like DB connections).
-
-## Repository
-
-GitHub: **[Your repository link here]**
+1.  **Stabilize and Enhance the Router:** Improve the routing system and its features.
+2.  **Request/Response Objects:** Implement robust `Request` and `Response` objects.
+3.  **Middleware:** Add support for middleware.
+4.  **CLI:** Create a simple CLI for project scaffolding.
+5.  **Dependency Injection:** Explore a simple DI system.
