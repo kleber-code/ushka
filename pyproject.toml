@@ -1,31 +1,42 @@
 [project]
 name = "ushka"
-version = "0.0.2"
-description = "Ushka is a minimal, experimental Python micro-framework for hobbyists and solo developers. Its goal is to enable rapid API development with **zero boilerplate** by using file-based routing."
+version = "0.0.3"
+description = "Ushka is a minimal, experimental Python micro-framework for hobbyists and solo developers. Its goal is to enable rapid API development with zero boilerplate by using file-based routing."
 authors = [
-    {name = "kleber-code", email = "kleber.code@gmail.com"},
+    { name = "kleber-code", email = "kleber.code@gmail.com" },
 ]
-dependencies = ["uvicorn>=0.38.0"]
 requires-python = ">=3.13"
+dependencies = [
+    "uvicorn>=0.38.0",
+]
 readme = "README.md"
-license = {text = "MIT"}
+license = { text = "MIT" }
+keywords = ["web", "framework", "asgi", "routing", "autodiscovery"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: MIT License",
+    "Framework :: AsyncIO",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+]
 
 [project.urls]
 Homepage = "https://github.com/kleber-code/ushka"
 Issues = "https://github.com/kleber-code/ushka/issues"
-
+Repository = "https://github.com/kleber-code/ushka"
 
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
 
-
 [tool.pdm]
 distribution = true
-
 
 [dependency-groups]
 dev = [
     "ruff>=0.14.5",
-    "twine>=6.2.0",
 ]
