@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>USHKA PANIC: {{ exception_type }}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+
+    <style>
+      :root {
+        --bg-body: #050505;
+        --bg-panel: #0f0f0f;
+        --border-color: #333;
+        --text-primary: #e6e6e6;
+        --text-secondary: #888;
+        
+        --color-orange: #ff7f00;
+        --color-blue: #00aaff;
+        --color-error: #ff3333;
+        --success: #33ff33;
+      }
+      
+      html { scroll-behavior: smooth; }
+
+      body {
+        background: var(--bg-body);
+        color: var(--text-primary);
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+        padding: 0;
+        font-size: 14px;
+        background-image: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+        background-size: 100% 2px, 3px 100%;
+        padding-bottom: 80px; /* Espaço para não cobrir o conteúdo final com botões */
+      }
+      
+      /* === HEADER === */
+      .error-header {
+        border-bottom: 2px solid var(--color-orange);
+        padding: 40px 5vw;
+        background: radial-gradient(circle at top right, #1a0f00 0%, #050505 70%);
+        display: flex;
+        gap: 30px;
+        align-items: flex-start;
+        flex-wrap: wrap; /* Mobile friendly */
+      }
+
+      .mascot-placeholder {
+        font-size: 3rem; /* Menor em mobile se precisar */
+        line-height: 1;
+        filter: drop-shadow(0 0 15px rgba(255, 127, 0, 0.5));
+        white-space: nowrap;
+        font-family: monospace;
+      }
+
+      .header-content {
+        flex: 1;
+        min-width: 250px; /* Evita esmagar */
+      }
+      
+      .meta-info {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        color: var(--color-blue);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .meta-info::before {
+        content: '';
+        display: block;
+        width: 8px;
+        height: 8px;
+        background: var(--color-orange);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--color-orange);
+      }
+      
+      h1 {
+        font-weight: 700;
+        font-size: 1.8rem;
+        margin: 0;
+        line-height: 1.3;
+        letter-spacing: -0.5px;
+        color: #fff;
+        word-break: break-word; /* Quebra palavras longas em mobile */
+      }
+      
+      h1 .type {
+        color: var(--color-orange);
+        font-family: 'JetBrains Mono', monospace;
+      }
+      
+      /* === ACTIONS & NAV === */
+      .actions { margin-top: 10px; }
+
+      .btn-copy {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.8rem;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: all 0.2s;
+        border-radius: 4px;
+        width: 100%; /* Full width em mobile se precisar */
+      }
+      
+      .btn-copy:hover {
+        border-color: var(--color-blue);
+        color: var(--color-blue);
+        background: rgba(0, 170, 255, 0.1);
+      }
+
+      /* === FLOATING NAV === */
+      .nav-floater {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 1000;
+      }
+
+      .nav-btn {
+        background: #1a1a1a;
+        color: var(--color-orange);
+        border: 1px solid var(--border-color);
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        transition: transform 0.2s, background 0.2s;
+        font-size: 1.2rem;
+      }
+
+      .nav-btn:hover {
+        background: #252525;
+        transform: translateY(-2px);
+        border-color: var(--color-orange);
+      }
+      
+      /* === FRAMES === */
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 40px 5vw;
+      }
+      
+      .frame {
+        background: var(--bg-panel);
+        border: 1px solid var(--border-color);
+        margin-bottom: 30px;
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      
+      .frame-header {
+        background: #0a0a0a;
+        padding: 12px 15px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column; /* Stack em mobile */
+        gap: 5px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.85rem;
+      }
+      
+      @media (min-width: 768px) {
+        .frame-header {
+          flex-direction: row;
+          justify-content: space-between;
+        }
+        .btn-copy { width: auto; }
+        h1 { font-size: 2rem; }
+      }
+
+      .frame-header .file {
+        color: var(--color-blue);
+        font-weight: 700;
+        word-break: break-all;
+      }
+      
+      /* === CODE BLOCK === */
+      .code-wrapper {
+        background: #000;
+        overflow-x: auto;
+        padding: 15px 0;
+      }
+      
+      pre { margin: 0; }
+      code { font-family: 'JetBrains Mono', monospace !important; }
+
+      .code-line {
+        display: flex;
+        padding: 0 10px; /* Menos padding em mobile */
+      }
+      @media (min-width: 768px) { .code-line { padding: 0 20px; } }
+
+      .code-line.error {
+        background: rgba(255, 51, 51, 0.1);
+        border-left: 3px solid var(--color-error);
+      }
+
+      .lineno {
+        color: #444;
+        width: 35px;
+        text-align: right;
+        margin-right: 15px;
+        user-select: none;
+        flex-shrink: 0;
+        font-size: 0.9em;
+      }
+      
+      .code-line.error .lineno {
+        color: var(--color-error);
+        font-weight: bold;
+      }
+
+      /* === VARS === */
+      details > summary {
+        padding: 12px 15px;
+        cursor: pointer;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        background: #080808;
+        border-top: 1px solid var(--border-color);
+      }
+      
+      table.vars-table td {
+        padding: 8px 10px; /* Menos padding em mobile */
+        border-bottom: 1px solid #1a1a1a;
+        display: block; /* Stack key/value em mobile */
+      }
+      
+      @media (min-width: 768px) {
+        table.vars-table td { display: table-cell; padding: 8px 20px; }
+      }
+
+      table.vars-table td.key {
+        color: var(--color-orange);
+        font-weight: 600;
+      }
+
+      #raw-traceback { display: none; }
+    </style>
+  </head>
+  <body id="top">
+    <header class="error-header">
+      <div class="mascot-placeholder">/ᐠ - ˕ -マ Ⳋ</div>
+      
+      <div class="header-content">
+        <div class="meta-info">
+             Ushka Framework v{{ framework_version }} // System Panic
+        </div>
+        <h1><span class="type">{{ exception_type }}:</span> {{ exception_message }}</h1>
+        
+        <div class="actions">
+            <button class="btn-copy" onclick="copyTraceback()">
+              Copy Stacktrace
+            </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="container">
+      {% for frame in frames %}
+        <div class="frame">
+          <div class="frame-header">
+            <span class="file">{{ frame.filename }}</span>
+            <span class="line">in <span style="color: #fff">{{ frame.function_name }}()</span> : {{ frame.lineno }}</span>
+          </div>
+
+          <div class="code-wrapper">
+          {% for lineno, linetext in frame.code %}
+              <div class="code-line {% if lineno == frame.lineno %}error{% endif %}">
+              <span class="lineno">{{ lineno }}</span>
+              <pre style="margin: 0; display: flex; flex: 1;"><code class="language-python" style="background: transparent; padding: 0; overflow: visible;">{{ linetext }}</code></pre>
+              </div>
+          {% endfor %}
+          </div>
+
+          <div class="vars">
+            <details>
+              <summary>Local Variables</summary>
+              <div class="vars-content">
+                <table class="vars-table">
+                  {% for name, value in frame.locals.items() %}
+                    <tr>
+                      <td class="key">{{ name }}</td>
+                      <td class="value">{{ value|forceescape }}</td>
+                    </tr>
+                  {% else %}
+                    <tr><td colspan="2" style="padding: 10px 20px; font-style: italic;">No locals captured.</td></tr>
+                  {% endfor %}
+                </table>
+              </div>
+            </details>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="nav-floater">
+        <a href="#top" class="nav-btn" title="Go to Top">↑</a>
+        <a href="#bottom" class="nav-btn" title="Go to Bottom">↓</a>
+    </div>
+
+    <div id="bottom"></div> <textarea id="raw-traceback">{{ traceback_text }}</textarea>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script>
+      hljs.highlightAll();
+      
+      function copyTraceback() {
+        const rawText = document.getElementById('raw-traceback').value;
+        const btn = document.querySelector('.btn-copy');
+        
+        navigator.clipboard.writeText(rawText).then(() => {
+            btn.innerText = 'COPIED!';
+            btn.style.borderColor = 'var(--success)';
+            btn.style.color = 'var(--success)';
+            setTimeout(() => {
+                btn.innerText = 'Copy Stacktrace';
+                btn.style.borderColor = '';
+                btn.style.color = '';
+            }, 2000);
+        });
+      }
+    </script>
+  </body>
+</html>

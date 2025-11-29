@@ -1,0 +1,53 @@
+[project]
+name = "ushka"
+version = "0.1.4"
+description = "Ushka is a minimal, experimental Python micro-framework for hobbyists and solo developers. Its goal is to enable rapid API development with zero boilerplate by using file-based routing."
+authors = [
+    { name = "kleber-code", email = "kleber.code@gmail.com" },
+]
+requires-python = ">=3.10"
+dependencies = [
+    "uvicorn>=0.38.0",
+    "jinja2>=3.1.6",
+    "tomlkit>=0.13.3",
+    "rich>=14.2.0",
+]
+readme = "README.md"
+license = { text = "MIT" }
+keywords = ["web", "framework", "asgi", "routing", "autodiscovery"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Framework :: AsyncIO",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+]
+
+[project.urls]
+Homepage = "https://github.com/kleber-code/ushka"
+Issues = "https://github.com/kleber-code/ushka/issues"
+Repository = "https://github.com/kleber-code/ushka"
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.pdm]
+distribution = true
+
+[tool.pdm.build]
+includes = ["src/ushka"]
+excludes = ["tests", "example"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.14.5",
+    "pytest>=8.3.2",
+    "isort>=7.0.0",
+]
