@@ -1,14 +1,17 @@
 from typing import Literal
 from rich.logging import RichHandler
 
-AVAILABLE_LOG_LEVELS_TYPE = Literal["NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+AVAILABLE_LOG_LEVELS_TYPE = Literal[
+    "NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
+]
+
 
 class UshkaHandler(RichHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
 
-def get_silent_uvicorn_config(level:AVAILABLE_LOG_LEVELS_TYPE="INFO"):
+def get_silent_uvicorn_config(level: AVAILABLE_LOG_LEVELS_TYPE = "INFO"):
     return {
         "version": 1,
         "disable_existing_loggers": True,

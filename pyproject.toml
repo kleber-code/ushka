@@ -1,6 +1,6 @@
 [project]
 name = "ushka"
-version = "0.2.0"
+version = "0.2.1"
 description = "Ushka is a minimal, experimental Python micro-framework for hobbyists and solo developers. Its goal is to enable rapid API development with zero boilerplate by using file-based routing."
 authors = [
     { name = "kleber-code", email = "kleber.code@gmail.com" },
@@ -50,4 +50,7 @@ dev = [
     "ruff>=0.14.5",
     "pytest>=8.3.2",
     "isort>=7.0.0",
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.7.0",
+    "pymdown-extensions>=10.17.2",
 ]

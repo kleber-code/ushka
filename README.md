@@ -1,6 +1,7 @@
 # 🐱 Ushka Framework
 
 [![PyPI Version](https://img.shields.io/pypi/v/ushka)](https://pypi.org/project/ushka/)
+[![Documentation](https://img.shields.io/badge/Documentation-View%20Here-orange)](https://kleber-code.github.io/ushka/)
 ![Python Versions](https://img.shields.io/pypi/pyversions/ushka)
 ![License](https://img.shields.io/pypi/l/ushka)
 [![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
@@ -22,6 +23,12 @@ I turn your filesystem into an API automatically, I configure the server myself,
 * **✍️ Decorator Routing:** For those who prefer explicitness, declare routes with decorators, just like in Flask or FastAPI.
 * **🧠 Zero Config:** The first time you run me, I generate `ushka.toml` for you. No boilerplate.
 * **🛡️ Panic Mode:** My interactive error page lets you copy the traceback with one click and inspect local variables.
+
+---
+
+## 📚 Documentation
+
+This README provides a brief overview. For a deep dive into all of Ushka's features, including tutorials, guides, and a full API reference, **[view our full documentation here](https://kleber-code.github.io/ushka/)**.
 
 ---
 
@@ -139,25 +146,12 @@ We believe that making mistakes is part of the process, but debugging should be 
 
 -----
 
-## 🗺️ Roadmap (What's coming next)
-
-We are currently in **Alpha**, but we dream big. The plan for World Domination (v1.0):
-
-  * [ ] **Ushka CLI:** `ushka new` commands to scaffold projects and `ushka deploy` for auto-HTTPS configuration (Caddy).
-  * [ ] **Multipart Streaming:** Support for large file uploads without eating up RAM.
-  * [ ] **Middlewares:** Robust system to intercept requests.
-  * [ ] **Cookies & Sessions:** Native state management.
-  * [ ] **Subapps (Blueprints):** For when your project gets huge.
-  * [ ] **Auth Embedded:** Optional built-in login system.
-
------
-
 ## 🤝 Contributing
 
 Ushka is open-source and made with love. Spotted a bug? Want to request a feature? Open an Issue!
 
   * **License:** MIT
-  * **Author:** Kleber Code
+  * **Author:** Kleber Code (kleber-code)
 
 -----
 

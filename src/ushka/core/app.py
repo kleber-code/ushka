@@ -7,7 +7,6 @@ from asyncio import iscoroutinefunction
 from datetime import datetime
 from pathlib import Path
 from types import FrameType
-from typing import Literal
 from urllib.parse import urlparse
 
 import uvicorn
@@ -29,6 +28,7 @@ from ushka.features.template import render
 
 # Global Rich Console
 console = Console()
+
 
 class Ushka:
     def __init__(self) -> None:
@@ -137,7 +137,7 @@ class Ushka:
                 f"[bold {status_color}]{status_code}[/] "
                 f"[dim]in {process_time:.2f}ms[/]"
             )
-        else: # < 300
+        else:  # < 300
             status_color = "green"
             icon = "✅"
             self.log.info(
@@ -169,7 +169,9 @@ class Ushka:
     async def __call__(self, scope, receive, send):
         await self.handle_asgi_call(scope, receive, send)
 
-    def run(self, host="127.0.0.1", port=8000, log_level:AVAILABLE_LOG_LEVELS_TYPE="INFO"):
+    def run(
+        self, host="127.0.0.1", port=8000, log_level: AVAILABLE_LOG_LEVELS_TYPE = "INFO"
+    ):
         version = self.config.get("USHKA_VERSION", "testing")
 
         banner_text = Text()
@@ -216,7 +218,7 @@ class Ushka:
                 parsed = urlparse(full_url)
                 path = parsed.path if parsed.path else "/"
 
-                full_url =  full_url.replace("[","_").replace("]","_")
+                full_url = full_url.replace("[", "_").replace("]", "_")
 
                 table.add_row(methods, escape(path), escape(full_url))
 
@@ -230,39 +232,45 @@ class Ushka:
             log_config=get_silent_uvicorn_config(level=log_level),
             lifespan="on",
         )
-    
-    def get(self, path:str):
+
+    def get(self, path: str):
         def wrapper(function):
             self.router.add_route("GET", path, function)
             return function
+
         return wrapper
-    
-    def post(self, path:str):
+
+    def post(self, path: str):
         def wrapper(function):
             self.router.add_route("POST", path, function)
             return function
+
         return wrapper
 
-    def put(self, path:str):
+    def put(self, path: str):
         def wrapper(function):
             self.router.add_route("PUT", path, function)
             return function
+
         return wrapper
 
-    def update(self, path:str):
+    def update(self, path: str):
         def wrapper(function):
             self.router.add_route("UPDATE", path, function)
             return function
+
         return wrapper
 
-    def head(self, path:str):
+    def head(self, path: str):
         def wrapper(function):
             self.router.add_route("HEAD", path, function)
             return function
+
         return wrapper
 
-    def delete(self, path:str):
+    def delete(self, path: str):
         def wrapper(function):
             self.router.add_route("DELETE", path, function)
             return function
+
         return wrapper

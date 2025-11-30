@@ -22,5 +22,3 @@ class ContentToTextParserFailed(ResponseError):
 
 class ContentToJsonParserFailed(ResponseError):
     pass
-
-
