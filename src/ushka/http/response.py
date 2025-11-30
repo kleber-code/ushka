@@ -1,6 +1,6 @@
 from typing import Any, Dict, List
 
-from ushka.exceptions import ContentToJsonParserFailed, ContentToTextParserFailed
+from ushka.core.exceptions import ContentToJsonParserFailed, ContentToTextParserFailed
 
 
 class Response:

@@ -4,8 +4,8 @@ from pathlib import Path
 from jinja2 import ChoiceLoader, Environment, FileSystemLoader, select_autoescape
 
 project_templates = Path.cwd() / "templates"
-framework_templates = Path(__file__).parent / "default_templates"
-
+framework_templates = Path(__file__).parent.parent / "internal/default_templates"
+print(framework_templates)
 env = Environment(
     loader=ChoiceLoader(
         [

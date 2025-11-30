@@ -33,7 +33,7 @@ class Config:
                 "auto_discover": True,
                 "secret_key": token_urlsafe(128),
             },
-            "server": {"host": "127.0.0.1", "port": 8000, "workers": 1},
+            "server": {"host": "127.0.0.1", "port": 8000, "workers": 1, "ushka_suppress_uvicorn":True},
             "static": {"url": "/static", "folder": "static"},
         }
 

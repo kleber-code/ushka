@@ -1,29 +1,21 @@
+from typing import Literal
 from rich.logging import RichHandler
 
+AVAILABLE_LOG_LEVELS_TYPE = Literal["NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
-# --- CLASSE NOVA ---
 class UshkaHandler(RichHandler):
-    """
-    Um Handler do Rich que NÃO pinta números automaticamente.
-    Nós queremos controle total das cores via markup (ex: [red]500[/]).
-    """
-
     def __init__(self, *args, **kwargs):
-        # Inicializa o RichHandler normal
         super().__init__(*args, **kwargs)
-        # DESLIGA O HIGHLIGHTER AUTOMÁTICO
-        self.highlighter = None
 
 
-def get_silent_uvicorn_config(level="INFO"):
+def get_silent_uvicorn_config(level:AVAILABLE_LOG_LEVELS_TYPE="INFO"):
     return {
         "version": 1,
         "disable_existing_loggers": True,
         "formatters": {"rich": {"datefmt": "[%X]", "format": "%(message)s"}},
         "handlers": {
             "rich": {
-                # --- AQUI MUDOU: Usamos nossa classe customizada ---
-                "class": "ushka.log.UshkaHandler",
+                "class": "ushka.core.log.UshkaHandler",
                 "formatter": "rich",
                 "rich_tracebacks": True,
                 "show_path": False,

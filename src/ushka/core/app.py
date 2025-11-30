@@ -7,6 +7,7 @@ from asyncio import iscoroutinefunction
 from datetime import datetime
 from pathlib import Path
 from types import FrameType
+from typing import Literal
 from urllib.parse import urlparse
 
 import uvicorn
@@ -17,18 +18,17 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
-from ushka.config import Config
-from ushka.error_handle import extract_frames, get_copy_paste_traceback
-from ushka.exceptions import HTTP_NotFound, HTTPError
+from ushka.core.config import Config
+from ushka.core.error_handle import extract_frames, get_copy_paste_traceback
+from ushka.http.exceptions import HTTP_NotFound, HTTPError
 from ushka.http.request import Request
 from ushka.http.response import Response
-from ushka.log import get_silent_uvicorn_config
+from ushka.core.log import get_silent_uvicorn_config, AVAILABLE_LOG_LEVELS_TYPE
 from ushka.routing.router import Router
-from ushka.template import render
+from ushka.features.template import render
 
 # Global Rich Console
 console = Console()
-
 
 class Ushka:
     def __init__(self) -> None:
@@ -89,6 +89,7 @@ class Ushka:
         except Exception as exc:
             frame_blocks = extract_frames(exc)
             copy_past_error = get_copy_paste_traceback(exc)
+            self.log.error(copy_past_error)
             if self.config.get("APP_DEBUG"):
                 response = Response(
                     render(
@@ -112,24 +113,39 @@ class Ushka:
         if status_code >= 500:
             status_color = "red"
             icon = "🔥"
+            self.log.error(
+                f"{icon} [bold blue]{escape(request.method)}[/] "
+                f"[white]{escape(request.path)}[/] "
+                f"[bold {status_color}]{status_code}[/] "
+                f"[dim]in {process_time:.2f}ms[/]"
+            )
         elif status_code >= 400:
             status_color = "yellow"
             icon = "⚠️"
+            self.log.warning(
+                f"{icon} [bold blue]{escape(request.method)}[/] "
+                f"[white]{escape(request.path)}[/] "
+                f"[bold {status_color}]{status_code}[/] "
+                f"[dim]in {process_time:.2f}ms[/]"
+            )
         elif status_code >= 300:
             status_color = "cyan"
             icon = "🚀"
-        else:
-            # < 300
+            self.log.info(
+                f"{icon} [bold blue]{escape(request.method)}[/] "
+                f"[white]{escape(request.path)}[/] "
+                f"[bold {status_color}]{status_code}[/] "
+                f"[dim]in {process_time:.2f}ms[/]"
+            )
+        else: # < 300
             status_color = "green"
             icon = "✅"
-
-        self.log.info(
-            f"{icon} [bold blue]{escape(request.method)}[/] "
-            f"[white]{escape(request.path)}[/] "
-            f"[bold {status_color}]{status_code}[/] "
-            f"[dim]in {process_time:.2f}ms[/]"
-        )
-
+            self.log.info(
+                f"{icon} [bold blue]{escape(request.method)}[/] "
+                f"[white]{escape(request.path)}[/] "
+                f"[bold {status_color}]{status_code}[/] "
+                f"[dim]in {process_time:.2f}ms[/]"
+            )
         await response(send)
 
     async def handle_lifespan(self, receive, send):
@@ -153,11 +169,8 @@ class Ushka:
     async def __call__(self, scope, receive, send):
         await self.handle_asgi_call(scope, receive, send)
 
-    def run(self, host="127.0.0.1", port=8000):
-        # 1. Styled Startup Banner (Orange/Blue/Black/White Theme)
-        version = self.config.get(
-            "ushka_version", self.config.get("USHKA_VERSION", "0.1.0")
-        )
+    def run(self, host="127.0.0.1", port=8000, log_level:AVAILABLE_LOG_LEVELS_TYPE="INFO"):
+        version = self.config.get("USHKA_VERSION", "testing")
 
         banner_text = Text()
         banner_text.append("🐱 Ushka Framework ", style="bold orange3")
@@ -203,7 +216,9 @@ class Ushka:
                 parsed = urlparse(full_url)
                 path = parsed.path if parsed.path else "/"
 
-                table.add_row(methods, escape(path), full_url)
+                full_url =  full_url.replace("[","_").replace("]","_")
+
+                table.add_row(methods, escape(path), escape(full_url))
 
         console.print(table)
         console.print("\n[dim italic white]Press Ctrl+C to stop me...[/]\n")
@@ -212,6 +227,42 @@ class Ushka:
             self,
             host=host,
             port=port,
-            log_config=get_silent_uvicorn_config(),
+            log_config=get_silent_uvicorn_config(level=log_level),
             lifespan="on",
         )
+    
+    def get(self, path:str):
+        def wrapper(function):
+            self.router.add_route("GET", path, function)
+            return function
+        return wrapper
+    
+    def post(self, path:str):
+        def wrapper(function):
+            self.router.add_route("POST", path, function)
+            return function
+        return wrapper
+
+    def put(self, path:str):
+        def wrapper(function):
+            self.router.add_route("PUT", path, function)
+            return function
+        return wrapper
+
+    def update(self, path:str):
+        def wrapper(function):
+            self.router.add_route("UPDATE", path, function)
+            return function
+        return wrapper
+
+    def head(self, path:str):
+        def wrapper(function):
+            self.router.add_route("HEAD", path, function)
+            return function
+        return wrapper
+
+    def delete(self, path:str):
+        def wrapper(function):
+            self.router.add_route("DELETE", path, function)
+            return function
+        return wrapper

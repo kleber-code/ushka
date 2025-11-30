@@ -1,5 +1,6 @@
-from ushka.http import Request
+from ushka.http.request import Request
 
 def get(name: str, request: Request):
+    headers = request.headers
     user_agent = request.headers.get('user-agent', 'desconhecido')
     return f"Hello, {name}! Welcome, user of {user_agent}."

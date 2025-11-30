@@ -19,6 +19,7 @@ I turn your filesystem into an API automatically, I configure the server myself,
 
 * **🎨 Visual DX:** My terminal logs are colorful (Neon/Dark theme), organized, and informative.
 * **📂 File-Based Routing:** Stop manually importing controllers. Create a file in the `routes/` folder and the magic happens.
+* **✍️ Decorator Routing:** For those who prefer explicitness, declare routes with decorators, just like in Flask or FastAPI.
 * **🧠 Zero Config:** The first time you run me, I generate `ushka.toml` for you. No boilerplate.
 * **🛡️ Panic Mode:** My interactive error page lets you copy the traceback with one click and inspect local variables.
 
@@ -28,13 +29,16 @@ I turn your filesystem into an API automatically, I configure the server myself,
 
 Ushka is evolving fast. Here is what is **running smoothly** in the current version:
 
-* ✅ **Auto-Discovery:** Automatic route mapping based on the `routes/` folder.
-* ✅ **Smart Response:** Return `dict` (becomes JSON), `str` (becomes HTML), or pure `Response` objects.
+* ✅ **Dual Routing System:**
+    * **Auto-Discovery:** Automatic route mapping based on the `routes/` folder.
+    * **Decorator-Based:** Explicitly define routes with `@app.get()`, `@app.post()`, etc.
+* ✅ **Smart `Request` Object:** Access `headers`, `query`, `body`, `json`, and `form` data as properties. Data is loaded lazily on first access.
+* ✅ **Flexible `Response`:** Return a `dict` (for JSON), `str` (for HTML), or a complete `Response` object for full control.
 * ✅ **Jinja2 Templates:** Native support with a simple `render()` function.
 * ✅ **Ushka Panic:** Stylized error handling (500/404) with dark theme, interactive stacktrace, and code highlighting.
 * ✅ **Auto Config:** Automatic generation and reading of `ushka.toml`.
 * ✅ **Rich Logging:** Request logs colored by status code (Success=Green, Error=Red, Redirect=Blue).
-* ✅ **Dependency Injection:** Inject `request` and URL parameters (`id`, `slug`) just by declaring them in the function.
+* ✅ **Dependency Injection:** Automatically inject the `Request` object and dynamic URL parameters into your route functions just by type-hinting them.
 * ✅ **Core ASGI:** Based on Uvicorn, fully async.
 
 ---
@@ -49,54 +53,73 @@ pip install ushka
 
 ## 🚀 How to use (No fluff)
 
-Ushka follows the "Convention over Configuration" philosophy.
+Ushka offers two ways to build your API. Choose one or mix them!
 
-### 1\. The Structure
+### Method 1: File-Based Routing (The Classic)
 
-Create a folder. That's it. I expect something like this:
+This method follows the "Convention over Configuration" philosophy.
 
+**1. The Structure:**
 ```text
 my_project/
 ├── app.py              # Where it all starts
 ├── ushka.toml          # I create this for you automatically!
-├── templates/          # Your HTMLs
-│   └── hello.html
 └── routes/             # Your Routes (The Magic)
     ├── index.py        # Route: /
     └── users/
         └── [id].py     # Route: /users/<id>
 ```
 
-### 2\. Create a Route (`routes/index.py`)
+**2. The Route (`routes/index.py`):**
 
-No complex decorators on top of the function. The function name *is* the HTTP Method.
-
+The function name becomes the HTTP Method.
 ```python
-from ushka.template import render
-
 # Responds to GET /
-async def get():
-    return render("hello.html", {"name": "Dev"})
+def get():
+    return "<h1>Hello, World!</h1>"
 ```
 
-### 3\. Create the App (`app.py`)
-
+**3. The App (`app.py`):**
 ```python
 from ushka import Ushka
 
 app = Ushka()
 
 if __name__ == "__main__":
-    # I read the host and port from ushka.toml automatically
+    # Host and port are loaded from ushka.toml
     app.run()
 ```
 
-### 4\. Run it\!
+### Method 2: Decorator-Based Routing (The Explicit)
+
+Prefer to see your routes in one place? Use decorators.
+
+**1. The App (`app.py`):**
+```python
+from ushka import Ushka, Request
+
+app = Ushka()
+
+# Responds to GET /
+@app.get("/")
+def index():
+    return "<h1>Hello from a decorator!</h1>"
+
+# Responds to POST /users
+@app.post("/users")
+async def create_user(request: Request):
+    user_data = await request.json()
+    return {"status": "created", "user": user_data}
+
+if __name__ == "__main__":
+    app.run()
+```
+
+### Run it!
 
 ```bash
 python app.py
 ```
-
 Look at your terminal. Appreciate the banner. See the route table.
 Now go to `http://127.0.0.1:8000`.
 
@@ -112,7 +135,7 @@ We believe that making mistakes is part of the process, but debugging should be 
   * Copy the error with one click to paste into StackOverflow/ChatGPT.
   * Dark theme so you don't burn your eyes at 3 AM.
 
-![Ushka Panic Screenshot](assets/ushka_panic.png)
+![Ushka Panic Screenshot](src/ushka/internal/assets/ushka_panic.png)
 
 -----
 
@@ -131,7 +154,7 @@ We are currently in **Alpha**, but we dream big. The plan for World Domination (
 
 ## 🤝 Contributing
 
-Ushka is open-source and made with love. Spotted a bug? Want to request a feature? Open an Issue\!
+Ushka is open-source and made with love. Spotted a bug? Want to request a feature? Open an Issue!
 
   * **License:** MIT
   * **Author:** Kleber Code

@@ -2,7 +2,7 @@ import importlib.util
 import inspect
 import re
 from pathlib import Path
-from typing import Any, Callable, Dict, Tuple
+from typing import Any, Callable, Dict, Tuple, Literal
 
 from ushka.http.request import Request
 from ushka.http.response import Response
@@ -23,6 +23,7 @@ class Router:
             str, list[Tuple[re.Pattern, list[str], Callable, Dict[str, Any], str]]
         ] = {}
         self.host = host
+        self.HTTPMethod = Literal["GET", "POST", "PUT", "UPDATE", "DELETE", "HEAD"]
 
     def _function_extractor(self, func: Callable) -> Dict[str, Callable]:
         sig = inspect.signature(func)
@@ -81,8 +82,6 @@ class Router:
         method = request.method
         path = normalize_url_path(request.path)
 
-        print("passs ", path)
-
         # Try static routes first
         func, args = self.static_routes.get(method, {}).get(path) or (None, None)
         if func:
@@ -94,7 +93,6 @@ class Router:
             match = regex.match(path)
             if match:
                 solved_args: Dict[str, Any] = self._resolver_depends(request, args)
-                print((solved_args | match.groupdict()))
                 return func, (solved_args | match.groupdict())
 
         return None, None
@@ -117,7 +115,7 @@ class Router:
             for name, obj in inspect.getmembers(mod, inspect.isfunction):
                 upper = name.upper()
                 # Accept common HTTP method names
-                if upper not in ["GET", "POST", "PUT", "UPDATE", "DELETE", "HEAD"]:
+                if upper is self.HTTPMethod:
                     continue
 
                 # Determine route path relative to the routes root
