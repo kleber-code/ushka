@@ -1,20 +1,22 @@
-# Getting Started
+# 🚀 Getting Started: Your First Ushka App! 🐾
 
-## Installation
+Ready to dive in? Getting your first Ushka app up and running is surprisingly straightforward. We've tried to keep the setup as minimal as possible.
 
-Ushka is available on PyPI and can be installed with pip:
+## 📦 Installation: A Quick `pip install`!
+
+Ushka is available on PyPI. Install it like any other self-respecting Python package:
 
 ```bash
 pip install ushka
 ```
 
-## Running Your First App
+## 🌐 Running Your First App: Hello, World (and then some)!
 
-Ushka is designed to be simple. Here's how you can get a "Hello, World" app running.
+Ushka's designed for simplicity. Here's how to get a basic "Hello, World" app purring along.
 
-### 1. Project Structure
+### 1. Project Structure: Keep it Tidy! 📂
 
-Create a folder for your project. Ushka expects a `routes` directory for file-based routing.
+Create a folder for your project. Ushka expects a `routes` directory for its file-based routing. It's not optional.
 
 ```text
 my_project/
@@ -23,21 +25,21 @@ my_project/
     └── index.py
 ```
 
-### 2. Create a Route
+### 2. Create a Route: Your App's First Greeting! 👋
 
-Create a file `routes/index.py`. The name of the function inside this file will correspond to the HTTP method.
+In `routes/index.py`, define a function. Its name should correspond to the HTTP method.
 
 ```python
 # in routes/index.py
 
 # Responds to GET /
 def get():
-    return "<h1>Hello, World!</h1>"
+    return "<h1>Hello, World from Ushka!</h1>" # A classic for a reason.
 ```
 
-### 3. Create the App
+### 3. Create the App: The Grand Orchestrator! 🎶
 
-Create a file `app.py` to initialize and run your Ushka application.
+Now, create `app.py` to initialize and run your Ushka application.
 
 ```python
 # in app.py
@@ -49,12 +51,14 @@ if __name__ == "__main__":
     app.run()
 ```
 
-The first time you run the app, Ushka will create a `ushka.toml` file for you with default configurations.
+The first time you run the app, Ushka will be a good host and create a `ushka.toml` file for you with default configurations. No manual setup required for that.
 
-### 4. Run the App
+### 4. Run the App: Showtime! 🎬
+
+Open your terminal in your project's folder and execute:
 
 ```bash
 python app.py
 ```
 
-You should see a startup banner in your terminal with a table of all discovered routes. You can now visit `http://127.0.0.1:8000` in your browser.
+You should see Ushka's startup banner (we think it's pretty neat) and a table of all discovered routes. Now, point your browser to `http://127.0.0.1:8000`. Congratulations, you've officially made Python cuter! (And launched an app.) 💖

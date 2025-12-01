@@ -1,59 +1,69 @@
-# Roadmap
+# 🗺️ Ushka's Roadmap: Big Dreams for a Little Framework! 🚀
 
-Ushka is currently in **Alpha**, but we have big dreams and a clear vision for the future. Our goal is to create the most developer-friendly micro-framework available, without sacrificing performance or power.
+(Or: Our Grand Plan to Conquer the Web, One Cute Feature at a Time.)
 
-This roadmap is a living document and may change based on community feedback.
+Ushka is currently in **Alpha** (think of us as a spirited toddler with a powerful brain), but we're brimming with ambitious plans! Our ultimate goal? To craft the most developer-friendly micro-framework out there, without making you sacrifice performance or, you know, your sanity. 💪
 
----
-
-## Core Features (Already Implemented)
-
-Ushka already comes with a powerful set of features designed for rapid development and a great developer experience.
-
--   **Dual Routing System**:
-    -   **Auto-Discovery**: Automatic route mapping based on the `routes/` folder.
-    -   **Decorator-Based**: Explicitly define routes with `@app.get()`, `@app.post()`, etc. (Flask-like style).
--   **Smart Response**: Automatic conversion of `dict` to JSON and `str` to HTML.
--   **Request Handling**: Easy access to request data (`json`, `form`, `query`, `headers`) via the `Request` object.
--   **Dynamic Routes**: Support for parameters in file names (`[id].py`) and decorator paths (`/users/{id}`).
--   **Jinja2 Templates**: Native support for rendering Jinja2 templates.
--   **Zero-Config & Auto-Config**: Automatic generation and reading of `ushka.toml` on first run.
--   **Advanced Error Handling**:
-    -   **Debug Mode ("Ushka Panic")**: A beautiful, interactive debug page with a full stack trace and local variables.
-    -   **Production Mode**: A clean, stylized "Not Found" page and generic public error pages.
--   **Basic Dependency Injection**: Automatic injection of `Request` object and URL parameters into route functions.
--   **ASGI Core**: Fully asynchronous, based on Uvicorn, including support for `lifespan` events.
--   **Comprehensive Documentation**: A detailed documentation website (which you are reading right now!).
+Consider this roadmap our public wishlist. It's a living document, so it might shift a bit based on what our fantastic community (that's you!) tells us. Don't be shy! We love feedback, even the constructive kind. 💌
 
 ---
 
-## Short-Term Goals (The Path to v0.5)
+## 🌟 Core Features: What Ushka Already Aces! (No, really!)
 
-Our immediate focus is on solidifying the foundational features required for most web applications.
+Before we talk about where we're going, let's appreciate how far we've come! Ushka already packs a serious punch with features designed for rapid development and a developer experience so smooth, it's almost suspicious. We wouldn't want to brag, but...
 
--   [ ] **Static File Support**: Provide a simple and efficient way to serve static files like CSS, JavaScript, and images.
--   [ ] **Multipart Body Request**: Efficiently handle large file uploads with streaming support.
--   [ ] **Ushka CLI - `new` command**: A command-line tool to scaffold projects with different templates (`minimal`, `full`, `packet`).
--   [ ] **Advanced Dependency Injection**: Automatically inject and validate data from `json`, `query`, and `form` directly into function arguments.
+*   💖 **Dual Routing System: Pick Your Poison (or Perfection)!**
+    *   **Auto-Discovery:** Just drop a file in `routes/`, and *poof*! Your route exists. It's like magic, but for backend.
+    *   **Decorator-Based:** Prefer being explicit? Define your routes with decorators, just like those other popular frameworks. We won't judge.
+*   💖 **Smart Response: Less Code, More Zen!**
+    Ushka intelligently converts `dict` to JSON and `str` to HTML. Because who has time for boilerplate?
+*   💖 **Request Handling: All Your Data, On Demand!**
+    Easily grab all request data (`json`, `form`, `query`, `headers`) via the `Request` object. We made it lazy so your app stays fast.
+*   💖 **Dynamic Routes: Paths That Adapt!**
+    Supports parameters in file names (`[id].py`) and decorator paths (`/users/{id}`). Because your URLs deserve to be flexible.
+*   💖 **Jinja2 Templates: Pretty Pages, Simple Syntax!**
+    Native support for rendering Jinja2 templates. Make your frontend look good without shedding tears.
+*   💖 **Zero-Config & Auto-Config: It Just Works™!**
+    Ushka generates and reads your `ushka.toml` on first run. Setup? What setup?
+*   💖 **Advanced Error Handling: Mistakes Happen, Elegantly!**
+    *   **Debug Mode ("Ushka Panic!"):** A beautiful, interactive debug page with a full stack trace and local variables. Debugging doesn't have to be dreadful.
+    *   **Production Mode:** Clean, stylized "Not Found" and generic error pages. Because security and aesthetics can coexist.
+*   💖 **Basic Dependency Injection: Smart, Not Spooky!**
+    Automatically injects the `Request` object and URL parameters into your route functions. Your functions, smarter.
+*   💖 **ASGI Core: Fast & Furious (but in a good way)!**
+    Fully asynchronous, built on Uvicorn. Your app will fly.
+*   💖 **Comprehensive Documentation: (You're reading it, aren't you?)**
+    A detailed documentation website. We try our best to explain things without making you fall asleep.
 
-## Maturing Mid-Term Goals (The Road to v1.0)
+---
 
-As the framework matures, we will focus on features that enable larger and more complex applications.
+## 🌠 Short-Term Goals (The Sprint to v0.5): What's Next on the To-Do List?
 
--   [ ] **Middleware System**: A robust and simple system to intercept and process requests and responses.
--   [ ] **Cookies & Sessions**: Native support for managing client-side state.
--   [ ] **Sub-apps (Blueprints)**: A way to organize larger applications by splitting them into smaller, reusable "apps" or "routers."
--   [ ] **Embedded Authentication**: An optional, built-in login system (`ushka.auth`).
+Alright, enough basking in past glories! Here's what's immediately on our plate. Our immediate focus is beefing up Ushka's foundational features to make your life even easier.
 
-## Long-Term & Vision (Beyond v1.0)
+*   [ ] **Static File Support:** A simple, efficient way to serve static assets. Because even minimalist apps need pretty pictures.
+*   [ ] **Multipart Body Request:** Handle those bulky file uploads with streaming support. Because everyone deserves proper file handling.
+*   [ ] **Ushka CLI - `new` command:** A command-line wizard to scaffold projects (`minimal`, `full`, `packet`). For when you want to start coding, like, five minutes ago.
+*   [ ] **Advanced Dependency Injection:** Automatically inject and validate data from `json`, `query`, and `form` directly into function arguments. Less manual parsing, more doing.
 
-These are the ambitious, "game-changer" features that will define the future of Ushka.
+## 🎀 Mid-Term Dreams (The Climb to v1.0): Getting Serious (but still cute)!
 
--   [ ] **Native Documentation System**: An automatic, interactive API documentation and playground, generated from your code (similar to FastAPI's docs).
--   [ ] **Ushka CLI - `deploy` command**: A powerful deployment tool with auto-configuration for Nginx, Systemd, and workers.
--   [ ] **A Stable and Reliable API**: Reaching v1.0 means a commitment to a stable public API with a clear deprecation policy.
--   [ ] **Performance Parity**: Continuous performance tuning to ensure Ushka is competitive with other top-tier ASGI frameworks.
--   [ ] **WebSockets Support**: Native support for handling WebSocket connections.
--   [ ] **ORM Integration**: Official guides and potential plugins for popular ORMs.
+As Ushka matures, we'll shift our focus to features that enable more robust and complex applications. We're growing up so fast!
 
-We are excited about the future of Ushka and welcome contributions and feedback from the community to help us achieve these goals.
+*   [ ] **Middleware System:** A flexible system to intercept and process requests/responses. Because sometimes you need to meddle a little.
+*   [ ] **Cookies & Sessions:** Native support for managing client-side state. So your users can feel remembered.
+*   [ ] **Sub-apps (Blueprints):** Organize larger applications into smaller, reusable "apps" or "routers." For when your project gets too big for one file.
+*   [ ] **Embedded Authentication:** An optional, built-in login system (`ushka.auth`). Because security shouldn't be a puzzle.
+
+## 🌈 Long-Term Vision (Beyond v1.0): The Sky's the Limit (Almost)!
+
+These are the big, audacious, "we're gonna change the game" features. The kind that makes you go, "Whoa, Ushka can do *that*?"
+
+*   [ ] **Native Documentation System:** Automatic, interactive API docs generated from your code (think FastAPI, but with more personality).
+*   [ ] **Ushka CLI - `deploy` command:** A powerful deployment tool with auto-configuration for Nginx, Systemd, and workers. Deploying should be less painful.
+*   [ ] **A Stable and Reliable API:** Reaching v1.0 means a rock-solid public API with a clear deprecation policy. We take stability seriously. (Mostly.)
+*   [ ] **Performance Parity:** Continuous performance tuning to ensure Ushka is competitive. Fast is good. Slow is... well, you know.
+*   [ ] **WebSockets Support:** Native support for WebSocket connections. Real-time apps, here we come!
+*   [ ] **ORM Integration:** Official guides and potential plugins for popular ORMs. Because databases are important, even if they're not always cute.
+
+We're genuinely excited about Ushka's future and we absolutely thrive on community contributions and feedback. Help us build something truly special! (And maybe send us some coffee.) 💖
