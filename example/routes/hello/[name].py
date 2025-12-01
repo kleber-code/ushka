@@ -1,6 +1,5 @@
-from ushka.http.request import Request
+from ushka.features.template import render
 
 
-def get(name: str, request: Request):
-    user_agent = request.headers.get("user-agent", "desconhecido")
-    return f"Hello, {name}! Welcome, user of {user_agent}."
+def get(name: str):
+    return render("templated_hello.html", {"name": name})

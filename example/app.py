@@ -1,3 +1,7 @@
+"""
+This module contains an example Ushka application.
+"""
+
 from ushka import Ushka
 from ushka.features.template import render
 
@@ -5,7 +9,7 @@ app = Ushka()
 
 
 # example of non-autodiscover route for flask lovers
-@app.get("/high")
+@app.get("/hi")
 def high_route():
     return render("startup.html", {})
 

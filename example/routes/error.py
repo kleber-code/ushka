@@ -1,10 +1,5 @@
-# routes/glitch.py
-
-
 class CyberneticImplantError(Exception):
     """Raised when the digital soul rejects the chrome."""
-
-    pass
 
 
 async def get():

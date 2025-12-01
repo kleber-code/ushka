@@ -1,7 +1,16 @@
+"""This module provides utilities for handling errors and tracebacks.
+
+It includes functions for extracting detailed, yet safe, traceback information,
+including code context and local variables. A key feature is the automatic
+redaction of sensitive data (e.g., passwords, tokens) from local variables
+to prevent them from being exposed in logs or debug pages.
+"""
+
 import linecache
 import os
 import traceback
-from typing import Dict
+from types import FrameType
+from typing import Any, Dict, List, Tuple
 
 SENSITIVE_KEYS = {
     "password",
@@ -15,23 +24,46 @@ SENSITIVE_KEYS = {
 }
 
 
-def safe_repr(obj, limit=200):
+def safe_repr(obj: Any, limit: int = 200) -> str:
+    """Creates a safe string representation of an object.
+
+    It truncates long representations and handles potential errors during the
+    `repr()` call.
+
+    Args:
+        obj: The object to represent.
+        limit: The maximum length of the string representation before
+            truncation.
+
+    Returns:
+        A safe, string representation of the object.
+    """
     try:
         value = repr(obj)
 
         if len(value) > limit:
-            return value[:limit] + f"... <len={len(value)}>"
+            return str(value[:limit] + f"... <len={len(value)}>")
         return value
-
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-except
         try:
             base_repr = object.__repr__(obj)
             return f"{base_repr} (repr failed: {e})"
-        except Exception:
-            return f"<{type(obj).__name__} instance @ ???>"
+        except Exception as inner_e:  # pylint: disable=broad-except
+            return f"<{type(obj).__name__} instance @ ???> (repr_fallback failed: {inner_e})"
 
 
-def get_safe_locals(frame) -> Dict[str, str]:
+def get_safe_locals(frame: FrameType) -> Dict[str, str]:
+    """Retrieves local variables from a frame, redacting sensitive information.
+
+    It inspects the local variables of a given frame and redacts any values
+    whose keys match a list of sensitive keywords (e.g., 'password', 'token').
+
+    Args:
+        frame: The frame object to inspect.
+
+    Returns:
+        A dictionary of local variables with sensitive values redacted.
+    """
     safe_vars = {}
 
     try:
@@ -42,13 +74,26 @@ def get_safe_locals(frame) -> Dict[str, str]:
 
             safe_vars[k] = safe_repr(v)
 
-    except Exception:
-        return {"<error>": "Could not inspect locals for this frame"}
+    except Exception as e:  # pylint: disable=broad-except
+        return {"<error>": f"Could not inspect locals for this frame: {e}"}
 
     return safe_vars
 
 
-def get_code_lines_context(filename, lineno: int, context=7):
+def get_code_lines_context(
+    filename: str, lineno: int, context: int = 7
+) -> List[Tuple[int, str]]:
+    """Retrieves a block of code lines surrounding a specific line number.
+
+    Args:
+        filename: The path to the source file.
+        lineno: The central line number to get context around.
+        context: The number of lines to show before and after the central line.
+
+    Returns:
+        A list of tuples, where each tuple contains a line number and the
+        corresponding line of code.
+    """
     start = lineno - context
     end = lineno + context
     lines = []
@@ -58,16 +103,40 @@ def get_code_lines_context(filename, lineno: int, context=7):
         if not line:
             continue
 
-        lines.append((i, line.rstrip("\n")))
+        lines.append((i, line.rstrip("\\n")))
 
     return lines
 
 
-def get_copy_paste_traceback(exc: Exception):
+def get_copy_paste_traceback(exc: Exception) -> str:
+    """Formats an exception's traceback into a plain string.
+
+    This is useful for creating a simple, copy-pasteable version of the
+    traceback for logs or issue reports.
+
+    Args:
+        exc: The exception object.
+
+    Returns:
+        The formatted traceback as a single string.
+    """
     return "".join(traceback.format_exception(type(exc), exc, exc.__traceback__))
 
 
-def extract_frames(exc: Exception):
+def extract_frames(exc: Exception) -> List[Dict[str, Any]]:
+    """Extracts detailed information from each frame of a traceback.
+
+    This function walks through an exception's traceback and, for each frame,
+    gathers the file path, line number, function name, code context, and a
+    sanitized dictionary of local variables.
+
+    Args:
+        exc: The exception object.
+
+    Returns:
+        A list of dictionaries, where each dictionary represents a single
+        frame from the traceback.
+    """
     frame_blocks = []
     tb = exc.__traceback__
 

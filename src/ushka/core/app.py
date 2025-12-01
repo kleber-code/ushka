@@ -1,7 +1,10 @@
+"""
+This module contains the core Ushka application class, responsible for handling HTTP requests,
+managing routes, configuration, and running the ASGI server.
+"""
 # ushka/application.py
 
 import inspect
-import logging
 import time
 from asyncio import iscoroutinefunction
 from datetime import datetime
@@ -19,144 +22,142 @@ from rich.text import Text
 
 from ushka.core.config import Config
 from ushka.core.error_handle import extract_frames, get_copy_paste_traceback
-from ushka.http.exceptions import HTTP_NotFound, HTTPError
+from ushka.http.exceptions import HttpNotFound, HTTPError
 from ushka.http.request import Request
 from ushka.http.response import Response
-from ushka.core.log import get_silent_uvicorn_config, AVAILABLE_LOG_LEVELS_TYPE
+from ushka.core.log import LogLevelType, LogSystem
 from ushka.routing.router import Router
 from ushka.features.template import render
+from ushka.features.static import server_static_files
 
 # Global Rich Console
 console = Console()
 
 
 class Ushka:
+    """
+    The core Ushka application class.
+
+    This class handles application setup, request routing, middleware integration,
+    and server management. It acts as the central hub for the Ushka framework.
+    """
+
     def __init__(self) -> None:
+        """
+        Initializes the Ushka application.
+
+        Discovers the application path, initializes the router, loads configuration
+        from 'ushka.toml', and sets up the application logger.
+        """
         # Get the path of the file that instantiated Ushka
         frame: FrameType = inspect.currentframe().f_back  # noqa
         try:
             caller_file = frame.f_globals["__file__"]
-            app_path = Path(caller_file).resolve().parent
+            workdir = Path(caller_file).resolve().parent
         except (AttributeError, KeyError):
             # fallback
-            app_path = Path.cwd()
+            workdir = Path.cwd()
 
-        self.app_path = Path(app_path)
-        self.router = Router(app_path)
+        self.workdir = Path(workdir)
+
+        self.logsystem = LogSystem()
+
+        self.router = Router(self.logsystem, workdir)
         self.router.autodiscover()
 
         self.config = Config()
-        self.config.load_from_file(self.app_path.joinpath("ushka.toml"))
+        self.config.load_from_file(self.workdir.joinpath("ushka.toml"))
 
-        # Use the "ushka" logger defined in the silent config
-        self.log = logging.getLogger("ushka")
+        if self.config.get("STATIC_ENABLE"):
+            static_url = self.config.get("STATIC_URL") + "/[path:filename]"
+            self.router.add_route("GET", static_url, server_static_files)
 
-    async def handle_http_request(self, scope, receive, send):
+    async def _process_request(self, request: Request):
+        func, params = self.router.get_route(request)
+
+        if callable(func) and params is not None:
+            if iscoroutinefunction(func):
+                result = await func(**params)
+            else:
+                result = func(**params)
+
+            if isinstance(result, Response):
+                return result
+            return Response(result)
+
+        is_router_empty = (
+            not self.router.static_routes and not self.router.dynamic_routes
+        )
+        if is_router_empty:
+            return Response(render("startup.html", {}), status_code=200)
+        raise HttpNotFound()
+
+    def _handle_http_error(self, exc: HTTPError):
+        if self.config.get("APP_DEBUG"):
+            app_route_urls = self.router.get_urls(with_host=False)
+            # Quick parsing for debug page (splitting by " - ")
+            available_urls = [tuple(url.split(" - ")) for url in app_route_urls]
+        else:
+            available_urls = []
+
+        template = render(
+            exc.template,
+            {
+                "message": exc.message,
+                "status_code": exc.status_code,
+                "available_urls": available_urls,
+                "timestamp": datetime.now(),
+            },
+        )
+        return Response(template, exc.status_code)
+
+    def _handle_generic_error(self, exc: Exception):  # pylint: disable=broad-except
+        frame_blocks = extract_frames(exc)
+        copy_past_error = get_copy_paste_traceback(exc)
+        self.logsystem.log.error(copy_past_error)
+        if self.config.get("APP_DEBUG"):
+            response = Response(
+                render(
+                    "debug_error.html",
+                    {
+                        "exception_type": repr(type(exc)),
+                        "exception_message": str(exc),
+                        "frames": frame_blocks,
+                        "traceback_text": copy_past_error,
+                        "framework_version": self.config.get("USHKA_VERSION"),
+                    },
+                ),
+                500,
+            )
+        else:
+            response = Response("Server Error", 500)
+        return response
+
+    async def handle_http_request(self, scope, receive, send):  # pylint: disable=unused-argument,unused-variable
+        """
+        Handles an incoming HTTP request, routes it to the appropriate function,
+        and sends back the response.
+        """
         request = Request(scope, receive)
         start_time = time.time()
 
-        func, params = self.router.get_route(request)
-
         try:
-            if callable(func) and params is not None:
-                if iscoroutinefunction(func):
-                    result = await func(**params)
-                else:
-                    result = func(**params)
-                response = Response(result)
-            else:
-                # "I'm alive" page logic
-                is_router_empty = (
-                    not self.router.static_routes and not self.router.dynamic_routes
-                )
-                if is_router_empty:
-                    response = Response(render("startup.html", {}), status_code=200)
-                else:
-                    raise HTTP_NotFound()
+            response = await self._process_request(request)
 
         except HTTPError as exc:
-            if self.config.get("APP_DEBUG"):
-                app_route_urls = self.router.get_urls(with_host=False)
-                # Quick parsing for debug page (splitting by " - ")
-                available_urls = [tuple(url.split(" - ")) for url in app_route_urls]
-            else:
-                available_urls = []
+            response = self._handle_http_error(exc)
 
-            template = render(
-                exc.template,
-                {
-                    "message": exc.message,
-                    "status_code": exc.status_code,
-                    "available_urls": available_urls,
-                    "timestamp": datetime.now(),
-                },
-            )
-            response = Response(template, exc.status_code)
+        except Exception as exc:  # pylint: disable=broad-except
+            response = self._handle_generic_error(exc)
 
-        except Exception as exc:
-            frame_blocks = extract_frames(exc)
-            copy_past_error = get_copy_paste_traceback(exc)
-            self.log.error(copy_past_error)
-            if self.config.get("APP_DEBUG"):
-                response = Response(
-                    render(
-                        "debug_error.html",
-                        {
-                            "exception_type": repr(type(exc)),
-                            "exception_message": str(exc),
-                            "frames": frame_blocks,
-                            "traceback_text": copy_past_error,
-                            "framework_version": self.config.get("USHKA_VERSION"),
-                        },
-                    ),
-                    500,
-                )
-            else:
-                response = Response("Server Error", 500)
-
-        # --- CUSTOM USHKA LOGGING ---
         process_time = (time.time() - start_time) * 1000
-        status_code = int(response.status_code)
-
-        if status_code >= 500:
-            status_color = "red"
-            icon = "🔥"
-            self.log.error(
-                f"{icon} [bold blue]{escape(request.method)}[/] "
-                f"[white]{escape(request.path)}[/] "
-                f"[bold {status_color}]{status_code}[/] "
-                f"[dim]in {process_time:.2f}ms[/]"
-            )
-        elif status_code >= 400:
-            status_color = "yellow"
-            icon = "⚠️"
-            self.log.warning(
-                f"{icon} [bold blue]{escape(request.method)}[/] "
-                f"[white]{escape(request.path)}[/] "
-                f"[bold {status_color}]{status_code}[/] "
-                f"[dim]in {process_time:.2f}ms[/]"
-            )
-        elif status_code >= 300:
-            status_color = "cyan"
-            icon = "🚀"
-            self.log.info(
-                f"{icon} [bold blue]{escape(request.method)}[/] "
-                f"[white]{escape(request.path)}[/] "
-                f"[bold {status_color}]{status_code}[/] "
-                f"[dim]in {process_time:.2f}ms[/]"
-            )
-        else:  # < 300
-            status_color = "green"
-            icon = "✅"
-            self.log.info(
-                f"{icon} [bold blue]{escape(request.method)}[/] "
-                f"[white]{escape(request.path)}[/] "
-                f"[bold {status_color}]{status_code}[/] "
-                f"[dim]in {process_time:.2f}ms[/]"
-            )
+        self.logsystem.log_http(request, response, process_time)
         await response(send)
 
     async def handle_lifespan(self, receive, send):
+        """
+        Handles ASGI lifespan events (startup and shutdown).
+        """
         while True:
             message = await receive()
             if message["type"] == "lifespan.startup":
@@ -166,6 +167,9 @@ class Ushka:
             return
 
     async def handle_asgi_call(self, scope, receive, send):
+        """
+        Dispatches incoming ASGI calls to the appropriate handler based on the scope type.
+        """
         if scope["type"] == "http":
             await self.handle_http_request(scope, receive, send)
         elif scope["type"] == "lifespan":
@@ -175,11 +179,17 @@ class Ushka:
             await response(send)
 
     async def __call__(self, scope, receive, send):
+        """
+        The main entry point for the ASGI application.
+        """
         await self.handle_asgi_call(scope, receive, send)
 
-    def run(
-        self, host="127.0.0.1", port=8000, log_level: AVAILABLE_LOG_LEVELS_TYPE = "INFO"
-    ):
+    def run(self, host="127.0.0.1", port=8000, log_level: LogLevelType = "INFO"):
+        """
+        Runs the Ushka application using Uvicorn.
+
+        Displays a startup banner, mapped routes, and then starts the ASGI server.
+        """
         version = self.config.get("USHKA_VERSION", "testing")
 
         banner_text = Text()
@@ -238,7 +248,7 @@ class Ushka:
                 self,
                 host=host,
                 port=port,
-                log_config=get_silent_uvicorn_config(level=log_level),
+                log_config=self.logsystem.get_silent_uvicorn_config(level=log_level),
                 lifespan="on",
             )
         else:
@@ -250,6 +260,10 @@ class Ushka:
             )
 
     def get(self, path: str):
+        """
+        Decorator to register a function as a GET route handler.
+        """
+
         def wrapper(function):
             self.router.add_route("GET", path, function)
             return function
@@ -257,6 +271,10 @@ class Ushka:
         return wrapper
 
     def post(self, path: str):
+        """
+        Decorator to register a function as a POST route handler.
+        """
+
         def wrapper(function):
             self.router.add_route("POST", path, function)
             return function
@@ -264,6 +282,15 @@ class Ushka:
         return wrapper
 
     def put(self, path: str):
+        """Decorator to register a function as a PUT route handler.
+
+        Args:
+            path: The URL path for the route.
+
+        Returns:
+            The decorated function.
+        """
+
         def wrapper(function):
             self.router.add_route("PUT", path, function)
             return function
@@ -271,6 +298,10 @@ class Ushka:
         return wrapper
 
     def update(self, path: str):
+        """
+        Decorator to register a function as an UPDATE route handler.
+        """
+
         def wrapper(function):
             self.router.add_route("UPDATE", path, function)
             return function
@@ -278,6 +309,10 @@ class Ushka:
         return wrapper
 
     def head(self, path: str):
+        """
+        Decorator to register a function as a HEAD route handler.
+        """
+
         def wrapper(function):
             self.router.add_route("HEAD", path, function)
             return function
@@ -285,6 +320,10 @@ class Ushka:
         return wrapper
 
     def delete(self, path: str):
+        """
+        Decorator to register a function as a DELETE route handler.
+        """
+
         def wrapper(function):
             self.router.add_route("DELETE", path, function)
             return function
