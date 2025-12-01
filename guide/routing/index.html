@@ -11,7 +11,7 @@
         <link rel="canonical" href="https://kleber-code.github.io/ushka/guide/routing/">
       
       
-        <link rel="prev" href="../getting-started/">
+        <link rel="prev" href="../configuration/">
       
       
         <link rel="next" href="../requests/">
@@ -67,7 +67,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="amber" data-md-color-accent="indigo">
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="grey" data-md-color-accent="grey">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#routing" class="md-skip">
+        <a href="#routing-how-ushka-finds-its-way" class="md-skip">
           Skip to content
         </a>
       
@@ -123,7 +123,7 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="amber" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="grey" data-md-color-accent="grey"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
     
       <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9z"/></svg>
@@ -133,7 +133,7 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="amber" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="grey" data-md-color-accent="grey"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
     
       <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5"/></svg>
@@ -487,6 +487,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -550,22 +578,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-file-based-routing-auto-discovery" class="md-nav__link">
+  <a href="#1-file-based-routing-the-convention-over-configuration-fanatic" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. File-Based Routing (Auto-Discovery)
+        1. 📂 File-Based Routing: The "Convention Over Configuration" Fanatic!
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="1. File-Based Routing (Auto-Discovery)">
+    <nav class="md-nav" aria-label="1. 📂 File-Based Routing: The &#34;Convention Over Configuration&#34; Fanatic!">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#example-structure" class="md-nav__link">
+  <a href="#example-structure-where-everything-lives" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Example Structure
+        Example Structure: Where Everything Lives! 🏡
       
     </span>
   </a>
@@ -573,10 +601,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#basic-route" class="md-nav__link">
+  <a href="#basic-route-your-first-endpoint" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Basic Route
+        Basic Route: Your First Endpoint! 📍
       
     </span>
   </a>
@@ -584,10 +612,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#dynamic-routes" class="md-nav__link">
+  <a href="#dynamic-routes-paths-with-personality" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Dynamic Routes
+        Dynamic Routes: Paths with Personality! 🌟
       
     </span>
   </a>
@@ -595,10 +623,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#supported-http-methods" class="md-nav__link">
+  <a href="#supported-http-methods-just-name-it" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Supported HTTP Methods
+        Supported HTTP Methods: Just Name It! 🗣️
       
     </span>
   </a>
@@ -611,22 +639,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-decorator-based-routing" class="md-nav__link">
+  <a href="#2-decorator-based-routing-explicit-is-as-explicit-does" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Decorator-Based Routing
+        2. 🎀 Decorator-Based Routing: Explicit is as Explicit Does!
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="2. Decorator-Based Routing">
+    <nav class="md-nav" aria-label="2. 🎀 Decorator-Based Routing: Explicit is as Explicit Does!">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#example" class="md-nav__link">
+  <a href="#example-your-decorator-extravaganza" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Example
+        Example: Your Decorator Extravaganza! 🎉
       
     </span>
   </a>
@@ -635,6 +663,17 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use-which-a-little-guidance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🤔 When to Use Which? (A Little Guidance)
+      
+    </span>
+  </a>
   
 </li>
       
@@ -746,6 +785,34 @@
     
   
     Error Handling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dependency-injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependency Injection
   
 
     
@@ -1051,22 +1118,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-file-based-routing-auto-discovery" class="md-nav__link">
+  <a href="#1-file-based-routing-the-convention-over-configuration-fanatic" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. File-Based Routing (Auto-Discovery)
+        1. 📂 File-Based Routing: The "Convention Over Configuration" Fanatic!
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="1. File-Based Routing (Auto-Discovery)">
+    <nav class="md-nav" aria-label="1. 📂 File-Based Routing: The &#34;Convention Over Configuration&#34; Fanatic!">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#example-structure" class="md-nav__link">
+  <a href="#example-structure-where-everything-lives" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Example Structure
+        Example Structure: Where Everything Lives! 🏡
       
     </span>
   </a>
@@ -1074,10 +1141,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#basic-route" class="md-nav__link">
+  <a href="#basic-route-your-first-endpoint" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Basic Route
+        Basic Route: Your First Endpoint! 📍
       
     </span>
   </a>
@@ -1085,10 +1152,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#dynamic-routes" class="md-nav__link">
+  <a href="#dynamic-routes-paths-with-personality" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Dynamic Routes
+        Dynamic Routes: Paths with Personality! 🌟
       
     </span>
   </a>
@@ -1096,10 +1163,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#supported-http-methods" class="md-nav__link">
+  <a href="#supported-http-methods-just-name-it" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Supported HTTP Methods
+        Supported HTTP Methods: Just Name It! 🗣️
       
     </span>
   </a>
@@ -1112,22 +1179,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-decorator-based-routing" class="md-nav__link">
+  <a href="#2-decorator-based-routing-explicit-is-as-explicit-does" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Decorator-Based Routing
+        2. 🎀 Decorator-Based Routing: Explicit is as Explicit Does!
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="2. Decorator-Based Routing">
+    <nav class="md-nav" aria-label="2. 🎀 Decorator-Based Routing: Explicit is as Explicit Does!">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#example" class="md-nav__link">
+  <a href="#example-your-decorator-extravaganza" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Example
+        Example: Your Decorator Extravaganza! 🎉
       
     </span>
   </a>
@@ -1136,6 +1203,17 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use-which-a-little-guidance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🤔 When to Use Which? (A Little Guidance)
+      
+    </span>
+  </a>
   
 </li>
       
@@ -1156,52 +1234,54 @@
 
 
 
-<h1 id="routing">Routing<a class="headerlink" href="#routing" title="Permanent link">&para;</a></h1>
-<p>Ushka offers two flexible ways to handle routing: <strong>File-Based Routing</strong> and <strong>Decorator-Based Routing</strong>. You can use one, the other, or mix both in the same project.</p>
-<h2 id="1-file-based-routing-auto-discovery">1. File-Based Routing (Auto-Discovery)<a class="headerlink" href="#1-file-based-routing-auto-discovery" title="Permanent link">&para;</a></h2>
-<p>This is the default, convention-over-configuration method. You create a <code>routes</code> directory, and Ushka automatically maps the file structure to your API endpoints.</p>
-<p>The name of the Python file determines the path, and the name of the function inside determines the HTTP method.</p>
-<h3 id="example-structure">Example Structure<a class="headerlink" href="#example-structure" title="Permanent link">&para;</a></h3>
+<h1 id="routing-how-ushka-finds-its-way">🗺️ Routing: How Ushka Finds Its Way! 🧭<a class="headerlink" href="#routing-how-ushka-finds-its-way" title="Permanent link">&para;</a></h1>
+<p>Ushka offers two flexible ways to handle routing: <strong>File-Based Routing</strong> and <strong>Decorator-Based Routing</strong>. You can use either, or mix them in the same project. We're all about options.</p>
+<h2 id="1-file-based-routing-the-convention-over-configuration-fanatic">1. 📂 File-Based Routing: The "Convention Over Configuration" Fanatic!<a class="headerlink" href="#1-file-based-routing-the-convention-over-configuration-fanatic" title="Permanent link">&para;</a></h2>
+<p>This is Ushka's default, opinionated approach. Just create a <code>routes</code> directory, and Ushka automatically maps your file structure to your API endpoints. It's almost too easy.</p>
+<p>The name of the Python file determines the path, and the name of the function inside determines the HTTP method. Simple, yet effective.</p>
+<h3 id="example-structure-where-everything-lives">Example Structure: Where Everything Lives! 🏡<a class="headerlink" href="#example-structure-where-everything-lives" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>my_project/
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>└── routes/
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    ├── index.py        # GET /
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    ├── users.py        # GET /users
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    ├── index.py        # GET / (The homepage, obviously)
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    ├── users.py        # GET /users (For all your user-related business)
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    └── items/
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        ├── index.py    # GET /items
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        └── [id].py     # GET /items/&lt;id&gt;
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        ├── index.py    # GET /items (A list of... items)
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        └── [id].py     # GET /items/&lt;id&gt; (Details for a specific item, because we&#39;re fancy)
 </code></pre></div>
-<h3 id="basic-route">Basic Route<a class="headerlink" href="#basic-route" title="Permanent link">&para;</a></h3>
-<p>To create a <code>GET /</code> endpoint, create <code>routes/index.py</code>:</p>
+<h3 id="basic-route-your-first-endpoint">Basic Route: Your First Endpoint! 📍<a class="headerlink" href="#basic-route-your-first-endpoint" title="Permanent link">&para;</a></h3>
+<p>To create a <code>GET /</code> endpoint, just make <code>routes/index.py</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># routes/index.py</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">():</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="k">return</span> <span class="s2">&quot;This is the homepage.&quot;</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="c1"># This function answers to GET /</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">():</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="k">return</span> <span class="s2">&quot;This is the homepage. Try not to get lost.&quot;</span>
 </code></pre></div>
-<h3 id="dynamic-routes">Dynamic Routes<a class="headerlink" href="#dynamic-routes" title="Permanent link">&para;</a></h3>
-<p>To create a route with a dynamic parameter, like <code>/items/123</code>, use square brackets <code>[]</code> in the filename.</p>
+<h3 id="dynamic-routes-paths-with-personality">Dynamic Routes: Paths with Personality! 🌟<a class="headerlink" href="#dynamic-routes-paths-with-personality" title="Permanent link">&para;</a></h3>
+<p>Need a route with a dynamic parameter, like <code>/items/123</code>? Use square brackets <code>[]</code> in the filename. It's a common pattern for a reason.</p>
 <p><div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># routes/items/[id].py</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;You requested item with id: </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1"># This function handles GET /items/&lt;id&gt;</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;You&#39;ve requested item with ID: </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">. Hope it&#39;s worth it.&quot;</span>
 </code></pre></div>
-The parameter <code>id</code> is automatically injected into your function.</p>
-<h3 id="supported-http-methods">Supported HTTP Methods<a class="headerlink" href="#supported-http-methods" title="Permanent link">&para;</a></h3>
-<p>Simply name your function after the HTTP method in lowercase: <code>get()</code>, <code>post()</code>, <code>put()</code>, <code>delete()</code>, etc.</p>
+The parameter <code>id</code> is automatically injected into your function. We're not making you parse URLs manually.</p>
+<h3 id="supported-http-methods-just-name-it">Supported HTTP Methods: Just Name It! 🗣️<a class="headerlink" href="#supported-http-methods-just-name-it" title="Permanent link">&para;</a></h3>
+<p>Simply name your function after the HTTP method in lowercase: <code>get()</code>, <code>post()</code>, <code>put()</code>, <code>delete()</code>, etc. Ushka gets it.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># routes/users.py</span>
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1"># Responds to GET /users</span>
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">():</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="k">return</span> <span class="s2">&quot;List of users&quot;</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="k">return</span> <span class="s2">&quot;List of users. Please don&#39;t ask for their passwords.&quot;</span>
 <a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
 <a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1"># Responds to POST /users</span>
 <a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">post</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
 <a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    <span class="n">user_data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    <span class="c1"># ... create user ...</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;user created&quot;</span><span class="p">}</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    <span class="c1"># ... create user logic ...</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;user created&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">user_data</span><span class="p">}</span>
 </code></pre></div>
 <hr />
-<h2 id="2-decorator-based-routing">2. Decorator-Based Routing<a class="headerlink" href="#2-decorator-based-routing" title="Permanent link">&para;</a></h2>
-<p>If you prefer to define your routes explicitly in a single file, you can use decorators, similar to Flask or FastAPI.</p>
-<p>This method is ideal for smaller applications or for grouping related routes in a logical way, independent of the file structure.</p>
-<h3 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h3>
+<h2 id="2-decorator-based-routing-explicit-is-as-explicit-does">2. 🎀 Decorator-Based Routing: Explicit is as Explicit Does!<a class="headerlink" href="#2-decorator-based-routing-explicit-is-as-explicit-does" title="Permanent link">&para;</a></h2>
+<p>If you prefer to define your routes explicitly in a single file (like some sort of control freak, just kidding!), you can use decorators. It's a familiar sight for Flask or FastAPI users.</p>
+<p>This method is great for smaller applications or for logically grouping routes, completely independent of the file structure. Keep your chaos contained.</p>
+<h3 id="example-your-decorator-extravaganza">Example: Your Decorator Extravaganza! 🎉<a class="headerlink" href="#example-your-decorator-extravaganza" title="Permanent link">&para;</a></h3>
 <p>In your main <code>app.py</code> file:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ushka</span><span class="w"> </span><span class="kn">import</span> <span class="n">Ushka</span><span class="p">,</span> <span class="n">Request</span>
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
@@ -1209,11 +1289,11 @@ The parameter <code>id</code> is automatically injected into your function.</p>
 <a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
 <a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
 <a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">index</span><span class="p">():</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="k">return</span> <span class="s2">&quot;&lt;h1&gt;Hello from a decorator!&lt;/h1&gt;&quot;</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="k">return</span> <span class="s2">&quot;&lt;h1&gt;Hello from a decorator! Fancy seeing you here.&lt;/h1&gt;&quot;</span>
 <a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
 <a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/users/</span><span class="si">{user_id}</span><span class="s2">&quot;</span><span class="p">)</span>
 <a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_user</span><span class="p">(</span><span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Details for user </span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Details for user </span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s2">. Don&#39;t get too nosy.&quot;</span>
 <a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
 <a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/users&quot;</span><span class="p">)</span>
 <a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create_user</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
@@ -1223,7 +1303,29 @@ The parameter <code>id</code> is automatically injected into your function.</p>
 <a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
 <a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </code></pre></div>
-<p>The path in the decorator supports dynamic parameters using the same <code>{param}</code> syntax as frameworks like FastAPI. These parameters are injected into your function by name.</p>
+<p>The path in the decorator supports dynamic parameters using the same <code>{param}</code> syntax you've seen elsewhere. These parameters are then injected into your function by name. It's almost too convenient.</p>
+<hr />
+<h2 id="when-to-use-which-a-little-guidance">🤔 When to Use Which? (A Little Guidance)<a class="headerlink" href="#when-to-use-which-a-little-guidance" title="Permanent link">&para;</a></h2>
+<p>Both routing styles are fantastic, but they shine in different scenarios:</p>
+<ul>
+<li>
+<p><strong>File-Based Routing:</strong></p>
+<ul>
+<li><strong>Best for:</strong> Larger APIs with a clear, hierarchical structure (e.g., <code>/api/v1/users/</code>, <code>/api/v1/items/</code>). It keeps your project organized automatically, almost like magic.</li>
+<li><strong>Pros:</strong> Less boilerplate, easy to navigate (just look at your file tree!), encourages modularity.</li>
+<li><strong>Cons:</strong> Can get unwieldy for very complex, non-hierarchical routing logic that spans many files.</li>
+</ul>
+</li>
+<li>
+<p><strong>Decorator-Based Routing:</strong></p>
+<ul>
+<li><strong>Best for:</strong> Smaller applications, single-file APIs, or when you want to group a few related routes together in one Python file, regardless of its location in the file system.</li>
+<li><strong>Pros:</strong> All routes are explicitly defined in code, easy to see at a glance, familiar to users of other web frameworks.</li>
+<li><strong>Cons:</strong> Can lead to a single, large file if not managed well, potentially obscuring route definitions if you have many.</li>
+</ul>
+</li>
+</ul>
+<p>Feel free to mix and match! Ushka is flexible enough to let you choose the best approach for each part of your project. 💖</p>
 
 
 

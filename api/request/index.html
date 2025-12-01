@@ -67,7 +67,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="amber" data-md-color-accent="indigo">
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="grey" data-md-color-accent="grey">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#request" class="md-skip">
+        <a href="#the-request-object-your-apps-incoming-mail" class="md-skip">
           Skip to content
         </a>
       
@@ -123,7 +123,7 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="amber" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="grey" data-md-color-accent="grey"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
     
       <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9z"/></svg>
@@ -133,7 +133,7 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="amber" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="grey" data-md-color-accent="grey"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
     
       <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5"/></svg>
@@ -485,6 +485,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../guide/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../guide/routing/" class="md-nav__link">
         
   
@@ -605,6 +633,34 @@
     
   
     Error Handling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/dependency-injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependency Injection
   
 
     
@@ -777,22 +833,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#accessing-request-data" class="md-nav__link">
+  <a href="#accessing-request-data-whats-inside" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Accessing Request Data
+        🕵️ Accessing Request Data: What's Inside?
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Accessing Request Data">
+    <nav class="md-nav" aria-label="🕵️ Accessing Request Data: What&#39;s Inside?">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#requestmethod" class="md-nav__link">
+  <a href="#requestmethod-the-verb-of-the-request" class="md-nav__link">
     <span class="md-ellipsis">
       
-        request.method
+        request.method: The Verb of the Request! 🗣️
       
     </span>
   </a>
@@ -800,10 +856,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#requestpath" class="md-nav__link">
+  <a href="#requestpath-where-theyre-headed" class="md-nav__link">
     <span class="md-ellipsis">
       
-        request.path
+        request.path: Where They're Headed! 🗺️
       
     </span>
   </a>
@@ -811,10 +867,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#requestheaders" class="md-nav__link">
+  <a href="#requestheaders-the-metadata-envelope" class="md-nav__link">
     <span class="md-ellipsis">
       
-        request.headers
+        request.headers: The Metadata Envelope! 📜
       
     </span>
   </a>
@@ -822,10 +878,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#requestquery" class="md-nav__link">
+  <a href="#requestquery-the-urls-attachments" class="md-nav__link">
     <span class="md-ellipsis">
       
-        request.query
+        request.query: The URL's Attachments! 📎
       
     </span>
   </a>
@@ -833,10 +889,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#await-requestbody" class="md-nav__link">
+  <a href="#await-requestbody-the-raw-stuff" class="md-nav__link">
     <span class="md-ellipsis">
       
-        await request.body
+        await request.body: The Raw Stuff! 📦
       
     </span>
   </a>
@@ -844,10 +900,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#await-requesttext" class="md-nav__link">
+  <a href="#await-requesttext-body-as-a-string" class="md-nav__link">
     <span class="md-ellipsis">
       
-        await request.text
+        await request.text: Body as a String! 📝
       
     </span>
   </a>
@@ -855,10 +911,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#await-requestjson" class="md-nav__link">
+  <a href="#await-requestjson-the-json-payload" class="md-nav__link">
     <span class="md-ellipsis">
       
-        await request.json()
+        await request.json(): The JSON Payload! 📄
       
     </span>
   </a>
@@ -866,10 +922,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#await-requestform" class="md-nav__link">
+  <a href="#await-requestform-old-school-form-data" class="md-nav__link">
     <span class="md-ellipsis">
       
-        await request.form()
+        await request.form(): Old-School Form Data! 📮
       
     </span>
   </a>
@@ -1067,22 +1123,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#accessing-request-data" class="md-nav__link">
+  <a href="#accessing-request-data-whats-inside" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Accessing Request Data
+        🕵️ Accessing Request Data: What's Inside?
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Accessing Request Data">
+    <nav class="md-nav" aria-label="🕵️ Accessing Request Data: What&#39;s Inside?">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#requestmethod" class="md-nav__link">
+  <a href="#requestmethod-the-verb-of-the-request" class="md-nav__link">
     <span class="md-ellipsis">
       
-        request.method
+        request.method: The Verb of the Request! 🗣️
       
     </span>
   </a>
@@ -1090,10 +1146,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#requestpath" class="md-nav__link">
+  <a href="#requestpath-where-theyre-headed" class="md-nav__link">
     <span class="md-ellipsis">
       
-        request.path
+        request.path: Where They're Headed! 🗺️
       
     </span>
   </a>
@@ -1101,10 +1157,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#requestheaders" class="md-nav__link">
+  <a href="#requestheaders-the-metadata-envelope" class="md-nav__link">
     <span class="md-ellipsis">
       
-        request.headers
+        request.headers: The Metadata Envelope! 📜
       
     </span>
   </a>
@@ -1112,10 +1168,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#requestquery" class="md-nav__link">
+  <a href="#requestquery-the-urls-attachments" class="md-nav__link">
     <span class="md-ellipsis">
       
-        request.query
+        request.query: The URL's Attachments! 📎
       
     </span>
   </a>
@@ -1123,10 +1179,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#await-requestbody" class="md-nav__link">
+  <a href="#await-requestbody-the-raw-stuff" class="md-nav__link">
     <span class="md-ellipsis">
       
-        await request.body
+        await request.body: The Raw Stuff! 📦
       
     </span>
   </a>
@@ -1134,10 +1190,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#await-requesttext" class="md-nav__link">
+  <a href="#await-requesttext-body-as-a-string" class="md-nav__link">
     <span class="md-ellipsis">
       
-        await request.text
+        await request.text: Body as a String! 📝
       
     </span>
   </a>
@@ -1145,10 +1201,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#await-requestjson" class="md-nav__link">
+  <a href="#await-requestjson-the-json-payload" class="md-nav__link">
     <span class="md-ellipsis">
       
-        await request.json()
+        await request.json(): The JSON Payload! 📄
       
     </span>
   </a>
@@ -1156,10 +1212,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#await-requestform" class="md-nav__link">
+  <a href="#await-requestform-old-school-form-data" class="md-nav__link">
     <span class="md-ellipsis">
       
-        await request.form()
+        await request.form(): Old-School Form Data! 📮
       
     </span>
   </a>
@@ -1188,64 +1244,64 @@
 
 
 
-<h1 id="request">Request<a class="headerlink" href="#request" title="Permanent link">&para;</a></h1>
-<p>The <code>Request</code> object holds all information about an incoming HTTP request. To use it, simply type-hint it in your route function, and Ushka's dependency injection system will provide it.</p>
+<h1 id="the-request-object-your-apps-incoming-mail">📥 The <code>Request</code> Object: Your App's Incoming Mail! 📧<a class="headerlink" href="#the-request-object-your-apps-incoming-mail" title="Permanent link">&para;</a></h1>
+<p>The <code>Request</code> object is your direct line to all information about an incoming HTTP request. To use it, simply type-hint it in your route function, and Ushka's dependency injection system will hand it over. Easy as pie.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ushka</span><span class="w"> </span><span class="kn">import</span> <span class="n">Ushka</span><span class="p">,</span> <span class="n">Request</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Ushka</span><span class="p">()</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/items&quot;</span><span class="p">)</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create_item</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="c1"># You can now access all request data</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="c1"># What did they send us this time?</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">headers</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Received item with headers: </span><span class="si">{</span><span class="n">headers</span><span class="si">}</span><span class="s2"> and data: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Received data with headers: </span><span class="si">{</span><span class="n">headers</span><span class="si">}</span><span class="s2"> and data: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">. Fascinating.&quot;</span><span class="p">}</span>
 </code></pre></div>
-<h2 id="accessing-request-data">Accessing Request Data<a class="headerlink" href="#accessing-request-data" title="Permanent link">&para;</a></h2>
-<p>Most request data is accessed via properties. For data that requires I/O (like the request body), you'll need to use <code>await</code>.</p>
-<h3 id="requestmethod"><code>request.method</code><a class="headerlink" href="#requestmethod" title="Permanent link">&para;</a></h3>
-<p>The HTTP method of the request (e.g., <code>"GET"</code>, <code>"POST"</code>).</p>
+<h2 id="accessing-request-data-whats-inside">🕵️ Accessing Request Data: What's Inside?<a class="headerlink" href="#accessing-request-data-whats-inside" title="Permanent link">&para;</a></h2>
+<p>Most request data is accessed directly via properties. For data that requires I/O (like the request body), you'll need to use <code>await</code>. Because waiting is part of the process.</p>
+<h3 id="requestmethod-the-verb-of-the-request"><code>request.method</code>: The Verb of the Request! 🗣️<a class="headerlink" href="#requestmethod-the-verb-of-the-request" title="Permanent link">&para;</a></h3>
+<p>The HTTP method of the request (e.g., <code>"GET"</code>, <code>"POST"</code>). Just the basics.</p>
 <ul>
 <li><strong>Type:</strong> <code>str</code></li>
 </ul>
-<h3 id="requestpath"><code>request.path</code><a class="headerlink" href="#requestpath" title="Permanent link">&para;</a></h3>
-<p>The full path of the request.</p>
+<h3 id="requestpath-where-theyre-headed"><code>request.path</code>: Where They're Headed! 🗺️<a class="headerlink" href="#requestpath-where-theyre-headed" title="Permanent link">&para;</a></h3>
+<p>The full path of the request. No detours here.</p>
 <ul>
 <li><strong>Type:</strong> <code>str</code></li>
 </ul>
-<h3 id="requestheaders"><code>request.headers</code><a class="headerlink" href="#requestheaders" title="Permanent link">&para;</a></h3>
-<p>A case-insensitive, dictionary-like object containing all request headers.</p>
+<h3 id="requestheaders-the-metadata-envelope"><code>request.headers</code>: The Metadata Envelope! 📜<a class="headerlink" href="#requestheaders-the-metadata-envelope" title="Permanent link">&para;</a></h3>
+<p>A case-insensitive, dictionary-like object containing all request headers. Very polite about capitalization.</p>
 <ul>
 <li><strong>Type:</strong> <code>Dict[str, str]</code></li>
-<li><strong>Example:</strong> <code>request.headers.get('user-agent')</code></li>
+<li><strong>Example:</strong> <code>request.headers.get('user-agent')</code> to know who's knocking.</li>
 </ul>
-<h3 id="requestquery"><code>request.query</code><a class="headerlink" href="#requestquery" title="Permanent link">&para;</a></h3>
-<p>A dictionary containing the query parameters from the URL.</p>
+<h3 id="requestquery-the-urls-attachments"><code>request.query</code>: The URL's Attachments! 📎<a class="headerlink" href="#requestquery-the-urls-attachments" title="Permanent link">&para;</a></h3>
+<p>A dictionary containing the query parameters from the URL. Perfect for filtering and sorting.</p>
 <ul>
 <li><strong>Type:</strong> <code>Dict[str, Any]</code></li>
-<li><strong>Example:</strong> For a URL <code>/items?id=123&amp;category=books</code>, <code>request.query</code> would be <code>{'id': '123', 'category': 'books'}</code>.</li>
+<li><strong>Example:</strong> For <code>/items?id=123&amp;category=books</code>, <code>request.query</code> would be <code>{'id': '123', 'category': 'books'}</code>. Shocking, I know.</li>
 </ul>
-<h3 id="await-requestbody"><code>await request.body</code><a class="headerlink" href="#await-requestbody" title="Permanent link">&para;</a></h3>
-<p>The raw request body.</p>
+<h3 id="await-requestbody-the-raw-stuff"><code>await request.body</code>: The Raw Stuff! 📦<a class="headerlink" href="#await-requestbody-the-raw-stuff" title="Permanent link">&para;</a></h3>
+<p>The raw, unprocessed request body. Handle with care, it's a one-time read.</p>
 <ul>
 <li><strong>Type:</strong> <code>bytes</code></li>
-<li><strong>Note:</strong> This can only be read once.</li>
+<li><strong>Note:</strong> This can only be read once. So, if you need it, make sure you really need it.</li>
 </ul>
-<h3 id="await-requesttext"><code>await request.text</code><a class="headerlink" href="#await-requesttext" title="Permanent link">&para;</a></h3>
-<p>The request body, decoded as a string.</p>
+<h3 id="await-requesttext-body-as-a-string"><code>await request.text</code>: Body as a String! 📝<a class="headerlink" href="#await-requesttext-body-as-a-string" title="Permanent link">&para;</a></h3>
+<p>The request body, thoughtfully decoded as a string.</p>
 <ul>
 <li><strong>Type:</strong> <code>str</code></li>
 </ul>
-<h3 id="await-requestjson"><code>await request.json()</code><a class="headerlink" href="#await-requestjson" title="Permanent link">&para;</a></h3>
-<p>The request body, parsed as a JSON object. If parsing fails, it will raise an exception.</p>
+<h3 id="await-requestjson-the-json-payload"><code>await request.json()</code>: The JSON Payload! 📄<a class="headerlink" href="#await-requestjson-the-json-payload" title="Permanent link">&para;</a></h3>
+<p>The request body, parsed as a JSON object. If it's not valid JSON, an exception will politely inform you.</p>
 <ul>
 <li><strong>Type:</strong> <code>Any</code> (typically <code>dict</code> or <code>list</code>)</li>
 </ul>
-<h3 id="await-requestform"><code>await request.form()</code><a class="headerlink" href="#await-requestform" title="Permanent link">&para;</a></h3>
-<p>The request body, parsed as a form (URL-encoded).</p>
+<h3 id="await-requestform-old-school-form-data"><code>await request.form()</code>: Old-School Form Data! 📮<a class="headerlink" href="#await-requestform-old-school-form-data" title="Permanent link">&para;</a></h3>
+<p>The request body, parsed as URL-encoded form data. Great for traditional HTML forms.</p>
 <ul>
 <li><strong>Type:</strong> <code>Dict[str, Any]</code></li>
-<li><strong>Note:</strong> This is suitable for <code>application/x-www-form-urlencoded</code> data. For multipart forms (file uploads), support is planned.</li>
+<li><strong>Note:</strong> This is for <code>application/x-www-form-urlencoded</code>. Multipart forms (file uploads) are still on the "coming soon" list.</li>
 </ul>
 
 

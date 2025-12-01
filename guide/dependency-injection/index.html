@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://kleber-code.github.io/ushka/guide/getting-started/">
+        <link rel="canonical" href="https://kleber-code.github.io/ushka/guide/dependency-injection/">
       
       
-        <link rel="prev" href="../introduction/">
+        <link rel="prev" href="../errors/">
       
       
-        <link rel="next" href="../configuration/">
+        <link rel="next" href="../../api/app/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Getting Started - Ushka Framework</title>
+        <title>Dependency Injection - Ushka Framework</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#getting-started-your-first-ushka-app" class="md-skip">
+        <a href="#dependency-injection-ushkas-clever-helpers" class="md-skip">
           Skip to content
         </a>
       
@@ -110,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Getting Started
+              Dependency Injection
             
           </span>
         </div>
@@ -459,37 +459,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Getting Started
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
         
   
   
@@ -505,98 +478,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#installation-a-quick-pip-install" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        📦 Installation: A Quick pip install!
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#running-your-first-app-hello-world-and-then-some" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🌐 Running Your First App: Hello, World (and then some)!
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="🌐 Running Your First App: Hello, World (and then some)!">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-project-structure-keep-it-tidy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. Project Structure: Keep it Tidy! 📂
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-create-a-route-your-apps-first-greeting" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. Create a Route: Your App's First Greeting! 👋
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-create-the-app-the-grand-orchestrator" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Create the App: The Grand Orchestrator! 🎶
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-run-the-app-showtime" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. Run the App: Showtime! 🎬
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -774,10 +655,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../dependency-injection/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependency Injection
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -793,6 +701,87 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#whats-the-big-deal-about-di" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's the Big Deal About DI?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-ushka-does-its-magic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How Ushka Does Its Magic! ✨
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How Ushka Does Its Magic! ✨">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#injecting-the-request-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        📦 Injecting the Request Object
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#injecting-path-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🗺️ Injecting Path Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-we-love-it-and-you-will-too" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why We Love It (and You Will Too!) 💖
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1090,10 +1079,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#installation-a-quick-pip-install" class="md-nav__link">
+  <a href="#whats-the-big-deal-about-di" class="md-nav__link">
     <span class="md-ellipsis">
       
-        📦 Installation: A Quick pip install!
+        What's the Big Deal About DI?
       
     </span>
   </a>
@@ -1101,22 +1090,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#running-your-first-app-hello-world-and-then-some" class="md-nav__link">
+  <a href="#how-ushka-does-its-magic" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌐 Running Your First App: Hello, World (and then some)!
+        How Ushka Does Its Magic! ✨
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🌐 Running Your First App: Hello, World (and then some)!">
+    <nav class="md-nav" aria-label="How Ushka Does Its Magic! ✨">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-project-structure-keep-it-tidy" class="md-nav__link">
+  <a href="#injecting-the-request-object" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Project Structure: Keep it Tidy! 📂
+        📦 Injecting the Request Object
       
     </span>
   </a>
@@ -1124,32 +1113,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-create-a-route-your-apps-first-greeting" class="md-nav__link">
+  <a href="#injecting-path-parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Create a Route: Your App's First Greeting! 👋
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-create-the-app-the-grand-orchestrator" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Create the App: The Grand Orchestrator! 🎶
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-run-the-app-showtime" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. Run the App: Showtime! 🎬
+        🗺️ Injecting Path Parameters
       
     </span>
   </a>
@@ -1158,6 +1125,17 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-we-love-it-and-you-will-too" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why We Love It (and You Will Too!) 💖
+      
+    </span>
+  </a>
   
 </li>
       
@@ -1178,45 +1156,41 @@
 
 
 
-<h1 id="getting-started-your-first-ushka-app">🚀 Getting Started: Your First Ushka App! 🐾<a class="headerlink" href="#getting-started-your-first-ushka-app" title="Permanent link">&para;</a></h1>
-<p>Ready to dive in? Getting your first Ushka app up and running is surprisingly straightforward. We've tried to keep the setup as minimal as possible.</p>
-<h2 id="installation-a-quick-pip-install">📦 Installation: A Quick <code>pip install</code>!<a class="headerlink" href="#installation-a-quick-pip-install" title="Permanent link">&para;</a></h2>
-<p>Ushka is available on PyPI. Install it like any other self-respecting Python package:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>ushka
+<h1 id="dependency-injection-ushkas-clever-helpers">💉 Dependency Injection: Ushka's Clever Helpers! 🧠<a class="headerlink" href="#dependency-injection-ushkas-clever-helpers" title="Permanent link">&para;</a></h1>
+<p>Ever wished your functions just <em>knew</em> what they needed without you having to manually fetch everything? Well, Ushka's got your back! Our Dependency Injection (DI) system is like having a super smart assistant that magically hands your functions exactly what they ask for. It's minimalist, it's efficient, and frankly, it's a bit brilliant.</p>
+<h2 id="whats-the-big-deal-about-di">What's the Big Deal About DI?<a class="headerlink" href="#whats-the-big-deal-about-di" title="Permanent link">&para;</a></h2>
+<p>Imagine you have a function that needs a <code>Request</code> object (to peek at incoming data) and maybe some parameters from the URL. Without DI, you'd be passing these around manually or digging them out of global contexts. Boring!</p>
+<p>With DI, your function simply declares its needs using Python's type hints. Ushka then looks at what your function <em>wants</em> and, if she has it, provides it. It decouples your code, makes it easier to test, and keeps things wonderfully tidy.</p>
+<h2 id="how-ushka-does-its-magic">How Ushka Does Its Magic! ✨<a class="headerlink" href="#how-ushka-does-its-magic" title="Permanent link">&para;</a></h2>
+<p>Ushka's DI is delightfully simple. You just type-hint the parameters your route function needs, and Ushka's little helpers spring into action.</p>
+<h3 id="injecting-the-request-object">📦 Injecting the <code>Request</code> Object<a class="headerlink" href="#injecting-the-request-object" title="Permanent link">&para;</a></h3>
+<p>The most common "dependency" your route functions will need is the <code>Request</code> object itself.</p>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ushka</span><span class="w"> </span><span class="kn">import</span> <span class="n">Request</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/hello&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">say_hello</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="c1"># Ushka saw you needed the Request object and delivered!</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Hello from </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">host</span><span class="si">}</span><span class="s2">! You used method: </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="si">}</span><span class="s2">&quot;</span>
 </code></pre></div>
-<h2 id="running-your-first-app-hello-world-and-then-some">🌐 Running Your First App: Hello, World (and then some)!<a class="headerlink" href="#running-your-first-app-hello-world-and-then-some" title="Permanent link">&para;</a></h2>
-<p>Ushka's designed for simplicity. Here's how to get a basic "Hello, World" app purring along.</p>
-<h3 id="1-project-structure-keep-it-tidy">1. Project Structure: Keep it Tidy! 📂<a class="headerlink" href="#1-project-structure-keep-it-tidy" title="Permanent link">&para;</a></h3>
-<p>Create a folder for your project. Ushka expects a <code>routes</code> directory for its file-based routing. It's not optional.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>my_project/
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>├── app.py
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>└── routes/
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    └── index.py
+See? No <code>Request()</code> call, no manual passing. Just type-hint and receive.</p>
+<h3 id="injecting-path-parameters">🗺️ Injecting Path Parameters<a class="headerlink" href="#injecting-path-parameters" title="Permanent link">&para;</a></h3>
+<p>Remember those dynamic paths like <code>/users/{user_id}</code>? Ushka's DI system also handles those with a charming grace.</p>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># In your routes/users/[user_id].py (File-Based Routing)</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="c1"># or using a decorator: @app.get(&quot;/users/{user_id}&quot;)</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span> <span class="c1"># Type-hint &#39;user_id&#39; as an integer</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="c1"># Ushka automatically converts the path segment &#39;user_id&#39; to an int for you!</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Fetching user with ID: </span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s2">. Hope they&#39;re nice!&quot;</span><span class="p">}</span>
 </code></pre></div>
-<h3 id="2-create-a-route-your-apps-first-greeting">2. Create a Route: Your App's First Greeting! 👋<a class="headerlink" href="#2-create-a-route-your-apps-first-greeting" title="Permanent link">&para;</a></h3>
-<p>In <code>routes/index.py</code>, define a function. Its name should correspond to the HTTP method.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># in routes/index.py</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1"># Responds to GET /</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">():</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="k">return</span> <span class="s2">&quot;&lt;h1&gt;Hello, World from Ushka!&lt;/h1&gt;&quot;</span> <span class="c1"># A classic for a reason.</span>
-</code></pre></div>
-<h3 id="3-create-the-app-the-grand-orchestrator">3. Create the App: The Grand Orchestrator! 🎶<a class="headerlink" href="#3-create-the-app-the-grand-orchestrator" title="Permanent link">&para;</a></h3>
-<p>Now, create <code>app.py</code> to initialize and run your Ushka application.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># in app.py</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ushka</span><span class="w"> </span><span class="kn">import</span> <span class="n">Ushka</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">app</span> <span class="o">=</span> <span class="n">Ushka</span><span class="p">()</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-</code></pre></div>
-<p>The first time you run the app, Ushka will be a good host and create a <code>ushka.toml</code> file for you with default configurations. No manual setup required for that.</p>
-<h3 id="4-run-the-app-showtime">4. Run the App: Showtime! 🎬<a class="headerlink" href="#4-run-the-app-showtime" title="Permanent link">&para;</a></h3>
-<p>Open your terminal in your project's folder and execute:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>python<span class="w"> </span>app.py
-</code></pre></div>
-<p>You should see Ushka's startup banner (we think it's pretty neat) and a table of all discovered routes. Now, point your browser to <code>http://127.0.0.1:8000</code>. Congratulations, you've officially made Python cuter! (And launched an app.) 💖</p>
+Ushka not only injects the parameter but also performs <strong>automatic type conversion</strong>! If <code>user_id</code> in the URL isn't an integer, Ushka will raise a friendly (but firm) error, preventing headaches later.</p>
+<h2 id="why-we-love-it-and-you-will-too">Why We Love It (and You Will Too!) 💖<a class="headerlink" href="#why-we-love-it-and-you-will-too" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Clean Code:</strong> Your function signatures are clear and concise. They state exactly what they need.</li>
+<li><strong>Testability:</strong> Want to test your route function? Just pass in a mock <code>Request</code> object and your desired parameters. Easy-peasy!</li>
+<li><strong>Modularity:</strong> Functions become independent units, making your codebase easier to manage and understand.</li>
+<li><strong>Less Boilerplate:</strong> No more manually parsing path segments or pulling data out of a generic request object. Ushka handles it.</li>
+</ul>
+<p>Dependency Injection in Ushka is designed to be unobtrusive and highly effective, letting you focus on writing your awesome application logic. It's just another way Ushka tries to make your coding life a little brighter. ✨</p>
 
 
 
