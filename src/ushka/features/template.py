@@ -17,6 +17,6 @@ env = Environment(
 )
 
 
-def render(template_name: str, context: dict) -> str:
+def render(template_name: str, context: dict = {}) -> str:
     template = env.get_template(template_name)
     return template.render(context)

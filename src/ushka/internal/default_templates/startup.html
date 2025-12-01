@@ -1,0 +1,71 @@
+{% extends "ushka_layout.html" %}
+
+{% block title %}Welcome to Ushka ✿{% endblock %}
+
+{% block body_classes %}justify-center items-center p-4 sm:p-6{% endblock %}
+
+{% block main_content %}
+    <main class="w-full max-w-4xl mx-auto animate-fade-in relative z-10">
+        <div class="text-center mb-8 md:mb-12">
+            <div class="kaomoji mb-4 animate-bounce">/ᐠ ˵> ⩊ <˵マ</div>
+            <h1 class="text-4xl md:text-6xl font-extrabold text-[var(--text-main)] tracking-tight">
+                Hello, Ushka!
+            </h1>
+            <p class="text-lg md:text-xl text-[var(--text-sub)] mt-4 font-semibold">
+                The cute and agile Python web framework.
+            </p>
+        </div>
+
+        <div class="card-cute">
+            <div class="p-6 md:p-10 border-b border-[var(--card-border)] bg-[var(--bg-color)] bg-opacity-50">
+                <h2 class="text-xl md:text-2xl font-bold text-[var(--text-main)] flex items-center gap-3">
+                    <i class="fa-solid fa-feather"></i> 
+                    Getting Started
+                </h2>
+                <p class="text-[var(--text-sub)] mt-2 font-medium">Where backend coding is beautiful.</p>
+            </div>
+            
+            <div class="p-6 md:p-10 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+                <div>
+                    <h3 class="text-lg font-bold text-[var(--text-main)] mb-4">Create your first route</h3>
+                    <div class="bg-[var(--code-bg)] border border-[var(--code-border)] rounded-cute p-5 font-mono text-sm shadow-sm">
+                        <span class="font-bold">def</span> <span class="font-bold" style="color: var(--text-sub)">get</span>():<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="font-bold">return</span> {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>"status"</span>: <span>"Ready!"</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;}
+                    </div>
+                    <p class="text-sm text-[var(--text-sub)] mt-4">
+                        Add this to a file inside the <code>routes/</code> directory.
+                    </p>
+                </div>
+
+                <div class="flex flex-col justify-center space-y-4">
+                    <a href="https://kleber-code.github.io/ushka/" class="group flex items-center p-3 rounded-cute hover:bg-[var(--bg-color)] transition-colors">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center mr-4 group-hover:scale-105 transition-transform bg-[var(--text-main)] text-[var(--bg-color)] shadow-sm">
+                            <i class="fa-solid fa-book-open text-lg"></i>
+                        </div>
+                        <span class="font-bold text-lg text-[var(--text-main)]">Documentation</span>
+                    </a>
+                    
+                    <a href="https://pypi.org/project/ushka/" class="group flex items-center p-3 rounded-cute hover:bg-[var(--bg-color)] transition-colors">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center mr-4 group-hover:scale-105 transition-transform bg-[var(--text-main)] text-[var(--bg-color)] shadow-sm">
+                            <i class="fa-solid fa-cube text-lg"></i>
+                        </div>
+                        <span class="font-bold text-lg text-[var(--text-main)]">View on PyPI</span>
+                    </a>
+
+                    <a href="https://github.com/kleber-code/ushka" class="group flex items-center p-3 rounded-cute hover:bg-[var(--bg-color)] transition-colors">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center mr-4 group-hover:scale-105 transition-transform bg-[var(--text-main)] text-[var(--bg-color)] shadow-sm">
+                            <i class="fa-brands fa-github text-2xl"></i>
+                        </div>
+                        <span class="font-bold text-lg text-[var(--text-main)]">GitHub</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="bg-[var(--bg-color)] p-5 text-center text-xs font-bold text-[var(--text-sub)] tracking-wider uppercase border-t border-[var(--card-border)]">
+                Ushka v0.2.1 • Make Python Cute Again
+            </div>
+        </div>
+    </main>
+{% endblock %}

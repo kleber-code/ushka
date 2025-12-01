@@ -1,203 +1,46 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{{ status_code }} - {{ message }}</title>
+{% extends "ushka_layout.html" %}
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+{% block title %}{{ status_code }} • {{ message }}{% endblock %}
 
-    <style>
-      :root {
-        --bg-dark: #050505;
-        --bg-panel: rgba(20, 20, 20, 0.6);
-        --border-glass: rgba(255, 255, 255, 0.1);
-        --text-primary: #e6e6e6;
-        --text-secondary: #888888;
-        --accent-code: #a5d6ff;
-        --accent-error: #ff7b72;
-      }
-      
-      body {
-        background-color: var(--bg-dark);
-        background-image: radial-gradient(circle at 50% 0%, #1a1d24 0%, #000000 100%);
-        color: var(--text-primary);
-        font-family: 'Inter', sans-serif;
-        margin: 0;
-        padding: 20px;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-sizing: border-box;
-      }
-      
-      .container {
-        width: 100%;
-        max-width: 600px;
-        animation: fadeIn 0.6s ease-out;
-      }
-      
-      .error-card {
-        background: var(--bg-panel);
-        border: 1px solid var(--border-glass);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border-radius: 16px;
-        padding: 40px;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-      }
-      
-      .header {
-        text-align: center;
-        margin-bottom: 30px;
-      }
-      
-      .status-code {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 4rem;
-        font-weight: 700;
-        margin: 0;
-        line-height: 1;
-        background: linear-gradient(180deg, #fff 0%, #666 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        opacity: 0.9;
-      }
-      
-      .message {
-        font-size: 1.25rem;
-        color: var(--text-secondary);
-        margin-top: 10px;
-        font-weight: 300;
-      }
-      
-      .routes-container {
-        margin-top: 30px;
-        border-top: 1px solid var(--border-glass);
-        padding-top: 20px;
-        text-align: left;
-      }
-      
-      .routes-title {
-        font-size: 0.9rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: var(--text-secondary);
-        margin-bottom: 15px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-      
-      .routes-list {
-        background: rgba(0, 0, 0, 0.3);
-        border: 1px solid var(--border-glass);
-        border-radius: 8px;
-        max-height: 250px;
-        overflow-y: auto;
-        padding: 10px 0;
-      }
-      
-      .routes-list::-webkit-scrollbar {
-        width: 8px;
-      }
-      .routes-list::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      .routes-list::-webkit-scrollbar-thumb {
-        background: #333;
-        border-radius: 4px;
-      }
-      
-      .route-item {
-        display: block;
-        padding: 8px 15px;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.85rem;
-        color: var(--accent-code);
-        text-decoration: none;
-        border-left: 2px solid transparent;
-        transition: all 0.2s;
-      }
-      
-      .route-item:hover {
-        background: rgba(255, 255, 255, 0.05);
-        border-left-color: var(--accent-code);
-        padding-left: 20px;
-      }
-      
-      .route-pattern {
-        color: var(--text-secondary);
-        margin-right: 8px;
-        user-select: none;
-      }
-      
-      .footer {
-        margin-top: 30px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 0.8rem;
-        color: var(--text-secondary);
-      }
-      
-      .btn-back {
-        color: var(--text-primary);
-        text-decoration: none;
-        border: 1px solid var(--border-glass);
-        padding: 8px 16px;
-        border-radius: 6px;
-        transition: background 0.2s;
-      }
-      .btn-back:hover {
-        background: rgba(255, 255, 255, 0.1);
-      }
-      
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="error-card">
-        <div class="header">
-          <div class="status-code">{{ status_code }}</div>
-          <div class="message">{{ message }}</div>
+{% block body_classes %}min-h-screen flex items-center justify-center p-4{% endblock %}
+
+{% block main_content %}
+    <main class="w-full max-w-lg mx-auto animate-fade-in text-center">
+        
+        <div class="mb-8 md:mb-12">
+            <div class="kaomoji text-5xl md:text-7xl mb-6 animate-pulse">/ᐠ - ˕ •マ</div>
+            <h1 class="text-5xl md:text-7xl font-black text-[var(--text-main)]">{{ status_code }}</h1>
+            <p class="text-xl md:text-3xl font-bold text-[var(--text-sub)] mt-3">{{ message }}</p>
         </div>
 
         {% if available_urls %}
-          <div class="routes-container">
-            <div class="routes-title">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>Rotas Disponíveis:
+        <div class="card-cute text-left shadow-sm">
+            <div class="p-5 border-b border-[var(--card-border)] bg-[var(--bg-color)]">
+                <h2 class="text-lg font-bold text-[var(--text-main)]">
+                    <i class="fa-solid fa-compass mr-2"></i> What's Available?
+                </h2>
+                <p class="text-sm text-[var(--text-sub)] mt-1">Here are some routes you might be looking for:</p>
             </div>
-            <div class="routes-list">
-              {% for url in available_urls %}
-                <a href="/{{ url.0.lstrip('^/') }}" class="route-item"><span class="route-pattern">^/</span>{{ url.0 }} [{{ url.1 }}]</a>
-              {% endfor %}
+            <div class="p-4 bg-[var(--card-bg)]">
+                <div class="max-h-60 overflow-y-auto pr-2 space-y-2">
+                    {% for url in available_urls %}
+                    <a href="/{{ url.0.lstrip('^/') }}" class="block p-3 rounded-lg hover:bg-[var(--bg-color)] text-[var(--text-main)] font-mono text-sm transition-colors">
+                        <span class="font-bold mr-2 px-2 py-1 bg-[var(--text-main)] text-[var(--bg-color)] rounded">GET</span> {{ url.0 }}
+                    </a>
+                    {% endfor %}
+                </div>
             </div>
-            <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">A URL solicitada não corresponde a nenhum dos padrões acima.</p>
-          </div>
+        </div>
+        {% else %}
+        <div class="mt-10">
+            <a href="/" class="btn-cute inline-flex items-center gap-3 px-8 py-4 text-lg">
+                <i class="fa-solid fa-house"></i> Go Home
+            </a>
+        </div>
         {% endif %}
 
-        <div class="footer">
-          <span style="font-family: 'JetBrains Mono', monospace;">TS: {{ timestamp }}</span>
-          <a href="/" class="btn-back">Voltar ao Início</a>
+        <div class="mt-10 text-xs font-mono text-[var(--text-sub)] opacity-50">
+            TS: {{ timestamp }}
         </div>
-      </div>
-    </div>
-  </body>
-</html>
+    </main>
+{% endblock %}

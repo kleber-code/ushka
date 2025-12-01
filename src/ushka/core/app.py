@@ -65,7 +65,14 @@ class Ushka:
                     result = func(**params)
                 response = Response(result)
             else:
-                raise HTTP_NotFound()
+                # "I'm alive" page logic
+                is_router_empty = (
+                    not self.router.static_routes and not self.router.dynamic_routes
+                )
+                if is_router_empty:
+                    response = Response(render("startup.html", {}), status_code=200)
+                else:
+                    raise HTTP_NotFound()
 
         except HTTPError as exc:
             if self.config.get("APP_DEBUG"):
@@ -95,6 +102,7 @@ class Ushka:
                     render(
                         "debug_error.html",
                         {
+                            "exception_type": repr(type(exc)),
                             "exception_message": str(exc),
                             "frames": frame_blocks,
                             "traceback_text": copy_past_error,
@@ -225,13 +233,21 @@ class Ushka:
         console.print(table)
         console.print("\n[dim italic white]Press Ctrl+C to stop me...[/]\n")
 
-        uvicorn.run(
-            self,
-            host=host,
-            port=port,
-            log_config=get_silent_uvicorn_config(level=log_level),
-            lifespan="on",
-        )
+        if self.config.get("SERVER_USHKA_SUPPRESS_UVICORN"):
+            uvicorn.run(
+                self,
+                host=host,
+                port=port,
+                log_config=get_silent_uvicorn_config(level=log_level),
+                lifespan="on",
+            )
+        else:
+            uvicorn.run(
+                self,
+                host=host,
+                port=port,
+                lifespan="on",
+            )
 
     def get(self, path: str):
         def wrapper(function):

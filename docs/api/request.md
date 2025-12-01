@@ -1,6 +1,6 @@
-# Request
+# 📥 The `Request` Object: Your App's Incoming Mail! 📧
 
-The `Request` object holds all information about an incoming HTTP request. To use it, simply type-hint it in your route function, and Ushka's dependency injection system will provide it.
+The `Request` object is your direct line to all information about an incoming HTTP request. To use it, simply type-hint it in your route function, and Ushka's dependency injection system will hand it over. Easy as pie.
 
 ```python
 from ushka import Ushka, Request
@@ -9,64 +9,64 @@ app = Ushka()
 
 @app.post("/items")
 async def create_item(request: Request):
-    # You can now access all request data
+    # What did they send us this time?
     headers = request.headers
     data = await request.json()
-    return {"message": f"Received item with headers: {headers} and data: {data}"}
+    return {"message": f"Received data with headers: {headers} and data: {data}. Fascinating."}
 ```
 
-## Accessing Request Data
+## 🕵️ Accessing Request Data: What's Inside?
 
-Most request data is accessed via properties. For data that requires I/O (like the request body), you'll need to use `await`.
+Most request data is accessed directly via properties. For data that requires I/O (like the request body), you'll need to use `await`. Because waiting is part of the process.
 
-### `request.method`
+### `request.method`: The Verb of the Request! 🗣️
 
-The HTTP method of the request (e.g., `"GET"`, `"POST"`).
+The HTTP method of the request (e.g., `"GET"`, `"POST"`). Just the basics.
 
-- **Type:** `str`
+*   **Type:** `str`
 
-### `request.path`
+### `request.path`: Where They're Headed! 🗺️
 
-The full path of the request.
+The full path of the request. No detours here.
 
-- **Type:** `str`
+*   **Type:** `str`
 
-### `request.headers`
+### `request.headers`: The Metadata Envelope! 📜
 
-A case-insensitive, dictionary-like object containing all request headers.
+A case-insensitive, dictionary-like object containing all request headers. Very polite about capitalization.
 
-- **Type:** `Dict[str, str]`
-- **Example:** `request.headers.get('user-agent')`
+*   **Type:** `Dict[str, str]`
+*   **Example:** `request.headers.get('user-agent')` to know who's knocking.
 
-### `request.query`
+### `request.query`: The URL's Attachments! 📎
 
-A dictionary containing the query parameters from the URL.
+A dictionary containing the query parameters from the URL. Perfect for filtering and sorting.
 
-- **Type:** `Dict[str, Any]`
-- **Example:** For a URL `/items?id=123&category=books`, `request.query` would be `{'id': '123', 'category': 'books'}`.
+*   **Type:** `Dict[str, Any]`
+*   **Example:** For `/items?id=123&category=books`, `request.query` would be `{'id': '123', 'category': 'books'}`. Shocking, I know.
 
-### `await request.body`
+### `await request.body`: The Raw Stuff! 📦
 
-The raw request body.
+The raw, unprocessed request body. Handle with care, it's a one-time read.
 
-- **Type:** `bytes`
-- **Note:** This can only be read once.
+*   **Type:** `bytes`
+*   **Note:** This can only be read once. So, if you need it, make sure you really need it.
 
-### `await request.text`
+### `await request.text`: Body as a String! 📝
 
-The request body, decoded as a string.
+The request body, thoughtfully decoded as a string.
 
-- **Type:** `str`
+*   **Type:** `str`
 
-### `await request.json()`
+### `await request.json()`: The JSON Payload! 📄
 
-The request body, parsed as a JSON object. If parsing fails, it will raise an exception.
+The request body, parsed as a JSON object. If it's not valid JSON, an exception will politely inform you.
 
-- **Type:** `Any` (typically `dict` or `list`)
+*   **Type:** `Any` (typically `dict` or `list`)
 
-### `await request.form()`
+### `await request.form()`: Old-School Form Data! 📮
 
-The request body, parsed as a form (URL-encoded).
+The request body, parsed as URL-encoded form data. Great for traditional HTML forms.
 
-- **Type:** `Dict[str, Any]`
-- **Note:** This is suitable for `application/x-www-form-urlencoded` data. For multipart forms (file uploads), support is planned.
+*   **Type:** `Dict[str, Any]`
+*   **Note:** This is for `application/x-www-form-urlencoded`. Multipart forms (file uploads) are still on the "coming soon" list.

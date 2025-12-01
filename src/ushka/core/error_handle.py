@@ -86,10 +86,10 @@ def extract_frames(exc: Exception):
 
         frame_blocks.append(
             {
-                "filename": filename,
-                "lineno": lineno,
+                "filepath": filename,
+                "line": lineno,
                 "function_name": func_name,
-                "code": code_context,
+                "context": code_context,
                 "locals": safe_locals,
             }
         )

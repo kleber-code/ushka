@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>{% block title %}Ushka Framework{% endblock %}</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Quicksand', 'Nunito', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            },
+            borderRadius: {
+                'cute': '1.5rem', /* Very rounded borders */
+            }
+          }
+        }
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-light-theme" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-dark-theme" disabled />
+
+    <style>
+      :root {
+        /* --- SOFT MONO THEME (Light) --- */
+        --bg-color: #fafafa;       
+        --card-bg: #ffffff;        
+        --card-border: #e4e4e7;    /* Very light gray for subtle borders */
+        
+        --text-main: #27272a;      /* Dark gray (almost black, less aggressive) */
+        --text-sub: #71717a;       /* Medium gray */
+        --text-muted: #a1a1aa;     
+        
+        --code-bg: #f4f4f5;        
+        --code-border: #e4e4e7;    
+        
+        --accent-primary: #27272a; /* Botões escuros */
+        --accent-hover: #52525b;   
+        --accent-text: #ffffff;    
+        
+        --error-color: #dc2626;    /* Vermelho um pouco mais suave que preto puro para erros */
+        --error-bg: #fef2f2;       
+        
+        --scroll-track: #fafafa;
+        --scroll-thumb: #d4d4d8;
+        --scroll-hover: #a1a1aa;
+        
+        /* Soft and cute shadow */
+        --shadow-cute: 0 4px 12px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0,0,0,0.02);
+        --shadow-hover: 0 8px 16px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0,0,0,0.04);
+      }
+
+      html.dark {
+        /* --- SOFT DARK THEME (Dark) --- */
+        --bg-color: #18181b;       
+        --card-bg: #27272a;        
+        --card-border: #3f3f46;    /* Slightly darker borders */
+        
+        --text-main: #fafafa;      
+        --text-sub: #d4d4d8;       
+        --text-muted: #71717a;     
+        
+        --code-bg: #121212;        
+        --code-border: #3f3f46;    
+        
+        --accent-primary: #fafafa; /* Light buttons */
+        --accent-hover: #e4e4e7;   
+        --accent-text: #18181b;    
+        
+        --error-color: #f87171;    
+        --error-bg: #450a0a;       
+        
+        --scroll-track: #18181b;
+        --scroll-thumb: #3f3f46;
+        --scroll-hover: #71717a;
+
+        /* Soft inverted shadow for dark mode */
+        --shadow-cute: 0 4px 12px rgba(0, 0, 0, 0.3);
+        --shadow-hover: 0 8px 16px rgba(0, 0, 0, 0.5);
+      }
+
+      body {
+        font-family: 'Quicksand', sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        transition: background-color 0.3s ease, color 0.3s ease;
+        /* Super subtle dot pattern */
+        background-image: radial-gradient(var(--card-border) 1px, transparent 1px);
+        background-size: 24px 24px;
+        font-weight: 500; /* Slightly bolder font */
+      }
+
+      .kaomoji {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 3rem;
+          color: var(--text-main);
+          font-weight: 700;
+      }
+      
+      /* Responsiveness for Kaomoji */
+      @media (max-width: 640px) {
+          .kaomoji { font-size: 2rem; }
+      }
+
+      /* Scrollbar Fina e Redonda */
+      ::-webkit-scrollbar { width: 6px; height: 6px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { 
+          background: var(--scroll-thumb); 
+          border-radius: 99px; 
+      }
+      ::-webkit-scrollbar-thumb:hover { background: var(--scroll-hover); }
+
+      /* --- Cute Components --- */
+      
+      .bg-card { background-color: var(--card-bg); }
+      .border-card { border-color: var(--card-border); }
+
+      /* Cute Card (No dashed border, with soft shadow) */
+      .card-cute {
+          background-color: var(--card-bg);
+          /* Very thin and subtle solid border */
+          border: 1px solid var(--card-border);
+          border-radius: var(--theme-borderRadius-cute);
+          box-shadow: var(--shadow-cute);
+          transition: all 0.3s ease;
+          overflow: hidden;
+      }
+      .card-cute:hover {
+          transform: translateY(-2px);
+          box-shadow: var(--shadow-hover);
+      }
+
+      /* Cute Button (Pill) */
+      .btn-cute {
+          background-color: var(--accent-primary);
+          color: var(--accent-text);
+          font-weight: 700;
+          padding: 0.75rem 1.5rem;
+          border-radius: 99px;
+          transition: all 0.2s ease;
+          box-shadow: var(--shadow-cute);
+          text-transform: uppercase;
+          font-size: 0.875rem;
+          letter-spacing: 0.05em;
+          border: none;
+      }
+      .btn-cute:hover {
+          transform: translateY(-2px);
+          box-shadow: var(--shadow-hover);
+          background-color: var(--accent-hover);
+      }
+      .btn-cute:active {
+          transform: translateY(0px);
+          box-shadow: var(--shadow-cute);
+      }
+
+      .hljs { background: transparent !important; padding: 0 !important; }
+
+      /* Floating Theme Toggle */
+#theme-toggle {
+          position: fixed;
+          bottom: 1rem;
+          left: 1rem;
+          background: var(--card-bg);
+          border: 1px solid var(--card-border);
+          color: var(--text-main);
+          
+          /* Changed from 50% to a fixed value for a soft square */
+          border-radius: 12px; 
+          
+          /* Ensures it stays a perfect square */
+          aspect-ratio: 1; 
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          padding: 0.75rem;
+          cursor: pointer;
+          box-shadow: var(--shadow-cute);
+          transition: all 0.3s ease;
+          z-index: 50;
+      }
+
+      #theme-toggle:hover {
+          /* Adjusted rotation for a cute 'tilt' effect */
+          transform: rotate(10deg) scale(1.1);
+          box-shadow: var(--shadow-hover);
+      }
+    </style>
+    {% block head_extra %}{% endblock %}
+  </head>
+  <body id="top" class="min-h-screen flex flex-col {% block body_classes %}{% endblock %}">
+
+    <button id="theme-toggle" aria-label="Toggle theme">
+        <i class="fa-solid fa-sun text-xl" id="sun-icon"></i>
+        <i class="fa-solid fa-moon text-xl hidden" id="moon-icon"></i>
+    </button>
+
+    {% block main_content %}{% endblock %}
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script>
+      const themeToggleBtn = document.getElementById('theme-toggle');
+      const sunIcon = document.getElementById('sun-icon');
+      const moonIcon = document.getElementById('moon-icon');
+      const htmlElement = document.documentElement;
+      
+      const hljsLight = document.getElementById('hljs-light-theme');
+      const hljsDark = document.getElementById('hljs-dark-theme');
+
+      function applyTheme(theme) {
+          if (theme === 'dark') {
+              htmlElement.classList.add('dark');
+              sunIcon.classList.add('hidden');
+              moonIcon.classList.remove('hidden');
+              if(hljsLight) hljsLight.disabled = true;
+              if(hljsDark) hljsDark.disabled = false;
+          } else {
+              htmlElement.classList.remove('dark');
+              sunIcon.classList.remove('hidden');
+              moonIcon.classList.add('hidden');
+              if(hljsLight) hljsLight.disabled = false;
+              if(hljsDark) hljsDark.disabled = true;
+          }
+      }
+
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) { applyTheme(savedTheme); } 
+      else if (window.matchMedia('(prefers-color-scheme: dark)').matches) { applyTheme('dark'); }
+
+      if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+            let currentTheme = htmlElement.classList.contains('dark') ? 'dark' : 'light';
+            let newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+            applyTheme(newTheme);
+        });
+      }
+      hljs.highlightAll();
+    </script>
+    {% block scripts_extra %}{% endblock %}
+  </body>
+</html>
