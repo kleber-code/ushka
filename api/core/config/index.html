@@ -8,31 +8,31 @@
       
       
       
-        <link rel="canonical" href="https://kleber-code.github.io/ushka/guide/requests/">
+        <link rel="canonical" href="https://kleber-code.github.io/ushka/api/core/config/">
       
       
-        <link rel="prev" href="../routing/">
+        <link rel="prev" href="../app/">
       
       
-        <link rel="next" href="../responses/">
+        <link rel="next" href="../error_handle/">
       
       
         
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
     
     
       
-        <title>Request Handling - Ushka Framework</title>
+        <title>Configuration - Ushka Framework</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.618322db.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -51,9 +51,9 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#handling-requests-what-did-they-say" class="md-skip">
+        <a href="#module" class="md-skip">
           Skip to content
         </a>
       
@@ -92,7 +92,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Ushka Framework" class="md-header__button md-logo" aria-label="Ushka Framework" data-md-component="logo">
+    <a href="../../.." title="Ushka Framework" class="md-header__button md-logo" aria-label="Ushka Framework" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Request Handling
+              Configuration
             
           </span>
         </div>
@@ -183,7 +183,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../.." class="md-tabs__link">
+      <a href="../../.." class="md-tabs__link">
         
   
   
@@ -200,13 +200,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../introduction/" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../../guide/introduction/" class="md-tabs__link">
           
   
   
@@ -222,6 +220,8 @@
   
   
   
+    
+  
   
     
     
@@ -229,11 +229,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../api/core/app/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../app/" class="md-tabs__link">
           
   
   
@@ -256,7 +258,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../project/roadmap/" class="md-tabs__link">
+        <a href="../../../project/roadmap/" class="md-tabs__link">
           
   
   
@@ -290,7 +292,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Ushka Framework" class="md-nav__button md-logo" aria-label="Ushka Framework" data-md-component="logo">
+    <a href="../../.." title="Ushka Framework" class="md-nav__button md-logo" aria-label="Ushka Framework" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -320,7 +322,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   
@@ -344,31 +346,26 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
             
   
   
@@ -386,7 +383,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -404,7 +401,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../introduction/" class="md-nav__link">
+      <a href="../../../guide/introduction/" class="md-nav__link">
         
   
   
@@ -432,7 +429,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../getting-started/" class="md-nav__link">
+      <a href="../../../guide/getting-started/" class="md-nav__link">
         
   
   
@@ -460,7 +457,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configuration/" class="md-nav__link">
+      <a href="../../../guide/configuration/" class="md-nav__link">
         
   
   
@@ -488,7 +485,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../routing/" class="md-nav__link">
+      <a href="../../../guide/routing/" class="md-nav__link">
         
   
   
@@ -513,37 +510,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Request Handling
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../../guide/requests/" class="md-nav__link">
         
   
   
@@ -559,98 +529,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#query-parameters-the-urls-little-secrets" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🔍 Query Parameters: The URL's Little Secrets!
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#request-body-unboxing-the-payload" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        📦 Request Body: Unboxing the Payload!
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="📦 Request Body: Unboxing the Payload!">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#reading-json-the-api-standard" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Reading JSON: The API Standard! 🧑‍💻
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#reading-raw-text-or-bytes-for-the-purists" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Reading Raw Text or Bytes: For the Purists! 📜
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#reading-form-data-the-old-school-way" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Reading Form Data: The Old School Way! 📝
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#request-headers-the-meta-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        🎩 Request Headers: The Meta-Data!
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -663,7 +541,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../responses/" class="md-nav__link">
+      <a href="../../../guide/responses/" class="md-nav__link">
         
   
   
@@ -691,7 +569,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../templates/" class="md-nav__link">
+      <a href="../../../guide/templates/" class="md-nav__link">
         
   
   
@@ -719,7 +597,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../errors/" class="md-nav__link">
+      <a href="../../../guide/errors/" class="md-nav__link">
         
   
   
@@ -747,7 +625,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../dependency-injection/" class="md-nav__link">
+      <a href="../../../guide/dependency-injection/" class="md-nav__link">
         
   
   
@@ -775,7 +653,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tutorial_simple_api/" class="md-nav__link">
+      <a href="../../../guide/tutorial_simple_api/" class="md-nav__link">
         
   
   
@@ -807,26 +685,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -844,7 +727,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -859,26 +742,31 @@
                 
   
   
+    
   
   
+  
     
     
     
     
       
       
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
         
           
-          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="">
             
   
   
@@ -896,7 +784,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3_1">
             <span class="md-nav__icon md-icon"></span>
             
@@ -914,7 +802,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/core/app/" class="md-nav__link">
+      <a href="../app/" class="md-nav__link">
         
   
   
@@ -939,10 +827,35 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../api/core/config/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -958,6 +871,68 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#module" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        module
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Config
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configload_from_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Config.load_from_file
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configget" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Config.get
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -970,7 +945,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/core/error_handle/" class="md-nav__link">
+      <a href="../error_handle/" class="md-nav__link">
         
   
   
@@ -998,7 +973,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/core/exceptions/" class="md-nav__link">
+      <a href="../exceptions/" class="md-nav__link">
         
   
   
@@ -1026,7 +1001,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/core/log/" class="md-nav__link">
+      <a href="../log/" class="md-nav__link">
         
   
   
@@ -1068,17 +1043,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
             
   
   
@@ -1114,7 +1092,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/features/static/" class="md-nav__link">
+      <a href="../../features/static/" class="md-nav__link">
         
   
   
@@ -1142,7 +1120,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/features/template/" class="md-nav__link">
+      <a href="../../features/template/" class="md-nav__link">
         
   
   
@@ -1184,17 +1162,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
         
           
-          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
             
   
   
@@ -1230,7 +1211,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/http/exceptions/" class="md-nav__link">
+      <a href="../../http/exceptions/" class="md-nav__link">
         
   
   
@@ -1258,7 +1239,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/http/request/" class="md-nav__link">
+      <a href="../../http/request/" class="md-nav__link">
         
   
   
@@ -1286,7 +1267,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/http/response/" class="md-nav__link">
+      <a href="../../http/response/" class="md-nav__link">
         
   
   
@@ -1328,17 +1309,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" >
         
           
-          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
             
   
   
@@ -1374,7 +1358,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/routing/router/" class="md-nav__link">
+      <a href="../../routing/router/" class="md-nav__link">
         
   
   
@@ -1469,7 +1453,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../project/roadmap/" class="md-nav__link">
+      <a href="../../../project/roadmap/" class="md-nav__link">
         
   
   
@@ -1497,7 +1481,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../project/contributing/" class="md-nav__link">
+      <a href="../../../project/contributing/" class="md-nav__link">
         
   
   
@@ -1542,8 +1526,6 @@
   
   
   
-    
-  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -1552,10 +1534,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#query-parameters-the-urls-little-secrets" class="md-nav__link">
+  <a href="#module" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🔍 Query Parameters: The URL's Little Secrets!
+        module
       
     </span>
   </a>
@@ -1563,60 +1545,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#request-body-unboxing-the-payload" class="md-nav__link">
+  <a href="#config" class="md-nav__link">
     <span class="md-ellipsis">
       
-        📦 Request Body: Unboxing the Payload!
+        Config
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="📦 Request Body: Unboxing the Payload!">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#reading-json-the-api-standard" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Reading JSON: The API Standard! 🧑‍💻
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#reading-raw-text-or-bytes-for-the-purists" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Reading Raw Text or Bytes: For the Purists! 📜
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#reading-form-data-the-old-school-way" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Reading Form Data: The Old School Way! 📝
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#request-headers-the-meta-data" class="md-nav__link">
+  <a href="#configload_from_file" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🎩 Request Headers: The Meta-Data!
+        Config.load_from_file
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configget" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Config.get
       
     </span>
   </a>
@@ -1640,68 +1594,49 @@
 
 
 
-<h1 id="handling-requests-what-did-they-say">👂 Handling Requests: What Did They Say?! 🧐<a class="headerlink" href="#handling-requests-what-did-they-say" title="Permanent link">&para;</a></h1>
-<p>In Ushka, all information about an incoming request lives inside the <code>Request</code> object. This guide will show you how to pull out exactly what you need in your route functions. Minimal fuss, maximum data.</p>
-<p>To get your hands on the <code>Request</code> object, just type-hint it in your function. Ushka's dependency injector will handle the rest. You're welcome.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ushka</span><span class="w"> </span><span class="kn">import</span> <span class="n">Request</span>
+  <h1>Configuration</h1>
+
+<h2 id="module"><code>module</code><a class="headerlink" href="#module" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">This</span> <span class="n">module</span> <span class="n">handles</span> <span class="n">configuration</span> <span class="n">management</span> <span class="k">for</span> <span class="n">the</span> <span class="n">Ushka</span> <span class="n">framework</span><span class="o">.</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">my_route</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="c1"># Now, what did they send us?</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="o">...</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">It</span> <span class="n">defines</span> <span class="n">the</span> <span class="err">`</span><span class="n">Config</span><span class="err">`</span> <span class="n">class</span><span class="p">,</span> <span class="n">which</span> <span class="n">uses</span> <span class="n">a</span> <span class="n">Singleton</span> <span class="n">pattern</span> <span class="n">to</span> <span class="n">provide</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">global</span> <span class="n">access</span> <span class="n">to</span> <span class="n">application</span> <span class="n">settings</span><span class="o">.</span> <span class="n">Configuration</span> <span class="ow">is</span> <span class="n">loaded</span> <span class="kn">from</span><span class="w"> </span><span class="nn">an</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="s1">&#39;ushka.toml&#39;</span> <span class="n">file</span><span class="p">,</span> <span class="k">with</span> <span class="n">support</span> <span class="k">for</span> <span class="n">default</span> <span class="n">values</span> <span class="ow">and</span> <span class="n">automatic</span> <span class="n">file</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">generation</span><span class="o">.</span>
 </code></pre></div>
-<h2 id="query-parameters-the-urls-little-secrets">🔍 Query Parameters: The URL's Little Secrets!<a class="headerlink" href="#query-parameters-the-urls-little-secrets" title="Permanent link">&para;</a></h2>
-<p>Query parameters are those <code>key=value</code> pairs at the end of a URL (e.g., <code>/search?q=ushka&amp;page=2</code>). Access them via <code>request.query</code>.</p>
-<p><strong><code>request.query</code></strong> is a dictionary. Treat it like one.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># GET /search?q=ushka&amp;page=2 (Because someone&#39;s looking for something)</span>
+<h2 id="config"><code>Config</code><a class="headerlink" href="#config" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">Manages</span> <span class="n">application</span> <span class="n">configuration</span> <span class="n">using</span> <span class="n">a</span> <span class="n">Singleton</span> <span class="n">pattern</span><span class="o">.</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/search&quot;</span><span class="p">)</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">def</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">query_term</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">)</span> <span class="c1"># Get &#39;q&#39;, or &#39;default&#39; if they forgot</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">page</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;page&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>       <span class="c1"># Get &#39;page&#39;, convert to int, or default to 1</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;You searched for &#39;</span><span class="si">{</span><span class="n">query_term</span><span class="si">}</span><span class="s2">&#39; on page </span><span class="si">{</span><span class="n">page</span><span class="si">}</span><span class="s2">. Hope you found it!&quot;</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">This</span> <span class="k">class</span><span class="w"> </span><span class="nc">loads</span> <span class="n">settings</span> <span class="kn">from</span><span class="w"> </span><span class="nn">an</span> <span class="s1">&#39;ushka.toml&#39;</span> <span class="n">file</span><span class="p">,</span> <span class="n">provides</span> <span class="n">default</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">values</span> <span class="k">for</span> <span class="n">missing</span> <span class="n">keys</span><span class="p">,</span> <span class="ow">and</span> <span class="n">makes</span> <span class="n">configuration</span> <span class="n">accessible</span> <span class="n">throughout</span> <span class="n">the</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">application</span><span class="o">.</span> <span class="n">The</span> <span class="n">Singleton</span> <span class="n">implementation</span> <span class="n">ensures</span> <span class="n">that</span> <span class="n">there</span> <span class="ow">is</span> <span class="n">only</span> <span class="n">one</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">instance</span> <span class="n">of</span> <span class="n">the</span> <span class="n">configuration</span> <span class="nb">object</span><span class="o">.</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="n">Attributes</span> <span class="n">are</span> <span class="n">dynamically</span> <span class="nb">set</span> <span class="kn">from</span><span class="w"> </span><span class="nn">the</span> <span class="n">TOML</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">the</span> <span class="nb">format</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="err">`</span><span class="n">SECTION_KEY</span><span class="err">`</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="p">,</span> <span class="err">`</span><span class="n">APP_DEBUG</span><span class="err">`</span><span class="p">)</span><span class="o">.</span>
 </code></pre></div>
-<h2 id="request-body-unboxing-the-payload">📦 Request Body: Unboxing the Payload!<a class="headerlink" href="#request-body-unboxing-the-payload" title="Permanent link">&para;</a></h2>
-<p>For <code>POST</code>, <code>PUT</code>, and <code>PATCH</code> requests, you'll probably find data in the request body. Since reading this data is an I/O operation, the methods are <code>async</code>. So, <code>await</code> them.</p>
-<h3 id="reading-json-the-api-standard">Reading JSON: The API Standard! 🧑‍💻<a class="headerlink" href="#reading-json-the-api-standard" title="Permanent link">&para;</a></h3>
-<p>Most APIs send JSON. Use <code>await request.json()</code>. If it's not JSON, it'll complain.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># POST /items (They&#39;re sending us a new item!)</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1"># Body: {&quot;name&quot;: &quot;New Widget&quot;, &quot;price&quot;: 29.99}</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/items&quot;</span><span class="p">)</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create_item</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="n">item_name</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Created item: </span><span class="si">{</span><span class="n">item_name</span><span class="si">}</span><span class="s2">. Don&#39;t spend it all at once!&quot;</span><span class="p">}</span>
+<h2 id="configload_from_file"><code>Config.load_from_file</code><a class="headerlink" href="#configload_from_file" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">Loads</span> <span class="n">configuration</span> <span class="kn">from</span><span class="w"> </span><span class="nn">a</span> <span class="n">TOML</span> <span class="n">file</span><span class="o">.</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">If</span> <span class="n">the</span> <span class="n">specified</span> <span class="n">file</span> <span class="n">does</span> <span class="ow">not</span> <span class="n">exist</span><span class="p">,</span> <span class="n">it</span> <span class="n">creates</span> <span class="n">one</span> <span class="k">with</span> <span class="n">default</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">settings</span><span class="o">.</span> <span class="n">It</span> <span class="n">merges</span> <span class="n">existing</span> <span class="n">settings</span> <span class="k">with</span> <span class="n">defaults</span> <span class="n">to</span> <span class="n">ensure</span> <span class="nb">all</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">necessary</span> <span class="n">configuration</span> <span class="n">keys</span> <span class="n">are</span> <span class="n">present</span><span class="o">.</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="n">Args</span><span class="p">:</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="n">config_path</span><span class="p">:</span> <span class="n">The</span> <span class="n">path</span> <span class="n">to</span> <span class="n">the</span> <span class="s1">&#39;ushka.toml&#39;</span> <span class="n">configuration</span> <span class="n">file</span><span class="o">.</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="n">Returns</span><span class="p">:</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>    <span class="n">The</span> <span class="n">loaded</span> <span class="ow">and</span> <span class="n">merged</span> <span class="n">configuration</span> <span class="k">as</span> <span class="n">a</span> <span class="n">TOML</span> <span class="n">document</span> <span class="nb">object</span><span class="o">.</span>
 </code></pre></div>
-<h3 id="reading-raw-text-or-bytes-for-the-purists">Reading Raw Text or Bytes: For the Purists! 📜<a class="headerlink" href="#reading-raw-text-or-bytes-for-the-purists" title="Permanent link">&para;</a></h3>
-<p>If you need the raw body, whether as text or bytes, you can use <code>await request.text()</code> or <code>await request.body()</code>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># POST /raw (Who knows what they&#39;re sending now...)</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="c1"># Body: Any text content</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/raw&quot;</span><span class="p">)</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handle_raw</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="n">text_content</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">text</span><span class="p">()</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="n">byte_content</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">body</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Received </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">byte_content</span><span class="p">)</span><span class="si">}</span><span class="s2"> bytes of... something. Minimalist, I guess.&quot;</span>
-</code></pre></div>
-<h3 id="reading-form-data-the-old-school-way">Reading Form Data: The Old School Way! 📝<a class="headerlink" href="#reading-form-data-the-old-school-way" title="Permanent link">&para;</a></h3>
-<p>For classic HTML forms using <code>application/x-www-form-urlencoded</code>, use <code>await request.form()</code>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># POST /login (Someone&#39;s trying to log in!)</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="c1"># Body: username=john&amp;password=secret</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/login&quot;</span><span class="p">)</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">login</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="n">form_data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">()</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="n">username</span> <span class="o">=</span> <span class="n">form_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;username&quot;</span><span class="p">)</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Welcome, </span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2">! Try not to break anything important.&quot;</span>
-</code></pre></div>
-<h2 id="request-headers-the-meta-data">🎩 Request Headers: The Meta-Data!<a class="headerlink" href="#request-headers-the-meta-data" title="Permanent link">&para;</a></h2>
-<p>All request headers are accessible through <code>request.headers</code>, which acts like a dictionary. It's case-insensitive, because we're not monsters.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/headers&quot;</span><span class="p">)</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_headers</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">user_agent</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user-agent&quot;</span><span class="p">,</span> <span class="s2">&quot;Mysterious Stranger&quot;</span><span class="p">)</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">accept_language</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;accept-language&quot;</span><span class="p">)</span> <span class="c1"># Because knowing languages is good</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Your User-Agent is: </span><span class="si">{</span><span class="n">user_agent</span><span class="si">}</span><span class="s2">. What an intriguing choice.&quot;</span>
+<h2 id="configget"><code>Config.get</code><a class="headerlink" href="#configget" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">Retrieves</span> <span class="n">a</span> <span class="n">configuration</span> <span class="n">value</span> <span class="n">by</span> <span class="n">its</span> <span class="n">attribute</span> <span class="n">name</span><span class="o">.</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">Args</span><span class="p">:</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">key</span><span class="p">:</span> <span class="n">The</span> <span class="n">name</span> <span class="n">of</span> <span class="n">the</span> <span class="n">configuration</span> <span class="n">attribute</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span><span class="p">,</span> <span class="s1">&#39;APP_DEBUG&#39;</span><span class="p">)</span><span class="o">.</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">default</span><span class="p">:</span> <span class="n">The</span> <span class="n">value</span> <span class="n">to</span> <span class="k">return</span> <span class="k">if</span> <span class="n">the</span> <span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">found</span><span class="o">.</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">Returns</span><span class="p">:</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    <span class="n">The</span> <span class="n">configuration</span> <span class="n">value</span> <span class="ow">or</span> <span class="n">the</span> <span class="n">specified</span> <span class="n">default</span><span class="o">.</span>
 </code></pre></div>
 
 
@@ -1787,10 +1722,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
       
     
   </body>

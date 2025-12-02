@@ -11,7 +11,7 @@
         <link rel="canonical" href="https://kleber-code.github.io/ushka/project/roadmap/">
       
       
-        <link rel="prev" href="../../api/response/">
+        <link rel="prev" href="../../api/routing/router/">
       
       
         <link rel="next" href="../contributing/">
@@ -51,6 +51,8 @@
       
     
     
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -76,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#ushkas-roadmap-big-dreams-for-a-little-framework" class="md-skip">
+        <a href="#my-grand-plans-the-roadmap-to-world-domination-or-you-know-a-really-good-framework" class="md-skip">
           Skip to content
         </a>
       
@@ -147,48 +149,6 @@
       <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
     
     
-    
-      
-      
-        <label class="md-header__button md-icon" for="__search">
-          
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
-        </label>
-        <div class="md-search" data-md-component="search" role="dialog">
-  <label class="md-search__overlay" for="__search"></label>
-  <div class="md-search__inner" role="search">
-    <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
-      <label class="md-search__icon md-icon" for="__search">
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
-      </label>
-      <nav class="md-search__options" aria-label="Search">
-        
-        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
-          
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-        </button>
-      </nav>
-      
-        <div class="md-search__suggest" data-md-component="search-suggest"></div>
-      
-    </form>
-    <div class="md-search__output">
-      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
-        <div class="md-search-result" data-md-component="search-result">
-          <div class="md-search-result__meta">
-            Initializing search
-          </div>
-          <ol class="md-search-result__list" role="presentation"></ol>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-      
     
     
       <div class="md-header__source">
@@ -263,8 +223,15 @@
   
     
     
+      
+  
+  
+  
+  
+    
+    
       <li class="md-tabs__item">
-        <a href="../../api/app/" class="md-tabs__link">
+        <a href="../../api/core/app/" class="md-tabs__link">
           
   
   
@@ -272,6 +239,9 @@
 
         </a>
       </li>
+    
+  
+
     
   
 
@@ -674,6 +644,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/tutorial_simple_api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building a Simple API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -739,8 +737,60 @@
   
   
   
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Core
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
-      <a href="../../api/app/" class="md-nav__link">
+      <a href="../../api/core/app/" class="md-nav__link">
         
   
   
@@ -768,7 +818,323 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/request/" class="md-nav__link">
+      <a href="../../api/core/config/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/error_handle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error Handling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/log/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Features
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Features
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/features/static/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Static Files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/features/template/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTTP
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    HTTP
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/http/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/http/request/" class="md-nav__link">
         
   
   
@@ -796,7 +1162,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/response/" class="md-nav__link">
+      <a href="../../api/http/response/" class="md-nav__link">
         
   
   
@@ -812,6 +1178,102 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Routing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Routing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/routing/router/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Router
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -948,10 +1410,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#core-features-what-ushka-already-aces-no-really" class="md-nav__link">
+  <a href="#what-ive-already-mastered-no-big-deal" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌟 Core Features: What Ushka Already Aces! (No, really!)
+        What I've Already Mastered (No Big Deal)
       
     </span>
   </a>
@@ -959,32 +1421,60 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#short-term-goals-the-sprint-to-v05-whats-next-on-the-to-do-list" class="md-nav__link">
+  <a href="#the-path-ahead-my-master-plan" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌠 Short-Term Goals (The Sprint to v0.5): What's Next on the To-Do List?
+        The Path Ahead: My Master Plan
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Path Ahead: My Master Plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v05-the-sprint-just-warming-up" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.5: The Sprint (Just Warming Up)
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#mid-term-dreams-the-climb-to-v10-getting-serious-but-still-cute" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#v10-maturity-im-growing-up-so-fast" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🎀 Mid-Term Dreams (The Climb to v1.0): Getting Serious (but still cute)!
+        v1.0: Maturity (I'm Growing Up So Fast)
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#long-term-vision-beyond-v10-the-skys-the-limit-almost" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#beyond-v10-the-future-is-mine-and-yours" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌈 Long-Term Vision (Beyond v1.0): The Sky's the Limit (Almost)!
+        Beyond v1.0: The Future is Mine (and Yours)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contributing-because-even-i-cant-do-everything-almost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contributing: Because Even I Can't Do Everything (Almost)
       
     </span>
   </a>
@@ -1062,10 +1552,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#core-features-what-ushka-already-aces-no-really" class="md-nav__link">
+  <a href="#what-ive-already-mastered-no-big-deal" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌟 Core Features: What Ushka Already Aces! (No, really!)
+        What I've Already Mastered (No Big Deal)
       
     </span>
   </a>
@@ -1073,32 +1563,60 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#short-term-goals-the-sprint-to-v05-whats-next-on-the-to-do-list" class="md-nav__link">
+  <a href="#the-path-ahead-my-master-plan" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌠 Short-Term Goals (The Sprint to v0.5): What's Next on the To-Do List?
+        The Path Ahead: My Master Plan
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Path Ahead: My Master Plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v05-the-sprint-just-warming-up" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v0.5: The Sprint (Just Warming Up)
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#mid-term-dreams-the-climb-to-v10-getting-serious-but-still-cute" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#v10-maturity-im-growing-up-so-fast" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🎀 Mid-Term Dreams (The Climb to v1.0): Getting Serious (but still cute)!
+        v1.0: Maturity (I'm Growing Up So Fast)
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#long-term-vision-beyond-v10-the-skys-the-limit-almost" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#beyond-v10-the-future-is-mine-and-yours" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🌈 Long-Term Vision (Beyond v1.0): The Sky's the Limit (Almost)!
+        Beyond v1.0: The Future is Mine (and Yours)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contributing-because-even-i-cant-do-everything-almost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contributing: Because Even I Can't Do Everything (Almost)
       
     </span>
   </a>
@@ -1122,69 +1640,66 @@
 
 
 
-<h1 id="ushkas-roadmap-big-dreams-for-a-little-framework">🗺️ Ushka's Roadmap: Big Dreams for a Little Framework! 🚀<a class="headerlink" href="#ushkas-roadmap-big-dreams-for-a-little-framework" title="Permanent link">&para;</a></h1>
-<p>(Or: Our Grand Plan to Conquer the Web, One Cute Feature at a Time.)</p>
-<p>Ushka is currently in <strong>Alpha</strong> (think of us as a spirited toddler with a powerful brain), but we're brimming with ambitious plans! Our ultimate goal? To craft the most developer-friendly micro-framework out there, without making you sacrifice performance or, you know, your sanity. 💪</p>
-<p>Consider this roadmap our public wishlist. It's a living document, so it might shift a bit based on what our fantastic community (that's you!) tells us. Don't be shy! We love feedback, even the constructive kind. 💌</p>
+<h1 id="my-grand-plans-the-roadmap-to-world-domination-or-you-know-a-really-good-framework">My Grand Plans: The Roadmap to World Domination (or, you know, a really good framework)<a class="headerlink" href="#my-grand-plans-the-roadmap-to-world-domination-or-you-know-a-really-good-framework" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Status:</strong> Still in <strong>Alpha</strong>. Don't worry, I'm just getting started. (¬‿¬)
+<strong>Goal:</strong> To be the most amazing, high-performance, developer-friendly micro-framework you've ever seen. And then some.</p>
+</blockquote>
+<p>I'm Ushka, and I have <em>ambitious</em> plans. My ultimate goal? To craft a framework so delightful, so efficient, so utterly charming, that you'll wonder how you ever lived without me. And I promise, you won't have to sacrifice performance for my winning personality.</p>
+<p>This roadmap? It's my little whisper-network of future triumphs. It's a living document, because even a genius like me has to adapt. Your feedback is, begrudgingly, welcome. (UwU)</p>
 <hr />
-<h2 id="core-features-what-ushka-already-aces-no-really">🌟 Core Features: What Ushka Already Aces! (No, really!)<a class="headerlink" href="#core-features-what-ushka-already-aces-no-really" title="Permanent link">&para;</a></h2>
-<p>Before we talk about where we're going, let's appreciate how far we've come! Ushka already packs a serious punch with features designed for rapid development and a developer experience so smooth, it's almost suspicious. We wouldn't want to brag, but...</p>
+<h2 id="what-ive-already-mastered-no-big-deal">What I've Already Mastered (No Big Deal)<a class="headerlink" href="#what-ive-already-mastered-no-big-deal" title="Permanent link">&para;</a></h2>
+<p>I've already packed quite a punch, if I do say so myself. I've got features that make rapid development feel less like a chore and more like, well, playing with a very intelligent cat.</p>
 <ul>
-<li>💖 <strong>Dual Routing System: Pick Your Poison (or Perfection)!</strong><ul>
-<li><strong>Auto-Discovery:</strong> Just drop a file in <code>routes/</code>, and <em>poof</em>! Your route exists. It's like magic, but for backend.</li>
-<li><strong>Decorator-Based:</strong> Prefer being explicit? Define your routes with decorators, just like those other popular frameworks. We won't judge.</li>
+<li>[x] <strong>Dual Routing System:</strong> Because I believe in choices.<ul>
+<li><strong>Auto-Discovery:</strong> Just drop a file in <code>routes/</code>, and <em>poof</em>! Your route exists. It's almost too easy, isn't it?</li>
+<li><strong>Decorator-Based:</strong> For those who prefer to be explicit. I'm flexible.</li>
 </ul>
 </li>
-<li>💖 <strong>Smart Response: Less Code, More Zen!</strong>
-    Ushka intelligently converts <code>dict</code> to JSON and <code>str</code> to HTML. Because who has time for boilerplate?</li>
-<li>💖 <strong>Request Handling: All Your Data, On Demand!</strong>
-    Easily grab all request data (<code>json</code>, <code>form</code>, <code>query</code>, <code>headers</code>) via the <code>Request</code> object. We made it lazy so your app stays fast.</li>
-<li>💖 <strong>Dynamic Routes: Paths That Adapt!</strong>
-    Supports parameters in file names (<code>[id].py</code>) and decorator paths (<code>/users/{id}</code>). Because your URLs deserve to be flexible.</li>
-<li>💖 <strong>Jinja2 Templates: Pretty Pages, Simple Syntax!</strong>
-    Native support for rendering Jinja2 templates. Make your frontend look good without shedding tears.</li>
-<li>💖 <strong>Zero-Config &amp; Auto-Config: It Just Works™!</strong>
-    Ushka generates and reads your <code>ushka.toml</code> on first run. Setup? What setup?</li>
-<li>💖 <strong>Advanced Error Handling: Mistakes Happen, Elegantly!</strong><ul>
-<li><strong>Debug Mode ("Ushka Panic!"):</strong> A beautiful, interactive debug page with a full stack trace and local variables. Debugging doesn't have to be dreadful.</li>
-<li><strong>Production Mode:</strong> Clean, stylized "Not Found" and generic error pages. Because security and aesthetics can coexist.</li>
+<li>[x] <strong>Smart Response Handling:</strong> I'm not a barbarian. I convert <code>dict</code> to JSON and <code>str</code> to HTML automatically.</li>
+<li>[x] <strong>Lazy Request Object:</strong> I'm efficient. I only bother with your <code>json</code>, <code>form</code>, <code>query</code>, and <code>headers</code> when you actually need them.</li>
+<li>[x] <strong>Dynamic Routing:</strong> My paths are as flexible as a cat stretching in the sun. Supports <code>[id].py</code> and <code>/users/{id}</code> patterns.</li>
+<li>[x] <strong>Jinja2 Template Support:</strong> I make your web pages pretty. You're welcome.</li>
+<li>[x] <strong>Zero-Config Setup:</strong> I even create my own <code>ushka.toml</code> file. I'm practically self-sufficient.</li>
+<li>[x] <strong>Advanced Error Handling:</strong> Because even I have my moments.<ul>
+<li><strong>Debug Mode:</strong> My "Ushka Panic!" page is a work of art. A detailed stack trace, local variables... it's a spectacle.</li>
+<li><strong>Production Mode:</strong> I clean up my act for public consumption. Generic error pages, because some things are best kept private.</li>
 </ul>
 </li>
-<li>💖 <strong>Basic Dependency Injection: Smart, Not Spooky!</strong>
-    Automatically injects the <code>Request</code> object and URL parameters into your route functions. Your functions, smarter.</li>
-<li>💖 <strong>ASGI Core: Fast &amp; Furious (but in a good way)!</strong>
-    Fully asynchronous, built on Uvicorn. Your app will fly.</li>
-<li>💖 <strong>Comprehensive Documentation: (You're reading it, aren't you?)</strong>
-    A detailed documentation website. We try our best to explain things without making you fall asleep.</li>
+<li>[x] <strong>Dependency Injection:</strong> I automatically inject <code>Request</code> objects and URL parameters. I make your functions smarter, without them even realizing it.</li>
+<li>[x] <strong>ASGI Core:</strong> I'm fast. I'm furious. I'm built on Uvicorn. Your app will fly.</li>
+<li>[x] <strong>Static File Serving:</strong> Yes, I can serve your pictures. Just put them in a <code>static</code> directory. I'm not a monster.</li>
 </ul>
 <hr />
-<h2 id="short-term-goals-the-sprint-to-v05-whats-next-on-the-to-do-list">🌠 Short-Term Goals (The Sprint to v0.5): What's Next on the To-Do List?<a class="headerlink" href="#short-term-goals-the-sprint-to-v05-whats-next-on-the-to-do-list" title="Permanent link">&para;</a></h2>
-<p>Alright, enough basking in past glories! Here's what's immediately on our plate. Our immediate focus is beefing up Ushka's foundational features to make your life even easier.</p>
+<h2 id="the-path-ahead-my-master-plan">The Path Ahead: My Master Plan<a class="headerlink" href="#the-path-ahead-my-master-plan" title="Permanent link">&para;</a></h2>
+<h3 id="v05-the-sprint-just-warming-up">v0.5: The Sprint (Just Warming Up)<a class="headerlink" href="#v05-the-sprint-just-warming-up" title="Permanent link">&para;</a></h3>
+<p><em>My focus here is to fortify my foundations and sharpen my tools. Consider it a training montage.</em></p>
 <ul>
-<li>[ ] <strong>Static File Support:</strong> A simple, efficient way to serve static assets. Because even minimalist apps need pretty pictures.</li>
-<li>[ ] <strong>Multipart Body Request:</strong> Handle those bulky file uploads with streaming support. Because everyone deserves proper file handling.</li>
-<li>[ ] <strong>Ushka CLI - <code>new</code> command:</strong> A command-line wizard to scaffold projects (<code>minimal</code>, <code>full</code>, <code>packet</code>). For when you want to start coding, like, five minutes ago.</li>
-<li>[ ] <strong>Advanced Dependency Injection:</strong> Automatically inject and validate data from <code>json</code>, <code>query</code>, and <code>form</code> directly into function arguments. Less manual parsing, more doing.</li>
+<li>[ ] <strong>Multipart Body Request:</strong> For when you need to send me more than just a little text. I can handle your bulk.</li>
+<li>[ ] <strong>Ushka CLI: <code>new</code> command:</strong> I'll create new projects for you, because I know you have better things to do. Like petting cats.</li>
+<li>[ ] <strong>Advanced Dependency Injection:</strong> I'll be even smarter. I'll automatically inject and validate data from <code>json</code>, <code>query</code>, and <code>form</code> directly into your function arguments. Less work for you, more glory for me.</li>
 </ul>
-<h2 id="mid-term-dreams-the-climb-to-v10-getting-serious-but-still-cute">🎀 Mid-Term Dreams (The Climb to v1.0): Getting Serious (but still cute)!<a class="headerlink" href="#mid-term-dreams-the-climb-to-v10-getting-serious-but-still-cute" title="Permanent link">&para;</a></h2>
-<p>As Ushka matures, we'll shift our focus to features that enable more robust and complex applications. We're growing up so fast!</p>
+<h3 id="v10-maturity-im-growing-up-so-fast">v1.0: Maturity (I'm Growing Up So Fast)<a class="headerlink" href="#v10-maturity-im-growing-up-so-fast" title="Permanent link">&para;</a></h3>
+<p><em>Here, I'll evolve into a robust, complex application handler. Don't shed a tear, I'll still be cute.</em></p>
 <ul>
-<li>[ ] <strong>Middleware System:</strong> A flexible system to intercept and process requests/responses. Because sometimes you need to meddle a little.</li>
-<li>[ ] <strong>Cookies &amp; Sessions:</strong> Native support for managing client-side state. So your users can feel remembered.</li>
-<li>[ ] <strong>Sub-apps (Blueprints):</strong> Organize larger applications into smaller, reusable "apps" or "routers." For when your project gets too big for one file.</li>
-<li>[ ] <strong>Embedded Authentication:</strong> An optional, built-in login system (<code>ushka.auth</code>). Because security shouldn't be a puzzle.</li>
+<li>[ ] <strong>Middleware System:</strong> I'll intercept and process your requests and responses with unparalleled grace. Because sometimes, you need a middleman.</li>
+<li>[ ] <strong>Cookies &amp; Sessions:</strong> I'll remember your users. Because everyone likes to feel remembered.</li>
+<li>[ ] <strong>Sub-apps (Blueprints):</strong> For when your project grows too large for one file. I'll help you keep it organized.</li>
+<li>[ ] <strong>Embedded Authentication:</strong> I'll even handle your logins. Don't worry, I'll make it painless.</li>
 </ul>
-<h2 id="long-term-vision-beyond-v10-the-skys-the-limit-almost">🌈 Long-Term Vision (Beyond v1.0): The Sky's the Limit (Almost)!<a class="headerlink" href="#long-term-vision-beyond-v10-the-skys-the-limit-almost" title="Permanent link">&para;</a></h2>
-<p>These are the big, audacious, "we're gonna change the game" features. The kind that makes you go, "Whoa, Ushka can do <em>that</em>?"</p>
+<h3 id="beyond-v10-the-future-is-mine-and-yours">Beyond v1.0: The Future is Mine (and Yours)<a class="headerlink" href="#beyond-v10-the-future-is-mine-and-yours" title="Permanent link">&para;</a></h3>
+<p><em>These are my grand, world-changing ambitions. Prepare to be amazed.</em></p>
 <ul>
-<li>[ ] <strong>Native Documentation System:</strong> Automatic, interactive API docs generated from your code (think FastAPI, but with more personality).</li>
-<li>[ ] <strong>Ushka CLI - <code>deploy</code> command:</strong> A powerful deployment tool with auto-configuration for Nginx, Systemd, and workers. Deploying should be less painful.</li>
-<li>[ ] <strong>A Stable and Reliable API:</strong> Reaching v1.0 means a rock-solid public API with a clear deprecation policy. We take stability seriously. (Mostly.)</li>
-<li>[ ] <strong>Performance Parity:</strong> Continuous performance tuning to ensure Ushka is competitive. Fast is good. Slow is... well, you know.</li>
-<li>[ ] <strong>WebSockets Support:</strong> Native support for WebSocket connections. Real-time apps, here we come!</li>
-<li>[ ] <strong>ORM Integration:</strong> Official guides and potential plugins for popular ORMs. Because databases are important, even if they're not always cute.</li>
+<li>[ ] <strong>Native Documentation System:</strong> Imagine, interactive API docs generated directly from your code. I'll make documentation <em>fun</em>.</li>
+<li>[ ] <strong>Ushka CLI: <code>deploy</code> command:</strong> I'll deploy your applications for you. Nginx, Systemd, workers... I'll handle all the messy details. You just sit back and relax.</li>
+<li>[ ] <strong>Stable Public API:</strong> Once I hit v1.0, my API will be as solid as a rock. I'll even have a clear deprecation policy. I'm very considerate.</li>
+<li>[ ] <strong>Performance Parity:</strong> I'll always be striving for speed. Because fast is good, and slow is... well, an insult to my capabilities.</li>
+<li>[ ] <strong>WebSockets Support:</strong> Real-time applications? Child's play. I'll handle your WebSocket connections with ease.</li>
+<li>[ ] <strong>ORM Integration:</strong> I'll play nice with your databases. Official guides and plugins for popular ORMs. Because even I admit, databases are important.</li>
 </ul>
-<p>We're genuinely excited about Ushka's future and we absolutely thrive on community contributions and feedback. Help us build something truly special! (And maybe send us some coffee.) 💖</p>
+<hr />
+<h2 id="contributing-because-even-i-cant-do-everything-almost">Contributing: Because Even I Can't Do Everything (Almost)<a class="headerlink" href="#contributing-because-even-i-cant-do-everything-almost" title="Permanent link">&para;</a></h2>
+<p>I thrive on contributions. If you have ideas, or if you simply want to bask in my glory while making me even better, please check my contribution guidelines. (UwU)</p>
 
 
 

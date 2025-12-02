@@ -2,62 +2,98 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://kleber-code.github.io/ushka/</loc>
-         <lastmod>2025-12-01</lastmod>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
-         <loc>https://kleber-code.github.io/ushka/api/app/</loc>
-         <lastmod>2025-12-01</lastmod>
+         <loc>https://kleber-code.github.io/ushka/api/core/app/</loc>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
-         <loc>https://kleber-code.github.io/ushka/api/request/</loc>
-         <lastmod>2025-12-01</lastmod>
+         <loc>https://kleber-code.github.io/ushka/api/core/config/</loc>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
-         <loc>https://kleber-code.github.io/ushka/api/response/</loc>
-         <lastmod>2025-12-01</lastmod>
+         <loc>https://kleber-code.github.io/ushka/api/core/error_handle/</loc>
+         <lastmod>2025-12-02</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/api/core/exceptions/</loc>
+         <lastmod>2025-12-02</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/api/core/log/</loc>
+         <lastmod>2025-12-02</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/api/features/static/</loc>
+         <lastmod>2025-12-02</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/api/features/template/</loc>
+         <lastmod>2025-12-02</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/api/http/exceptions/</loc>
+         <lastmod>2025-12-02</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/api/http/request/</loc>
+         <lastmod>2025-12-02</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/api/http/response/</loc>
+         <lastmod>2025-12-02</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/api/routing/router/</loc>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
          <loc>https://kleber-code.github.io/ushka/guide/configuration/</loc>
-         <lastmod>2025-12-01</lastmod>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
          <loc>https://kleber-code.github.io/ushka/guide/dependency-injection/</loc>
-         <lastmod>2025-12-01</lastmod>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
          <loc>https://kleber-code.github.io/ushka/guide/errors/</loc>
-         <lastmod>2025-12-01</lastmod>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
          <loc>https://kleber-code.github.io/ushka/guide/getting-started/</loc>
-         <lastmod>2025-12-01</lastmod>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
          <loc>https://kleber-code.github.io/ushka/guide/introduction/</loc>
-         <lastmod>2025-12-01</lastmod>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
          <loc>https://kleber-code.github.io/ushka/guide/requests/</loc>
-         <lastmod>2025-12-01</lastmod>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
          <loc>https://kleber-code.github.io/ushka/guide/responses/</loc>
-         <lastmod>2025-12-01</lastmod>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
          <loc>https://kleber-code.github.io/ushka/guide/routing/</loc>
-         <lastmod>2025-12-01</lastmod>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
          <loc>https://kleber-code.github.io/ushka/guide/templates/</loc>
-         <lastmod>2025-12-01</lastmod>
+         <lastmod>2025-12-02</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/guide/tutorial_simple_api/</loc>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
          <loc>https://kleber-code.github.io/ushka/project/contributing/</loc>
-         <lastmod>2025-12-01</lastmod>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
          <loc>https://kleber-code.github.io/ushka/project/roadmap/</loc>
-         <lastmod>2025-12-01</lastmod>
+         <lastmod>2025-12-02</lastmod>
     </url>
 </urlset>
