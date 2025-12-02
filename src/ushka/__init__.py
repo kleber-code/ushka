@@ -10,7 +10,7 @@ Exports:
     Response: The HTTP response class.
 """
 
-from ushka.core.app import Ushka
+from ushka.core import Ushka
 from ushka.core.config import Config
 from ushka.http.request import Request
 from ushka.http.response import Response

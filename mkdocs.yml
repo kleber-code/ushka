@@ -5,68 +5,83 @@ repo_name: kleber-code/ushka
 edit_uri: ""
 
 nav:
-  - 'Home': index.md
-  - 'User Guide':
-    - 'Introduction': 'guide/introduction.md'
-    - 'Getting Started': 'guide/getting-started.md'
-    - 'Configuration': 'guide/configuration.md'
-    - 'Routing': 'guide/routing.md'
-    - 'Request Handling': 'guide/requests.md'
-    - 'Response Handling': 'guide/responses.md'
-    - 'Templates': 'guide/templates.md'
-    - 'Error Handling': 'guide/errors.md'
-    - 'Dependency Injection': 'guide/dependency-injection.md'
-  - 'API Reference':
-    - 'Application': 'api/app.md'
-    - 'Request': 'api/request.md'
-    - 'Response': 'api/response.md'
-  - 'Project':
-    - 'Roadmap': 'project/roadmap.md'
-    - 'Contributing': 'project/contributing.md'
+    - "Home": index.md
+    - "User Guide":
+          - "Introduction": "guide/introduction.md"
+          - "Getting Started": "guide/getting-started.md"
+          - "Configuration": "guide/configuration.md"
+          - "Routing": "guide/routing.md"
+          - "Request Handling": "guide/requests.md"
+          - "Response Handling": "guide/responses.md"
+          - "Templates": "guide/templates.md"
+          - "Error Handling": "guide/errors.md"
+          - "Dependency Injection": "guide/dependency-injection.md"
+    - "API Reference":
+          - "Application": "api/app.md"
+          - "Request": "api/request.md"
+          - "Response": "api/response.md"
+          - 'Router': 'api/router.md'
+          - 'Config': 'api/config.md'
+          - 'Templating': 'api/template.md'
+          - 'Error Handling': 'api/error_handle.md'
+          - 'Logging': 'api/log.md'
+          - 'HTTP Exceptions': 'api/http_exceptions.md'
+          - 'Core Exceptions': 'api/core_exceptions.md'
+          - 'Static Serving': 'api/static.md'
+    - "Project":
+          - "Roadmap": "project/roadmap.md"
+          - "Contributing": "project/contributing.md"
 
 theme:
-  name: material
-  palette:
-    # Palette toggle for light vs dark mode
-    - scheme: default
-      primary: grey
-      accent: grey
-      toggle:
-        icon: material/lightbulb
-        name: Switch to dark mode
+    name: material
+    palette:
+        # Palette toggle for light vs dark mode
+        - scheme: default
+          primary: grey
+          accent: grey
+          toggle:
+              icon: material/lightbulb
+              name: Switch to dark mode
 
-    # Palette toggle for dark vs light mode
-    - scheme: slate
-      primary: grey
-      accent: grey
-      toggle:
-        icon: material/lightbulb-outline
-        name: Switch to light mode
-        
-  features:
-    - navigation.tabs
-    - navigation.sections
-    - navigation.top
-    - search.suggest
-    - search.highlight
-    - content.tabs.link
-    - content.code.annotation
-    - content.code.copy
-  icon:
-    repo: fontawesome/brands/github
+        # Palette toggle for dark vs light mode
+        - scheme: slate
+          primary: grey
+          accent: grey
+          toggle:
+              icon: material/lightbulb-outline
+              name: Switch to light mode
+
+    features:
+        - navigation.tabs
+        - navigation.sections
+        - navigation.top
+        - search.suggest
+        - search.highlight
+        - content.tabs.link
+        - content.code.annotation
+        - content.code.copy
+    icon:
+        repo: fontawesome/brands/github
 
 extra:
-  social:
-    - icon: fontawesome/brands/github
-      link: https://github.com/kleber-code
-    - icon: fontawesome/brands/python
-      link: https://pypi.org/project/ushka/
+    social:
+        - icon: fontawesome/brands/github
+          link: https://github.com/kleber-code
+        - icon: fontawesome/brands/python
+          link: https://pypi.org/project/ushka/
 
 markdown_extensions:
-  - pymdownx.highlight:
-      anchor_linenums: true
-  - pymdownx.inlinehilite
-  - pymdownx.snippets
-  - pymdownx.superfences
-  - toc:
-      permalink: true
+    - pymdownx.highlight:
+          anchor_linenums: true
+    - pymdownx.inlinehilite
+    - pymdownx.snippets
+    - pymdownx.superfences
+    - toc:
+          permalink: true
+
+plugins:
+    - mkdocstrings:
+        handlers:
+            python:
+                load_external_modules: true
+                paths: [src]
