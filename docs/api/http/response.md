@@ -40,18 +40,3 @@ Raises:
         to JSON fails.
 ```
 
-## `body`
-
-```python
-Sets the response body.
-
-This setter handles different types of content:
-- `bytes`: Stored directly for binary responses.
-- `str`: Stored as a string. `media_type` is inferred.
-- `dict` or `list`: Serialized to a JSON string.
-
-Raises:
-    ContentToJsonParserFailed: If serialization of a dict or list
-        to JSON fails.
-```
-

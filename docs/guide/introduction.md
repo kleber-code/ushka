@@ -31,3 +31,13 @@ Ushka might just be your soulmate framework if you:
 *   Want a framework that's genuinely fun to use and, dare we say, a little quirky.
 
 If you're heading into a massive, multi-year, enterprise-level project with a team of 50, a more established (and probably more verbose) framework might be a safer bet. But for almost everything else? Give Ushka a whirl. We think you'll be pleasantly surprised. 💖
+
+## 🚀 What's New in 0.3.0?
+
+Ushka `0.3.0` is a big step forward! We've listened to your feedback and added some exciting new features:
+
+*   **Robust Static File Serving:** Easily serve static assets like CSS, JavaScript, and images. Just create a `static` directory in your project, and Ushka will automatically handle the rest, with built-in security to prevent directory traversal attacks.
+*   **Major Documentation Overhaul:** We've completely revamped our documentation, with more examples, clearer explanations, and a full-fledged API reference generated automatically from our code's docstrings.
+*   **Security Enhancements:** We've patched a reflected Cross-Site Scripting (XSS) vulnerability and improved our binary response handling.
+
+We're committed to making Ushka the most enjoyable and productive framework for your projects. We hope you love the new features! 💖

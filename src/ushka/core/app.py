@@ -262,6 +262,11 @@ class Ushka:
     def get(self, path: str):
         """
         Decorator to register a function as a GET route handler.
+        Args:
+            path: The URL path for the route.
+
+        Returns:
+            The decorated function.
         """
 
         def wrapper(function):
@@ -273,6 +278,11 @@ class Ushka:
     def post(self, path: str):
         """
         Decorator to register a function as a POST route handler.
+        Args:
+            path: The URL path for the route.
+
+        Returns:
+            The decorated function.
         """
 
         def wrapper(function):
@@ -300,6 +310,11 @@ class Ushka:
     def update(self, path: str):
         """
         Decorator to register a function as an UPDATE route handler.
+        Args:
+            path: The URL path for the route.
+
+        Returns:
+            The decorated function.
         """
 
         def wrapper(function):
@@ -311,6 +326,11 @@ class Ushka:
     def head(self, path: str):
         """
         Decorator to register a function as a HEAD route handler.
+        Args:
+            path: The URL path for the route.
+
+        Returns:
+            The decorated function.
         """
 
         def wrapper(function):
@@ -322,6 +342,11 @@ class Ushka:
     def delete(self, path: str):
         """
         Decorator to register a function as a DELETE route handler.
+        Args:
+            path: The URL path for the route.
+
+        Returns:
+            The decorated function.
         """
 
         def wrapper(function):

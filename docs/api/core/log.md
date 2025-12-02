@@ -58,34 +58,3 @@ This class extends `rich.logging.RichHandler` to ensure a consistent
 look and feel for all framework and application logs.
 ```
 
-## `log_http`
-
-```python
-Logs an HTTP request/response cycle.
-
-Formats the log message with icons and colors based on the response
-status code.
-
-Args:
-    request: The incoming `Request` object.
-    response: The outgoing `Response` object.
-    process_time: The total time taken to process the request, in
-        milliseconds.
-```
-
-## `get_silent_uvicorn_config`
-
-```python
-Gets a logging configuration to silence default Uvicorn loggers.
-
-This method returns a dictionary that can be passed to `uvicorn.run`
-to route Uvicorn's logs through Ushka's custom handler, ensuring
-consistent log formatting.
-
-Args:
-    level: The desired logging level for the 'ushka' logger.
-
-Returns:
-    A dictionary containing the logging configuration for Uvicorn.
-```
-

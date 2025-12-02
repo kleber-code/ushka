@@ -17,6 +17,7 @@ port = 8000
 
 [app]
 debug = true
+static_dir = "static"
 ```
 
 ## Understanding the Sections:
@@ -44,6 +45,9 @@ This section defines general application-wide settings.
         *   Generic error pages are shown to users for security reasons.
         *   Performance optimizations are prioritized.
         *   Less verbose logging.
+*   **`static_dir`** (string, default: `"static"`):
+    The directory where your static files (CSS, JS, images) are located. By default, Ushka will look for a `static` directory in your project's root.
+
 
 ## How Ushka Uses It
 

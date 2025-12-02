@@ -45,12 +45,22 @@ Displays a startup banner, mapped routes, and then starts the ASGI server.
 
 ```python
 Decorator to register a function as a GET route handler.
+Args:
+    path: The URL path for the route.
+
+Returns:
+    The decorated function.
 ```
 
 ## `Ushka.post`
 
 ```python
 Decorator to register a function as a POST route handler.
+Args:
+    path: The URL path for the route.
+
+Returns:
+    The decorated function.
 ```
 
 ## `Ushka.put`
@@ -69,64 +79,6 @@ Returns:
 
 ```python
 Decorator to register a function as an UPDATE route handler.
-```
-
-## `Ushka.head`
-
-```python
-Decorator to register a function as a HEAD route handler.
-```
-
-## `Ushka.delete`
-
-```python
-Decorator to register a function as a DELETE route handler.
-```
-
-## `handle_http_request`
-
-```python
-Handles an incoming HTTP request, routes it to the appropriate function,
-and sends back the response.
-```
-
-## `handle_lifespan`
-
-```python
-Handles ASGI lifespan events (startup and shutdown).
-```
-
-## `handle_asgi_call`
-
-```python
-Dispatches incoming ASGI calls to the appropriate handler based on the scope type.
-```
-
-## `run`
-
-```python
-Runs the Ushka application using Uvicorn.
-
-Displays a startup banner, mapped routes, and then starts the ASGI server.
-```
-
-## `get`
-
-```python
-Decorator to register a function as a GET route handler.
-```
-
-## `post`
-
-```python
-Decorator to register a function as a POST route handler.
-```
-
-## `put`
-
-```python
-Decorator to register a function as a PUT route handler.
-
 Args:
     path: The URL path for the route.
 
@@ -134,21 +86,25 @@ Returns:
     The decorated function.
 ```
 
-## `update`
-
-```python
-Decorator to register a function as an UPDATE route handler.
-```
-
-## `head`
+## `Ushka.head`
 
 ```python
 Decorator to register a function as a HEAD route handler.
+Args:
+    path: The URL path for the route.
+
+Returns:
+    The decorated function.
 ```
 
-## `delete`
+## `Ushka.delete`
 
 ```python
 Decorator to register a function as a DELETE route handler.
+Args:
+    path: The URL path for the route.
+
+Returns:
+    The decorated function.
 ```
 

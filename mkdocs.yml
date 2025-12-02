@@ -17,17 +17,21 @@ nav:
           - "Error Handling": "guide/errors.md"
           - "Dependency Injection": "guide/dependency-injection.md"
     - "API Reference":
-          - "Application": "api/app.md"
-          - "Request": "api/request.md"
-          - "Response": "api/response.md"
-          - 'Router': 'api/router.md'
-          - 'Config': 'api/config.md'
-          - 'Templating': 'api/template.md'
-          - 'Error Handling': 'api/error_handle.md'
-          - 'Logging': 'api/log.md'
-          - 'HTTP Exceptions': 'api/http_exceptions.md'
-          - 'Core Exceptions': 'api/core_exceptions.md'
-          - 'Static Serving': 'api/static.md'
+          - "Core":
+              - "Application": "api/core/app.md"
+              - "Configuration": "api/core/config.md"
+              - "Error Handling": "api/core/error_handle.md"
+              - "Exceptions": "api/core/exceptions.md"
+              - "Logging": "api/core/log.md"
+          - "Features":
+              - "Static Files": "api/features/static.md"
+              - "Templates": "api/features/template.md"
+          - "HTTP":
+              - "Exceptions": "api/http/exceptions.md"
+              - "Request": "api/http/request.md"
+              - "Response": "api/http/response.md"
+          - "Routing":
+              - "Router": "api/routing/router.md"
     - "Project":
           - "Roadmap": "project/roadmap.md"
           - "Contributing": "project/contributing.md"

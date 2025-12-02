@@ -14,8 +14,8 @@ def generate_doc_from_file(filepath):
         docstrings["module"] = module_docstring
 
     # Class and function docstrings
-    for node in ast.walk(tree):
-        if isinstance(node, ast.FunctionDef) or isinstance(node, ast.AsyncFunctionDef):
+    for node in tree.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             if not node.name.startswith("_"):
                 docstrings[node.name] = ast.get_docstring(node)
         elif isinstance(node, ast.ClassDef):

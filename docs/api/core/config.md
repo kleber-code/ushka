@@ -52,32 +52,3 @@ Returns:
     The configuration value or the specified default.
 ```
 
-## `load_from_file`
-
-```python
-Loads configuration from a TOML file.
-
-If the specified file does not exist, it creates one with default
-settings. It merges existing settings with defaults to ensure all
-necessary configuration keys are present.
-
-Args:
-    config_path: The path to the 'ushka.toml' configuration file.
-
-Returns:
-    The loaded and merged configuration as a TOML document object.
-```
-
-## `get`
-
-```python
-Retrieves a configuration value by its attribute name.
-
-Args:
-    key: The name of the configuration attribute (e.g., 'APP_DEBUG').
-    default: The value to return if the key is not found.
-
-Returns:
-    The configuration value or the specified default.
-```
-

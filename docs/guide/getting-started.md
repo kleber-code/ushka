@@ -51,7 +51,7 @@ if __name__ == "__main__":
     app.run()
 ```
 
-The first time you run the app, Ushka will be a good host and create a `ushka.toml` file for you with default configurations. No manual setup required for that.
+The first time you run the aool, Ushka will be a good host and create a `ushka.toml` file for you with default configurations. No manual setup required for that.
 
 ### 4. Run the App: Showtime! 🎬
 
@@ -62,3 +62,22 @@ python app.py
 ```
 
 You should see Ushka's startup banner (we think it's pretty neat) and a table of all discovered routes. Now, point your browser to `http://127.0.0.1:8000`. Congratulations, you've officially made Python cuter! (And launched an app.) 💖
+
+## 📁 Serving Static Files: CSS, JS, and Images!
+
+Need to serve static files like CSS, JavaScript, or images? Ushka makes it easy.
+
+1.  **Create a `static` directory** in your project's root:
+
+    ```text
+    my_project/
+    ├── app.py
+    ├── routes/
+    │   └── index.py
+    └── static/
+        └── style.css
+    ```
+
+2.  **Ushka will automatically serve** any files in the `static` directory under the `/static` path. For example, the file `static/style.css` will be available at `http://127.0.0.1:8000/static/style.css`.
+
+It's that simple! No extra configuration required.
