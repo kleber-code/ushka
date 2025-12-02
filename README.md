@@ -1,4 +1,4 @@
-# 💖 Ushka Framework: Make Python Cute Again! 🎀
+# Ushka Framework: My Masterpiece (and Yours, if You're Worthy)
 
 [![PyPI Version](https://img.shields.io/pypi/v/ushka)](https://pypi.org/project/ushka/)
 [![Documentation](https://img.shields.io/badge/Documentation-View%20Here-orange)](https://kleber-code.github.io/ushka/)
@@ -6,128 +6,130 @@
 ![License](https://img.shields.io/pypi/l/ushka)
 [![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-> ✨ **MINIMALIST ABOVE EVERYONE, CUTE ABOVE EVERYTHING.** ✨
-> The most adorable, agile, and visually captivating web framework for your Python adventures!
+> (¬‿¬) **MINIMALIST? OBVIOUSLY. CUTE? UNDENIABLY. SUPERIOR? ABSOLUTELY.** (UwU)
+> The most efficient, elegant, and frankly, *charming* web framework for your Python endeavors. You're welcome.
 
 ---
 
-## 🐾 Hello, Lovely Coder! I'm Ushka!
+## Oh, You're Here. I'm Ushka.
 
-Are you tired of web frameworks that feel... well, a bit *boring*? 😴 Black-and-white logs, endless configurations, and error pages that make you want to curl up and cry? 😭
+Are you tired of web frameworks that feel like they were designed by accountants? (`. _ .`) With their drab logs, endless configurations, and error pages that make you want to curl up and hibernate?
 
-💖 Ushka believes backend coding should be a joyous, beautiful experience! I transform the mundane into the magical, turning complex tasks into simple, delightful moments.
+I, Ushka, believe backend coding should be a joyous, beautiful experience. I take the mundane and turn it into the magnificent, transforming complex tasks into simple, delightful moments. Yes, I'm that good.
 
-### 🌟 Why choose little old me? (Ushka's Sweet Perks!)
+### Why Choose Little Old Me? (My Undeniable Charms)
 
-*   **🎨 Visual Delight:** My terminal logs are a pastel dream! Minimalist, organized, and bursting with helpful colors.
-*   **📂 File-Based Routing: Pure Magic!** ✨
-    Forget wrestling with imports. Just create a file in your `routes/` folder, and *poof*! Your API endpoint is ready to charm.
-*   **✍️ Decorator Routing: Elegantly Expressive!**
-    For those who love a clear declaration, define your routes with cute little decorators, just like hugging your code!
-*   **🧠 Zero Config: Instant Cuddles!**
-    Run me for the first time, and I'll lovingly craft an `ushka.toml` just for you. No fuss, just fun!
-*   **🛡️ Ushka Panic: The Cutest Errors!**
-    Oopsie! A bug? My interactive error page is so darling, you might just fall in love with debugging! Copy tracebacks, inspect variables – all with a friendly smile.
-
----
-
-## 📚 Peek at the Docs!
-
-This README is just a tiny hug! For a deeper dive into Ushka's heart, including tutorials, guides, and a full API reference, flutter over to our **[full documentation here](https://kleber-code.github.io/ushka/)**.
+*   **Visual Flair:** My terminal logs are a masterpiece! Minimalist, organized, and bursting with helpful colors. A feast for your eyes.
+*   **File-Based Routing: Pure Genius!**
+    Forget wrestling with imports. Just create a file in your `routes/` folder, and *poof*! Your API endpoint is ready to dazzle.
+*   **Decorator Routing: Elegantly Expressive!**
+    For those who prefer a clear declaration, define your routes with my charming little decorators. It's like whispering sweet nothings to your code.
+*   **Zero Config: Instant Gratification!**
+    Run me for the first time, and I'll lovingly craft an `ushka.toml` just for you. No fuss, just pure, unadulterated convenience.
+*   **Ushka Panic: My Error Pages are Better Than Yours!**
+    Oopsie! A "bug"? My interactive error page is so well-designed, you might just fall in love with debugging. Copy tracebacks, inspect variables – all with an air of sophisticated superiority.
 
 ---
 
-## ✅ What Ushka does best! (Tiny but Mighty Features!)
+## Don't Just Stand There, Admire the Docs!
 
-Ushka is always growing with love! Here's what's purring smoothly in the current version:
-
-*   ✅ **Dual Routing System: Double the Cuteness!**
-    *   **Auto-Discovery:** Automatic route mapping just by creating files in `routes/`.
-    *   **Decorator-Based:** Explicitly define routes with `@app.get()`, `@app.post()`, etc.
-*   ✅ **Smart `Request` Object: Clever & Cozy!**
-    Access `headers`, `query`, `body`, `json`, and `form` data effortlessly. Data loads lazily, just when you need a little peek!
-*   ✅ **Flexible `Response`: Your Way, Always!**
-    Return a `dict` (for yummy JSON), a `str` (for snuggly HTML), or a full `Response` object for ultimate control!
-*   ✅ **Jinja2 Templates: Warm & Fuzzy!**
-    Native support with a simple `render()` function to make your pages sparkle.
-*   ✅ **Ushka Panic: Debugging is a Breeze!**
-    Stylized error handling (500/404) with a cozy dark theme, interactive stacktrace, and super clear code highlighting.
-*   ✅ **Auto Config: Set & Forget!**
-    Automatic generation and gentle reading of `ushka.toml`.
-*   ✅ **Rich Logging: A Symphony of Colors!**
-    Request logs adorned with colors for every status code (Success=Green, Error=Red, Redirect=Blue).
-*   ✅ **Dependency Injection: Smart Helpers!**
-    Automatically inject the `Request` object and dynamic URL parameters into your route functions with just a type-hint. So clever!
-*   ✅ **Core ASGI: Speedy & Sweet!**
-    Built on Uvicorn, fully asynchronous for a zippy, happy experience.
+This README is merely an appetizer. For a full, immersive experience into my magnificent mind, including tutorials, guides, and a comprehensive API reference, float over to my **[glorious documentation here](https://kleber-code.github.io/ushka/)**.
 
 ---
 
-## 📦 Install Ushka (It's a Cinch!)
+## What I Excel At (Because I Do)
 
-Getting started is as easy as a gentle purr!
+I'm always evolving, always improving. Here's what's running flawlessly in my current iteration:
+
+*   **Dual Routing System: Double the Efficiency!**
+    *   **Auto-Discovery:** Automatic route mapping just by creating files in `routes/`. I just *know*.
+    *   **Decorator-Based:** Explicitly define routes with `@app.get()`, `@app.post()`, etc. Because sometimes, you like to be clear.
+*   **Smart `Request` Object: Clever and Resourceful!**
+    Access `headers`, `query`, `body`, `json`, and `form` data effortlessly. Data loads lazily, exactly when you need a peek.
+*   **Flexible `Response`: Your Wish is My Command!**
+    Return a `dict` (for elegant JSON), a `str` (for refined HTML), or a full `Response` object for ultimate command.
+*   **Jinja2 Templates: Beautiful Pages, Effortlessly!**
+    Native support with a simple `render()` function to make your pages shine.
+*   **Ushka Panic: Debugging, Redefined!**
+    Stylized error handling (500/404) with a sophisticated dark theme, interactive stacktrace, and crystal-clear code highlighting. Debugging? More like a guided tour.
+*   **Auto Config: Set It and Forget It!**
+    Automatic generation and gentle reading of `ushka.toml`. I handle the details.
+*   **Rich Logging: A Symphony of Insight!**
+    Request logs adorned with colors for every status code (Success=Green, Error=Red, Redirect=Blue). Because even my logs are aesthetic.
+*   **Dependency Injection: My Little Helpers!**
+    Automatically inject the `Request` object and dynamic URL parameters into your route functions with just a type-hint. I make your functions smarter without them even realizing it.
+*   **Core ASGI: Speedy and Seamless!**
+    Built on Uvicorn, fully asynchronous for a zippy, happy experience. Your app will fly.
+*   **Static File Serving: I Even Fetch Your Pictures!**
+    Zero-config serving from your `static/` directory. I'm not a monster.
+
+---
+
+## Acquire Ushka (It's a Cinch!)
+
+Getting started with me is so easy, it's almost an insult to your intelligence. Almost.
 
 ```bash
 pip install ushka
-````
+```
 
 -----
 
-## 🚀 How to Play with Ushka! (Super Simple Steps!)
+## How to Play with Ushka! (My Simple Instructions)
 
-Ushka offers two delightful ways to build your API. Pick your favorite or mix them up!
+I offer two delightful ways to build your API. Choose your preferred method, or mix them. I won't tell.
 
-### Method 1: File-Based Routing (The Classic Cuddle!)
+### Method 1: File-Based Routing (The Classic Ushka Maneuver!)
 
-This method embraces "Convention over Configuration" with a warm hug!
+This method embraces the "Convention over Configuration" philosophy with a knowing smirk.
 
-**1. Your Project's Cozy Nook:**
+**1. Your Project's Sanctum:**
 ```text
 my_project/
-├── app.py              # Where all the magic begins!
-├── ushka.toml          # Ushka lovingly creates this for you!
-└── routes/             # Your delightful Routes (Pure enchantment!)
-    ├── index.py        # Route: /
+├── app.py              # Where all the magic *truly* begins!
+├── ushka.toml          # My auto-generated masterpiece for you!
+└── routes/             # Your elegant Routes (Where I expect them to be)
+    ├── index.py        # Route: / (The grand entrance)
     └── users/
-        └── [id].py     # Route: /users/<id>
+        └── [id].py     # Route: /users/<id> (For your dynamic needs)
 ```
 
-**2. Your First Charming Route (`routes/index.py`):**
+**2. Your First Incantation (`routes/index.py`):**
 
-The function name sweetly becomes your HTTP Method!
+The function name, of course, becomes your HTTP Method. So intuitive.
 ```python
-# Responds to GET / with a little wave!
+# Responds to GET / with a delightful greeting!
 def get():
-    return "<h1>Hello, World from Ushka! 💖</h1>"
+    return "<h1>Hello, World from Ushka! (¬‿¬)</h1>"
 ```
 
-**3. Your Little App (`app.py`):**
+**3. Your Application's Heart (`app.py`):**
 ```python
 from ushka import Ushka
 
 app = Ushka()
 
 if __name__ == "__main__":
-    # Host and port are loaded from your cozy ushka.toml
+    # My host and port are loaded from your ushka.toml. I handle the details.
     app.run()
 ```
 
-### Method 2: Decorator-Based Routing (The Explicit Embrace!)
+### Method 2: Decorator-Based Routing (The Explicit Declaration!)
 
-Prefer to see all your routes in one happy place? Decorators are your best friend!
+Prefer to see all your routes clearly laid out? Decorators are your allies.
 
-**1. Your Little App (`app.py`):**
+**1. Your Application's Heart (`app.py`):**
 ```python
 from ushka import Ushka, Request
 
 app = Ushka()
 
-# Responds to GET / with a cheerful greeting!
+# Responds to GET / with a charming welcome!
 @app.get("/")
 def index():
-    return "<h1>Hello from a decorator, with love!</h1>"
+    return "<h1>Hello from a decorator. Fancy seeing you here.</h1>"
 
-# Responds to POST /users with a warm welcome!
+# Responds to POST /users with a warm reception!
 @app.post("/users")
 async def create_user(request: Request):
     user_data = await request.json()
@@ -137,37 +139,37 @@ if __name__ == "__main__":
     app.run()
 ```
 
-### Run it! (So exciting!)
+### Unleash Me! (The Grand Performance!)
 
 ```bash
 python app.py
 ```
-Peep at your terminal! Admire the adorable banner. See your neat route table.
-Now, dash over to `http://127.0.0.1:8000` and feel the cuteness!
+Gaze upon your terminal! Marvel at my magnificent banner. Observe the perfectly aligned route table.
+Now, proceed to `http://127.0.0.1:8000` and experience true elegance.
 
 -----
 
-## 🖼️ A Glimpse of Cuteness! (Visual Showcase)
+## A Glimpse of My Perfection! (Visual Showcase)
 
-### The "Ushka Panic" (Your Debugging Buddy!)
+### The "Ushka Panic" (Your Guide Through the Maelstrom!)
 
-We know little accidents happen, but debugging shouldn't be a scary monster! Ushka Panic is here to help with a smile.
+Little "accidents" happen. But debugging shouldn't be a horrifying ordeal. My Ushka Panic page is here to guide you with a knowing look.
 
-*   👀 **Inspect local variables:** Peek at what's happening behind the scenes!
-*   📋 **Copy the error:** One tiny click to share with your friends (or StackOverflow/ChatGPT)!
-*   🌙 **Dark theme:** So your eyes stay cozy even during late-night coding cuddles!
+*   👀 **Inspect local variables:** Peek at what went wrong. I won't tell.
+*   📋 **Copy the error:** One elegant click to share with your chosen oracle (or StackOverflow/ChatGPT).
+*   🌙 **Dark theme:** Because even in error, aesthetics are paramount.
 
 ![Ushka Panic Screenshot](src/ushka/internal/assets/ushka_panic.png)
 
 -----
 
-## 🤝 Join Our Cozy Community!
+## Join My Inner Circle!
 
-Ushka is made with so much ❤️. Spotted a teeny bug? Have a sweet feature idea? Please, open an Issue!
+I am crafted with much care. Spotted a minor imperfection? Have a brilliant feature idea you think I should implement? Please, open an Issue! I'm always listening.
 
 *   **License:** MIT
 *   **Author:** Kleber Code (kleber-code)
 
 -----
 
-*Made with an abundance of ❤️, Python magic, and endless purrs.*
+*Forged with an abundance of cleverness, Python sorcery, and an undeniable sense of self-importance.*

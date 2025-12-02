@@ -1,46 +1,46 @@
 <div style="text-align: center; padding: 4rem 0;">
-  <div style="font-family: 'JetBrains Mono', monospace; font-size: 5rem; margin-bottom: 1rem; white-space: nowrap;">/ᐠ - ˕ -マ Ⳋ</div>
-  <h1 style="font-size: 3rem; font-weight: bold; margin-bottom: 1rem;">Ushka Framework</h1>
-  <p style="font-size: 1.5rem; margin-bottom: 2rem;">Make Python Cute Again. The beautiful, agile, and visually striking web framework.</p>
+  <div style="font-family: 'JetBrains Mono', monospace; font-size: 5rem; margin-bottom: 1rem; white-space: nowrap;">(¬‿¬)</div>
+  <h1 style="font-size: 3rem; font-weight: bold; margin-bottom: 1rem;">Ushka Framework: My Grand Entrance</h1>
+  <p style="font-size: 1.5rem; margin-bottom: 2rem;">Making Python development *tolerable*. The most efficient, elegant, and frankly, *charming* web framework for your Python endeavors. You're welcome.</p>
   <p>
-    <a href="/ushka/guide/getting-started/" class="md-button md-button--primary">Get Started</a>
-    <a href="/ushka/guide/introduction/" class="md-button">Documentation</a>
+    <a href="/ushka/guide/getting-started/" class="md-button md-button--primary">Get Started (If You Dare)</a>
+    <a href="/ushka/guide/introduction/" class="md-button">Admire the Documentation</a>
   </p>
 </div>
 
 ---
 
-## ✨ Why Ushka?
+## Why Choose Me? (The Obvious Reasons)
 
-Tired of frameworks that feel bland and bureaucratic? Ushka brings joy back to backend development. We turn your filesystem into an API automatically, configure your server, and if something goes wrong, we show you a **Cute** error page so pretty you'll want to leave the bug there.
+Tired of frameworks designed by committee? I bring joy back to backend development. I effortlessly transform your filesystem into an API, manage your server (because you shouldn't have to), and if you manage to break something (which, let's be honest, you probably will), I present you with an error page so stunning, you might just frame it.
 
 <div class="grid cards" markdown>
 
 -  :material-folder-file-outline: __File-Based Routing__
-   Effortlessly turn your file structure into API endpoints.
+   Effortlessly turn your mundane file structure into dazzling API endpoints. It's almost like magic, but better.
 
 -  :material-code-json: __Decorator Routing__
-   Prefer explicit routes? Define them with simple decorators.
+   Prefer explicit declarations? Define your routes with my elegant decorators. I cater to all tastes.
 
 -  :material-palette-outline: __Visual DX__
-   Enjoy colorful, organized, and informative terminal logs.
+   Indulge in my colorful, meticulously organized, and incredibly informative terminal logs. Because even debugging should be beautiful.
 
--  :material-bug: __Panic Mode__
-   Interactive error pages with stack traces and local variable inspection.
+-  :material-bug: __Ushka Panic!__
+   Interactive error pages with full stack traces and local variable inspection. I make your mistakes look good.
 
 -  :material-hammer-wrench: __Zero Config__
-   Run your app with minimal setup, Ushka handles the boilerplate.
+   Run your app with minimal fuss. I handle the boilerplate. You're welcome.
 
 -  :material-injection: __Dependency Injection__
-   Automatically inject Request objects and URL parameters.
+   Automatically inject Request objects and URL parameters. I make your functions smarter, without them even realizing it.
 
 </div>
 
 ---
 
-## 📦 Installation
+## Acquisition (It's Quite Simple, Really)
 
-Install Ushka with pip:
+Install me with pip. If you can't manage this, I question your life choices.
 
 ```bash
 pip install ushka
@@ -48,7 +48,7 @@ pip install ushka
 
 ---
 
-## 🚀 Quick Start (File-Based)
+## A Glimpse of My Brilliance: Quick Start (File-Based)
 
 Create `app.py`:
 
@@ -64,31 +64,32 @@ if __name__ == "__main__":
 Create `routes/index.py`:
 
 ```python
-# Responds to GET /
+# Responds to GET / with a polite nod.
 def get():
-    return {"message": "Hello, Ushka!"}
+    return {"message": "Hello, Ushka! (UwU)"}
 ```
 
-Then run your app:
+Then, with a flourish, run your app:
 
 ```bash
 python app.py
 ```
-Visit `http://127.0.0.1:8000` in your browser!
+Visit `http://127.0.0.1:8000` in your browser. Marvel at my efficiency.
 
 ---
 
-## 🖼️ Visual Showcase: Ushka Panic!
+## Visual Spectacle: The Ushka Panic!
 
-Debugging doesn't have to be dreadful. Ushka's Panic Mode provides:
-- Inspection of local variables.
-- One-click error copying for quick sharing.
-- A dark theme to save your eyes at 3 AM.
+Debugging doesn't have to be a descent into madness. My Panic Mode is here to guide you with a knowing smirk.
+
+*   👀 **Inspect local variables:** Uncover the secrets of your code.
+*   📋 **Copy the error:** One elegant click to share with your chosen oracle (or StackOverflow/ChatGPT).
+*   🌙 **Dark theme:** Because even in moments of despair, aesthetics are paramount.
 
 ---
 
-## 📚 More Resources
+## Further Adoration (Resources)
 
-- [Full Documentation](/ushka/guide/introduction/)
-- [View on PyPI](https://pypi.org/project/ushka/)
-- [GitHub Repository](https://github.com/kleber-code/ushka)
+- [My Glorious Documentation](/ushka/guide/introduction/)
+- [My Presence on PyPI](https://pypi.org/project/ushka/)
+- [My GitHub Repository (Where the Magic Lives)](https://github.com/kleber-code/ushka)
