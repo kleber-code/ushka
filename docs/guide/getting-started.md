@@ -1,22 +1,22 @@
-# 🚀 Getting Started: Your First Ushka App! 🐾
+# Getting Started: Let's Make Some Magic
 
-Ready to dive in? Getting your first Ushka app up and running is surprisingly straightforward. We've tried to keep the setup as minimal as possible.
+Alright, enough talk. Let's get our hands dirty. I'm going to show you how easy it is to get started with me. And I do mean *easy*.
 
-## 📦 Installation: A Quick `pip install`!
+## Installation: The Hardest Part (Just Kidding)
 
-Ushka is available on PyPI. Install it like any other self-respecting Python package:
+I'm on PyPI, of course. You can install me with a simple `pip install`. If you can't handle that, we might have a problem.
 
 ```bash
 pip install ushka
 ```
 
-## 🌐 Running Your First App: Hello, World (and then some)!
+## Your First App: A Masterpiece in the Making
 
-Ushka's designed for simplicity. Here's how to get a basic "Hello, World" app purring along.
+We're going to build a "Hello, World" app. I know, I know, it's a cliché. But it's a classic for a reason. It's the first step on a long and beautiful journey. Or something like that.
 
-### 1. Project Structure: Keep it Tidy! 📂
+### 1. The Sacred Project Structure
 
-Create a folder for your project. Ushka expects a `routes` directory for its file-based routing. It's not optional.
+First, create a folder for your project. I'm not picky, but I do have one rule: you need a `routes` directory. That's where the magic happens.
 
 ```text
 my_project/
@@ -25,21 +25,21 @@ my_project/
     └── index.py
 ```
 
-### 2. Create a Route: Your App's First Greeting! 👋
+### 2. Your First Masterpiece: The Route
 
-In `routes/index.py`, define a function. Its name should correspond to the HTTP method.
+In `routes/index.py`, you're going to write a function. This function will be your first route. The name of the function determines the HTTP method. Simple, right?
 
 ```python
 # in routes/index.py
 
-# Responds to GET /
+# This little guy responds to GET /
 def get():
-    return "<h1>Hello, World from Ushka!</h1>" # A classic for a reason.
+    return "<h1>Behold, my magnificent creation!</h1>"
 ```
 
-### 3. Create the App: The Grand Orchestrator! 🎶
+### 3. The Grand Finale: The App
 
-Now, create `app.py` to initialize and run your Ushka application.
+Now, in `app.py`, you'll create an instance of me and run it. This is where it all comes together.
 
 ```python
 # in app.py
@@ -51,21 +51,21 @@ if __name__ == "__main__":
     app.run()
 ```
 
-The first time you run the aool, Ushka will be a good host and create a `ushka.toml` file for you with default configurations. No manual setup required for that.
+The first time you run this, I'll create a `ushka.toml` file for you. It's my little welcome gift. It has all the default configurations you'll need. You don't have to lift a finger.
 
-### 4. Run the App: Showtime! 🎬
+### 4. Showtime!
 
-Open your terminal in your project's folder and execute:
+Open your terminal, navigate to your project's folder, and run:
 
 ```bash
 python app.py
 ```
 
-You should see Ushka's startup banner (we think it's pretty neat) and a table of all discovered routes. Now, point your browser to `http://127.0.0.1:8000`. Congratulations, you've officially made Python cuter! (And launched an app.) 💖
+You'll see my beautiful startup banner (I'm very proud of it) and a table of all the routes I've discovered. Now, open your browser and go to `http://127.0.0.1:8000`. You've just created a web app. You're welcome.
 
-## 📁 Serving Static Files: CSS, JS, and Images!
+## Serving Static Files: Because We're Not Savages
 
-Need to serve static files like CSS, JavaScript, or images? Ushka makes it easy.
+Need to serve static files like CSS, JavaScript, or images? Of course you do. I'm not going to make you jump through hoops for that.
 
 1.  **Create a `static` directory** in your project's root:
 
@@ -78,6 +78,6 @@ Need to serve static files like CSS, JavaScript, or images? Ushka makes it easy.
         └── style.css
     ```
 
-2.  **Ushka will automatically serve** any files in the `static` directory under the `/static` path. For example, the file `static/style.css` will be available at `http://127.0.0.1:8000/static/style.css`.
+2.  **I'll automatically serve** any files in that directory under the `/static` path. So, `static/style.css` will be available at `http://127.0.0.1:8000/static/style.css`.
 
-It's that simple! No extra configuration required.
+It's that simple. I know, I'm amazing. OwO

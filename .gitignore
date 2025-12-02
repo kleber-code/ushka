@@ -163,3 +163,5 @@ cython_debug/
 
 .vscode
 pdm.lock
+context.md
+context_writer.md

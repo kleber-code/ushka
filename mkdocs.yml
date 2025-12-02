@@ -16,6 +16,7 @@ nav:
           - "Templates": "guide/templates.md"
           - "Error Handling": "guide/errors.md"
           - "Dependency Injection": "guide/dependency-injection.md"
+          - "Building a Simple API": "guide/tutorial_simple_api.md"
     - "API Reference":
           - "Core":
               - "Application": "api/core/app.md"
