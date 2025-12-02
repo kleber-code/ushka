@@ -8,11 +8,11 @@ Exports:
     Config: The global configuration manager.
     Request: The HTTP request class.
     Response: The HTTP response class.
+    Router: The routing class.
 """
 
-from ushka.core import Ushka
-from ushka.core.config import Config
-from ushka.http.request import Request
-from ushka.http.response import Response
+from .core import Router, Ushka
+from .core.config import Config
+from .http import Request, Response
 
-__all__ = ["Ushka", "Config", "Request", "Response"]
+__all__ = ["Ushka", "Config", "Request", "Response", "Router"]

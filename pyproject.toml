@@ -1,20 +1,16 @@
 [project]
 name = "ushka"
-version = "0.3.0"
+version = "0.4.0"
 description = "Ushka is a minimal, experimental Python micro-framework for hobbyists and solo developers. Its goal is to enable rapid API development with zero boilerplate by using file-based routing."
 authors = [
     { name = "kleber-code", email = "kleber.code@gmail.com" },
 ]
 requires-python = ">=3.10"
-dependencies = [
-    "uvicorn>=0.38.0",
-    "jinja2>=3.1.6",
-    "tomlkit>=0.13.3",
-    "rich>=14.2.0",
-]
 readme = "README.md"
 license = { text = "MIT" }
-keywords = ["web", "framework", "asgi", "routing", "autodiscovery"]
+keywords = ["web", "framework", "asgi", "routing", "autodiscovery", "async", "orm"]
+
+# Classifiers atualizados para refletir suporte a Banco de Dados
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Programming Language :: Python :: 3",
@@ -27,12 +23,66 @@ classifiers = [
     "Operating System :: OS Independent",
     "Topic :: Internet :: WWW/HTTP",
     "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Database :: Front-Ends",
+]
+
+# --- 1. CORE / MINIMAL ---
+# Instalado com: pip install ushka
+dependencies = [
+    "uvicorn>=0.38.0",
+    "tomlkit>=0.13.3",
+    "rich>=13.7.1",
 ]
 
 [project.urls]
 Homepage = "https://github.com/kleber-code/ushka"
 Issues = "https://github.com/kleber-code/ushka/issues"
 Repository = "https://github.com/kleber-code/ushka"
+
+[project.scripts]
+ushka = "ushka.cli:main"
+
+# --- 2. PACOTES OPCIONAIS (EXTRAS) ---
+[project.optional-dependencies]
+
+# pip install ushka[web]
+web = [
+    "jinja2>=3.1.6",
+    "python-multipart>=0.0.20",
+]
+
+# pip install ushka[orm]
+# Inclui o driver aiosqlite por padrão para a melhor experiência "out-of-the-box"
+orm = [
+    "sqlalchemy>=2.0.44",
+    "alembic>=1.13.1",
+    "aiosqlite>=0.20.0",
+]
+
+# pip install ushka[postgres]
+postgres = [
+    "ushka[orm]",
+    "asyncpg>=0.29.0",
+]
+
+# pip install ushka[mysql]
+mysql = [
+    "ushka[orm]",
+    "aiomysql>=0.2.0",
+]
+
+# pip install ushka[standard] -> O KIT RECOMENDADO
+standard = [
+    "ushka[web]",
+    "ushka[orm]",
+]
+
+# pip install ushka[full] -> O KIT COMPLETO
+full = [
+    "ushka[standard]",
+    "asyncpg>=0.29.0",
+    "aiomysql>=0.2.0",
+]
 
 [build-system]
 requires = ["pdm-backend"]
@@ -49,10 +99,14 @@ excludes = ["src/ushka/internal/assets", "example"]
 dev = [
     "ruff>=0.14.5",
     "pytest>=8.3.2",
+    "pytest-asyncio>=0.23.0", # Essencial para testar DB Async
     "isort>=7.0.0",
     "mkdocs>=1.6.1",
     "mkdocs-material>=9.7.0",
     "mkdocstrings[python]>=1.0.0",
     "pymdown-extensions>=10.17.2",
     "pylint>=4.0.4",
+    "py-spy>=0.4.1",
+    "snakeviz>=2.2.2",
+    "termynal>=0.11.0",
 ]

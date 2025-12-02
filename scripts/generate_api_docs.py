@@ -2,6 +2,7 @@ import ast
 import os
 import shutil
 
+
 def generate_doc_from_file(filepath):
     with open(filepath, "r") as source:
         tree = ast.parse(source.read())
@@ -24,9 +25,12 @@ def generate_doc_from_file(filepath):
                 for method in node.body:
                     if isinstance(method, (ast.FunctionDef, ast.AsyncFunctionDef)):
                         if not method.name.startswith("_"):
-                            docstrings[f"{node.name}.{method.name}"] = ast.get_docstring(method)
+                            docstrings[f"{node.name}.{method.name}"] = (
+                                ast.get_docstring(method)
+                            )
 
     return docstrings
+
 
 def main():
     src_dir = "src/ushka"
@@ -53,6 +57,7 @@ def main():
                         if docstring:
                             md_file.write(f"## `{name}`\n\n")
                             md_file.write(f"```python\n{docstring.strip()}\n```\n\n")
+
 
 if __name__ == "__main__":
     main()

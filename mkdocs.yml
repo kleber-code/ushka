@@ -6,56 +6,62 @@ edit_uri: ""
 
 nav:
     - "Home": index.md
-    - "User Guide":
-          - "Introduction": "guide/introduction.md"
-          - "Getting Started": "guide/getting-started.md"
+    - "Features": features.md
+    - "Guide":
+          - "Introduction": "guide/index.md"
           - "Configuration": "guide/configuration.md"
           - "Routing": "guide/routing.md"
-          - "Request Handling": "guide/requests.md"
-          - "Response Handling": "guide/responses.md"
           - "Templates": "guide/templates.md"
-          - "Error Handling": "guide/errors.md"
-          - "Dependency Injection": "guide/dependency-injection.md"
-          - "Building a Simple API": "guide/tutorial_simple_api.md"
+          - "Static Files": "guide/static_files.md"
+          - "ORM": "guide/orm.md"
+          - "CLI": "guide/cli.md"
+          - "Dependency Injection": "guide/dependency_injection.md"
+          - "Flashing": "guide/flashing.md"
+          - "Error Handling": "guide/error_handling.md"
+    - "Tutorials":
+          - "Getting Started": "tutorials/index.md"
+    - "Roadmap": roadmap.md
     - "API Reference":
           - "Core":
-              - "Application": "api/core/app.md"
+              - "Application": "api/core/app.md" # This should be the new path for the new structure, but it was deleted in my commit. I'll re-add it.
               - "Configuration": "api/core/config.md"
-              - "Error Handling": "api/core/error_handle.md"
               - "Exceptions": "api/core/exceptions.md"
               - "Logging": "api/core/log.md"
-          - "Features":
-              - "Static Files": "api/features/static.md"
-              - "Templates": "api/features/template.md"
+              - "Router": "api/core/router.md" # Router is now in core
           - "HTTP":
               - "Exceptions": "api/http/exceptions.md"
               - "Request": "api/http/request.md"
               - "Response": "api/http/response.md"
-          - "Routing":
-              - "Router": "api/routing/router.md"
-    - "Project":
-          - "Roadmap": "project/roadmap.md"
-          - "Contributing": "project/contributing.md"
+              - "Cookies": "api/http/cookies.md" # Added during refactor
+              - "Multipart": "api/http/multipart.md" # Added during refactor
+              - "Redirect": "api/http/redirect.md" # Added during refactor
+              - "Sessions": "api/http/sessions.md" # Added during refactor
+              - "Error": "api/http/error.md" # Added during refactor
+          - "ORM":
+              - "Database": "api/orm/database.md" # New package
+          - "Static":
+              - "Files": "api/static/files.md" # New package
+          - "Templating":
+              - "Engine": "api/templating/engine.md" # New package
+          - "Utils":
+              - "Flash": "api/utils/flash.md" # New package
 
 theme:
     name: material
-    palette:
-        # Palette toggle for light vs dark mode
-        - scheme: default
-          primary: grey
-          accent: grey
-          toggle:
-              icon: material/lightbulb
-              name: Switch to dark mode
+    logo: assets/logo.jpg
+    favicon: assets/favicon/favicon.ico
 
-        # Palette toggle for dark vs light mode
-        - scheme: slate
-          primary: grey
-          accent: grey
-          toggle:
-              icon: material/lightbulb-outline
-              name: Switch to light mode
+    palette: 
+      - scheme: default
+        toggle:
+          icon: material/brightness-7 
+          name: Switch to dark mode
 
+      - scheme: slate
+        toggle:
+          icon: material/brightness-4
+          name: Switch to light mode
+    
     features:
         - navigation.tabs
         - navigation.sections
@@ -65,17 +71,24 @@ theme:
         - content.tabs.link
         - content.code.annotation
         - content.code.copy
+        - search.suggest
     icon:
         repo: fontawesome/brands/github
 
 extra:
+    version:
+        provider: mike
     social:
         - icon: fontawesome/brands/github
           link: https://github.com/kleber-code
         - icon: fontawesome/brands/python
           link: https://pypi.org/project/ushka/
+    manifest: "assets/favicon/site.webmanifest"
+    extra_css:
+        - assets/custom.css
 
 markdown_extensions:
+    - admonition
     - pymdownx.highlight:
           anchor_linenums: true
     - pymdownx.inlinehilite
@@ -83,10 +96,11 @@ markdown_extensions:
     - pymdownx.superfences
     - toc:
           permalink: true
-
 plugins:
     - mkdocstrings:
         handlers:
             python:
                 load_external_modules: true
                 paths: [src]
+    - termynal
+    - optimize

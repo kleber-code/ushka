@@ -54,7 +54,17 @@ class HttpNotFound(HTTPError):
         super().__init__(template, status_code, message)
 
 
-class HttpStaticServerNotFound(HttpNotFound):
+class HTTPBadRequest(HTTPError):
+    def __init__(
+        self,
+        template: str = "error.html",
+        status_code: int = 400,
+        message: str = "Bad Request",
+    ) -> None:
+        super().__init__(template, status_code, message)
+
+
+class HTTPStaticServerNotFound(HttpNotFound):
     """Raised when a requested static file could not be found (HTTP 404).
 
     This is a specialized version of `HttpNotFound` for use in the static
@@ -74,4 +84,14 @@ class HttpStaticServerNotFound(HttpNotFound):
             status_code: The HTTP status code (defaults to 404).
             message: The error message.
         """
+        super().__init__(template, status_code, message)
+
+
+class HTTPPayloadTooLarge(HTTPError):
+    def __init__(
+        self,
+        template: str = "error.html",
+        status_code: int = 413,
+        message: str = "Payload Too Large",
+    ) -> None:
         super().__init__(template, status_code, message)
