@@ -1,0 +1,3 @@
+# Flash
+
+::: ushka.utils.flash
