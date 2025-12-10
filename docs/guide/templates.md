@@ -1,42 +1,104 @@
-# 🖼️ Templates: Making Your Pages Pop! ✨
+# Templates
 
-Ushka, being the sensible framework it is, provides first-class support for rendering HTML templates using **Jinja2**. It's pretty straightforward to get your web pages looking sharp without too much fuss.
+Most web applications don't just return text or JSON; they return rich HTML pages. A templating engine helps you do this by combining static HTML with dynamic data.
 
-## 🏡 Setting Up Your Template Directory
+Ushka uses the popular and powerful **Jinja2** templating engine. If you've ever worked with Django or Flask, you'll feel right at home.
 
-By default, Ushka is quite intuitive. It'll automatically look for your templates in a folder named `templates` right in your project's main directory. Logical, right?
+## Rendering a Template
 
-### The `render` Function: Your HTML Delivery Service! 🪄
-
-To actually use a template, you'll need the `render` function from `ushka.features.template`. Because, you know, templates don't render themselves.
-
-```python
-from ushka.features.template import render
-
-@app.get("/")
-def home():
-    # Renders the 'index.html' template
-    # Passes a context dictionary with 'username'. Because templates love data.
-    return render("index.html", {"username": "Guest"})
-```
-
-### 🎨 Crafting Your First Template: It's Not Rocket Science!
-
-Just create a `templates` folder in your project root. Inside, pop in a file named `index.html`.
+Imagine you have a template file named `hello.html` in a `templates` directory in your project's root.
 
 ```html
-<!-- templates/index.html -->
+<!-- templates/hello.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Ushka App</title>
+    <title>Hello from Ushka!</title>
 </head>
 <body>
-    <h1>Hello there, {{ username }}!</h1>
-    <p>Welcome to an app powered by Ushka. We try not to be boring.</p>
+    <h1>Hello, {{ name }}!</h1>
 </body>
 </html>
 ```
 
-The `render` function takes the template name (duh) and an optional dictionary of context. These variables become available inside your template. It's almost like magic, but mostly just good engineering. 💖
+This template has a placeholder `{{ name }}`. Our goal is to replace this with a real value from our Python code.
+
+To do this, you use the `render` function in your route handler.
+
+```python
+# In routes/greet.py
+from ushka.features.template import render
+from ushka.http.request import Request
+
+async def get(request: Request):
+    # The second argument is the template name.
+    # The third argument is the "context" dictionary.
+    return await render(request, "hello.html", {"name": "World"})
+```
+
+When a user visits the `/greet` URL, Ushka will:
+1.  Find the `hello.html` template.
+2.  Take the context dictionary `{"name": "World"}`.
+3.  Replace `{{ name }}` with `"World"`.
+4.  Send the final HTML back to the user's browser.
+
+The result is a page that says: "Hello, World!".
+
+## Template Superpowers: Control Flow and More
+
+Jinja2 is more than just a placeholder-replacer. It's a full-featured programming language for your templates.
+
+You can use `if` statements:
+```html
+{% if user.is_authenticated %}
+    <p>Welcome back, {{ user.name }}!</p>
+{% else %}
+    <p>Welcome, guest!</p>
+{% endif %}
+```
+
+And `for` loops:
+```html
+<ul>
+{% for product in products %}
+    <li>{{ product.name }} - ${{ product.price }}</li>
+{% endfor %}
+</ul>
+```
+
+This allows you to build complex, dynamic pages with ease.
+
+> **Ushka Tip:** Think of your Python code as the "brains" and your templates as the "face" of your application. The brains should do the heavy lifting (like fetching data from the database), and the face should focus on making it look good. Keep your templates clean and free of complex logic.
+
+## Context Processors: The Gift That Keeps on Giving
+
+Imagine you need the current user's name to be available in *every* template. You could pass it in the context dictionary of every single `render` call, but that's repetitive.
+
+A context processor is a function that automatically adds data to the template context for every request. It's a "gift" of data that you give to all your templates.
+
+Ushka has a built-in context processor for [flashing messages](./flashing.md), but you can also create your own.
+
+Let's say you have an `auth` system that puts the current user on the `request` object. You could write a context processor like this:
+
+```python
+# In a file like `my_app/context_processors.py`
+from ushka.http.request import Request
+
+async def user_processor(request: Request) -> dict:
+    return {"current_user": request.user}
+```
+
+You would then add this processor when you initialize your application. Once registered, the `current_user` variable will be available in all your templates, automatically!
+
+```html
+<nav>
+    <a href="/">Home</a>
+    {% if current_user.is_authenticated %}
+        <a href="/profile">{{ current_user.name }}</a>
+    {% else %}
+        <a href="/login">Login</a>
+    {% endif %}
+</nav>
+```
+
+By using templates and context processors effectively, you can create a clean separation between your application's logic and its presentation, leading to more maintainable and scalable code.

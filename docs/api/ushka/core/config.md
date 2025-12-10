@@ -1,0 +1,3 @@
+# Config
+
+::: ushka.core.config

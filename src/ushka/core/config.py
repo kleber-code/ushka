@@ -1,9 +1,10 @@
-"""This module handles configuration management for the Ushka framework.
+"""
+This module defines the `Config` class, which is responsible for managing
+application configuration within the Ushka framework.
 
-It defines the `Config` class, which uses a Singleton pattern to provide
-global access to application settings. Configuration is loaded from an
-'ushka.toml' file, with support for default values and automatic file
-generation.
+It implements a Singleton pattern to ensure a single, globally accessible
+configuration instance. Settings are loaded from an `ushka.toml` file,
+with provisions for default values and dynamic attribute mapping.
 """
 
 import logging
@@ -13,6 +14,7 @@ from importlib.metadata import version
 from pathlib import Path
 from secrets import token_urlsafe
 from typing import Any
+
 import tomlkit
 
 
@@ -21,22 +23,33 @@ class Config:
 
     This class loads settings from an 'ushka.toml' file, provides default
     values for missing keys, and makes configuration accessible throughout the
-    application. The Singleton implementation ensures that there is only one
-    instance of the configuration object.
+    application.
 
-    Attributes are dynamically set from the TOML file in the format
-    `SECTION_KEY` (e.g., `APP_DEBUG`).
+    Notes
+    -----
+    This class implements the Singleton pattern. Access the instance directly
+    by calling `Config()`.
+
+    Attributes
+    ----------
+    log : logging.Logger
+        The root logger instance.
+    workdir : Path | str
+        The current working directory used for configuration.
+    default_config_file_path : Path
+        The expected path to the 'ushka.toml' configuration file.
+
     """
 
     _instance = None
     _lock = threading.Lock()
     _initialized = False
 
-    def __new__(cls, *args, **kwargs):
-        """Ensures that only one instance of the Config class is created.
+    # Sentinel object to distinguish between a value of None and a missing key.
+    _sentinel = object()
 
-        This method implements the thread-safe Singleton pattern.
-        """
+    def __new__(cls, *args, **kwargs):
+        """Ensures only one instance of Config exists (Singleton pattern)."""
         if cls._instance is None:
             with cls._lock:
                 if cls._instance is None:
@@ -46,17 +59,19 @@ class Config:
     def __init__(self, workdir: Path | str = Path.cwd()) -> None:
         """Initializes the Config instance with default settings.
 
-        This method is only executed the first time the Singleton instance is
-        created. It sets up default configuration values.
-
-        Args:
-            workdir: The application's working directory.
+        Parameters
+        ----------
+        workdir : Path | str, optional
+            The base directory where 'ushka.toml' is expected to reside.
+            By default, uses the current working directory.
         """
         if self._initialized:
             return
 
         self._defaults = {
             "ushka": {"version": version("ushka"), "workdir": str(workdir)},
+            # --- DATABASE DEFAULTS ---
+            "database": {"url": "sqlite:///ushka.db"},
             "app": {
                 "name": "Ushka App",
                 "debug": False,
@@ -70,73 +85,130 @@ class Config:
                 "ushka_suppress_uvicorn": True,
             },
             "static": {"enable": False, "url": "/static", "dir": "static"},
+            "limits": {
+                "max_request_body_size_in_KB": 2048,
+                "max_request_body_multipart_size_in_KB": 51200,
+            },
         }
 
         self._map_config_to_attributes(self._defaults)
         self._initialized = True
-        self.log = logging.getLogger("rich")
+        self.log = logging.getLogger()
+        self.workdir = workdir
+        self.default_config_file_path = Path(workdir) / "ushka.toml"
 
-    def load_from_file(self, config_path: Path) -> "tomlkit.TOMLDocument":
+    def load_from_file(self, config_path: Path | None = None):
         """Loads configuration from a TOML file.
 
-        If the specified file does not exist, it creates one with default
-        settings. It merges existing settings with defaults to ensure all
-        necessary configuration keys are present.
+        If the configuration file does not exist, it is created using default
+        values. The [ushka] section is immutable (runtime-defined) and will
+        always be overwritten by the current application state.
 
-        Args:
-            config_path: The path to the 'ushka.toml' configuration file.
+        Parameters
+        ----------
+        config_path : Path | None, optional
+            The explicit path to the configuration file. If None, uses
+            `self.default_config_file_path`. By default, None.
 
-        Returns:
-            The loaded and merged configuration as a TOML document object.
+        Returns
+        -------
+        Config
+            The current Config instance, allowing for chaining.
         """
+        if not config_path:
+            config_path = self.default_config_file_path
+
+        # --- 1. CREATE FILE (IF IT DOESN'T EXIST) ---
         if not os.path.exists(config_path):
             doc = tomlkit.document()
+
             doc.add(
                 tomlkit.comment(
-                    f"Configuration Automatically Generated by "
-                    f"Ushka 🐱 v{self._defaults['ushka']['version']}"
+                    "Configuration Automatically Generated by Ushka. Keys are case-insensitive."
                 )
             )
-            doc.update(self._defaults)
-
             doc.add(tomlkit.nl())
+
+            for section_name, section_data in self._defaults.items():
+                tbl = tomlkit.table()
+
+                # --- USHKA SECTION (IMMUTABLE) ---
+                if section_name == "ushka":
+                    tbl.comment(
+                        "SYSTEM INFORMATION (Read-only).\n"
+                        "Changes here are ignored; these are defined by the runtime."
+                    )
+                    for k, v in section_data.items():
+                        tbl.add(k, v)
+                    doc.add(section_name, tbl)
+                    continue
+
+                # --- DATABASE SECTION (RICH COMMENTS) ---
+                if section_name == "database":
+                    tbl.add("url", "sqlite:///ushka.db")
+                    tbl["url"].comment(
+                        "Database connection URL (SQLAlchemy format).\n"
+                        "Defaults to SQLite for local development.\n"
+                        "\n"
+                        "Examples for other drivers:\n"
+                        '# url = "postgresql://user:pass@localhost:5432/my_database"\n'
+                        '# url = "mysql://user:pass@localhost:3306/my_database"'
+                    )
+                    doc.add(section_name, tbl)
+                    continue
+
+                # --- OTHER SECTIONS ---
+                for key, value in section_data.items():
+                    tbl.add(key, value)
+                doc.add(section_name, tbl)
 
             with open(config_path, "w", encoding="utf-8") as f:
                 f.write(tomlkit.dumps(doc))
+            self.log.info("🔧 Ushka created a new ushka.toml")
 
-            self.log.info("🔧 Ushka created a  new ushka.toml")
-
+        # --- 2. READ AND ENFORCE ---
         with open(config_path, "r", encoding="utf-8") as f:
             doc = tomlkit.parse(f.read())
 
+        # FORCE OVERWRITE OF THE [ushka] SECTION
+        if "ushka" in doc:
+            doc["ushka"].update(self._defaults["ushka"])
+        else:
+            doc["ushka"] = self._defaults["ushka"]
+
+        # Merge new keys into other sections
+        modified = False
         for section, keys in self._defaults.items():
             if section == "ushka":
-                doc[section] = keys
+                continue
 
             if section not in doc:
                 doc[section] = keys
+                modified = True
             else:
                 for key, value in keys.items():
                     if key not in doc[section]:
                         doc[section][key] = value
+                        modified = True
 
-        with open(config_path, "w", encoding="utf-8") as f:
-            f.write(tomlkit.dumps(doc))
-            self.log.info("🔧 Ushka touched your ushka.toml")
+        if modified:
+            with open(config_path, "w", encoding="utf-8") as f:
+                f.write(tomlkit.dumps(doc))
+            self.log.info("🔧 Ushka updated your ushka.toml")
 
         self._map_config_to_attributes(doc)
-        return doc
+        return self
 
     def _map_config_to_attributes(self, data: dict) -> None:
-        """Maps dictionary keys to instance attributes.
+        """Maps dictionary keys (sections and keys) to instance attributes.
 
-        This internal method iterates through the configuration dictionary and
-        sets an attribute on the `Config` instance for each key. The attribute
-        name is created by combining the section and key in uppercase
-        (e.g., `APP_DEBUG`).
+        Attributes are created using the format: SECTION_KEY (uppercase).
+        Example: data['app']['debug'] becomes self.APP_DEBUG.
 
-        Args:
-            data: The configuration dictionary to map.
+        Parameters
+        ----------
+        data : dict
+            The configuration data dictionary (parsed TOML document or defaults).
         """
         for section, content in data.items():
             if isinstance(content, dict):
@@ -144,14 +216,39 @@ class Config:
                     attr_name = f"{section.upper()}_{key.upper()}"
                     setattr(self, attr_name, value)
 
-    def get(self, key: str, default: Any = None) -> Any:
+    def get(self, key: str, default: Any = None, required: bool = False) -> Any:
         """Retrieves a configuration value by its attribute name.
 
-        Args:
-            key: The name of the configuration attribute (e.g., 'APP_DEBUG').
-            default: The value to return if the key is not found.
+        Parameters
+        ----------
+        key : str
+            The config attribute name (e.g., 'APP_DEBUG', 'DATABASE_URL').
+            Case-insensitivity is handled internally by converting to uppercase.
+        default : Any, optional
+            Value to return if key is missing and `required` is False.
+            By default, None.
+        required : bool, optional
+            If True, raises a KeyError when the key is missing.
+            By default, False.
 
-        Returns:
-            The configuration value or the specified default.
+        Returns
+        -------
+        Any
+            The configuration value.
+
+        Raises
+        ------
+        KeyError
+            If `required` is True and the key is not found.
         """
-        return getattr(self, key, default)
+        # Tries to get the attribute, if it doesn't exist, returns the SENTINEL
+        value = getattr(self, key.upper(), self._sentinel)
+
+        if value is self._sentinel:
+            if required:
+                raise KeyError(
+                    f"❌ Missing required configuration key: '{key.upper()}'"
+                )
+            return default
+
+        return value
