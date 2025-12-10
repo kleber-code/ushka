@@ -1,3 +1,22 @@
+"""
+This module provides the Command Line Interface (CLI) commands for database
+migration management using Alembic.
+
+It integrates Ushka's configuration for database URL and model discovery,
+and customizes the Alembic `env.py` template to provide auto-batch mode
+for SQLite and automatic model discovery.
+
+Commands
+--------
+_get_alembic_config: Configures Alembic based on Ushka settings.
+init: Initializes the Alembic migration environment.
+make: Generates a new migration script.
+migrate: Applies pending migrations to the database.
+revert: Reverts database migrations.
+status: Shows the current database revision.
+history: Shows the full migration history.
+"""
+
 # ushka/commands/db.py
 import os
 import sys
@@ -12,11 +31,11 @@ from ushka.core.config import Config as UshkaConfig
 # =============================================================================
 # USHKA CUSTOM ENV.PY TEMPLATE
 # =============================================================================
-# This template is injected into the user's project during 'ushka db init'.
-# It handles:
-# 1. Loading Ushka configuration (URL).
-# 2. Auto-discovering user models (so db.metadata is populated).
-# 3. Enabling "batch mode" automatically for SQLite.
+# Este template é injetado no projeto do usuário durante 'ushka db init'.
+# Ele gerencia:
+# 1. Carregamento da configuração do Ushka (URL).
+# 2. Auto-descoberta de modelos do usuário.
+# 3. Habilitação automática do "batch mode" para SQLite.
 # =============================================================================
 
 USHKA_ENV_TEMPLATE = """from logging.config import fileConfig
@@ -125,8 +144,23 @@ else:
 
 
 def _get_alembic_config():
-    """
-    Configures Alembic dynamically based on ushka.toml.
+    """Configures Alembic dynamically based on ushka.toml.
+
+    This function sets up the Alembic configuration, including the script
+    location and injecting the database URL from Ushka's configuration.
+    It handles cases where `alembic.ini` might not exist yet (e.g., during `db init`)
+    and exits if the configuration cannot be loaded.
+
+    Returns
+    -------
+    alembic.config.Config
+        An initialized Alembic configuration object.
+
+    Raises
+    ------
+    SystemExit
+        If `alembic.ini` is not found (unless `db init` is being run),
+        or if there's an error loading Ushka's configuration.
     """
     ini_path = os.path.join(os.getcwd(), "alembic.ini")
 
@@ -153,8 +187,19 @@ def _get_alembic_config():
 
 
 def init():
-    """
-    Initialize the migration environment and inject the Ushka-optimized env.py.
+    """Initializes the Alembic migration environment and injects Ushka's custom env.py.
+
+    This command creates the `migrations` directory and an initial `alembic.ini`
+    file if they don't exist. It then overwrites the default `env.py` with
+    Ushka's optimized template, which provides:
+
+    - Automatic loading of Ushka's database configuration.
+    - Auto-discovery of user models for `alembic autogenerate`.
+    - Automatic enabling of "batch mode" for SQLite migrations.
+
+    See Also
+    --------
+    USHKA_ENV_TEMPLATE : The custom template injected into `env.py`.
     """
     print("📦 Initializing Ushka Database environment...")
 
@@ -179,10 +224,17 @@ def init():
 
 
 def make(message: Optional[str] = None):
-    """
-    Generate a new migration script.
+    """Generates a new migration script based on model changes.
 
     If no message is provided, an auto-generated timestamped message is used.
+    This command leverages Alembic's `autogenerate` feature to detect differences
+    between the current database state (or `db.metadata`) and the defined SQLAlchemy models.
+
+    Parameters
+    ----------
+    message : str, optional
+        A short description of the migration. If `None`, a message like
+        "auto_YYYYMMDD_HHMMSS" will be generated.
     """
     if not message:
         # Generate a timestamp slug: auto_20231015_120000
@@ -195,17 +247,28 @@ def make(message: Optional[str] = None):
 
 
 def migrate():
-    """Apply all pending migrations to the database."""
+    """Applies all pending migrations to the database.
+
+    This command upgrades the database schema to the latest revision,
+    applying any migration scripts that have not yet been run.
+    """
     print("🚀 Applying changes (upgrade head)...")
     command.upgrade(_get_alembic_config(), "head")
 
 
 def revert(revision: str = "-1"):
-    """
-    Revert migrations. Defaults to undoing the last step (-1).
+    """Reverts database migrations to a specified revision.
 
-    Args:
-        revision: The revision to downgrade to (e.g., "-1", "base", or a revision ID).
+    Defaults to undoing the last step (downgrading by one revision).
+
+    Parameters
+    ----------
+    revision : str, optional
+        The target revision to downgrade to.
+        Common values include:
+        - `"-1"`: Downgrade one step (default).
+        - `"base"`: Downgrade all migrations to the initial state.
+        - A specific revision ID (e.g., "abcdef123456").
     """
     target = "last step" if revision == "-1" else revision
     print(f"⏪ Reverting database changes (downgrade {target})...")
@@ -213,12 +276,20 @@ def revert(revision: str = "-1"):
 
 
 def status():
-    """Show the current database revision."""
+    """Shows the current database revision.
+
+    This command reports the revision identifier of the latest migration
+    applied to the database.
+    """
     print("📍 Current Revision:")
     command.current(_get_alembic_config(), verbose=True)
 
 
 def history():
-    """Show the full migration history."""
+    """Shows the full migration history.
+
+    This command lists all available migration scripts, including their
+    revision identifiers, timestamps, and messages.
+    """
     print("📜 Migration History:")
     command.history(_get_alembic_config(), verbose=True)

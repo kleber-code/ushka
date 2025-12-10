@@ -1,3 +1,15 @@
+"""
+This module provides the Command Line Interface (CLI) command for starting
+the Ushka development server.
+
+It uses Uvicorn to run the ASGI application with auto-reload enabled,
+facilitating rapid development.
+
+Commands
+--------
+run: Starts the Uvicorn development server.
+"""
+
 import logging
 import sys
 from pathlib import Path
@@ -11,14 +23,28 @@ log = logging.getLogger("ushka")
 
 
 def run(app_path: str, host: str, port: int):
-    """
-    Starts the Uvicorn server in development mode.
-    This command starts the Uvicorn server with auto-reload enabled.
+    """Starts the Uvicorn server in development mode with auto-reload.
 
-    Args:
-        app_path (str): The application to run, in the format 'module:instance'.
-        host (str): The host to bind to.
-        port (int): The port to listen on.
+    This command configures and runs the Uvicorn server for development,
+    enabling features like auto-reloading on code changes. Host and port
+    can be specified via arguments or default to values from `ushka.toml`.
+
+    Parameters
+    ----------
+    app_path : str
+        The application entry point, typically in the format 'module:instance'
+        (e.g., 'app:app').
+    host : str
+        The host IP address to bind the server to (e.g., '127.0.0.1').
+        If empty, it defaults to the value in `ushka.toml` or '127.0.0.1'.
+    port : int
+        The port number to listen on. If 0, it defaults to the value
+        in `ushka.toml` or 8000.
+
+    Raises
+    ------
+    SystemExit
+        If an error occurs while starting the Uvicorn server.
     """
     setup_logging()
     config = Config(Path.cwd()).load_from_file()

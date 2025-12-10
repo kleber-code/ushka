@@ -1,3 +1,11 @@
+"""
+This module provides the `Session` class, a secure client-side session manager
+for the Ushka framework.
+
+It implements HMAC-SHA256 for data integrity and timestamp-based validation
+to prevent replay attacks, ensuring that session data stored in cookies is
+tamper-proof and has a defined lifespan.
+"""
 import base64
 import hashlib
 import hmac
@@ -10,9 +18,30 @@ log = logging.getLogger("ushka")
 
 
 class Session(dict):
-    """
-    Secure Client-Side Session (HMAC-SHA256) with Timestamp.
-    Prevents Replay Attacks and ensures data integrity.
+    """Secure Client-Side Session (HMAC-SHA256) with Timestamp.
+
+    This class extends `dict` to provide a secure, client-side session mechanism.
+    It uses HMAC-SHA256 for data integrity and includes a timestamp to prevent
+    replay attacks and enforce session expiration.
+
+    Parameters
+    ----------
+    secret_key : str
+        A strong, random secret key used for signing the session data.
+        Essential for security.
+    raw_cookie_value : str, optional
+        The raw value of the session cookie received from the client.
+        If provided, the session data will be decoded and validated from this.
+        Defaults to `None`.
+    max_age : int, optional
+        The maximum age of the session in seconds. After this period,
+        the session is considered expired. Defaults to 1209600 (14 days).
+    secure : bool, optional
+        If `True`, the session cookie will only be transmitted over HTTPS.
+        Defaults to `True`.
+    samesite : str, optional
+        The `SameSite` attribute for the session cookie ('lax', 'strict', 'none').
+        Defaults to `'lax'`.
     """
 
     COOKIE_NAME = "_ushka_session"
@@ -26,6 +55,21 @@ class Session(dict):
         secure: bool = True,
         samesite: str = "lax",
     ):
+        """Initializes a new Session instance.
+
+        Parameters
+        ----------
+        secret_key : str
+            A strong, random secret key used for signing the session data.
+        raw_cookie_value : str, optional
+            The raw value of the session cookie received from the client.
+        max_age : int, optional
+            The maximum age of the session in seconds. Defaults to 14 days.
+        secure : bool, optional
+            If `True`, the session cookie will only be transmitted over HTTPS.
+        samesite : str, optional
+            The `SameSite` attribute for the session cookie.
+        """
         self._secret_key = secret_key.encode("utf-8")
         self._modified = False
         self._accessed = False
@@ -45,29 +89,89 @@ class Session(dict):
     # --- Change Tracking (Dict Wrapper) ---
 
     def __setitem__(self, key: Any, value: Any) -> None:
+        """Sets a session item and marks the session as modified.
+
+        Parameters
+        ----------
+        key : Any
+            The key for the session item.
+        value : Any
+            The value to store in the session.
+        """
         super().__setitem__(key, value)
         self._modified = True
         self._accessed = True
 
     def __delitem__(self, key: Any) -> None:
+        """Deletes a session item and marks the session as modified.
+
+        Parameters
+        ----------
+        key : Any
+            The key of the session item to delete.
+        """
         super().__delitem__(key)
         self._modified = True
 
     def clear(self) -> None:
+        """Removes all items from the session and marks it as modified."""
         super().clear()
         self._modified = True
 
     def pop(self, key: Any, default: Any = None) -> Any:
+        """Removes the specified key from the session and returns its value.
+
+        Marks the session as modified if the key existed.
+
+        Parameters
+        ----------
+        key : Any
+            The key of the item to remove.
+        default : Any, optional
+            The value to return if the key is not found. Defaults to `None`.
+
+        Returns
+        -------
+        Any
+            The value associated with the key, or `default` if the key is not found.
+        """
         if key in self:
             self._modified = True
         return super().pop(key, default)
 
     def update(self, *args, **kwargs) -> None:
+        """Updates the session with key-value pairs from another dictionary or iterable.
+
+        Marks the session as modified if any updates occur.
+
+        Parameters
+        ----------
+        *args
+            Positional arguments passed to the underlying `dict.update` method.
+        **kwargs
+            Keyword arguments passed to the underlying `dict.update` method.
+        """
         if args or kwargs:
             super().update(*args, **kwargs)
             self._modified = True
 
     def setdefault(self, key: Any, default: Any = None) -> Any:
+        """Inserts a key with a default value if the key is not already in the session.
+
+        Marks the session as modified if the key is newly inserted.
+
+        Parameters
+        ----------
+        key : Any
+            The key to check and potentially insert.
+        default : Any, optional
+            The value to insert if the key is not found. Defaults to `None`.
+
+        Returns
+        -------
+        Any
+            The value for the key (either existing or newly inserted).
+        """
         if key not in self:
             self._modified = True
         return super().setdefault(key, default)
@@ -75,15 +179,33 @@ class Session(dict):
     # --- Security Core (Encryption & Signature) ---
 
     def _sign(self, data: bytes) -> bytes:
-        """Generates HMAC-SHA256 signature."""
+        """Generates an HMAC-SHA256 signature for the given data.
+
+        Parameters
+        ----------
+        data : bytes
+            The data to be signed.
+
+        Returns
+        -------
+        bytes
+            The hexadecimal representation of the HMAC-SHA256 signature.
+        """
         return (
             hmac.new(self._secret_key, data, hashlib.sha256).hexdigest().encode("utf-8")
         )
 
     def _encode(self) -> str:
-        """
-        Serializes the session for sending to the client.
-        Format: B64_DATA . B64_TIMESTAMP . SIGNATURE
+        """Serializes the current session data into a secure string for the client.
+
+        The format is: `base64(JSON_DATA).base64(TIMESTAMP).SIGNATURE`.
+        This format ensures data integrity and allows for expiration checks.
+
+        Returns
+        -------
+        str
+            The encoded and signed session string, ready to be sent as a cookie value.
+            Returns an empty string if serialization fails.
         """
         try:
             # 1. Serialize data to JSON
@@ -108,9 +230,23 @@ class Session(dict):
             return ""
 
     def _decode(self, cookie_value: str, max_age: int) -> dict:
-        """
-        Deserializes and validates the received cookie.
-        Checks: Integrity (Signature) -> Validity (Timestamp) -> Format (JSON)
+        """Deserializes and validates a session cookie value.
+
+        Performs integrity checks (HMAC signature), validates the timestamp
+        against `max_age`, and deserializes the JSON payload.
+
+        Parameters
+        ----------
+        cookie_value : str
+            The raw session cookie value received from the client.
+        max_age : int
+            The maximum allowed age for the session in seconds.
+
+        Returns
+        -------
+        dict
+            The decoded session data if validation is successful,
+            otherwise an empty dictionary.
         """
         if not cookie_value:
             return {}

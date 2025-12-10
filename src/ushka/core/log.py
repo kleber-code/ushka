@@ -21,10 +21,13 @@ log = logging.getLogger("ushka")
 def setup_logging(level: LogLevelType = "INFO"):
     """Configures the 'ushka' logger with a `RichHandler`.
 
-    This sets up a visually appealing and informative console logger.
+    This sets up a visually appealing and informative console logger using
+    the `rich` library.
 
-    Args:
-        level: The desired logging level.
+    Parameters
+    ----------
+    level : LogLevelType, optional
+        The desired logging level. Defaults to "INFO".
     """
     log.setLevel(level)
     handler = RichHandler(rich_tracebacks=True)
@@ -39,11 +42,14 @@ def log_http(request: Request, response: Response, process_time: float):
     Formats the log message with icons and colors based on the response
     status code.
 
-    Args:
-        request: The incoming `Request` object.
-        response: The outgoing `Response` object;
-        process_time: The total time taken to process the request, in
-            milliseconds.
+    Parameters
+    ----------
+    request : Request
+        The incoming Request object.
+    response : Response
+        The outgoing Response object.
+    process_time : float
+        The total time taken to process the request, in milliseconds.
     """
     log.info("Request processed in %.2fms", process_time)
 
@@ -55,10 +61,14 @@ def get_log_config(level: LogLevelType = "INFO") -> dict:
     to route Uvicorn's logs through Ushka's custom handler, ensuring
     consistent log formatting.
 
-    Args:
-        level: The desired logging level for the 'ushka' logger.
+    Parameters
+    ----------
+    level : LogLevelType, optional
+        The desired logging level for the 'ushka' logger. Defaults to "INFO".
 
-    Returns:
+    Returns
+    -------
+    dict
         A dictionary containing the logging configuration for Uvicorn.
     """
     return {

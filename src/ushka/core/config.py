@@ -1,9 +1,10 @@
-"""This module handles configuration management for the Ushka framework.
+"""
+This module defines the `Config` class, which is responsible for managing
+application configuration within the Ushka framework.
 
-It defines the `Config` class, which uses a Singleton pattern to provide
-global access to application settings. Configuration is loaded from an
-'ushka.toml' file, with support for default values and automatic file
-generation.
+It implements a Singleton pattern to ensure a single, globally accessible
+configuration instance. Settings are loaded from an `ushka.toml` file,
+with provisions for default values and dynamic attribute mapping.
 """
 
 import logging
@@ -23,6 +24,21 @@ class Config:
     This class loads settings from an 'ushka.toml' file, provides default
     values for missing keys, and makes configuration accessible throughout the
     application.
+
+    Notes
+    -----
+    This class implements the Singleton pattern. Access the instance directly
+    by calling `Config()`.
+
+    Attributes
+    ----------
+    log : logging.Logger
+        The root logger instance.
+    workdir : Path | str
+        The current working directory used for configuration.
+    default_config_file_path : Path
+        The expected path to the 'ushka.toml' configuration file.
+
     """
 
     _instance = None
@@ -33,6 +49,7 @@ class Config:
     _sentinel = object()
 
     def __new__(cls, *args, **kwargs):
+        """Ensures only one instance of Config exists (Singleton pattern)."""
         if cls._instance is None:
             with cls._lock:
                 if cls._instance is None:
@@ -40,6 +57,14 @@ class Config:
         return cls._instance
 
     def __init__(self, workdir: Path | str = Path.cwd()) -> None:
+        """Initializes the Config instance with default settings.
+
+        Parameters
+        ----------
+        workdir : Path | str, optional
+            The base directory where 'ushka.toml' is expected to reside.
+            By default, uses the current working directory.
+        """
         if self._initialized:
             return
 
@@ -70,13 +95,25 @@ class Config:
         self._initialized = True
         self.log = logging.getLogger()
         self.workdir = workdir
-        self.default_config_file_path = workdir / Path("ushka.toml")
+        self.default_config_file_path = Path(workdir) / "ushka.toml"
 
     def load_from_file(self, config_path: Path | None = None):
         """Loads configuration from a TOML file.
 
-        The [ushka] section is immutable (runtime-defined) and will always
-        be overwritten by the current application state.
+        If the configuration file does not exist, it is created using default
+        values. The [ushka] section is immutable (runtime-defined) and will
+        always be overwritten by the current application state.
+
+        Parameters
+        ----------
+        config_path : Path | None, optional
+            The explicit path to the configuration file. If None, uses
+            `self.default_config_file_path`. By default, None.
+
+        Returns
+        -------
+        Config
+            The current Config instance, allowing for chaining.
         """
         if not config_path:
             config_path = self.default_config_file_path
@@ -163,7 +200,16 @@ class Config:
         return self
 
     def _map_config_to_attributes(self, data: dict) -> None:
-        """Maps dictionary keys to instance attributes."""
+        """Maps dictionary keys (sections and keys) to instance attributes.
+
+        Attributes are created using the format: SECTION_KEY (uppercase).
+        Example: data['app']['debug'] becomes self.APP_DEBUG.
+
+        Parameters
+        ----------
+        data : dict
+            The configuration data dictionary (parsed TOML document or defaults).
+        """
         for section, content in data.items():
             if isinstance(content, dict):
                 for key, value in content.items():
@@ -171,18 +217,29 @@ class Config:
                     setattr(self, attr_name, value)
 
     def get(self, key: str, default: Any = None, required: bool = False) -> Any:
-        """Retrieves a configuration value.
+        """Retrieves a configuration value by its attribute name.
 
-        Args:
-            key: The config attribute name (e.g., 'APP_DEBUG').
-            default: Value to return if key is missing (ignored if required=True).
-            required: If True, raises a KeyError when the key is missing.
+        Parameters
+        ----------
+        key : str
+            The config attribute name (e.g., 'APP_DEBUG', 'DATABASE_URL').
+            Case-insensitivity is handled internally by converting to uppercase.
+        default : Any, optional
+            Value to return if key is missing and `required` is False.
+            By default, None.
+        required : bool, optional
+            If True, raises a KeyError when the key is missing.
+            By default, False.
 
-        Returns:
+        Returns
+        -------
+        Any
             The configuration value.
 
-        Raises:
-            KeyError: If required is True and the key is not found.
+        Raises
+        ------
+        KeyError
+            If `required` is True and the key is not found.
         """
         # Tries to get the attribute, if it doesn't exist, returns the SENTINEL
         value = getattr(self, key.upper(), self._sentinel)

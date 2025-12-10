@@ -1,3 +1,12 @@
+"""
+This module provides centralized exception handling for the Ushka framework.
+
+It includes an `ErrorHandler` class to manage both expected HTTP errors (4xx)
+and unexpected server errors (5xx), rendering appropriate error pages.
+Additionally, it features a `_TracebackInspector` utility for safe and
+detailed stack trace extraction during debugging.
+"""
+
 # ushka/core/error_handler.py
 import linecache
 import logging
@@ -27,13 +36,27 @@ DEFAULT_SENSITIVE_KEYS = {
 
 
 class _TracebackInspector:
-    """
-    Internal utility class to inspect stack traces and extract
+    """Internal utility class to inspect stack traces and extract
     safe context (redacting sensitive variables).
     """
 
     @staticmethod
     def safe_repr(obj: Any, limit: int = 200) -> str:
+        """Safely generates a string representation of an object, truncating it if necessary.
+
+        Parameters
+        ----------
+        obj : Any
+            The object to represent.
+        limit : int, optional
+            The maximum length of the representation string. If exceeded, the string is truncated.
+            Default is 200.
+
+        Returns
+        -------
+        str
+            The safe string representation of the object.
+        """
         try:
             value = repr(obj)
             if len(value) > limit:
@@ -44,6 +67,20 @@ class _TracebackInspector:
 
     @classmethod
     def get_safe_locals(cls, frame: FrameType) -> Dict[str, str]:
+        """Extracts local variables from a frame, redacting sensitive keys.
+
+        Sensitive keys are determined by `DEFAULT_SENSITIVE_KEYS`.
+
+        Parameters
+        ----------
+        frame : FrameType
+            The frame object containing local variables (`f_locals`).
+
+        Returns
+        -------
+        Dict[str, str]
+            A dictionary mapping variable names to their safe string representations.
+        """
         safe_vars = {}
         try:
             for k, v in frame.f_locals.items():
@@ -59,6 +96,25 @@ class _TracebackInspector:
     def get_context_lines(
         filename: str, lineno: int, context: int = 7
     ) -> List[Tuple[int, str]]:
+        """Retrieves surrounding lines of code from a file based on line number.
+
+        Uses `linecache` for efficient file reading.
+
+        Parameters
+        ----------
+        filename : str
+            The path to the source file.
+        lineno : int
+            The central line number.
+        context : int, optional
+            The number of lines to retrieve before and after the central line.
+            Default is 7.
+
+        Returns
+        -------
+        List[Tuple[int, str]]
+            A list of tuples, where each tuple contains (line_number, line_content).
+        """
         lines = []
         start = max(1, lineno - context)
         end = lineno + context
@@ -71,6 +127,21 @@ class _TracebackInspector:
 
     @classmethod
     def extract_frames(cls, exc: Exception) -> List[Dict[str, Any]]:
+        """Extracts detailed information from the traceback associated with an exception.
+
+        This includes file paths, line numbers, function names, code context,
+        and safe local variables for each frame.
+
+        Parameters
+        ----------
+        exc : Exception
+            The exception object containing the traceback (`__traceback__`).
+
+        Returns
+        -------
+        List[Dict[str, Any]]
+            A list of dictionaries, where each dictionary represents a stack frame.
+        """
         frame_blocks = []
         tb = exc.__traceback__
 
@@ -100,20 +171,49 @@ class _TracebackInspector:
 
 
 class ErrorHandler:
-    """
-    Manages global exceptions.
-    Refactored to support Async Render and pass the Request to the Template.
+    """Manages global exceptions within the application lifecycle.
+
+    This handler supports asynchronous rendering and provides detailed context
+    (including the Request object) to error templates.
     """
 
     def __init__(
         self, config: Config, log: logging.Logger, router: Optional[Router] = None
     ) -> None:
+        """Initializes the ErrorHandler.
+
+        Parameters
+        ----------
+        config : Config
+            The application configuration object.
+        log : logging.Logger
+            The logger instance used for recording server errors.
+        router : Optional[Router], optional
+            The application router, used primarily for listing available routes
+            in debug mode (e.g., on 404 pages). Default is None.
+        """
         self.config = config
         self.log = log
         self.router = router
 
     async def handle_exception(self, exc: Exception, request: Request) -> Response:
-        """Single entry point for error handling."""
+        """Single entry point for error handling.
+
+        Delegates handling based on whether the exception is an expected HTTPError
+        or an unexpected server error.
+
+        Parameters
+        ----------
+        exc : Exception
+            The exception that occurred.
+        request : Request
+            The incoming HTTP request object.
+
+        Returns
+        -------
+        Response
+            The HTTP response object containing the error page content.
+        """
 
         if isinstance(exc, HTTPError):
             return await self._handle_http_error(exc, request)
@@ -121,7 +221,20 @@ class ErrorHandler:
         return await self._handle_server_error(exc, request)
 
     async def _handle_http_error(self, exc: HTTPError, request: Request) -> Response:
-        """Handles expected errors (404, 405, etc)."""
+        """Handles expected errors (4xx status codes, e.g., 404, 405).
+
+        Parameters
+        ----------
+        exc : HTTPError
+            The HTTP exception raised.
+        request : Request
+            The incoming HTTP request object.
+
+        Returns
+        -------
+        Response
+            The HTTP response object with the appropriate status code and error content.
+        """
         context = {
             "message": exc.message,
             "status_code": exc.status_code,
@@ -135,7 +248,23 @@ class ErrorHandler:
         return Response(content, status_code=exc.status_code)
 
     async def _handle_server_error(self, exc: Exception, request: Request) -> Response:
-        """Handles unexpected errors (500)."""
+        """Handles unexpected errors (500 Internal Server Error).
+
+        Logs the full traceback and renders either the debug page or the
+        generic production error page based on configuration.
+
+        Parameters
+        ----------
+        exc : Exception
+            The unexpected exception that occurred.
+        request : Request
+            The incoming HTTP request object.
+
+        Returns
+        -------
+        Response
+            The HTTP response object with status code 500.
+        """
 
         traceback_text = "".join(
             traceback.format_exception(type(exc), exc, exc.__traceback__)
@@ -150,6 +279,24 @@ class ErrorHandler:
     async def _render_debug_page(
         self, exc: Exception, tb_text: str, request: Request
     ) -> Response:
+        """Renders the detailed debug error page (500) showing stack trace and context.
+
+        This is only called if APP_DEBUG is True.
+
+        Parameters
+        ----------
+        exc : Exception
+            The exception object.
+        tb_text : str
+            The raw formatted traceback text.
+        request : Request
+            The incoming HTTP request object.
+
+        Returns
+        -------
+        Response
+            The HTTP response object with status code 500 and debug content.
+        """
         frames = _TracebackInspector.extract_frames(exc)
         context = {
             "exception_type": type(exc).__name__,
@@ -162,6 +309,18 @@ class ErrorHandler:
         return Response(content, status_code=500)
 
     async def _render_production_page(self, request: Request) -> Response:
+        """Renders the generic production error page (500).
+
+        Parameters
+        ----------
+        request : Request
+            The incoming HTTP request object.
+
+        Returns
+        -------
+        Response
+            The HTTP response object with status code 500 and generic content.
+        """
         context = {
             "message": "Internal Server Error",
             "status_code": 500,
@@ -171,7 +330,14 @@ class ErrorHandler:
         return Response(content, status_code=500)
 
     def _get_debug_routes(self) -> List[Tuple[str, str]]:
-        """Helper to list routes on the 404 screen in debug mode."""
+        """Helper to list available routes for display on debug error screens (e.g., 404).
+
+        Returns
+        -------
+        List[Tuple[str, str]]
+            A list of (method, path) tuples representing registered routes,
+            or an empty list if the router is unavailable or an error occurs.
+        """
         if not self.router:
             return []
         try:

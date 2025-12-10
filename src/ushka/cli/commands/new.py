@@ -1,9 +1,30 @@
+"""
+This module provides the Command Line Interface (CLI) command for creating
+a new Ushka project with a default directory structure and essential files.
+
+Commands
+--------
+create_project: Initializes a new Ushka project.
+"""
+
 import os
 import tomlkit
 
+
 def create_project(project_name: str):
-    """
-    Creates a new Ushka project with a default structure.
+    """Creates a new Ushka project with a default structure.
+
+    This function sets up the necessary directories (`routes`, `static`, `templates`)
+    and creates initial files (`app.py`, `config.toml`, `routes/index.py`,
+    `templates/index.html`) to provide a basic, runnable Ushka application.
+    If a directory with the specified `project_name` already exists, the creation
+    process is aborted.
+
+    Parameters
+    ----------
+    project_name : str
+        The name of the new project to create. This will also be the name of
+        the root directory for the project.
     """
     if os.path.exists(project_name):
         print(f"❌ Directory '{project_name}' already exists.")

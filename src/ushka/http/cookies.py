@@ -1,11 +1,32 @@
+"""
+This module provides a full-stack cookie management utility, the `Cookies` class.
+
+It handles parsing raw cookie headers from incoming ASGI requests and
+manages changes to generate appropriate `Set-Cookie` headers for outgoing responses.
+"""
+
 from typing import Any, Dict, List, Optional, Tuple
 
 
 class Cookies(dict):
-    """
-    Full-Stack Cookie Manager.
-    1. Input: Receives raw bytes/string from ASGI and converts it into a dictionary.
-    2. Output: Tracks changes to generate 'Set-Cookie' headers only when necessary.
+    """Full-Stack Cookie Manager.
+
+    This class extends `dict` to provide comprehensive management of HTTP cookies.
+    It handles parsing `Cookie` headers from incoming requests and tracks
+    changes to generate `Set-Cookie` headers for outgoing responses efficiently.
+
+    Parameters
+    ----------
+    header_value : str or bytes, optional
+        The raw `Cookie` header value from an incoming request. If provided,
+        it will be parsed upon initialization. Defaults to `None`.
+    secure_default : bool, optional
+        The default `Secure` attribute for new cookies. Defaults to `True`.
+    httponly_default : bool, optional
+        The default `HttpOnly` attribute for new cookies. Defaults to `True`.
+    samesite_default : str, optional
+        The default `SameSite` attribute for new cookies ('lax', 'strict', 'none').
+        Defaults to `'lax'`.
     """
 
     def __init__(
@@ -15,6 +36,21 @@ class Cookies(dict):
         httponly_default: bool = True,
         samesite_default: str = "lax",
     ):
+        """Initializes the Cookies manager.
+
+        Parameters
+        ----------
+        header_value : str or bytes, optional
+            The raw `Cookie` header value from an incoming request. If provided,
+            it will be parsed upon initialization. Defaults to `None`.
+        secure_default : bool, optional
+            The default `Secure` attribute for new cookies. Defaults to `True`.
+        httponly_default : bool, optional
+            The default `HttpOnly` attribute for new cookies. Defaults to `True`.
+        samesite_default : str, optional
+            The default `SameSite` attribute for new cookies ('lax', 'strict', 'none').
+            Defaults to `'lax'`.
+        """
         super().__init__()
 
         # Internal State: What needs to be sent to the client
@@ -34,7 +70,35 @@ class Cookies(dict):
             self._parse_cookie_header(header_value)
 
     def _parse_cookie_header(self, header: str | bytes):
-        """Breaks the raw string 'key=val; key2=val'."""
+        """Parses a raw 'Cookie' header string into key-value pairs.
+
+
+
+        This internal method populates the `Cookies` dictionary with the
+
+        parsed cookie data.
+
+
+
+        Parameters
+
+        ----------
+
+        header : str or bytes
+
+            The raw 'Cookie' header string (e.g., "key1=value1; key2=value2").
+
+
+
+        Returns
+
+        -------
+
+        None
+
+            This method populates the instance directly and does not return a value.
+
+        """
         if isinstance(header, bytes):
             try:
                 header = header.decode("latin-1")
@@ -50,9 +114,25 @@ class Cookies(dict):
     # --- Public Modification API ---
 
     def __setitem__(self, key: str, value: str) -> None:
+        """Sets a cookie value, triggering `set()` for full option handling.
+
+        Parameters
+        ----------
+        key : str
+            The name of the cookie.
+        value : str
+            The value of the cookie.
+        """
         self.set(key, value)
 
     def __delitem__(self, key: str) -> None:
+        """Deletes a cookie, triggering `delete()` to expire it in the browser.
+
+        Parameters
+        ----------
+        key : str
+            The name of the cookie to delete.
+        """
         self.delete(key)
 
     def set(
@@ -67,7 +147,69 @@ class Cookies(dict):
         httponly: bool | None = None,
         samesite: str | None = None,
     ) -> None:
-        """Defines a cookie and schedules sending."""
+        """Defines a cookie and schedules it to be sent with the response.
+
+
+
+        This method updates the cookie's value and attributes. Changes are
+
+        tracked internally, and `Set-Cookie` headers will be generated
+
+        only if modifications have occurred.
+
+
+
+        Parameters
+
+        ----------
+
+        key : str
+
+            The name of the cookie.
+
+        value : str
+
+            The value of the cookie.
+
+        max_age : int, optional
+
+            The maximum age of the cookie in seconds. If `None`, it's a session cookie.
+
+        expires : int, optional
+
+            The expiration date of the cookie as a Unix timestamp.
+
+        path : str, optional
+
+            The path for which the cookie is valid. Defaults to "/".
+
+        domain : str, optional
+
+            The domain for which the cookie is valid. Defaults to `None` (current host only).
+
+        secure : bool, optional
+
+            If `True`, the cookie will only be sent over HTTPS. Defaults to `True`.
+
+        httponly : bool, optional
+
+            If `True`, the cookie cannot be accessed via client-side scripts. Defaults to `True`.
+
+        samesite : str, optional
+
+            Controls cross-site cookie behavior ('lax', 'strict', 'none'). Defaults to 'lax'.
+
+
+
+        Returns
+
+        -------
+
+        None
+
+            This method modifies the instance in place and does not return a value.
+
+        """
         super().__setitem__(key, value)
 
         self._changes[key] = {
@@ -86,7 +228,41 @@ class Cookies(dict):
         }
 
     def delete(self, key: str, path: str = "/", domain: Optional[str] = None) -> None:
-        """Forces the removal of the cookie in the browser (Max-Age=0)."""
+        """Forces the removal of a cookie from the client's browser.
+
+
+
+        This is achieved by setting its `Max-Age` to 0 and `Expires` to a past date.
+
+
+
+        Parameters
+
+        ----------
+
+        key : str
+
+            The name of the cookie to delete.
+
+        path : str, optional
+
+            The path of the cookie to delete. Defaults to "/".
+
+        domain : str, optional
+
+            The domain of the cookie to delete. Defaults to `None`.
+
+
+
+        Returns
+
+        -------
+
+        None
+
+            This method modifies the instance in place and does not return a value.
+
+        """
         if key in self:
             super().__delitem__(key)
 
@@ -120,6 +296,40 @@ class Cookies(dict):
         return headers
 
     def _format_cookie_header(self, key: str, options: Dict[str, Any]) -> str:
+        """Formats a single `Set-Cookie` header string.
+
+
+
+        This internal method constructs the full cookie header value based on
+
+        the provided key and options, ready to be sent in an HTTP response.
+
+
+
+        Parameters
+
+        ----------
+
+        key : str
+
+            The name of the cookie.
+
+        options : dict
+
+            A dictionary containing the cookie's attributes (value, max_age, path, etc.).
+
+
+
+        Returns
+
+        -------
+
+        str
+
+            The formatted `Set-Cookie` header string.
+
+        """
+
         parts = [f"{key}={options['value']}"]
 
         if options.get("max_age") is not None:

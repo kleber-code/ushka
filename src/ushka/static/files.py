@@ -22,12 +22,16 @@ async def get_static_absolute_path(workdir: Path, static_dir: Path) -> Path:
     directory. If the path is relative, it is resolved against the application's
     working directory.
 
-    Args:
-        workdir: The application's working directory.
-        static_dir: The configured static directory path (can be relative or
-            absolute).
+    Parameters
+    ----------
+    workdir : Path
+        The application's working directory.
+    static_dir : Path
+        The configured static directory path (can be relative or absolute).
 
-    Returns:
+    Returns
+    -------
+    Path
         The absolute path to the static directory.
     """
     if not str(static_dir).startswith("/"):
@@ -44,21 +48,26 @@ async def server_static_files(
     verifies that the file exists, and sets the appropriate HTTP headers
     (e.g., `Content-Type`, `Content-Length`).
 
-    Args:
-        filename: The name of the file to serve, relative to the static
-            directory.
-        config: The application configuration object.
-        response: The response object to populate with the file content and
-            headers.
+    Parameters
+    ----------
+    filename : str
+        The name of the file to serve, relative to the static directory.
+    config : Config
+        The application configuration object.
+    response : Response
+        The response object to populate with the file content and headers.
 
-    Returns:
+    Returns
+    -------
+    Response
         The populated response object.
 
-    Raises:
-        HttpStaticServerNotFound: If the file is not found, is not a file,
-            or if a path traversal attack is detected.
-        CantCompleteResponse: If there is an error reading the file or
-            populating the response.
+    Raises
+    ------
+    HTTPStaticServerNotFound
+        If the file is not found, is not a file, or if a path traversal attack is detected.
+    CantCompleteResponse
+        If there is an error reading the file or populating the response.
     """
     static_dir = Path(config.get("STATIC_DIR"))
     workdir = Path(config.get("USHKA_WORKDIR"))

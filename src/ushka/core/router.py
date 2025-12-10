@@ -1,3 +1,12 @@
+"""
+This module defines the `Router` class, which acts as the central route manager
+for the Ushka framework.
+
+It is responsible for mapping incoming URL requests to their corresponding
+Python handler functions, managing both static and dynamic routes, and
+handling dependency injection for route handlers.
+"""
+
 import importlib.util
 import inspect
 import logging
@@ -15,9 +24,28 @@ DependencyMap = Dict[str, Any]
 
 
 class Router:
-    """
-    Central route manager.
-    Responsible for linking URLs to Python functions (handlers).
+    """Central route manager.
+
+    Responsible for linking URLs to Python functions (handlers) and managing
+    dependency injection for those handlers.
+
+    Parameters
+    ----------
+    log : logging.Logger
+        The application logger instance.
+    workdir : Path
+        The root working directory of the application, used for route discovery.
+    host : str, optional
+        The default host address (e.g., '127.0.0.1'). Defaults to "127.0.0.1".
+
+    Attributes
+    ----------
+    HTTP_METHODS : Set[str]
+        A set of valid HTTP verbs supported by the router.
+    static_routes : Dict[str, Dict[str, Tuple[RouteHandler, DependencyMap]]]
+        Storage for routes without path parameters (method -> path -> (handler, deps)).
+    dynamic_routes : Dict[str, List[Tuple[re.Pattern, List[str], RouteHandler, DependencyMap, str]]]
+        Storage for routes with path parameters, requiring regex matching.
     """
 
     # Valid HTTP verbs (Set is O(1) for lookup)
@@ -32,6 +60,19 @@ class Router:
     }
 
     def __init__(self, log: logging.Logger, workdir: Path, host: str = "127.0.0.1"):
+        """Initializes the Router with a logger, working directory, and host.
+
+        Sets up internal data structures for storing static and dynamic routes.
+
+        Parameters
+        ----------
+        log : logging.Logger
+            The application logger instance.
+        workdir : Path
+            The root working directory of the application, used for route discovery.
+        host : str, optional
+            The default host address (e.g., '127.0.0.1'). Defaults to "127.0.0.1".
+        """
         self.log = log
         self.workdir = workdir
         self.host = host
@@ -47,16 +88,38 @@ class Router:
         ] = {}
 
     def _normalize_path(self, path: str) -> str:
-        """Ensures the path always starts with / and has no double slashes."""
+        """Ensures the path always starts with / and has no double slashes.
+
+        Parameters
+        ----------
+        path : str
+            The raw path string to normalize.
+
+        Returns
+        -------
+        str
+            The normalized path string (e.g., '/api/users').
+        """
         if path == "/":
             return path
         parts = [p for p in path.split("/") if p and p != "."]
         return "/" + "/".join(parts)
 
     def _extract_dependencies(self, func: RouteHandler) -> DependencyMap:
-        """
-        Analyzes the function signature for simple Dependency Injection.
-        Identifies if the function requests Request, Response or Config.
+        """Analyzes the function signature for simple Dependency Injection.
+
+        Identifies if the function requests Request, Response or Config, either
+        by parameter name or type annotation.
+
+        Parameters
+        ----------
+        func : RouteHandler
+            The function handler whose signature is to be inspected.
+
+        Returns
+        -------
+        DependencyMap
+            A dictionary mapping parameter names to the required dependency type (class).
         """
         sig = inspect.signature(func)
         deps = {}
@@ -75,7 +138,22 @@ class Router:
     def _resolve_dependencies(
         self, request: Request, required_deps: DependencyMap
     ) -> Dict[str, Any]:
-        """Instantiates the necessary objects for the route."""
+        """Instantiates the necessary objects for the route handler.
+
+        Parameters
+        ----------
+        request : Request
+            The current incoming HTTP request object.
+        required_deps : DependencyMap
+            A map of dependency names and their required types, usually generated
+            by `_extract_dependencies`.
+
+        Returns
+        -------
+        Dict[str, Any]
+            A dictionary of instantiated dependencies ready to be passed as kwargs
+            to the route handler.
+        """
         injected = {}
         for name, type_cls in required_deps.items():
             if type_cls is Request:
@@ -83,11 +161,26 @@ class Router:
             elif type_cls is Response:
                 injected[name] = Response()
             elif type_cls is Config:
+                # Note: Config() instantiation might need context in a real app
                 injected[name] = Config()
         return injected
 
     def add_route(self, method: str, path: str, func: RouteHandler) -> None:
-        """Registers a manual or discovered route."""
+        """Registers a manual or discovered route.
+
+        Parameters
+        ----------
+        method : str
+            The HTTP method (e.g., 'GET', 'POST'). Case-insensitive.
+        path : str
+            The URL path (e.g., '/users', '/users/[id]').
+        func : RouteHandler
+            The Python function to execute when the route is matched.
+
+        Returns
+        -------
+        None
+        """
         method = method.upper()
         if method not in self.HTTP_METHODS:
             self.log.warning(f"Attempted to register invalid HTTP method: {method}")
@@ -117,7 +210,23 @@ class Router:
     def _add_dynamic_route(
         self, method: str, path: str, func: RouteHandler, deps: DependencyMap
     ):
-        """Compiles regex for routes with parameters like /user/[id]."""
+        """Compiles regex for routes with parameters like /user/[id].
+
+        Parameters
+        ----------
+        method : str
+            The HTTP method.
+        path : str
+            The dynamic URL path containing bracketed parameters (e.g., '/items/[int:id]').
+        func : RouteHandler
+            The handler function.
+        deps : DependencyMap
+            The dependencies required by the handler function.
+
+        Returns
+        -------
+        None
+        """
         param_names = []
         regex_parts = ["^"]
 
@@ -129,13 +238,17 @@ class Router:
                     # Future support for types: [int:id]
                     type_hint, name = content.split(":", 1)
                     if type_hint == "path":
+                        # Matches anything including slashes (greedy)
                         regex_parts.append(f"/(?P<{name}>.+)")
                     elif type_hint == "int":
+                        # Matches digits
                         regex_parts.append(f"/(?P<{name}>\\d+)")
                     else:
+                        # Default: Matches non-slash characters
                         regex_parts.append(f"/(?P<{name}>[^/]+)")
                 else:
                     name = content
+                    # Default: Matches non-slash characters
                     regex_parts.append(f"/(?P<{name}>[^/]+)")
                 param_names.append(name)
             else:
@@ -146,13 +259,28 @@ class Router:
         if method not in self.dynamic_routes:
             self.dynamic_routes[method] = []
 
+        # Store (compiled regex, param names, handler, dependencies, raw path)
         self.dynamic_routes[method].append((regex, param_names, func, deps, path))
 
     def get_route(
         self, request: Request
     ) -> Tuple[Optional[RouteHandler], Dict[str, Any]]:
-        """
-        Searches for the route. Returns (Handler, Kwargs) or (None, {}).
+        """Searches for the route matching the request method and path.
+
+        It prioritizes static routes over dynamic routes.
+
+        Parameters
+        ----------
+        request : Request
+            The incoming HTTP request object.
+
+        Returns
+        -------
+        Tuple[Optional[RouteHandler], Dict[str, Any]]
+            A tuple containing:
+            1. The matching handler function (or None if not found).
+            2. A dictionary of keyword arguments, including injected dependencies
+               and path parameters.
         """
         method = request.method
         path = self._normalize_path(request.path)
@@ -176,9 +304,20 @@ class Router:
         return None, {}
 
     def autodiscover(self, folder: str = "routes") -> None:
-        """
-        Filesystem-based routing.
-        Reads files in the /routes folder and maps functions (get, post) to URLs.
+        """Filesystem-based routing discovery.
+
+        Reads files in the specified folder (relative to `workdir`) and maps
+        functions named after HTTP methods (e.g., `get`, `post`) to URLs
+        derived from the file path.
+
+        Parameters
+        ----------
+        folder : str, optional
+            The subdirectory name containing route files. Defaults to "routes".
+
+        Returns
+        -------
+        None
         """
         routes_root = self.workdir.joinpath(folder)
         if not routes_root.exists():
@@ -230,7 +369,23 @@ class Router:
     def get_urls(
         self, host: str = "127.0.0.1", port: int = 8000, with_host: bool = True
     ) -> List[str]:
-        """Generates a list of routes for display in the terminal."""
+        """Generates a list of registered routes for display in the terminal.
+
+        Parameters
+        ----------
+        host : str, optional
+            The host address to prepend to the URLs. Defaults to "127.0.0.1".
+        port : int, optional
+            The port number to prepend to the URLs. Defaults to 8000.
+        with_host : bool, optional
+            If True, includes the 'http://host:port' prefix. Defaults to True.
+
+        Returns
+        -------
+        List[str]
+            A sorted list of strings, where each string represents a route
+            and its supported methods (e.g., 'http://127.0.0.1:8000/users - GET, POST').
+        """
         url_map: Dict[str, List[str]] = {}
 
         # Collect static

@@ -7,6 +7,17 @@ from ushka.cli.commands import db, dev, new, routes, run
 
 
 def main():
+    """Entry point for the Ushka Framework CLI.
+
+    This function sets up the Python path for module discovery,
+    parses command-line arguments using `argparse`, and dispatches
+    to the appropriate subcommand handler (e.g., `new`, `routes`, `dev`, `run`, `db`).
+
+    Notes
+    -----
+    The current working directory is added to `sys.path` to enable
+    importing user-defined `app.py` files.
+    """
     # Adds the current directory to the Python PATH.
     # This is CRITICAL: it allows importing the user's 'app.py' where the command is run.
     sys.path.insert(0, os.getcwd())
@@ -41,9 +52,7 @@ def main():
     parser_routes_add.add_argument("path", help="The URL path of the route to create")
 
     # ushka routes rm <path>
-    parser_routes_rm = routes_subparsers.add_parser(
-        "rm", help="Removes a route file"
-    )
+    parser_routes_rm = routes_subparsers.add_parser("rm", help="Removes a route file")
     parser_routes_rm.add_argument("path", help="The URL path of the route to remove")
 
     # ushka routes mv <old_path> <new_path>
@@ -64,9 +73,7 @@ def main():
     parser_dev.add_argument("--port", type=int, default=0, help="Server port")
 
     # --- COMMAND: RUN ---
-    parser_run = subparsers.add_parser(
-        "run", help="Starts the production server"
-    )
+    parser_run = subparsers.add_parser("run", help="Starts the production server")
     parser_run.add_argument(
         "app", help="Path to the app (e.g., app:app)", nargs="?", default="app:app"
     )

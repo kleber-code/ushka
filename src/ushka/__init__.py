@@ -1,14 +1,21 @@
-"""Ushka is a lightweight and flexible ASGI web framework.
+"""
+Ushka: A lightweight and flexible ASGI web framework.
 
 This top-level package exports the core components of the framework, making
 them easily accessible for application development.
 
-Exports:
-    Ushka: The main application class.
-    Config: The global configuration manager.
-    Request: The HTTP request class.
-    Response: The HTTP response class.
-    Router: The routing class.
+Components
+----------
+Ushka : class
+    The main application class.
+Config : class
+    The global configuration manager.
+Request : class
+    The HTTP request class.
+Response : class
+    The HTTP response class.
+Router : class
+    The routing class.
 """
 
 from .core import Router, Ushka

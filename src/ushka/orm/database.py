@@ -1,3 +1,11 @@
+"""
+This module provides an asynchronous Object-Relational Mapper (ORM) for the
+Ushka framework, built on top of SQLAlchemy 2.0.
+
+It includes the `UshkaDB` manager for engine and session handling, a dynamically
+generated `BaseModel` with Active Record-style CRUD operations, and helper
+methods for defining common SQLAlchemy column types.
+"""
 import os
 import uuid
 import enum
@@ -40,6 +48,27 @@ class UshkaDB:
 
     Handles engine creation, session management, and provides the declarative
     Model base with built-in async Active Record methods.
+
+    Attributes
+    ----------
+    CASCADE : str
+        SQL ON DELETE CASCADE action.
+    SET_NULL : str
+        SQL ON DELETE SET NULL action.
+    RESTRICT : str
+        SQL ON DELETE RESTRICT action.
+    url : str
+        The database connection URL.
+    engine : sqlalchemy.ext.asyncio.AsyncEngine
+        The asynchronous SQLAlchemy engine.
+    session_factory : async_sessionmaker
+        Factory for creating new async sessions.
+    Session : async_scoped_session
+        A scoped session linked to the current asyncio task.
+    metadata : sqlalchemy.MetaData
+        The metadata object used by the declarative base.
+    Model : Type[_Base]
+        The dynamic BaseModel class with CRUD methods.
     """
 
     CASCADE = "CASCADE"
@@ -47,6 +76,9 @@ class UshkaDB:
     RESTRICT = "RESTRICT"
 
     def __init__(self):
+        """
+        Initializes the database manager, setting up the engine and session scope.
+        """
         self.url = os.getenv("USHKA_DB_URL", "sqlite:///ushka.db")
 
         # Auto-configure driver for Async compatibility
@@ -68,12 +100,22 @@ class UshkaDB:
         self.Model = self._create_model_base()
 
     def _create_model_base(self):
-        """Creates the dynamic BaseModel class linked to this DB instance."""
+        """
+        Creates the dynamic BaseModel class linked to this DB instance.
+
+        Returns
+        -------
+        Type[_Base]
+            The dynamically created BaseModel class.
+        """
         db = self
 
         class BaseModel(_Base):
             """
             Base ORM Model with built-in async CRUD operations.
+
+            This class provides Active Record pattern methods for persistence
+            and querying using asynchronous SQLAlchemy 2.0 style.
             """
 
             __abstract__ = True
@@ -84,7 +126,17 @@ class UshkaDB:
             # --- INSTANCE METHODS ---
 
             async def save(self: T) -> T:
-                """Persists the current instance to the database."""
+                """
+                Persists the current instance to the database.
+
+                If the instance is new, it is inserted; otherwise, it is updated.
+                The instance is refreshed after commit.
+
+                Returns
+                -------
+                T
+                    The refreshed instance of the model.
+                """
                 async with db.Session() as session:
                     session.add(self)
                     await session.commit()
@@ -92,7 +144,9 @@ class UshkaDB:
                     return self
 
             async def delete(self) -> None:
-                """Removes the current instance from the database."""
+                """
+                Removes the current instance from the database.
+                """
                 async with db.Session() as session:
                     await session.delete(self)
                     await session.commit()
@@ -100,7 +154,14 @@ class UshkaDB:
             def to_dict(self) -> dict:
                 """
                 Serializes the model to a dictionary.
+
                 This is synchronous as it operates on loaded memory data.
+                Handles serialization of common types like Enum and UUID.
+
+                Returns
+                -------
+                dict
+                    A dictionary representation of the model's columns.
                 """
                 data = {}
                 try:
@@ -119,7 +180,19 @@ class UshkaDB:
 
             @classmethod
             async def create(cls: Type[T], **kwargs) -> T:
-                """Creates a new instance and saves it to the database."""
+                """
+                Creates a new instance and saves it to the database.
+
+                Parameters
+                ----------
+                **kwargs
+                    Keyword arguments corresponding to model attributes.
+
+                Returns
+                -------
+                T
+                    The newly created and persisted instance.
+                """
                 instance = cls(**kwargs)
                 return await instance.save()
 
@@ -127,20 +200,51 @@ class UshkaDB:
 
             @classmethod
             async def all(cls: Type[T]) -> List[T]:
-                """Returns all records for this model."""
+                """
+                Returns all records for this model.
+
+                Returns
+                -------
+                List[T]
+                    A list of all model instances.
+                """
                 async with db.Session() as session:
                     result = await session.execute(select(cls))
                     return result.scalars().all()
 
             @classmethod
             async def get(cls: Type[T], id: Any) -> Optional[T]:
-                """Retrieves a single record by its Primary Key."""
+                """
+                Retrieves a single record by its Primary Key.
+
+                Parameters
+                ----------
+                id : Any
+                    The primary key value of the record to retrieve.
+
+                Returns
+                -------
+                Optional[T]
+                    The model instance if found, otherwise None.
+                """
                 async with db.Session() as session:
                     return await session.get(cls, id)
 
             @classmethod
             async def first(cls: Type[T], **kwargs) -> Optional[T]:
-                """Returns the first record matching the filters."""
+                """
+                Returns the first record matching the filters.
+
+                Parameters
+                ----------
+                **kwargs
+                    Keyword arguments used for filtering (e.g., `filter_by`).
+
+                Returns
+                -------
+                Optional[T]
+                    The first matching model instance if found, otherwise None.
+                """
                 async with db.Session() as session:
                     stmt = select(cls).filter_by(**kwargs)
                     result = await session.execute(stmt)
@@ -150,6 +254,16 @@ class UshkaDB:
             async def filter(cls: Type[T], **kwargs) -> List[T]:
                 """
                 Returns a list of records matching the filters.
+
+                Parameters
+                ----------
+                **kwargs
+                    Keyword arguments used for filtering (e.g., `filter_by`).
+
+                Returns
+                -------
+                List[T]
+                    A list of matching model instances.
                 """
                 async with db.Session() as session:
                     stmt = select(cls).filter_by(**kwargs)
@@ -161,12 +275,21 @@ class UshkaDB:
             @classmethod
             def select(cls):
                 """
-                Returns a raw SQLAlchemy Select statement.
-                Usage: await db.execute(User.select().where(...))
+                Returns a raw SQLAlchemy Select statement for this model.
+
+                Usage: ``await db.execute(User.select().where(...))``
+
+                Returns
+                -------
+                sqlalchemy.sql.Select
+                    A SQLAlchemy Select construct targeting this model.
                 """
                 return select(cls)
 
             def __repr__(self):
+                """
+                Returns a string representation of the model instance.
+                """
                 pk = getattr(self, "id", "No-ID")
                 return f"<{self.__class__.__name__} {pk}>"
 
@@ -175,7 +298,19 @@ class UshkaDB:
     # --- EXECUTION HELPERS ---
 
     async def execute(self, stmt):
-        """Executes a raw SQL statement or SQLAlchemy construct."""
+        """
+        Executes a raw SQL statement or SQLAlchemy construct using a session.
+
+        Parameters
+        ----------
+        stmt : Any
+            A SQLAlchemy executable construct (e.g., Select, Insert, raw text).
+
+        Returns
+        -------
+        sqlalchemy.engine.Result
+            The result object from the execution.
+        """
         async with self.Session() as session:
             return await session.execute(stmt)
 
@@ -189,6 +324,28 @@ class UshkaDB:
         default=None,
         choices: list = None,
     ) -> Column:
+        """
+        Defines a SQLAlchemy String column.
+
+        Parameters
+        ----------
+        length : int, optional
+            Maximum length of the string. By default 255.
+        unique : bool, optional
+            If True, enforces uniqueness constraint. By default False.
+        nullable : bool, optional
+            If True, allows NULL values. By default False.
+        default : Any, optional
+            Default value for the column. By default None.
+        choices : list, optional
+            If provided, converts the column to a SQLAlchemy Enum type
+            using the list elements as valid values. By default None.
+
+        Returns
+        -------
+        sqlalchemy.Column
+            The configured Column object.
+        """
         type_engine = sqltypes.String(length)
         if choices:
             type_engine = sqltypes.Enum(
@@ -199,6 +356,28 @@ class UshkaDB:
     def UUID(
         self, unique=False, nullable=False, primary_key=False, default=None
     ) -> Column:
+        """
+        Defines a SQLAlchemy UUID column.
+
+        If `primary_key` is True and `default` is None, `uuid.uuid4` is used
+        as the default generator.
+
+        Parameters
+        ----------
+        unique : bool, optional
+            If True, enforces uniqueness constraint. By default False.
+        nullable : bool, optional
+            If True, allows NULL values. By default False.
+        primary_key : bool, optional
+            If True, sets this column as the primary key. By default False.
+        default : Any, optional
+            Default value or callable for the column. By default None.
+
+        Returns
+        -------
+        sqlalchemy.Column
+            The configured Column object.
+        """
         if primary_key and default is None:
             default = uuid.uuid4
         return Column(
@@ -211,46 +390,244 @@ class UshkaDB:
         )
 
     def Text(self, nullable=False, default=None) -> Column:
+        """
+        Defines a SQLAlchemy Text column (for long strings).
+
+        Parameters
+        ----------
+        nullable : bool, optional
+            If True, allows NULL values. By default False.
+        default : Any, optional
+            Default value for the column. By default None.
+
+        Returns
+        -------
+        sqlalchemy.Column
+            The configured Column object.
+        """
         return Column(sqltypes.Text, nullable=nullable, default=default)
 
     def Int(self, unique=False, nullable=False, default=None) -> Column:
+        """
+        Defines a SQLAlchemy Integer column.
+
+        Parameters
+        ----------
+        unique : bool, optional
+            If True, enforces uniqueness constraint. By default False.
+        nullable : bool, optional
+            If True, allows NULL values. By default False.
+        default : Any, optional
+            Default value for the column. By default None.
+
+        Returns
+        -------
+        sqlalchemy.Column
+            The configured Column object.
+        """
         return Column(
             sqltypes.Integer, unique=unique, nullable=nullable, default=default
         )
 
     def BigInt(self, unique=False, nullable=False, default=None) -> Column:
+        """
+        Defines a SQLAlchemy BigInteger column.
+
+        Parameters
+        ----------
+        unique : bool, optional
+            If True, enforces uniqueness constraint. By default False.
+        nullable : bool, optional
+            If True, allows NULL values. By default False.
+        default : Any, optional
+            Default value for the column. By default None.
+
+        Returns
+        -------
+        sqlalchemy.Column
+            The configured Column object.
+        """
         return Column(
             sqltypes.BigInteger, unique=unique, nullable=nullable, default=default
         )
 
     def Float(self, nullable=False, default=0.0) -> Column:
+        """
+        Defines a SQLAlchemy Float column.
+
+        Parameters
+        ----------
+        nullable : bool, optional
+            If True, allows NULL values. By default False.
+        default : float, optional
+            Default value for the column. By default 0.0.
+
+        Returns
+        -------
+        sqlalchemy.Column
+            The configured Column object.
+        """
         return Column(sqltypes.Float, nullable=nullable, default=default)
 
     def Decimal(self, precision=10, scale=2, nullable=False, default=0) -> Column:
+        """
+        Defines a SQLAlchemy Numeric/Decimal column.
+
+        Parameters
+        ----------
+        precision : int, optional
+            Total number of digits. By default 10.
+        scale : int, optional
+            Number of digits after the decimal point. By default 2.
+        nullable : bool, optional
+            If True, allows NULL values. By default False.
+        default : int or float, optional
+            Default value for the column. By default 0.
+
+        Returns
+        -------
+        sqlalchemy.Column
+            The configured Column object.
+        """
         return Column(
             sqltypes.Numeric(precision, scale), nullable=nullable, default=default
         )
 
     def Bool(self, default=False, nullable=False) -> Column:
+        """
+        Defines a SQLAlchemy Boolean column.
+
+        Parameters
+        ----------
+        default : bool, optional
+            Default value for the column. By default False.
+        nullable : bool, optional
+            If True, allows NULL values. By default False.
+
+        Returns
+        -------
+        sqlalchemy.Column
+            The configured Column object.
+        """
         return Column(sqltypes.Boolean, nullable=nullable, default=default)
 
     def DateTime(self, auto_now=False, nullable=False) -> Column:
-        return Column(sqltypes.DateTime, nullable=nullable, default=func.now() if auto_now else None)
+        """
+        Defines a SQLAlchemy DateTime column.
+
+        Parameters
+        ----------
+        auto_now : bool, optional
+            If True, sets the default value to the current database time (func.now()).
+            By default False.
+        nullable : bool, optional
+            If True, allows NULL values. By default False.
+
+        Returns
+        -------
+        sqlalchemy.Column
+            The configured Column object.
+        """
+        return Column(
+            sqltypes.DateTime,
+            nullable=nullable,
+            default=func.now() if auto_now else None,
+        )
 
     def Date(self, auto_now=False, nullable=False) -> Column:
-        return Column(sqltypes.Date, nullable=nullable, default=func.now() if auto_now else None)
+        """
+        Defines a SQLAlchemy Date column.
+
+        Parameters
+        ----------
+        auto_now : bool, optional
+            If True, sets the default value to the current database date (func.now()).
+            By default False.
+        nullable : bool, optional
+            If True, allows NULL values. By default False.
+
+        Returns
+        -------
+        sqlalchemy.Column
+            The configured Column object.
+        """
+        return Column(
+            sqltypes.Date, nullable=nullable, default=func.now() if auto_now else None
+        )
 
     def Time(self, nullable=False) -> Column:
+        """
+        Defines a SQLAlchemy Time column.
+
+        Parameters
+        ----------
+        nullable : bool, optional
+            If True, allows NULL values. By default False.
+
+        Returns
+        -------
+        sqlalchemy.Column
+            The configured Column object.
+        """
         return Column(sqltypes.Time, nullable=nullable)
 
     def JSON(self, nullable=False, default=None) -> Column:
+        """
+        Defines a SQLAlchemy JSON column.
+
+        Parameters
+        ----------
+        nullable : bool, optional
+            If True, allows NULL values. By default False.
+        default : Any, optional
+            Default value for the column. If None, defaults to an empty dictionary {}.
+            By default None.
+
+        Returns
+        -------
+        sqlalchemy.Column
+            The configured Column object.
+        """
         default_val = default if default is not None else {}
         return Column(sqltypes.JSON, nullable=nullable, default=default_val)
 
     def Enum(self, enum_cls: Type[enum.Enum], nullable=False, default=None) -> Column:
+        """
+        Defines a SQLAlchemy Enum column based on a Python Enum class.
+
+        Parameters
+        ----------
+        enum_cls : Type[enum.Enum]
+            The Python Enum class defining the valid values.
+        nullable : bool, optional
+            If True, allows NULL values. By default False.
+        default : Any, optional
+            Default value for the column (should be an Enum member or its value).
+            By default None.
+
+        Returns
+        -------
+        sqlalchemy.Column
+            The configured Column object.
+        """
         return Column(sqltypes.Enum(enum_cls), nullable=nullable, default=default)
 
     def Binary(self, length: int = None, nullable=False) -> Column:
+        """
+        Defines a SQLAlchemy LargeBinary column.
+
+        Parameters
+        ----------
+        length : int, optional
+            Maximum length of the binary data. By default None.
+        nullable : bool, optional
+            If True, allows NULL values. By default False.
+
+        Returns
+        -------
+        sqlalchemy.Column
+            The configured Column object.
+        """
         return Column(sqltypes.LargeBinary(length=length), nullable=nullable)
 
     def ForeignKey(
@@ -260,6 +637,30 @@ class UshkaDB:
         on_delete: str = CASCADE,
         nullable: bool = False,
     ) -> Column:
+        """
+        Defines a SQLAlchemy Column that acts as a Foreign Key.
+
+        Automatically sets `nullable=True` if `on_delete` is `SET NULL`.
+
+        Parameters
+        ----------
+        target : str
+            The target table and column name (e.g., 'users.id').
+        dtype : Any, optional
+            The SQLAlchemy type of the foreign key column. Defaults to BigInteger.
+            By default None.
+        on_delete : str, optional
+            The ON DELETE SQL action (e.g., 'CASCADE', 'SET NULL', 'RESTRICT').
+            By default CASCADE.
+        nullable : bool, optional
+            If True, allows NULL values. Overridden if on_delete='SET NULL'.
+            By default False.
+
+        Returns
+        -------
+        sqlalchemy.Column
+            The configured Column object with ForeignKey constraint.
+        """
         if on_delete == self.SET_NULL:
             nullable = True
         column_type = dtype if dtype is not None else sqltypes.BigInteger
@@ -270,6 +671,25 @@ class UshkaDB:
         )
 
     def Relationship(self, model: str, back_populates: str = None) -> Any:
+        """
+        Defines a SQLAlchemy relationship property.
+
+        Sets `passive_deletes=True` to allow the database to handle cascading
+        deletes efficiently when used with `ondelete='CASCADE'` in the ForeignKey.
+
+        Parameters
+        ----------
+        model : str
+            The target model class name or string name.
+        back_populates : str, optional
+            The name of the relationship property on the target model.
+            By default None.
+
+        Returns
+        -------
+        sqlalchemy.orm.RelationshipProperty
+            The configured relationship object.
+        """
         return relationship(model, back_populates=back_populates, passive_deletes=True)
 
 

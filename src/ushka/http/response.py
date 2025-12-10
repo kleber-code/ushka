@@ -14,13 +14,7 @@ if TYPE_CHECKING:
 
 
 class Response:
-    """Represents an outgoing HTTP response.
-
-    Attributes:
-        status_code (int): The HTTP status code.
-        headers (dict): A dictionary of response headers.
-        media_type (str): The MIME type of the response.
-    """
+    """Represents an outgoing HTTP response."""
 
     def __init__(
         self,
@@ -32,13 +26,23 @@ class Response:
     ) -> None:
         """Initializes a new Response object.
 
-        Args:
-            body: The response body content.
-            status_code: The HTTP status code.
-            headers: Custom headers for the response.
-            media_type: Explicit MIME type. If None, inferred from body.
-            request: Optional reference to the Request object.
-                     Used to persist Session and Cookies automatically.
+        Parameters
+        ----------
+        body : str, int, dict, list, or bytes, optional
+            The content for the response body. Can be a string, integer,
+            dictionary (will be JSON-encoded), list (will be JSON-encoded),
+            or raw bytes. Defaults to an empty string.
+        status_code : int, optional
+            The HTTP status code for the response. Defaults to 200.
+        headers : Dict[str, str], optional
+            A dictionary of custom HTTP headers to include in the response.
+            Defaults to `None`.
+        media_type : str, optional
+            The explicit MIME type for the response (e.g., "text/html", "application/json").
+            If `None`, the media type is inferred from the `body` content.
+        request : Request, optional
+            An optional reference to the incoming `Request` object. If provided,
+            it's used to automatically persist session data and cookies.
         """
         self.status_code = status_code
         self.headers = headers or {}
@@ -51,7 +55,18 @@ class Response:
         self.body = body  # Uses the setter to define the correct type
 
     async def __call__(self, send: Callable) -> None:
-        """Makes the Response object an ASGI callable."""
+        """Makes the Response object an ASGI callable.
+
+        This method is the entry point for ASGI servers to process the response.
+        It constructs the HTTP response headers (including any modified cookies
+        or session data) and sends the response body.
+
+        Parameters
+        ----------
+        send : Callable
+            The ASGI send channel callable, used to send response events
+            (`http.response.start` and `http.response.body`) to the client.
+        """
 
         # 1. Base Headers
         asgi_headers = [[b"content-type", self.media_type.encode("utf-8")]]
@@ -97,7 +112,22 @@ class Response:
 
     @body.setter
     def body(self, value: str | int | Dict[Any, Any] | List[Any] | bytes):
-        """Sets the response body and infers Content-Type."""
+        """Sets the response body content and attempts to infer the `media_type`.
+
+        If the `media_type` has not been explicitly set, this setter will
+        try to determine it based on the type of the `value` (e.g., "text/html"
+        for strings containing HTML, "application/json" for dicts/lists).
+
+        Parameters
+        ----------
+        value : str, int, dict, list, or bytes
+            The content to set as the response body.
+
+        Raises
+        ------
+        ContentToJsonParserFailed
+            If `value` is a dictionary or list, and JSON serialization fails.
+        """
         self._body = ""
         self._body_bytes = b""
 

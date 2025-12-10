@@ -13,12 +13,33 @@ if TYPE_CHECKING:
 
 
 class Request:
+    """Represents an incoming HTTP request within the Ushka framework.
+
+    This class provides a comprehensive interface to access various aspects
+    of the HTTP request, including headers, query parameters, cookies, session
+    data, and the request body (as raw bytes, text, JSON, form data, or files).
+
+    It handles asynchronous reading of the request body and lazy loading
+    of parsed data for efficiency.
+    """
+
     def __init__(
         self,
         app: "Ushka",
         scope: dict,
         receive: Callable[[], Coroutine],
     ):
+        """Initializes a new Request object.
+
+        Parameters
+        ----------
+        app : Ushka
+            The instance of the Ushka application.
+        scope : dict
+            The ASGI scope dictionary for the incoming request.
+        receive : callable
+            The ASGI receive channel callable for receiving request body chunks.
+        """
         self.app = app
         self.scope = scope
         self.method = str(scope["method"]).upper()
@@ -41,6 +62,16 @@ class Request:
 
     @property
     def headers(self) -> Dict[str, str]:
+        """The request headers as a dictionary.
+
+        Headers are lazily decoded from the ASGI scope and cached upon first access.
+
+        Returns
+        -------
+        Dict[str, str]
+            A dictionary where keys are header names (lowercase) and values are
+            header values.
+        """
         if "headers" not in self._cached_data:
             self._cached_data["headers"] = {
                 k.decode("latin-1"): v.decode("latin-1")
@@ -50,6 +81,17 @@ class Request:
 
     @property
     def query(self) -> Dict[str, Any]:
+        """The parsed query parameters from the request URL.
+
+        Query parameters are lazily parsed from the ASGI scope and cached upon first access.
+        Values are automatically unwrapped from lists if there's only one value.
+
+        Returns
+        -------
+        Dict[str, Any]
+            A dictionary where keys are query parameter names and values are
+            either single strings or lists of strings.
+        """
         if "query" not in self._cached_data:
             raw = self.scope.get("query_string", b"")
             parsed = parse_qs(raw.decode())
@@ -60,6 +102,17 @@ class Request:
 
     @property
     def cookies(self) -> Cookies:
+        """The parsed cookies from the request headers.
+
+        Cookies are lazily parsed from the 'Cookie' header and wrapped in
+        a `Cookies` object which also tracks changes for setting `Set-Cookie`
+        headers in the response.
+
+        Returns
+        -------
+        Cookies
+            A `Cookies` object representing the request's cookies.
+        """
         if "cookies" not in self._cached_data:
             cookie_header = self.headers.get("cookie", "")
             self._cached_data["cookies"] = Cookies(
@@ -109,12 +162,37 @@ class Request:
         return self._cached_data["body"]
 
     async def body(self) -> bytes:
-        """Returns raw bytes. Usage: await request.body()"""
+        """Reads and returns the raw request body as bytes.
+
+        The body is read asynchronously from the ASGI stream. Once read,
+        it is cached for subsequent access within the same request.
+
+        Returns
+        -------
+        bytes
+            The full request body as raw bytes.
+
+        Raises
+        ------
+        ValueError
+            If the request body size exceeds `max_body_size_in_KB`.
+        """
         if "body" not in self._cached_data:
             return await self._load_body()
         return self._cached_data["body"]
 
     async def stream(self) -> AsyncGenerator[bytes, None]:
+        """Streams the raw request body as an asynchronous generator of bytes chunks.
+
+        This allows processing large request bodies without loading the entire
+        content into memory at once. If the body has already been read and cached
+        by a previous call to `body()`, it will yield the cached content.
+
+        Yields
+        ------
+        bytes
+            Chunks of the request body.
+        """
         if "body" in self._cached_data:
             yield self._cached_data["body"]
             return
@@ -128,21 +206,75 @@ class Request:
                 break
 
     async def text(self) -> str:
-        """Usage: await request.text()"""
+        """Reads and returns the request body as decoded text.
+
+        The body is first read as bytes (if not already cached) and then decoded
+        using UTF-8.
+
+        Returns
+        -------
+        str
+            The full request body as a string.
+
+        Raises
+        ------
+        ValueError
+            If the request body size exceeds `max_body_size_in_KB`.
+        UnicodeDecodeError
+            If the request body cannot be decoded as UTF-8.
+        """
         if "text" not in self._cached_data:
             body_bytes = await self.body()
             self._cached_data["text"] = body_bytes.decode("utf-8")
         return self._cached_data["text"]
 
     async def json(self) -> Any:
-        """Usage: await request.json()"""
+        """Reads and returns the request body as parsed JSON.
+
+        The body is first read as bytes (if not already cached) and then parsed
+        as a JSON object.
+
+        Returns
+        -------
+        Any
+            The parsed JSON content of the request body. The type depends on
+            the JSON structure (e.g., dict, list, str, int, etc.).
+
+        Raises
+        ------
+        ValueError
+            If the request body size exceeds `max_body_size_in_KB`.
+        json.JSONDecodeError
+            If the request body contains invalid JSON.
+        """
         if "json" not in self._cached_data:
             body_data = await self.body()
             self._cached_data["json"] = json.loads(body_data)
         return self._cached_data["json"]
 
     async def form(self) -> Dict[str, Any]:
-        """Usage: await request.form()"""
+        """Reads and returns the request body as parsed form data.
+
+        This method handles both `application/x-www-form-urlencoded` and
+        `multipart/form-data` content types. For multipart data, it uses
+        `parse_multipart_asgi` to extract fields and files.
+        Files are stored separately and can be accessed via `request.files()`.
+
+        Returns
+        -------
+        Dict[str, Any]
+            A dictionary of form fields. For `application/x-www-form-urlencoded`,
+            values are automatically unwrapped from lists if there's only one.
+
+        Raises
+        ------
+        ValueError
+            If the request body size exceeds `max_body_size_in_KB`.
+        HTTPBadRequest
+            If parsing multipart data fails (e.g., missing boundary).
+        HTTPPayloadTooLarge
+            If any form field or file in multipart data exceeds size limits.
+        """
         if "form" not in self._cached_data:
             content_type = self.headers.get("content-type", "")
 
@@ -162,7 +294,27 @@ class Request:
         return self._cached_data["form"]
 
     async def files(self) -> Dict[str, Any]:
-        """Usage: await request.files()"""
+        """Reads and returns any uploaded files from the request body.
+
+        This method implicitly calls `request.form()` if form data (including files)
+        has not yet been parsed. It extracts file-specific information and
+        `SpooledTemporaryFile` objects.
+
+        Returns
+        -------
+        Dict[str, Any]
+            A dictionary where keys are file input names and values are dictionaries
+            containing 'filename', 'content_type', and a `SpooledTemporaryFile` object.
+
+        Raises
+        ------
+        ValueError
+            If the request body size exceeds `max_body_size_in_KB`.
+        HTTPBadRequest
+            If parsing multipart data fails (e.g., missing boundary).
+        HTTPPayloadTooLarge
+            If any uploaded file exceeds its configured size limit.
+        """
         if "files" not in self._cached_data:
             await self.form()
         return self._cached_data["files"]

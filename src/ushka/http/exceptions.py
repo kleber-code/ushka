@@ -7,14 +7,7 @@ to the client.
 
 
 class HTTPError(Exception):
-    """Base class for all HTTP-related exceptions in Ushka.
-
-    Attributes:
-        status_code (int): The HTTP status code associated with the error.
-        template (str): The name of the template to use for rendering the
-            error page.
-        message (str): A descriptive error message.
-    """
+    """Base class for all HTTP-related exceptions in Ushka."""
 
     def __init__(
         self,
@@ -24,10 +17,14 @@ class HTTPError(Exception):
     ) -> None:
         """Initializes the HTTPError.
 
-        Args:
-            template: The template file to render for the error page.
-            status_code: The HTTP status code.
-            message: The error message.
+        Parameters
+        ----------
+        template : str, optional
+            The template file to render for the error page. Defaults to "error.html".
+        status_code : int, optional
+            The HTTP status code. Defaults to 400.
+        message : str, optional
+            The error message. Defaults to "Bad Request".
         """
         super().__init__(message)
         self.status_code = status_code
@@ -36,7 +33,7 @@ class HTTPError(Exception):
 
 
 class HttpNotFound(HTTPError):
-    """Raised when a requested resource could not be found (HTTP 404)."""
+    """Exception raised for HTTP 404 Not Found errors."""
 
     def __init__(
         self,
@@ -46,29 +43,46 @@ class HttpNotFound(HTTPError):
     ) -> None:
         """Initializes the HttpNotFound error.
 
-        Args:
-            template: The template file to render for the error page.
-            status_code: The HTTP status code (defaults to 404).
-            message: The error message.
+        Parameters
+        ----------
+        template : str, optional
+            The template file to render for the error page. Defaults to "error.html".
+        status_code : int, optional
+            The HTTP status code. Defaults to 404.
+        message : str, optional
+            The error message. Defaults to "Not Found".
         """
         super().__init__(template, status_code, message)
 
 
 class HTTPBadRequest(HTTPError):
+    """Exception raised for HTTP 400 Bad Request errors."""
+
     def __init__(
         self,
         template: str = "error.html",
         status_code: int = 400,
         message: str = "Bad Request",
     ) -> None:
-        super().__init__(template, status_code, message)
+        """Initializes the HTTPBadRequest error.
+
+        Parameters
+        ----------
+        template : str, optional
+            The template file to render for the error page. Defaults to "error.html".
+        status_code : int, optional
+            The HTTP status code. Defaults to 400.
+        message : str, optional
+            The error message. Defaults to "Bad Request".
+        """
 
 
 class HTTPStaticServerNotFound(HttpNotFound):
-    """Raised when a requested static file could not be found (HTTP 404).
+    """Exception raised when a static file is not found or cannot be served.
 
-    This is a specialized version of `HttpNotFound` for use in the static
-    file server.
+    This is a specialized version of `HttpNotFound` for issues related
+    to the static file server, such as file not found, path traversal
+    attempts, or file access errors.
     """
 
     def __init__(
@@ -77,21 +91,36 @@ class HTTPStaticServerNotFound(HttpNotFound):
         status_code: int = 404,
         message: str = "Static File Not Found",
     ) -> None:
-        """Initializes the HttpStaticServerNotFound error.
+        """Initializes the HTTPStaticServerNotFound error.
 
-        Args:
-            template: The template file to render for the error page.
-            status_code: The HTTP status code (defaults to 404).
-            message: The error message.
+        Parameters
+        ----------
+        template : str, optional
+            The template file to render for the error page. Defaults to "error.html".
+        status_code : int, optional
+            The HTTP status code. Defaults to 404.
+        message : str, optional
+            The error message. Defaults to "Static File Not Found".
         """
-        super().__init__(template, status_code, message)
 
 
 class HTTPPayloadTooLarge(HTTPError):
+    """Exception raised for HTTP 413 Payload Too Large errors."""
+
     def __init__(
         self,
         template: str = "error.html",
         status_code: int = 413,
         message: str = "Payload Too Large",
     ) -> None:
-        super().__init__(template, status_code, message)
+        """Initializes the HTTPPayloadTooLarge error.
+
+        Parameters
+        ----------
+        template : str, optional
+            The template file to render for the error page. Defaults to "error.html".
+        status_code : int, optional
+            The HTTP status code. Defaults to 413.
+        message : str, optional
+            The error message. Defaults to "Payload Too Large".
+        """

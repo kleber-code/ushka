@@ -5,6 +5,7 @@ Exports:
     get_flashed_messages: A function to retrieve flashed messages from the session.
     Category: An enum for message categories (e.g., success, danger).
 """
+
 from .flash import Category, flash, get_flashed_messages
 
 __all__ = ["flash", "get_flashed_messages", "Category"]
