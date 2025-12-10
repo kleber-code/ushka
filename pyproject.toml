@@ -32,6 +32,7 @@ dependencies = [
     "uvicorn>=0.38.0",
     "tomlkit>=0.13.3",
     "rich>=13.7.1",
+    "python-multipart>=0.0.20",
 ]
 
 [project.urls]
@@ -98,15 +99,15 @@ excludes = ["src/ushka/internal/assets", "example"]
 [dependency-groups]
 dev = [
     "ruff>=0.14.5",
-    "pytest>=8.3.2",
-    "pytest-asyncio>=0.23.0", # Essencial para testar DB Async
     "isort>=7.0.0",
     "mkdocs>=1.6.1",
-    "mkdocs-material>=9.7.0",
+    "mkdocs-material[imaging]>=9.7.0",
     "mkdocstrings[python]>=1.0.0",
     "pymdown-extensions>=10.17.2",
     "pylint>=4.0.4",
     "py-spy>=0.4.1",
-    "snakeviz>=2.2.2",
     "termynal>=0.11.0",
+    "pyyaml>=6.0.3",
+    "pyment>=0.3.3",
+    "docstring-parser>=0.17.0",
 ]
