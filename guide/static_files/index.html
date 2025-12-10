@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://kleber-code.github.io/ushka/guide/templates/">
+        <link rel="canonical" href="https://kleber-code.github.io/ushka/guide/static_files/">
       
       
-        <link rel="prev" href="../routing/">
+        <link rel="prev" href="../templates/">
       
       
-        <link rel="next" href="../static_files/">
+        <link rel="next" href="../orm/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Templates - Ushka Framework</title>
+        <title>Static Files - Ushka Framework</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#templates" class="md-skip">
+        <a href="#serving-static-files" class="md-skip">
           Skip to content
         </a>
       
@@ -117,7 +117,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Templates
+              Static Files
             
           </span>
         </div>
@@ -616,6 +616,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -635,7 +663,7 @@
   <span class="md-ellipsis">
     
   
-    Templates
+    Static Files
   
 
     
@@ -653,7 +681,7 @@
   <span class="md-ellipsis">
     
   
-    Templates
+    Static Files
   
 
     
@@ -679,10 +707,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#rendering-a-template" class="md-nav__link">
+  <a href="#the-static-directory" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Rendering a Template
+        The static Directory
       
     </span>
   </a>
@@ -690,10 +718,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#template-superpowers-control-flow-and-more" class="md-nav__link">
+  <a href="#how-to-link-to-static-files-in-templates" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Template Superpowers: Control Flow and More
+        How to Link to Static Files in Templates
       
     </span>
   </a>
@@ -701,10 +729,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#context-processors-the-gift-that-keeps-on-giving" class="md-nav__link">
+  <a href="#changing-the-static-directory" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Context Processors: The Gift That Keeps on Giving
+        Changing the Static Directory
       
     </span>
   </a>
@@ -715,34 +743,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../static_files/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Static Files
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -2307,10 +2307,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#rendering-a-template" class="md-nav__link">
+  <a href="#the-static-directory" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Rendering a Template
+        The static Directory
       
     </span>
   </a>
@@ -2318,10 +2318,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#template-superpowers-control-flow-and-more" class="md-nav__link">
+  <a href="#how-to-link-to-static-files-in-templates" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Template Superpowers: Control Flow and More
+        How to Link to Static Files in Templates
       
     </span>
   </a>
@@ -2329,10 +2329,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#context-processors-the-gift-that-keeps-on-giving" class="md-nav__link">
+  <a href="#changing-the-static-directory" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Context Processors: The Gift That Keeps on Giving
+        Changing the Static Directory
       
     </span>
   </a>
@@ -2356,81 +2356,31 @@
 
 
 
-<h1 id="templates">Templates<a class="headerlink" href="#templates" title="Permanent link">&para;</a></h1>
-<p>Most web applications don't just return text or JSON; they return rich HTML pages. A templating engine helps you do this by combining static HTML with dynamic data.</p>
-<p>Ushka uses the popular and powerful <strong>Jinja2</strong> templating engine. If you've ever worked with Django or Flask, you'll feel right at home.</p>
-<h2 id="rendering-a-template">Rendering a Template<a class="headerlink" href="#rendering-a-template" title="Permanent link">&para;</a></h2>
-<p>Imagine you have a template file named <code>hello.html</code> in a <code>templates</code> directory in your project's root.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cm">&lt;!-- templates/hello.html --&gt;</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="cp">&lt;!DOCTYPE html&gt;</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>Hello from Ushka!<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+<h1 id="serving-static-files">Serving Static Files<a class="headerlink" href="#serving-static-files" title="Permanent link">&para;</a></h1>
+<p>Web applications aren't just about dynamic content. You also need to serve static files like CSS, JavaScript, images, and fonts. Ushka makes this easy.</p>
+<h2 id="the-static-directory">The <code>static</code> Directory<a class="headerlink" href="#the-static-directory" title="Permanent link">&para;</a></h2>
+<p>By default, Ushka will serve any files placed in a directory named <code>static</code> in your project's root.</p>
+<p>For example, if you have a file at <code>static/css/style.css</code>, you can access it in your browser at the URL <code>/static/css/style.css</code>.</p>
+<h2 id="how-to-link-to-static-files-in-templates">How to Link to Static Files in Templates<a class="headerlink" href="#how-to-link-to-static-files-in-templates" title="Permanent link">&para;</a></h2>
+<p>To link to your static files in your Jinja2 templates, you can use the <code>url_for</code> function. However, for simplicity and since the static path is fixed, you can also just write the path directly.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>My Ushka App<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="p">&lt;</span><span class="nt">link</span> <span class="na">rel</span><span class="o">=</span><span class="s">&quot;stylesheet&quot;</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;/static/css/style.css&quot;</span><span class="p">&gt;</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>Hello, {{ name }}!<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>Welcome!<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="p">&lt;</span><span class="nt">img</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;/static/images/logo.png&quot;</span> <span class="na">alt</span><span class="o">=</span><span class="s">&quot;My App Logo&quot;</span><span class="p">&gt;</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
 </code></pre></div>
-<p>This template has a placeholder <code>{{ name }}</code>. Our goal is to replace this with a real value from our Python code.</p>
-<p>To do this, you use the <code>render</code> function in your route handler.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># In routes/greet.py</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ushka.features.template</span><span class="w"> </span><span class="kn">import</span> <span class="n">render</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ushka.http.request</span><span class="w"> </span><span class="kn">import</span> <span class="n">Request</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="c1"># The second argument is the template name.</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="c1"># The third argument is the &quot;context&quot; dictionary.</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="k">return</span> <span class="k">await</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;hello.html&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;World&quot;</span><span class="p">})</span>
-</code></pre></div>
-<p>When a user visits the <code>/greet</code> URL, Ushka will:
-1.  Find the <code>hello.html</code> template.
-2.  Take the context dictionary <code>{"name": "World"}</code>.
-3.  Replace <code>{{ name }}</code> with <code>"World"</code>.
-4.  Send the final HTML back to the user's browser.</p>
-<p>The result is a page that says: "Hello, World!".</p>
-<h2 id="template-superpowers-control-flow-and-more">Template Superpowers: Control Flow and More<a class="headerlink" href="#template-superpowers-control-flow-and-more" title="Permanent link">&para;</a></h2>
-<p>Jinja2 is more than just a placeholder-replacer. It's a full-featured programming language for your templates.</p>
-<p>You can use <code>if</code> statements:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>{% if user.is_authenticated %}
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Welcome back, {{ user.name }}!<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>{% else %}
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Welcome, guest!<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>{% endif %}
-</code></pre></div></p>
-<p>And <code>for</code> loops:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>{% for product in products %}
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>{{ product.name }} - ${{ product.price }}<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>{% endfor %}
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
-</code></pre></div></p>
-<p>This allows you to build complex, dynamic pages with ease.</p>
+<h2 id="changing-the-static-directory">Changing the Static Directory<a class="headerlink" href="#changing-the-static-directory" title="Permanent link">&para;</a></h2>
+<p>If you want to use a different directory for your static files, you can configure it in your application's settings. (See the <a href="../configuration/">Configuration</a> guide for more details).</p>
+<p>For example, to use a directory named <code>public</code> instead of <code>static</code>, you would set <code>STATIC_DIR</code> in your config file.</p>
 <blockquote>
-<p><strong>Ushka Tip:</strong> Think of your Python code as the "brains" and your templates as the "face" of your application. The brains should do the heavy lifting (like fetching data from the database), and the face should focus on making it look good. Keep your templates clean and free of complex logic.</p>
+<p><strong>Ushka Tip:</strong> It's a good practice to organize your static files into subdirectories, such as <code>css</code>, <code>js</code>, <code>images</code>, etc. This keeps your project tidy and makes it easier to manage your assets as your application grows.</p>
 </blockquote>
-<h2 id="context-processors-the-gift-that-keeps-on-giving">Context Processors: The Gift That Keeps on Giving<a class="headerlink" href="#context-processors-the-gift-that-keeps-on-giving" title="Permanent link">&para;</a></h2>
-<p>Imagine you need the current user's name to be available in <em>every</em> template. You could pass it in the context dictionary of every single <code>render</code> call, but that's repetitive.</p>
-<p>A context processor is a function that automatically adds data to the template context for every request. It's a "gift" of data that you give to all your templates.</p>
-<p>Ushka has a built-in context processor for <a href="../flashing/">flashing messages</a>, but you can also create your own.</p>
-<p>Let's say you have an <code>auth</code> system that puts the current user on the <code>request</code> object. You could write a context processor like this:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># In a file like `my_app/context_processors.py`</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ushka.http.request</span><span class="w"> </span><span class="kn">import</span> <span class="n">Request</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">user_processor</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;current_user&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">}</span>
-</code></pre></div>
-<p>You would then add this processor when you initialize your application. Once registered, the <code>current_user</code> variable will be available in all your templates, automatically!</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">&lt;</span><span class="nt">nav</span><span class="p">&gt;</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;/&quot;</span><span class="p">&gt;</span>Home<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    {% if current_user.is_authenticated %}
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>        <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;/profile&quot;</span><span class="p">&gt;</span>{{ current_user.name }}<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    {% else %}
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;/login&quot;</span><span class="p">&gt;</span>Login<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    {% endif %}
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="p">&lt;/</span><span class="nt">nav</span><span class="p">&gt;</span>
-</code></pre></div>
-<p>By using templates and context processors effectively, you can create a clean separation between your application's logic and its presentation, leading to more maintainable and scalable code.</p>
 
 
 

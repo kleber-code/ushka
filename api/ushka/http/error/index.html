@@ -8,31 +8,31 @@
       
       
       
-        <link rel="canonical" href="https://kleber-code.github.io/ushka/guide/templates/">
+        <link rel="canonical" href="https://kleber-code.github.io/ushka/api/ushka/http/error/">
       
       
-        <link rel="prev" href="../routing/">
+        <link rel="prev" href="../cookies/">
       
       
-        <link rel="next" href="../static_files/">
+        <link rel="next" href="../exceptions/">
       
       
         
       
       
-      <link rel="icon" href="../../assets/favicon/favicon.ico">
+      <link rel="icon" href="../../../../assets/favicon/favicon.ico">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
     
     
       
-        <title>Templates - Ushka Framework</title>
+        <title>Error - Ushka Framework</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.618322db.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -51,11 +51,11 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="../../termynal.css">
+      <link rel="stylesheet" href="../../../../termynal.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#templates" class="md-skip">
+        <a href="#error" class="md-skip">
           Skip to content
         </a>
       
@@ -98,9 +98,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Ushka Framework" class="md-header__button md-logo" aria-label="Ushka Framework" data-md-component="logo">
+    <a href="../../../.." title="Ushka Framework" class="md-header__button md-logo" aria-label="Ushka Framework" data-md-component="logo">
       
-  <img src="../../assets/logo.jpg" alt="logo">
+  <img src="../../../../assets/logo.jpg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -117,7 +117,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Templates
+              Error
             
           </span>
         </div>
@@ -230,7 +230,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../.." class="md-tabs__link">
+      <a href="../../../.." class="md-tabs__link">
         
   
   
@@ -249,7 +249,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../features/" class="md-tabs__link">
+      <a href="../../../../features/" class="md-tabs__link">
         
   
   
@@ -266,13 +266,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../../../guide/" class="md-tabs__link">
           
   
   
@@ -292,7 +290,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../tutorials/" class="md-tabs__link">
+        <a href="../../../../tutorials/" class="md-tabs__link">
           
   
   
@@ -310,7 +308,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../../roadmap/" class="md-tabs__link">
+      <a href="../../../../roadmap/" class="md-tabs__link">
         
   
   
@@ -327,19 +325,7 @@
   
   
   
-  
     
-    
-      
-  
-  
-  
-  
-    
-    
-      
-  
-  
   
   
     
@@ -348,11 +334,31 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../api/ushka/cli/commands/db/" class="md-tabs__link">
+      
+  
+  
+  
+    
+  
+  
+    
+    
+      
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../cli/commands/db/" class="md-tabs__link">
           
   
   
@@ -395,9 +401,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Ushka Framework" class="md-nav__button md-logo" aria-label="Ushka Framework" data-md-component="logo">
+    <a href="../../../.." title="Ushka Framework" class="md-nav__button md-logo" aria-label="Ushka Framework" data-md-component="logo">
       
-  <img src="../../assets/logo.jpg" alt="logo">
+  <img src="../../../../assets/logo.jpg" alt="logo">
 
     </a>
     Ushka Framework
@@ -424,7 +430,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../../.." class="md-nav__link">
         
   
   
@@ -451,7 +457,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/" class="md-nav__link">
+      <a href="../../../../features/" class="md-nav__link">
         
   
   
@@ -475,31 +481,26 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
             
   
   
@@ -517,7 +518,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -535,7 +536,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../../../../guide/" class="md-nav__link">
         
   
   
@@ -563,7 +564,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configuration/" class="md-nav__link">
+      <a href="../../../../guide/configuration/" class="md-nav__link">
         
   
   
@@ -591,7 +592,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../routing/" class="md-nav__link">
+      <a href="../../../../guide/routing/" class="md-nav__link">
         
   
   
@@ -616,37 +617,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Templates
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../../../guide/templates/" class="md-nav__link">
         
   
   
@@ -662,59 +636,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#rendering-a-template" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rendering a Template
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#template-superpowers-control-flow-and-more" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Template Superpowers: Control Flow and More
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#context-processors-the-gift-that-keeps-on-giving" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Context Processors: The Gift That Keeps on Giving
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -727,7 +648,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../static_files/" class="md-nav__link">
+      <a href="../../../../guide/static_files/" class="md-nav__link">
         
   
   
@@ -755,7 +676,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../orm/" class="md-nav__link">
+      <a href="../../../../guide/orm/" class="md-nav__link">
         
   
   
@@ -783,7 +704,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cli/" class="md-nav__link">
+      <a href="../../../../guide/cli/" class="md-nav__link">
         
   
   
@@ -811,7 +732,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../dependency_injection/" class="md-nav__link">
+      <a href="../../../../guide/dependency_injection/" class="md-nav__link">
         
   
   
@@ -839,7 +760,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../flashing/" class="md-nav__link">
+      <a href="../../../../guide/flashing/" class="md-nav__link">
         
   
   
@@ -867,7 +788,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../error_handling/" class="md-nav__link">
+      <a href="../../../../guide/error_handling/" class="md-nav__link">
         
   
   
@@ -954,7 +875,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tutorials/" class="md-nav__link">
+      <a href="../../../../tutorials/" class="md-nav__link">
         
   
   
@@ -982,7 +903,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tutorial_simple_api/" class="md-nav__link">
+      <a href="../../../../guide/tutorial_simple_api/" class="md-nav__link">
         
   
   
@@ -1017,7 +938,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../roadmap/" class="md-nav__link">
+      <a href="../../../../roadmap/" class="md-nav__link">
         
   
   
@@ -1041,26 +962,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
             
   
   
@@ -1078,7 +1004,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1093,26 +1019,31 @@
                 
   
   
+    
   
   
+  
     
     
     
     
       
       
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1" >
         
           
-          <label class="md-nav__link" for="__nav_6_1" id="__nav_6_1_label" tabindex="0">
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6_1" id="__nav_6_1_label" tabindex="">
             
   
   
@@ -1130,7 +1061,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_1_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_1_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6_1">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1252,7 +1183,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/ushka/cli/commands/db/" class="md-nav__link">
+      <a href="../../cli/commands/db/" class="md-nav__link">
         
   
   
@@ -1280,7 +1211,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/ushka/cli/commands/dev/" class="md-nav__link">
+      <a href="../../cli/commands/dev/" class="md-nav__link">
         
   
   
@@ -1308,7 +1239,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/ushka/cli/commands/new/" class="md-nav__link">
+      <a href="../../cli/commands/new/" class="md-nav__link">
         
   
   
@@ -1336,7 +1267,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/ushka/cli/commands/routes/" class="md-nav__link">
+      <a href="../../cli/commands/routes/" class="md-nav__link">
         
   
   
@@ -1364,7 +1295,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/ushka/cli/commands/run/" class="md-nav__link">
+      <a href="../../cli/commands/run/" class="md-nav__link">
         
   
   
@@ -1460,7 +1391,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/ushka/core/app/" class="md-nav__link">
+      <a href="../../core/app/" class="md-nav__link">
         
   
   
@@ -1488,7 +1419,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/ushka/core/config/" class="md-nav__link">
+      <a href="../../core/config/" class="md-nav__link">
         
   
   
@@ -1516,7 +1447,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/ushka/core/error_handler/" class="md-nav__link">
+      <a href="../../core/error_handler/" class="md-nav__link">
         
   
   
@@ -1544,7 +1475,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/ushka/core/exceptions/" class="md-nav__link">
+      <a href="../../core/exceptions/" class="md-nav__link">
         
   
   
@@ -1572,7 +1503,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/ushka/core/log/" class="md-nav__link">
+      <a href="../../core/log/" class="md-nav__link">
         
   
   
@@ -1600,7 +1531,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/ushka/core/router/" class="md-nav__link">
+      <a href="../../core/router/" class="md-nav__link">
         
   
   
@@ -1633,8 +1564,10 @@
                 
   
   
+    
   
   
+  
     
     
     
@@ -1645,11 +1578,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1_3" checked>
         
           
           <label class="md-nav__link" for="__nav_6_1_3" id="__nav_6_1_3_label" tabindex="0">
@@ -1670,7 +1603,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_1_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_1_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6_1_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1688,7 +1621,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/ushka/http/cookies/" class="md-nav__link">
+      <a href="../cookies/" class="md-nav__link">
         
   
   
@@ -1713,10 +1646,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../api/ushka/http/error/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1732,6 +1692,48 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#ushka.http.error" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        error
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ushka.http.error.raise_error" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        raise_error
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1744,7 +1746,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/ushka/http/exceptions/" class="md-nav__link">
+      <a href="../exceptions/" class="md-nav__link">
         
   
   
@@ -1772,7 +1774,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/ushka/http/multipart/" class="md-nav__link">
+      <a href="../multipart/" class="md-nav__link">
         
   
   
@@ -1800,7 +1802,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/ushka/http/redirect/" class="md-nav__link">
+      <a href="../redirect/" class="md-nav__link">
         
   
   
@@ -1828,7 +1830,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/ushka/http/request/" class="md-nav__link">
+      <a href="../request/" class="md-nav__link">
         
   
   
@@ -1856,7 +1858,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/ushka/http/response/" class="md-nav__link">
+      <a href="../response/" class="md-nav__link">
         
   
   
@@ -1884,7 +1886,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/ushka/http/sessions/" class="md-nav__link">
+      <a href="../sessions/" class="md-nav__link">
         
   
   
@@ -1972,7 +1974,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/ushka/orm/database/" class="md-nav__link">
+      <a href="../../orm/database/" class="md-nav__link">
         
   
   
@@ -2060,7 +2062,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/ushka/static/files/" class="md-nav__link">
+      <a href="../../static/files/" class="md-nav__link">
         
   
   
@@ -2148,7 +2150,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/ushka/templating/engine/" class="md-nav__link">
+      <a href="../../templating/engine/" class="md-nav__link">
         
   
   
@@ -2236,7 +2238,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/ushka/utils/flash/" class="md-nav__link">
+      <a href="../../utils/flash/" class="md-nav__link">
         
   
   
@@ -2307,10 +2309,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#rendering-a-template" class="md-nav__link">
+  <a href="#ushka.http.error" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Rendering a Template
+        error
       
     </span>
   </a>
@@ -2318,21 +2320,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#template-superpowers-control-flow-and-more" class="md-nav__link">
+  <a href="#ushka.http.error.raise_error" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Template Superpowers: Control Flow and More
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#context-processors-the-gift-that-keeps-on-giving" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Context Processors: The Gift That Keeps on Giving
+        raise_error
       
     </span>
   </a>
@@ -2356,81 +2347,233 @@
 
 
 
-<h1 id="templates">Templates<a class="headerlink" href="#templates" title="Permanent link">&para;</a></h1>
-<p>Most web applications don't just return text or JSON; they return rich HTML pages. A templating engine helps you do this by combining static HTML with dynamic data.</p>
-<p>Ushka uses the popular and powerful <strong>Jinja2</strong> templating engine. If you've ever worked with Django or Flask, you'll feel right at home.</p>
-<h2 id="rendering-a-template">Rendering a Template<a class="headerlink" href="#rendering-a-template" title="Permanent link">&para;</a></h2>
-<p>Imagine you have a template file named <code>hello.html</code> in a <code>templates</code> directory in your project's root.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cm">&lt;!-- templates/hello.html --&gt;</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="cp">&lt;!DOCTYPE html&gt;</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>Hello from Ushka!<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>Hello, {{ name }}!<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
-</code></pre></div>
-<p>This template has a placeholder <code>{{ name }}</code>. Our goal is to replace this with a real value from our Python code.</p>
-<p>To do this, you use the <code>render</code> function in your route handler.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># In routes/greet.py</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ushka.features.template</span><span class="w"> </span><span class="kn">import</span> <span class="n">render</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ushka.http.request</span><span class="w"> </span><span class="kn">import</span> <span class="n">Request</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="c1"># The second argument is the template name.</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="c1"># The third argument is the &quot;context&quot; dictionary.</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="k">return</span> <span class="k">await</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;hello.html&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;World&quot;</span><span class="p">})</span>
-</code></pre></div>
-<p>When a user visits the <code>/greet</code> URL, Ushka will:
-1.  Find the <code>hello.html</code> template.
-2.  Take the context dictionary <code>{"name": "World"}</code>.
-3.  Replace <code>{{ name }}</code> with <code>"World"</code>.
-4.  Send the final HTML back to the user's browser.</p>
-<p>The result is a page that says: "Hello, World!".</p>
-<h2 id="template-superpowers-control-flow-and-more">Template Superpowers: Control Flow and More<a class="headerlink" href="#template-superpowers-control-flow-and-more" title="Permanent link">&para;</a></h2>
-<p>Jinja2 is more than just a placeholder-replacer. It's a full-featured programming language for your templates.</p>
-<p>You can use <code>if</code> statements:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>{% if user.is_authenticated %}
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Welcome back, {{ user.name }}!<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>{% else %}
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Welcome, guest!<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>{% endif %}
-</code></pre></div></p>
-<p>And <code>for</code> loops:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>{% for product in products %}
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>{{ product.name }} - ${{ product.price }}<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>{% endfor %}
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
-</code></pre></div></p>
-<p>This allows you to build complex, dynamic pages with ease.</p>
-<blockquote>
-<p><strong>Ushka Tip:</strong> Think of your Python code as the "brains" and your templates as the "face" of your application. The brains should do the heavy lifting (like fetching data from the database), and the face should focus on making it look good. Keep your templates clean and free of complex logic.</p>
-</blockquote>
-<h2 id="context-processors-the-gift-that-keeps-on-giving">Context Processors: The Gift That Keeps on Giving<a class="headerlink" href="#context-processors-the-gift-that-keeps-on-giving" title="Permanent link">&para;</a></h2>
-<p>Imagine you need the current user's name to be available in <em>every</em> template. You could pass it in the context dictionary of every single <code>render</code> call, but that's repetitive.</p>
-<p>A context processor is a function that automatically adds data to the template context for every request. It's a "gift" of data that you give to all your templates.</p>
-<p>Ushka has a built-in context processor for <a href="../flashing/">flashing messages</a>, but you can also create your own.</p>
-<p>Let's say you have an <code>auth</code> system that puts the current user on the <code>request</code> object. You could write a context processor like this:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># In a file like `my_app/context_processors.py`</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ushka.http.request</span><span class="w"> </span><span class="kn">import</span> <span class="n">Request</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">user_processor</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;current_user&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">}</span>
-</code></pre></div>
-<p>You would then add this processor when you initialize your application. Once registered, the <code>current_user</code> variable will be available in all your templates, automatically!</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">&lt;</span><span class="nt">nav</span><span class="p">&gt;</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;/&quot;</span><span class="p">&gt;</span>Home<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    {% if current_user.is_authenticated %}
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>        <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;/profile&quot;</span><span class="p">&gt;</span>{{ current_user.name }}<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    {% else %}
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;/login&quot;</span><span class="p">&gt;</span>Login<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    {% endif %}
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="p">&lt;/</span><span class="nt">nav</span><span class="p">&gt;</span>
-</code></pre></div>
-<p>By using templates and context processors effectively, you can create a clean separation between your application's logic and its presentation, leading to more maintainable and scalable code.</p>
+<h1 id="error">Error<a class="headerlink" href="#error" title="Permanent link">&para;</a></h1>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="ushka.http.error"></a>
+    <div class="doc doc-contents first">
+
+        <p>This module provides a convenient helper function for raising HTTP errors
+within the Ushka framework.</p>
+<p>It allows for uniform handling of HTTP exceptions by constructing and
+raising an <code>HTTPError</code> instance with specified status code, message, and
+template.</p>
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ushka.http.error.raise_error" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">raise_error</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">404</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#ushka.http.error.raise_error" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Raises an HTTPError with the specified status code and optional details.</p>
+<p>This function provides a convenient way to immediately interrupt the request
+processing and return an HTTP error response to the client. It wraps the
+provided arguments into an <code>HTTPError</code> instance and raises it.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>status_code</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The HTTP status code for the error (e.g., 404 for Not Found, 400 for Bad Request).
+Defaults to 404.</p>
+              </div>
+            </td>
+            <td>
+                  <code>404</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>message</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A custom error message to be included in the HTTP error response.
+If <code>None</code>, the default message for the status code will be used.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>template</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The name of the template file to render for the error page.
+If <code>None</code>, the default error template for the status code will be used.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="HTTPError (ushka.http.exceptions.HTTPError)" href="../exceptions/#ushka.http.exceptions.HTTPError">HTTPError</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>An instance of <code>HTTPError</code> with the given <code>status_code</code>, <code>message</code>,
+and <code>template</code>.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ushka/http/error.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-14">14</a></span>
+<span class="normal"><a href="#__codelineno-0-15">15</a></span>
+<span class="normal"><a href="#__codelineno-0-16">16</a></span>
+<span class="normal"><a href="#__codelineno-0-17">17</a></span>
+<span class="normal"><a href="#__codelineno-0-18">18</a></span>
+<span class="normal"><a href="#__codelineno-0-19">19</a></span>
+<span class="normal"><a href="#__codelineno-0-20">20</a></span>
+<span class="normal"><a href="#__codelineno-0-21">21</a></span>
+<span class="normal"><a href="#__codelineno-0-22">22</a></span>
+<span class="normal"><a href="#__codelineno-0-23">23</a></span>
+<span class="normal"><a href="#__codelineno-0-24">24</a></span>
+<span class="normal"><a href="#__codelineno-0-25">25</a></span>
+<span class="normal"><a href="#__codelineno-0-26">26</a></span>
+<span class="normal"><a href="#__codelineno-0-27">27</a></span>
+<span class="normal"><a href="#__codelineno-0-28">28</a></span>
+<span class="normal"><a href="#__codelineno-0-29">29</a></span>
+<span class="normal"><a href="#__codelineno-0-30">30</a></span>
+<span class="normal"><a href="#__codelineno-0-31">31</a></span>
+<span class="normal"><a href="#__codelineno-0-32">32</a></span>
+<span class="normal"><a href="#__codelineno-0-33">33</a></span>
+<span class="normal"><a href="#__codelineno-0-34">34</a></span>
+<span class="normal"><a href="#__codelineno-0-35">35</a></span>
+<span class="normal"><a href="#__codelineno-0-36">36</a></span>
+<span class="normal"><a href="#__codelineno-0-37">37</a></span>
+<span class="normal"><a href="#__codelineno-0-38">38</a></span>
+<span class="normal"><a href="#__codelineno-0-39">39</a></span>
+<span class="normal"><a href="#__codelineno-0-40">40</a></span>
+<span class="normal"><a href="#__codelineno-0-41">41</a></span>
+<span class="normal"><a href="#__codelineno-0-42">42</a></span>
+<span class="normal"><a href="#__codelineno-0-43">43</a></span>
+<span class="normal"><a href="#__codelineno-0-44">44</a></span>
+<span class="normal"><a href="#__codelineno-0-45">45</a></span>
+<span class="normal"><a href="#__codelineno-0-46">46</a></span>
+<span class="normal"><a href="#__codelineno-0-47">47</a></span>
+<span class="normal"><a href="#__codelineno-0-48">48</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="k">def</span><span class="w"> </span><span class="nf">raise_error</span><span class="p">(</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15"></a>    <span class="n">status_code</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">404</span><span class="p">,</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16"></a>    <span class="n">message</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17"></a>    <span class="n">template</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="p">):</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Raises an HTTPError with the specified status code and optional details.</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20"></a>
+<a id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="sd">    This function provides a convenient way to immediately interrupt the request</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22"></a><span class="sd">    processing and return an HTTP error response to the client. It wraps the</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="sd">    provided arguments into an `HTTPError` instance and raises it.</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24"></a>
+<a id="__codelineno-0-25" name="__codelineno-0-25"></a><span class="sd">    Parameters</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="sd">    ----------</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="sd">    status_code : int, optional</span>
+<a id="__codelineno-0-28" name="__codelineno-0-28"></a><span class="sd">        The HTTP status code for the error (e.g., 404 for Not Found, 400 for Bad Request).</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="sd">        Defaults to 404.</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="sd">    message : str, optional</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="sd">        A custom error message to be included in the HTTP error response.</span>
+<a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="sd">        If `None`, the default message for the status code will be used.</span>
+<a id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="sd">    template : str, optional</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34"></a><span class="sd">        The name of the template file to render for the error page.</span>
+<a id="__codelineno-0-35" name="__codelineno-0-35"></a><span class="sd">        If `None`, the default error template for the status code will be used.</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36"></a>
+<a id="__codelineno-0-37" name="__codelineno-0-37"></a><span class="sd">    Raises</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38"></a><span class="sd">    ------</span>
+<a id="__codelineno-0-39" name="__codelineno-0-39"></a><span class="sd">    HTTPError</span>
+<a id="__codelineno-0-40" name="__codelineno-0-40"></a><span class="sd">        An instance of `HTTPError` with the given `status_code`, `message`,</span>
+<a id="__codelineno-0-41" name="__codelineno-0-41"></a><span class="sd">        and `template`.</span>
+<a id="__codelineno-0-42" name="__codelineno-0-42"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-43" name="__codelineno-0-43"></a>    <span class="n">error</span> <span class="o">=</span> <span class="n">HTTPError</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">404</span><span class="p">)</span>
+<a id="__codelineno-0-44" name="__codelineno-0-44"></a>    <span class="k">if</span> <span class="n">template</span><span class="p">:</span>
+<a id="__codelineno-0-45" name="__codelineno-0-45"></a>        <span class="n">error</span><span class="o">.</span><span class="n">template</span> <span class="o">=</span> <span class="n">template</span>
+<a id="__codelineno-0-46" name="__codelineno-0-46"></a>    <span class="k">if</span> <span class="n">message</span><span class="p">:</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47"></a>        <span class="n">error</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="n">message</span>
+<a id="__codelineno-0-48" name="__codelineno-0-48"></a>    <span class="k">raise</span> <span class="n">error</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
 
 
 
@@ -2515,12 +2658,12 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy", "search.suggest"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy", "search.suggest"], "search": "../../../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.e71a0d61.min.js"></script>
       
-        <script src="../../termynal.js"></script>
+        <script src="../../../../termynal.js"></script>
       
     
   </body>

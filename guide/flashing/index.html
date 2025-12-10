@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://kleber-code.github.io/ushka/guide/templates/">
+        <link rel="canonical" href="https://kleber-code.github.io/ushka/guide/flashing/">
       
       
-        <link rel="prev" href="../routing/">
+        <link rel="prev" href="../dependency_injection/">
       
       
-        <link rel="next" href="../static_files/">
+        <link rel="next" href="../error_handling/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Templates - Ushka Framework</title>
+        <title>Flashing - Ushka Framework</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#templates" class="md-skip">
+        <a href="#flashing-messages" class="md-skip">
           Skip to content
         </a>
       
@@ -117,7 +117,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Templates
+              Flashing
             
           </span>
         </div>
@@ -616,37 +616,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Templates
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../templates/" class="md-nav__link">
         
   
   
@@ -662,59 +635,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#rendering-a-template" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rendering a Template
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#template-superpowers-control-flow-and-more" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Template Superpowers: Control Flow and More
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#context-processors-the-gift-that-keeps-on-giving" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Context Processors: The Gift That Keeps on Giving
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -836,10 +756,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../flashing/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flashing
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -855,6 +802,59 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#sending-a-message-flash" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sending a Message: flash()
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#displaying-the-message-in-a-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Displaying the Message in a Template
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#message-categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Message Categories
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2307,10 +2307,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#rendering-a-template" class="md-nav__link">
+  <a href="#sending-a-message-flash" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Rendering a Template
+        Sending a Message: flash()
       
     </span>
   </a>
@@ -2318,10 +2318,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#template-superpowers-control-flow-and-more" class="md-nav__link">
+  <a href="#displaying-the-message-in-a-template" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Template Superpowers: Control Flow and More
+        Displaying the Message in a Template
       
     </span>
   </a>
@@ -2329,10 +2329,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#context-processors-the-gift-that-keeps-on-giving" class="md-nav__link">
+  <a href="#message-categories" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Context Processors: The Gift That Keeps on Giving
+        Message Categories
       
     </span>
   </a>
@@ -2356,81 +2356,64 @@
 
 
 
-<h1 id="templates">Templates<a class="headerlink" href="#templates" title="Permanent link">&para;</a></h1>
-<p>Most web applications don't just return text or JSON; they return rich HTML pages. A templating engine helps you do this by combining static HTML with dynamic data.</p>
-<p>Ushka uses the popular and powerful <strong>Jinja2</strong> templating engine. If you've ever worked with Django or Flask, you'll feel right at home.</p>
-<h2 id="rendering-a-template">Rendering a Template<a class="headerlink" href="#rendering-a-template" title="Permanent link">&para;</a></h2>
-<p>Imagine you have a template file named <code>hello.html</code> in a <code>templates</code> directory in your project's root.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cm">&lt;!-- templates/hello.html --&gt;</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="cp">&lt;!DOCTYPE html&gt;</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">&lt;</span><span class="nt">html</span><span class="p">&gt;</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>Hello from Ushka!<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>Hello, {{ name }}!<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+<h1 id="flashing-messages">Flashing Messages<a class="headerlink" href="#flashing-messages" title="Permanent link">&para;</a></h1>
+<p>Have you ever submitted a form and been redirected to a new page, only to see a little message at the top that says "Your profile has been updated successfully"? That's a "flashed" message.</p>
+<p>Flashing is a way to send a one-time message from one request to the <em>next</em> one. It's like leaving a sticky note for the user that they'll see on the very next page they visit. Once they see it, the note disappears.</p>
+<p>This is incredibly useful for providing feedback after an action.</p>
+<h2 id="sending-a-message-flash">Sending a Message: <code>flash()</code><a class="headerlink" href="#sending-a-message-flash" title="Permanent link">&para;</a></h2>
+<p>To send a message, you use the <code>flash()</code> function. It requires the <code>request</code> object, the message you want to send, and an optional category.</p>
+<p>Let's imagine a user is updating their profile.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ushka.utils.flash</span><span class="w"> </span><span class="kn">import</span> <span class="n">flash</span><span class="p">,</span> <span class="n">Category</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ushka.http.request</span><span class="w"> </span><span class="kn">import</span> <span class="n">Request</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ushka.http.redirect</span><span class="w"> </span><span class="kn">import</span> <span class="n">redirect</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">post</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="c1"># ... process the form data and update the user&#39;s profile ...</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">flash</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;Your profile has been updated!&quot;</span><span class="p">,</span> <span class="n">Category</span><span class="o">.</span><span class="n">SUCCESS</span><span class="p">)</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="s2">&quot;/profile&quot;</span><span class="p">)</span>
 </code></pre></div>
-<p>This template has a placeholder <code>{{ name }}</code>. Our goal is to replace this with a real value from our Python code.</p>
-<p>To do this, you use the <code>render</code> function in your route handler.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># In routes/greet.py</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ushka.features.template</span><span class="w"> </span><span class="kn">import</span> <span class="n">render</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ushka.http.request</span><span class="w"> </span><span class="kn">import</span> <span class="n">Request</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="c1"># The second argument is the template name.</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="c1"># The third argument is the &quot;context&quot; dictionary.</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="k">return</span> <span class="k">await</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s2">&quot;hello.html&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;World&quot;</span><span class="p">})</span>
+<p>Here's what happens:
+1.  The user submits the form to this <code>post</code> handler.
+2.  The code updates the profile in the database.
+3.  We call <code>flash()</code>. This stores the message <code>"Your profile has been updated!"</code> and the category <code>"success"</code> in the user's session.
+4.  The user is redirected to the <code>/profile</code> page.</p>
+<h2 id="displaying-the-message-in-a-template">Displaying the Message in a Template<a class="headerlink" href="#displaying-the-message-in-a-template" title="Permanent link">&para;</a></h2>
+<p>Now, on the <code>/profile</code> page, we need to display the message we just flashed.</p>
+<p>Ushka provides a <code>flash_processor</code> that automatically makes flashed messages available in your templates. You can access them through the <code>messages</code> variable.</p>
+<p>The <code>messages</code> variable is a list of tuples, where each tuple is <code>(category, message)</code>.</p>
+<p>Here's how you might display them in your template:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="cm">&lt;!-- In your base layout or profile template --&gt;</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>{% if messages %}
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;flashes&quot;</span><span class="p">&gt;</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    {% for category, message in messages %}
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>      <span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;alert alert-{{ category }}&quot;</span><span class="p">&gt;</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        {{ message }}
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>      <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    {% endfor %}
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>  <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>{% endif %}
 </code></pre></div>
-<p>When a user visits the <code>/greet</code> URL, Ushka will:
-1.  Find the <code>hello.html</code> template.
-2.  Take the context dictionary <code>{"name": "World"}</code>.
-3.  Replace <code>{{ name }}</code> with <code>"World"</code>.
-4.  Send the final HTML back to the user's browser.</p>
-<p>The result is a page that says: "Hello, World!".</p>
-<h2 id="template-superpowers-control-flow-and-more">Template Superpowers: Control Flow and More<a class="headerlink" href="#template-superpowers-control-flow-and-more" title="Permanent link">&para;</a></h2>
-<p>Jinja2 is more than just a placeholder-replacer. It's a full-featured programming language for your templates.</p>
-<p>You can use <code>if</code> statements:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>{% if user.is_authenticated %}
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Welcome back, {{ user.name }}!<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>{% else %}
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>Welcome, guest!<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>{% endif %}
-</code></pre></div></p>
-<p>And <code>for</code> loops:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>{% for product in products %}
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>{{ product.name }} - ${{ product.price }}<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>{% endfor %}
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
-</code></pre></div></p>
-<p>This allows you to build complex, dynamic pages with ease.</p>
+<p>When the <code>/profile</code> page is rendered, this code will:
+1.  Check if there are any messages in the <code>messages</code> list.
+2.  Loop through them.
+3.  Render a <code>div</code> for each message, using the <code>category</code> to apply a CSS class (e.g., <code>alert-success</code>).
+4.  Display the message text.</p>
+<p>The magic is that once this page has been rendered, the messages are removed from the session. If the user refreshes the page, the messages will be gone.</p>
+<h2 id="message-categories">Message Categories<a class="headerlink" href="#message-categories" title="Permanent link">&para;</a></h2>
+<p>Categories help you style your messages. Think of them as labels. Ushka provides a few common categories out of the box in the <code>Category</code> enum:</p>
+<ul>
+<li><code>Category.SUCCESS</code>: For positive feedback, like "Item created successfully."</li>
+<li><code>Category.DANGER</code>: For errors or destructive actions, like "Could not delete item."</li>
+<li><code>Category.WARNING</code>: For important, but not critical, information.</li>
+<li><code>Category.INFO</code>: For general information (the default).</li>
+</ul>
+<p>You can use these categories to apply different colors or icons to your messages, making your UI more intuitive for the user.</p>
 <blockquote>
-<p><strong>Ushka Tip:</strong> Think of your Python code as the "brains" and your templates as the "face" of your application. The brains should do the heavy lifting (like fetching data from the database), and the face should focus on making it look good. Keep your templates clean and free of complex logic.</p>
+<p><strong>Ushka Tip:</strong> Don't go crazy with flashing. It's for simple, direct feedback. If you need to convey complex information or preserve data across multiple pages, a different approach (like storing it in the database or using more complex session management) is probably a better fit. Keep it simple, keep it flashy!</p>
 </blockquote>
-<h2 id="context-processors-the-gift-that-keeps-on-giving">Context Processors: The Gift That Keeps on Giving<a class="headerlink" href="#context-processors-the-gift-that-keeps-on-giving" title="Permanent link">&para;</a></h2>
-<p>Imagine you need the current user's name to be available in <em>every</em> template. You could pass it in the context dictionary of every single <code>render</code> call, but that's repetitive.</p>
-<p>A context processor is a function that automatically adds data to the template context for every request. It's a "gift" of data that you give to all your templates.</p>
-<p>Ushka has a built-in context processor for <a href="../flashing/">flashing messages</a>, but you can also create your own.</p>
-<p>Let's say you have an <code>auth</code> system that puts the current user on the <code>request</code> object. You could write a context processor like this:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># In a file like `my_app/context_processors.py`</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ushka.http.request</span><span class="w"> </span><span class="kn">import</span> <span class="n">Request</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">user_processor</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;current_user&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="p">}</span>
-</code></pre></div>
-<p>You would then add this processor when you initialize your application. Once registered, the <code>current_user</code> variable will be available in all your templates, automatically!</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">&lt;</span><span class="nt">nav</span><span class="p">&gt;</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;/&quot;</span><span class="p">&gt;</span>Home<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    {% if current_user.is_authenticated %}
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>        <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;/profile&quot;</span><span class="p">&gt;</span>{{ current_user.name }}<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    {% else %}
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>        <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;/login&quot;</span><span class="p">&gt;</span>Login<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    {% endif %}
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="p">&lt;/</span><span class="nt">nav</span><span class="p">&gt;</span>
-</code></pre></div>
-<p>By using templates and context processors effectively, you can create a clean separation between your application's logic and its presentation, leading to more maintainable and scalable code.</p>
 
 
 

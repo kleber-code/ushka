@@ -1,0 +1,218 @@
+/* ==========================================================================
+   THEME: POLAR SLEEP
+   Palette: #ebf9ff (Snow), #acd6f6 (Ice), #52a5de (Glacier),
+            #18284a (Deep Ocean), #070810 (Night Void)
+   ========================================================================== */
+
+:root {
+    /* -- Mapeamento de Cores MkDocs -- */
+    --md-default-bg-color:        #070810; /* Fundo Geral */
+    --md-default-fg-color:        #ebf9ff; /* Texto Principal */
+    --md-default-fg-color--light: #acd6f6; /* Texto Secundário */
+    
+    --md-primary-fg-color:        #18284a; /* Header Base */
+    --md-primary-bg-color:        #070810;
+    --md-accent-fg-color:         #52a5de; /* Destaques */
+    
+    /* Cores de Código */
+    --md-code-bg-color:           rgba(24, 40, 74, 0.3);
+    --md-code-fg-color:           #acd6f6;
+
+    /* -- Variáveis "Polar" Customizadas -- */
+    --polar-void:   #070810;
+    --polar-deep:   #18284a;
+    --polar-mid:    #52a5de;
+    --polar-ice:    #acd6f6;
+    --polar-snow:   #ebf9ff;
+    
+    /* Efeito de Vidro Congelado */
+    --glass-bg:     rgba(24, 40, 74, 0.45);
+    --glass-border: rgba(82, 165, 222, 0.15);
+    --glass-blur:   blur(12px);
+}
+
+/* =========================================
+   1. AMBIENTE & FUNDO (Sleep Vibe)
+   ========================================= */
+body {
+    background-color: var(--polar-void);
+    /* Um gradiente sutil simulando uma aurora boreal noturna muito escura */
+    background-image: 
+        radial-gradient(circle at 0% 0%, rgba(24, 40, 74, 0.4) 0%, transparent 40%),
+        radial-gradient(circle at 100% 100%, rgba(82, 165, 222, 0.05) 0%, transparent 40%);
+    background-attachment: fixed;
+}
+
+/* Scrollbar escura e discreta */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--polar-void); }
+::-webkit-scrollbar-thumb { 
+    background: #1e3a5f; 
+    border-radius: 4px; 
+}
+::-webkit-scrollbar-thumb:hover { background: var(--polar-mid); }
+
+/* =========================================
+   2. HEADER & TABS (Efeito Gelo)
+   ========================================= */
+.md-header {
+    background-color: rgba(7, 8, 16, 0.8) !important;
+    backdrop-filter: var(--glass-blur);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+/* Navegação (Tabs) */
+.md-tabs {
+    background: transparent !important;
+}
+.md-tabs__link {
+    color: var(--polar-ice) !important;
+    opacity: 0.7;
+    transition: opacity 0.3s, color 0.3s;
+}
+.md-tabs__link:hover, .md-tabs__link--active {
+    color: var(--polar-snow) !important;
+    opacity: 1;
+    font-weight: 600;
+}
+
+/* =========================================
+   3. SEARCH BAR (Dark & Polar) - CRÍTICO
+   ========================================= */
+/* O container da busca */
+.md-search__input {
+    background-color: rgba(24, 40, 74, 0.5) !important;
+    border: 1px solid rgba(82, 165, 222, 0.2) !important;
+    color: var(--polar-snow) !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease;
+}
+
+/* Quando clica na busca */
+.md-search__input:focus {
+    background-color: rgba(24, 40, 74, 0.8) !important;
+    border-color: var(--polar-mid) !important;
+    box-shadow: 0 0 15px rgba(82, 165, 222, 0.15);
+}
+
+/* Ícone de busca */
+.md-search__icon {
+    color: var(--polar-ice) !important;
+}
+
+/* O Modal de Resultados da Busca */
+.md-search__output {
+    background-color: var(--polar-void) !important;
+    border-radius: 0 0 8px 8px;
+    border: 1px solid var(--glass-border);
+}
+
+/* Scroll dentro da busca */
+.md-search__scrollwrap {
+    background-color: var(--polar-void) !important;
+}
+
+/* Itens individuais da busca */
+.md-search-result__article:hover,
+.md-search-result__link:hover {
+    background-color: rgba(24, 40, 74, 0.6) !important;
+    color: var(--polar-snow) !important;
+}
+.md-search-result__meta {
+    color: var(--polar-ice) !important;
+}
+
+/* =========================================
+   4. TIPOGRAFIA & LINKS
+   ========================================= */
+h1, h2, h3 {
+    color: var(--polar-snow);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+/* H1 com leve brilho */
+h1 {
+    text-shadow: 0 0 20px rgba(82, 165, 222, 0.25);
+    margin-bottom: 1.5rem;
+}
+
+/* Links */
+.md-typeset a {
+    color: var(--polar-mid);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(82, 165, 222, 0.3);
+    transition: all 0.2s ease-in-out;
+}
+.md-typeset a:hover {
+    color: var(--polar-snow);
+    border-bottom-color: var(--polar-snow);
+    text-shadow: 0 0 8px rgba(172, 214, 246, 0.6);
+}
+
+/* =========================================
+   5. CARDS, ADMONITIONS & TABELAS
+   ========================================= */
+/* Admonitions (Info, Warning, etc) - Estilo Soft */
+.md-typeset .admonition {
+    background-color: rgba(24, 40, 74, 0.25) !important;
+    border: 1px solid rgba(82, 165, 222, 0.2) !important;
+    border-radius: 12px;
+    box-shadow: none;
+}
+.md-typeset .admonition-title {
+    background-color: rgba(24, 40, 74, 0.6) !important;
+    border-bottom: 1px solid rgba(82, 165, 222, 0.1) !important;
+    color: var(--polar-ice) !important;
+}
+.md-typeset .admonition-title::before {
+    background-color: var(--polar-mid); /* Ícone */
+}
+
+/* Cards (Features grid) */
+.md-typeset .grid.cards > ul > li {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+.md-typeset .grid.cards > ul > li:hover {
+    transform: translateY(-5px);
+    border-color: var(--polar-mid);
+    background: rgba(24, 40, 74, 0.55);
+}
+
+/* Tabelas */
+.md-typeset table:not([class]) {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(82, 165, 222, 0.15);
+}
+.md-typeset table:not([class]) th {
+    background-color: rgba(24, 40, 74, 0.8);
+    color: var(--polar-snow);
+}
+
+/* =========================================
+   6. CÓDIGO & PRE
+   ========================================= */
+.md-typeset pre > code {
+    background-color: #0b101a; /* Um pouco mais claro que o fundo total */
+    border: 1px solid rgba(82, 165, 222, 0.1);
+    border-radius: 10px;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.6);
+}
+
+/* Sidebar Navigation */
+.md-nav__item .md-nav__link--active {
+    color: var(--polar-mid) !important;
+    font-weight: bold;
+}
+.md-nav__link:hover {
+    color: var(--polar-snow) !important;
+}
+
+/* Footer Minimalista */
+.md-footer {
+    background-color: #05060c !important;
+}
