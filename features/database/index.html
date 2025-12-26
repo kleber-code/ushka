@@ -8,25 +8,31 @@
       
       
       
+        <link rel="canonical" href="https://kleber-code.github.io/ushka/features/database/">
       
+      
+        <link rel="prev" href="../../guide/cli/">
+      
+      
+        <link rel="next" href="../static-files/">
       
       
         
       
       
-      <link rel="icon" href="/ushka/assets/favicon/favicon.ico">
+      <link rel="icon" href="../../assets/favicon/favicon.ico">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
-        <title>Ushka Framework</title>
+        <title>Database & ORM - Ushka Framework</title>
       
     
     
-      <link rel="stylesheet" href="/ushka/assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="/ushka/assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -45,11 +51,11 @@
       
     
     
-      <link rel="stylesheet" href="/ushka/assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="/ushka/termynal.css">
+      <link rel="stylesheet" href="../../termynal.css">
     
-    <script>__md_scope=new URL("/ushka/",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -73,6 +79,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#database-and-orm" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -87,9 +98,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="/ushka/." title="Ushka Framework" class="md-header__button md-logo" aria-label="Ushka Framework" data-md-component="logo">
+    <a href="../.." title="Ushka Framework" class="md-header__button md-logo" aria-label="Ushka Framework" data-md-component="logo">
       
-  <img src="/ushka/assets/logo.png" alt="logo">
+  <img src="../../assets/logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -106,7 +117,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              
+              Database & ORM
             
           </span>
         </div>
@@ -219,7 +230,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/ushka/." class="md-tabs__link">
+      <a href="../.." class="md-tabs__link">
         
   
   
@@ -240,7 +251,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="/ushka/guide/getting-started/" class="md-tabs__link">
+        <a href="../../guide/getting-started/" class="md-tabs__link">
           
   
   
@@ -256,11 +267,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="/ushka/features/database/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
           
   
   
@@ -278,7 +291,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/ushka/roadmap.md" class="md-tabs__link">
+      <a href="../../roadmap.md" class="md-tabs__link">
         
   
   
@@ -320,7 +333,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="/ushka/api/ushka/cli/commands/db.md" class="md-tabs__link">
+        <a href="../../api/ushka/cli/commands/db.md" class="md-tabs__link">
           
   
   
@@ -363,9 +376,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="/ushka/." title="Ushka Framework" class="md-nav__button md-logo" aria-label="Ushka Framework" data-md-component="logo">
+    <a href="../.." title="Ushka Framework" class="md-nav__button md-logo" aria-label="Ushka Framework" data-md-component="logo">
       
-  <img src="/ushka/assets/logo.png" alt="logo">
+  <img src="../../assets/logo.png" alt="logo">
 
     </a>
     Ushka Framework
@@ -392,7 +405,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -471,7 +484,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/getting-started/" class="md-nav__link">
+      <a href="../../guide/getting-started/" class="md-nav__link">
         
   
   
@@ -499,7 +512,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/configuration/" class="md-nav__link">
+      <a href="../../guide/configuration/" class="md-nav__link">
         
   
   
@@ -527,7 +540,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/routing/" class="md-nav__link">
+      <a href="../../guide/routing/" class="md-nav__link">
         
   
   
@@ -555,7 +568,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/requests/" class="md-nav__link">
+      <a href="../../guide/requests/" class="md-nav__link">
         
   
   
@@ -583,7 +596,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/responses/" class="md-nav__link">
+      <a href="../../guide/responses/" class="md-nav__link">
         
   
   
@@ -611,7 +624,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/templates/" class="md-nav__link">
+      <a href="../../guide/templates/" class="md-nav__link">
         
   
   
@@ -639,7 +652,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/dependency-injection/" class="md-nav__link">
+      <a href="../../guide/dependency-injection/" class="md-nav__link">
         
   
   
@@ -667,7 +680,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/cli/" class="md-nav__link">
+      <a href="../../guide/cli/" class="md-nav__link">
         
   
   
@@ -699,26 +712,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -736,7 +754,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -751,10 +769,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="/ushka/features/database/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Database & ORM
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -770,6 +815,120 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#defining-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Defining Models
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#active-record-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Active Record Operations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Active Record Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#creating-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating Records
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#querying-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Querying Records
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#updating-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Updating Records
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deleting-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deleting Records
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database-migrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database Migrations
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -782,7 +941,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/features/static-files/" class="md-nav__link">
+      <a href="../static-files/" class="md-nav__link">
         
   
   
@@ -810,7 +969,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/features/admin/" class="md-nav__link">
+      <a href="../admin/" class="md-nav__link">
         
   
   
@@ -838,7 +997,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/features/caching/" class="md-nav__link">
+      <a href="../caching/" class="md-nav__link">
         
   
   
@@ -866,7 +1025,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/features/queuing/" class="md-nav__link">
+      <a href="../queuing/" class="md-nav__link">
         
   
   
@@ -894,7 +1053,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/features/pwa/" class="md-nav__link">
+      <a href="../pwa/" class="md-nav__link">
         
   
   
@@ -929,7 +1088,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/roadmap.md" class="md-nav__link">
+      <a href="../../roadmap.md" class="md-nav__link">
         
   
   
@@ -1164,7 +1323,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/cli/commands/db.md" class="md-nav__link">
+      <a href="../../api/ushka/cli/commands/db.md" class="md-nav__link">
         
   
   
@@ -1192,7 +1351,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/cli/commands/dev.md" class="md-nav__link">
+      <a href="../../api/ushka/cli/commands/dev.md" class="md-nav__link">
         
   
   
@@ -1220,7 +1379,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/cli/commands/new.md" class="md-nav__link">
+      <a href="../../api/ushka/cli/commands/new.md" class="md-nav__link">
         
   
   
@@ -1248,7 +1407,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/cli/commands/routes.md" class="md-nav__link">
+      <a href="../../api/ushka/cli/commands/routes.md" class="md-nav__link">
         
   
   
@@ -1276,7 +1435,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/cli/commands/run.md" class="md-nav__link">
+      <a href="../../api/ushka/cli/commands/run.md" class="md-nav__link">
         
   
   
@@ -1372,7 +1531,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/core/app.md" class="md-nav__link">
+      <a href="../../api/ushka/core/app.md" class="md-nav__link">
         
   
   
@@ -1400,7 +1559,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/core/config.md" class="md-nav__link">
+      <a href="../../api/ushka/core/config.md" class="md-nav__link">
         
   
   
@@ -1428,7 +1587,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/core/error_handler.md" class="md-nav__link">
+      <a href="../../api/ushka/core/error_handler.md" class="md-nav__link">
         
   
   
@@ -1456,7 +1615,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/core/exceptions.md" class="md-nav__link">
+      <a href="../../api/ushka/core/exceptions.md" class="md-nav__link">
         
   
   
@@ -1484,7 +1643,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/core/log.md" class="md-nav__link">
+      <a href="../../api/ushka/core/log.md" class="md-nav__link">
         
   
   
@@ -1512,7 +1671,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/core/router.md" class="md-nav__link">
+      <a href="../../api/ushka/core/router.md" class="md-nav__link">
         
   
   
@@ -1600,7 +1759,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/cookies.md" class="md-nav__link">
+      <a href="../../api/ushka/http/cookies.md" class="md-nav__link">
         
   
   
@@ -1628,7 +1787,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/error.md" class="md-nav__link">
+      <a href="../../api/ushka/http/error.md" class="md-nav__link">
         
   
   
@@ -1656,7 +1815,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/exceptions.md" class="md-nav__link">
+      <a href="../../api/ushka/http/exceptions.md" class="md-nav__link">
         
   
   
@@ -1684,7 +1843,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/multipart.md" class="md-nav__link">
+      <a href="../../api/ushka/http/multipart.md" class="md-nav__link">
         
   
   
@@ -1712,7 +1871,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/redirect.md" class="md-nav__link">
+      <a href="../../api/ushka/http/redirect.md" class="md-nav__link">
         
   
   
@@ -1740,7 +1899,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/request.md" class="md-nav__link">
+      <a href="../../api/ushka/http/request.md" class="md-nav__link">
         
   
   
@@ -1768,7 +1927,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/response.md" class="md-nav__link">
+      <a href="../../api/ushka/http/response.md" class="md-nav__link">
         
   
   
@@ -1796,7 +1955,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/sessions.md" class="md-nav__link">
+      <a href="../../api/ushka/http/sessions.md" class="md-nav__link">
         
   
   
@@ -1884,7 +2043,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/contrib/db/database.md" class="md-nav__link">
+      <a href="../../api/ushka/contrib/db/database.md" class="md-nav__link">
         
   
   
@@ -1972,7 +2131,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/static/files.md" class="md-nav__link">
+      <a href="../../api/ushka/static/files.md" class="md-nav__link">
         
   
   
@@ -2060,7 +2219,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/templating/engine.md" class="md-nav__link">
+      <a href="../../api/ushka/templating/engine.md" class="md-nav__link">
         
   
   
@@ -2148,7 +2307,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/contrib/templating/flash.md" class="md-nav__link">
+      <a href="../../api/ushka/contrib/templating/flash.md" class="md-nav__link">
         
   
   
@@ -2209,6 +2368,110 @@
   
   
   
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#defining-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Defining Models
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#active-record-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Active Record Operations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Active Record Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#creating-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating Records
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#querying-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Querying Records
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#updating-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Updating Records
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deleting-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deleting Records
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database-migrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database Migrations
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -2221,8 +2484,133 @@
               
               <article class="md-content__inner md-typeset">
                 
-  <h1>404 - Not found</h1>
+                  
 
+
+
+<h1 id="database-and-orm">Database and ORM<a class="headerlink" href="#database-and-orm" title="Permanent link">&para;</a></h1>
+<p>Ushka includes a powerful asynchronous ORM built on top of <strong>SQLAlchemy 2.0</strong>. It's designed to be intuitive by implementing an Active Record pattern, which means your model classes themselves have methods for querying the database.</p>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
+<p>First, configure your database URL in <code>ushka.toml</code>. By default, it's set up for a local SQLite database, but you can use any database supported by SQLAlchemy (like PostgreSQL or MySQL).</p>
+<p>For PostgreSQL, for example:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># in ushka.toml</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">[database]</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;postgresql+asyncpg://user:password@host:port/dbname&quot;</span>
+</code></pre></div></p>
+<p>Ushka automatically handles creating the asynchronous engine and session management for you.</p>
+<h2 id="defining-models">Defining Models<a class="headerlink" href="#defining-models" title="Permanent link">&para;</a></h2>
+<p>To define a database model, create a class that inherits from <code>ushka.contrib.db.Model</code>. Ushka will automatically generate the table name based on your class name (e.g., <code>ProductItem</code> becomes <code>product_items</code>).</p>
+<p>Primary key <code>id</code> columns are automatically added. You can define other columns using methods on the <code>db</code> object.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># in apps/inventory/models.py</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ushka.contrib.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">db</span><span class="p">,</span> <span class="n">Model</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">class</span><span class="w"> </span><span class="nc">Product</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">name</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">description</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Text</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">price</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Float</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="n">stock</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Int</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="k">class</span><span class="w"> </span><span class="nc">Category</span><span class="p">(</span><span class="n">Model</span><span class="p">):</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    <span class="n">name</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="n">unique</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="active-record-operations">Active Record Operations<a class="headerlink" href="#active-record-operations" title="Permanent link">&para;</a></h2>
+<p>You interact with the database directly through your model classes and instances. All database operations are <code>async</code> and must be awaited.</p>
+<h3 id="creating-records">Creating Records<a class="headerlink" href="#creating-records" title="Permanent link">&para;</a></h3>
+<p>Create an instance of your model and call the <code>.save()</code> method.</p>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create_new_product</span><span class="p">():</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="n">new_product</span> <span class="o">=</span> <span class="n">Product</span><span class="p">(</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Super Gadget&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The best gadget ever.&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        <span class="n">price</span><span class="o">=</span><span class="mf">99.99</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        <span class="n">stock</span><span class="o">=</span><span class="mi">50</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="p">)</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="k">await</span> <span class="n">new_product</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Created product with ID: </span><span class="si">{</span><span class="n">new_product</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+You can also use the <code>.create()</code> class method as a shortcut:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">product</span> <span class="o">=</span> <span class="k">await</span> <span class="n">Product</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Another Gadget&quot;</span><span class="p">,</span> <span class="n">price</span><span class="o">=</span><span class="mf">49.99</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="querying-records">Querying Records<a class="headerlink" href="#querying-records" title="Permanent link">&para;</a></h3>
+<p><strong>Get a single record by its primary key:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">product</span> <span class="o">=</span> <span class="k">await</span> <span class="n">Product</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">if</span> <span class="n">product</span><span class="p">:</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found: </span><span class="si">{</span><span class="n">product</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+<p><strong>Get all records:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">all_products</span> <span class="o">=</span> <span class="k">await</span> <span class="n">Product</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">for</span> <span class="n">product</span> <span class="ow">in</span> <span class="n">all_products</span><span class="p">:</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">product</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+</code></pre></div></p>
+<p><strong>Count records:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">num_products</span> <span class="o">=</span> <span class="k">await</span> <span class="n">Product</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+</code></pre></div></p>
+<p><strong>Simple Search:</strong>
+The <code>.search()</code> method performs a case-insensitive <code>LIKE</code> query across all <code>String</code> and <code>Text</code> columns in your model.</p>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Finds products where the name or description contains &quot;gadget&quot;</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">gadgets</span> <span class="o">=</span> <span class="k">await</span> <span class="n">Product</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;gadget&quot;</span><span class="p">)</span>
+</code></pre></div>
+<strong>Advanced Queries with SQLAlchemy Core:</strong>
+For more complex queries, you can use the <code>.select()</code> method to get a SQLAlchemy <code>Select</code> object and build your query.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">and_</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">find_expensive_products</span><span class="p">():</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="n">query</span> <span class="o">=</span> <span class="n">Product</span><span class="o">.</span><span class="n">select</span><span class="p">()</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>        <span class="n">and_</span><span class="p">(</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>            <span class="n">Product</span><span class="o">.</span><span class="n">price</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">,</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>            <span class="n">Product</span><span class="o">.</span><span class="n">stock</span> <span class="o">&gt;</span> <span class="mi">0</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>        <span class="p">)</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>    <span class="p">)</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>    <span class="c1"># To execute the query, you need a session</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>    <span class="c1"># (This part of the API might be improved in future Ushka versions)</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>    <span class="k">async</span> <span class="k">with</span> <span class="n">db</span><span class="o">.</span><span class="n">atomic</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>        <span class="n">products</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">scalars</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>        <span class="k">return</span> <span class="n">products</span>
+</code></pre></div>
+<h3 id="updating-records">Updating Records<a class="headerlink" href="#updating-records" title="Permanent link">&para;</a></h3>
+<p>To update a record, change its attributes and call <code>.save()</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">product</span> <span class="o">=</span> <span class="k">await</span> <span class="n">Product</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">if</span> <span class="n">product</span><span class="p">:</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="n">product</span><span class="o">.</span><span class="n">price</span> <span class="o">=</span> <span class="mf">129.99</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="k">await</span> <span class="n">product</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="deleting-records">Deleting Records<a class="headerlink" href="#deleting-records" title="Permanent link">&para;</a></h3>
+<p>To delete a record, call the <code>.delete()</code> method on an instance.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">product</span> <span class="o">=</span> <span class="k">await</span> <span class="n">Product</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="k">if</span> <span class="n">product</span><span class="p">:</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    <span class="k">await</span> <span class="n">product</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+</code></pre></div>
+<h2 id="database-migrations">Database Migrations<a class="headerlink" href="#database-migrations" title="Permanent link">&para;</a></h2>
+<p>Ushka integrates with <strong>Alembic</strong> for database schema migrations. This allows you to evolve your database schema as you change your <code>Model</code> definitions.</p>
+<p><strong>1. Initialize the migration environment:</strong>
+This command creates a <code>migrations/</code> directory and an <code>alembic.ini</code> file. You only need to run this once per project.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>ushka<span class="w"> </span>db<span class="w"> </span>init
+</code></pre></div></p>
+<p><strong>2. Generate a new migration:</strong>
+After you change a model (e.g., add a new column), Ushka can auto-generate a migration script for you.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>ushka<span class="w"> </span>db<span class="w"> </span>make<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;add_description_to_product&quot;</span>
+</code></pre></div></p>
+<p><strong>3. Apply the migration:</strong>
+This runs the migration script to update your database schema.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>ushka<span class="w"> </span>db<span class="w"> </span>migrate
+</code></pre></div></p>
+<p>Other useful migration commands include:
+*   <code>ushka db revert</code>: Reverts the last migration.
+*   <code>ushka db status</code>: Shows the current migration status.
+*   <code>ushka db history</code>: Lists all migration scripts.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
               </article>
             </div>
           
@@ -2294,12 +2682,12 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "/ushka/", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy", "search.suggest"], "search": "/ushka/assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy", "search.suggest"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="/ushka/assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
-        <script src="/ushka/termynal.js"></script>
+        <script src="../../termynal.js"></script>
       
     
   </body>

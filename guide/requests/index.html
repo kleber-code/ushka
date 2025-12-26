@@ -8,25 +8,31 @@
       
       
       
+        <link rel="canonical" href="https://kleber-code.github.io/ushka/guide/requests/">
       
+      
+        <link rel="prev" href="../routing/">
+      
+      
+        <link rel="next" href="../responses/">
       
       
         
       
       
-      <link rel="icon" href="/ushka/assets/favicon/favicon.ico">
+      <link rel="icon" href="../../assets/favicon/favicon.ico">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
-        <title>Ushka Framework</title>
+        <title>Requests - Ushka Framework</title>
       
     
     
-      <link rel="stylesheet" href="/ushka/assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="/ushka/assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -45,11 +51,11 @@
       
     
     
-      <link rel="stylesheet" href="/ushka/assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="/ushka/termynal.css">
+      <link rel="stylesheet" href="../../termynal.css">
     
-    <script>__md_scope=new URL("/ushka/",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -73,6 +79,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#the-request-object" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -87,9 +98,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="/ushka/." title="Ushka Framework" class="md-header__button md-logo" aria-label="Ushka Framework" data-md-component="logo">
+    <a href="../.." title="Ushka Framework" class="md-header__button md-logo" aria-label="Ushka Framework" data-md-component="logo">
       
-  <img src="/ushka/assets/logo.png" alt="logo">
+  <img src="../../assets/logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -106,7 +117,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              
+              Requests
             
           </span>
         </div>
@@ -219,7 +230,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/ushka/." class="md-tabs__link">
+      <a href="../.." class="md-tabs__link">
         
   
   
@@ -236,11 +247,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="/ushka/guide/getting-started/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../getting-started/" class="md-tabs__link">
           
   
   
@@ -260,7 +273,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="/ushka/features/database/" class="md-tabs__link">
+        <a href="../../features/database/" class="md-tabs__link">
           
   
   
@@ -278,7 +291,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/ushka/roadmap.md" class="md-tabs__link">
+      <a href="../../roadmap.md" class="md-tabs__link">
         
   
   
@@ -320,7 +333,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="/ushka/api/ushka/cli/commands/db.md" class="md-tabs__link">
+        <a href="../../api/ushka/cli/commands/db.md" class="md-tabs__link">
           
   
   
@@ -363,9 +376,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="/ushka/." title="Ushka Framework" class="md-nav__button md-logo" aria-label="Ushka Framework" data-md-component="logo">
+    <a href="../.." title="Ushka Framework" class="md-nav__button md-logo" aria-label="Ushka Framework" data-md-component="logo">
       
-  <img src="/ushka/assets/logo.png" alt="logo">
+  <img src="../../assets/logo.png" alt="logo">
 
     </a>
     Ushka Framework
@@ -392,7 +405,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -416,26 +429,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
             
   
   
@@ -453,7 +471,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -471,7 +489,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/getting-started/" class="md-nav__link">
+      <a href="../getting-started/" class="md-nav__link">
         
   
   
@@ -499,7 +517,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/configuration/" class="md-nav__link">
+      <a href="../configuration/" class="md-nav__link">
         
   
   
@@ -527,7 +545,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/routing/" class="md-nav__link">
+      <a href="../routing/" class="md-nav__link">
         
   
   
@@ -552,10 +570,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="/ushka/guide/requests/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Requests
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -571,6 +616,120 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#headers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Headers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#query-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query Parameters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#request-body" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Request Body
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Request Body">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reading-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading JSON
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reading-form-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading Form Data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reading-raw-body" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading Raw Body
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uploading-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Uploading Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cookies-sessions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cookies &amp; Sessions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -583,7 +742,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/responses/" class="md-nav__link">
+      <a href="../responses/" class="md-nav__link">
         
   
   
@@ -611,7 +770,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/templates/" class="md-nav__link">
+      <a href="../templates/" class="md-nav__link">
         
   
   
@@ -639,7 +798,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/dependency-injection/" class="md-nav__link">
+      <a href="../dependency-injection/" class="md-nav__link">
         
   
   
@@ -667,7 +826,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/cli/" class="md-nav__link">
+      <a href="../cli/" class="md-nav__link">
         
   
   
@@ -754,7 +913,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/features/database/" class="md-nav__link">
+      <a href="../../features/database/" class="md-nav__link">
         
   
   
@@ -782,7 +941,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/features/static-files/" class="md-nav__link">
+      <a href="../../features/static-files/" class="md-nav__link">
         
   
   
@@ -810,7 +969,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/features/admin/" class="md-nav__link">
+      <a href="../../features/admin/" class="md-nav__link">
         
   
   
@@ -838,7 +997,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/features/caching/" class="md-nav__link">
+      <a href="../../features/caching/" class="md-nav__link">
         
   
   
@@ -866,7 +1025,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/features/queuing/" class="md-nav__link">
+      <a href="../../features/queuing/" class="md-nav__link">
         
   
   
@@ -894,7 +1053,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/features/pwa/" class="md-nav__link">
+      <a href="../../features/pwa/" class="md-nav__link">
         
   
   
@@ -929,7 +1088,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/roadmap.md" class="md-nav__link">
+      <a href="../../roadmap.md" class="md-nav__link">
         
   
   
@@ -1164,7 +1323,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/cli/commands/db.md" class="md-nav__link">
+      <a href="../../api/ushka/cli/commands/db.md" class="md-nav__link">
         
   
   
@@ -1192,7 +1351,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/cli/commands/dev.md" class="md-nav__link">
+      <a href="../../api/ushka/cli/commands/dev.md" class="md-nav__link">
         
   
   
@@ -1220,7 +1379,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/cli/commands/new.md" class="md-nav__link">
+      <a href="../../api/ushka/cli/commands/new.md" class="md-nav__link">
         
   
   
@@ -1248,7 +1407,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/cli/commands/routes.md" class="md-nav__link">
+      <a href="../../api/ushka/cli/commands/routes.md" class="md-nav__link">
         
   
   
@@ -1276,7 +1435,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/cli/commands/run.md" class="md-nav__link">
+      <a href="../../api/ushka/cli/commands/run.md" class="md-nav__link">
         
   
   
@@ -1372,7 +1531,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/core/app.md" class="md-nav__link">
+      <a href="../../api/ushka/core/app.md" class="md-nav__link">
         
   
   
@@ -1400,7 +1559,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/core/config.md" class="md-nav__link">
+      <a href="../../api/ushka/core/config.md" class="md-nav__link">
         
   
   
@@ -1428,7 +1587,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/core/error_handler.md" class="md-nav__link">
+      <a href="../../api/ushka/core/error_handler.md" class="md-nav__link">
         
   
   
@@ -1456,7 +1615,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/core/exceptions.md" class="md-nav__link">
+      <a href="../../api/ushka/core/exceptions.md" class="md-nav__link">
         
   
   
@@ -1484,7 +1643,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/core/log.md" class="md-nav__link">
+      <a href="../../api/ushka/core/log.md" class="md-nav__link">
         
   
   
@@ -1512,7 +1671,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/core/router.md" class="md-nav__link">
+      <a href="../../api/ushka/core/router.md" class="md-nav__link">
         
   
   
@@ -1600,7 +1759,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/cookies.md" class="md-nav__link">
+      <a href="../../api/ushka/http/cookies.md" class="md-nav__link">
         
   
   
@@ -1628,7 +1787,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/error.md" class="md-nav__link">
+      <a href="../../api/ushka/http/error.md" class="md-nav__link">
         
   
   
@@ -1656,7 +1815,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/exceptions.md" class="md-nav__link">
+      <a href="../../api/ushka/http/exceptions.md" class="md-nav__link">
         
   
   
@@ -1684,7 +1843,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/multipart.md" class="md-nav__link">
+      <a href="../../api/ushka/http/multipart.md" class="md-nav__link">
         
   
   
@@ -1712,7 +1871,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/redirect.md" class="md-nav__link">
+      <a href="../../api/ushka/http/redirect.md" class="md-nav__link">
         
   
   
@@ -1740,7 +1899,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/request.md" class="md-nav__link">
+      <a href="../../api/ushka/http/request.md" class="md-nav__link">
         
   
   
@@ -1768,7 +1927,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/response.md" class="md-nav__link">
+      <a href="../../api/ushka/http/response.md" class="md-nav__link">
         
   
   
@@ -1796,7 +1955,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/sessions.md" class="md-nav__link">
+      <a href="../../api/ushka/http/sessions.md" class="md-nav__link">
         
   
   
@@ -1884,7 +2043,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/contrib/db/database.md" class="md-nav__link">
+      <a href="../../api/ushka/contrib/db/database.md" class="md-nav__link">
         
   
   
@@ -1972,7 +2131,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/static/files.md" class="md-nav__link">
+      <a href="../../api/ushka/static/files.md" class="md-nav__link">
         
   
   
@@ -2060,7 +2219,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/templating/engine.md" class="md-nav__link">
+      <a href="../../api/ushka/templating/engine.md" class="md-nav__link">
         
   
   
@@ -2148,7 +2307,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/contrib/templating/flash.md" class="md-nav__link">
+      <a href="../../api/ushka/contrib/templating/flash.md" class="md-nav__link">
         
   
   
@@ -2209,6 +2368,110 @@
   
   
   
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#headers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Headers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#query-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query Parameters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#request-body" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Request Body
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Request Body">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reading-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading JSON
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reading-form-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading Form Data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reading-raw-body" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading Raw Body
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uploading-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Uploading Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cookies-sessions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cookies &amp; Sessions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -2221,8 +2484,99 @@
               
               <article class="md-content__inner md-typeset">
                 
-  <h1>404 - Not found</h1>
+                  
 
+
+
+<h1 id="the-request-object">The Request Object<a class="headerlink" href="#the-request-object" title="Permanent link">&para;</a></h1>
+<p>Ushka provides a <code>Request</code> object that is automatically injected into your view functions, giving you access to all the information about the incoming HTTP request.</p>
+<p>To use it, simply add a parameter to your view function with the <code>Request</code> type hint.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ushka.http</span><span class="w"> </span><span class="kn">import</span> <span class="n">Request</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_index</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="c1"># now you can use the request object</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="o">...</span>
+</code></pre></div>
+<p>The <code>Request</code> object has several useful properties and methods.</p>
+<h2 id="headers">Headers<a class="headerlink" href="#headers" title="Permanent link">&para;</a></h2>
+<p>You can access request headers via the <code>.headers</code> property, which returns a dictionary-like object.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_index</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">user_agent</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;user-agent&quot;</span><span class="p">)</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;You are using </span><span class="si">{</span><span class="n">user_agent</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
+</code></pre></div>
+<h2 id="query-parameters">Query Parameters<a class="headerlink" href="#query-parameters" title="Permanent link">&para;</a></h2>
+<p>Query parameters (the part of the URL after <code>?</code>) are available via the <code>.query</code> property.</p>
+<p>If a URL is <code>/search?q=ushka&amp;page=2</code>, you can access the parameters like this:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_search</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="n">search_term</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">)</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">page</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;page&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># You can provide a default value</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;searching_for&quot;</span><span class="p">:</span> <span class="n">search_term</span><span class="p">,</span> <span class="s2">&quot;on_page&quot;</span><span class="p">:</span> <span class="n">page</span><span class="p">}</span>
+</code></pre></div>
+<h2 id="request-body">Request Body<a class="headerlink" href="#request-body" title="Permanent link">&para;</a></h2>
+<p>Ushka provides several <code>async</code> methods to read the request body, which you must <code>await</code>.</p>
+<h3 id="reading-json">Reading JSON<a class="headerlink" href="#reading-json" title="Permanent link">&para;</a></h3>
+<p>If you're building an API that receives JSON, you can use <code>request.json()</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">post_users</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">username</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;username&quot;</span><span class="p">)</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="c1"># ... create user ...</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;created&quot;</span><span class="p">,</span> <span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="n">username</span><span class="p">}</span>
+</code></pre></div>
+<h3 id="reading-form-data">Reading Form Data<a class="headerlink" href="#reading-form-data" title="Permanent link">&para;</a></h3>
+<p>For standard HTML form submissions (<code>application/x-www-form-urlencoded</code> or <code>multipart/form-data</code>), use <code>request.form()</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">post_login</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">form_data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">()</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">email</span> <span class="o">=</span> <span class="n">form_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;email&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">password</span> <span class="o">=</span> <span class="n">form_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;password&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="c1"># ... process login ...</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;logged in&quot;</span><span class="p">}</span>
+</code></pre></div>
+<h3 id="reading-raw-body">Reading Raw Body<a class="headerlink" href="#reading-raw-body" title="Permanent link">&para;</a></h3>
+<p>To get the raw, unprocessed request body as bytes, use <code>request.body()</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">post_webhook</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">raw_body</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="p">()</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="c1"># ... process raw bytes ...</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;received&quot;</span><span class="p">}</span>
+</code></pre></div>
+<h3 id="uploading-files">Uploading Files<a class="headerlink" href="#uploading-files" title="Permanent link">&para;</a></h3>
+<p>When a form is submitted with <code>multipart/form-data</code>, you can access uploaded files with <code>request.files()</code>. This method must be awaited and returns a dictionary where keys are the form field names and values are file objects.</p>
+<p>The file objects are <code>SpooledTemporaryFile</code> instances, which means small files are kept in memory and larger ones are streamed to disk automatically.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">post_upload</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="n">files</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">files</span><span class="p">()</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">uploaded_file</span> <span class="o">=</span> <span class="n">files</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;my_file&quot;</span><span class="p">)</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="k">if</span> <span class="n">uploaded_file</span><span class="p">:</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>        <span class="c1"># You can read the content</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>        <span class="n">content</span> <span class="o">=</span> <span class="n">uploaded_file</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>        <span class="c1"># Save it to a permanent location</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/path/to/save/</span><span class="si">{</span><span class="n">uploaded_file</span><span class="p">[</span><span class="s1">&#39;filename&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;file uploaded&quot;</span><span class="p">,</span> <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="n">uploaded_file</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">]}</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;no file received&quot;</span><span class="p">}</span>
+</code></pre></div>
+<h2 id="cookies-sessions">Cookies &amp; Sessions<a class="headerlink" href="#cookies-sessions" title="Permanent link">&para;</a></h2>
+<p>Ushka provides easy access to cookies and sessions.</p>
+<ul>
+<li><strong>Cookies:</strong> Access via <code>request.cookies</code>, a dictionary-like object. You can set cookies here as well, and they will be sent with the response.</li>
+<li><strong>Sessions:</strong> Access via <code>request.session</code>, a dictionary-like object. Session data is stored in a secure, signed cookie on the client-side.</li>
+</ul>
+<p>See the dedicated documentation for more details.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
               </article>
             </div>
           
@@ -2294,12 +2648,12 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "/ushka/", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy", "search.suggest"], "search": "/ushka/assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy", "search.suggest"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="/ushka/assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
-        <script src="/ushka/termynal.js"></script>
+        <script src="../../termynal.js"></script>
       
     
   </body>

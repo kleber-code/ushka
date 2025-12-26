@@ -8,25 +8,31 @@
       
       
       
+        <link rel="canonical" href="https://kleber-code.github.io/ushka/guide/routing/">
       
+      
+        <link rel="prev" href="../configuration/">
+      
+      
+        <link rel="next" href="../requests/">
       
       
         
       
       
-      <link rel="icon" href="/ushka/assets/favicon/favicon.ico">
+      <link rel="icon" href="../../assets/favicon/favicon.ico">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
-        <title>Ushka Framework</title>
+        <title>Routing - Ushka Framework</title>
       
     
     
-      <link rel="stylesheet" href="/ushka/assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="/ushka/assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -45,11 +51,11 @@
       
     
     
-      <link rel="stylesheet" href="/ushka/assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="/ushka/termynal.css">
+      <link rel="stylesheet" href="../../termynal.css">
     
-    <script>__md_scope=new URL("/ushka/",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -73,6 +79,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#routing" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -87,9 +98,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="/ushka/." title="Ushka Framework" class="md-header__button md-logo" aria-label="Ushka Framework" data-md-component="logo">
+    <a href="../.." title="Ushka Framework" class="md-header__button md-logo" aria-label="Ushka Framework" data-md-component="logo">
       
-  <img src="/ushka/assets/logo.png" alt="logo">
+  <img src="../../assets/logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -106,7 +117,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              
+              Routing
             
           </span>
         </div>
@@ -219,7 +230,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/ushka/." class="md-tabs__link">
+      <a href="../.." class="md-tabs__link">
         
   
   
@@ -236,11 +247,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="/ushka/guide/getting-started/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../getting-started/" class="md-tabs__link">
           
   
   
@@ -260,7 +273,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="/ushka/features/database/" class="md-tabs__link">
+        <a href="../../features/database/" class="md-tabs__link">
           
   
   
@@ -278,7 +291,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/ushka/roadmap.md" class="md-tabs__link">
+      <a href="../../roadmap.md" class="md-tabs__link">
         
   
   
@@ -320,7 +333,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="/ushka/api/ushka/cli/commands/db.md" class="md-tabs__link">
+        <a href="../../api/ushka/cli/commands/db.md" class="md-tabs__link">
           
   
   
@@ -363,9 +376,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="/ushka/." title="Ushka Framework" class="md-nav__button md-logo" aria-label="Ushka Framework" data-md-component="logo">
+    <a href="../.." title="Ushka Framework" class="md-nav__button md-logo" aria-label="Ushka Framework" data-md-component="logo">
       
-  <img src="/ushka/assets/logo.png" alt="logo">
+  <img src="../../assets/logo.png" alt="logo">
 
     </a>
     Ushka Framework
@@ -392,7 +405,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -416,26 +429,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
             
   
   
@@ -453,7 +471,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -471,7 +489,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/getting-started/" class="md-nav__link">
+      <a href="../getting-started/" class="md-nav__link">
         
   
   
@@ -499,7 +517,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/configuration/" class="md-nav__link">
+      <a href="../configuration/" class="md-nav__link">
         
   
   
@@ -524,10 +542,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="/ushka/guide/routing/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Routing
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -543,6 +588,104 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#convention-based-routing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Convention-Based Routing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Convention-Based Routing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dynamic-routes-path-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dynamic Routes (Path Parameters)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dynamic Routes (Path Parameters)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example:
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#listing-routes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Listing Routes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#app-prefixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        App Prefixes
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -555,7 +698,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/requests/" class="md-nav__link">
+      <a href="../requests/" class="md-nav__link">
         
   
   
@@ -583,7 +726,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/responses/" class="md-nav__link">
+      <a href="../responses/" class="md-nav__link">
         
   
   
@@ -611,7 +754,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/templates/" class="md-nav__link">
+      <a href="../templates/" class="md-nav__link">
         
   
   
@@ -639,7 +782,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/dependency-injection/" class="md-nav__link">
+      <a href="../dependency-injection/" class="md-nav__link">
         
   
   
@@ -667,7 +810,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/cli/" class="md-nav__link">
+      <a href="../cli/" class="md-nav__link">
         
   
   
@@ -754,7 +897,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/features/database/" class="md-nav__link">
+      <a href="../../features/database/" class="md-nav__link">
         
   
   
@@ -782,7 +925,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/features/static-files/" class="md-nav__link">
+      <a href="../../features/static-files/" class="md-nav__link">
         
   
   
@@ -810,7 +953,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/features/admin/" class="md-nav__link">
+      <a href="../../features/admin/" class="md-nav__link">
         
   
   
@@ -838,7 +981,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/features/caching/" class="md-nav__link">
+      <a href="../../features/caching/" class="md-nav__link">
         
   
   
@@ -866,7 +1009,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/features/queuing/" class="md-nav__link">
+      <a href="../../features/queuing/" class="md-nav__link">
         
   
   
@@ -894,7 +1037,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/features/pwa/" class="md-nav__link">
+      <a href="../../features/pwa/" class="md-nav__link">
         
   
   
@@ -929,7 +1072,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/roadmap.md" class="md-nav__link">
+      <a href="../../roadmap.md" class="md-nav__link">
         
   
   
@@ -1164,7 +1307,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/cli/commands/db.md" class="md-nav__link">
+      <a href="../../api/ushka/cli/commands/db.md" class="md-nav__link">
         
   
   
@@ -1192,7 +1335,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/cli/commands/dev.md" class="md-nav__link">
+      <a href="../../api/ushka/cli/commands/dev.md" class="md-nav__link">
         
   
   
@@ -1220,7 +1363,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/cli/commands/new.md" class="md-nav__link">
+      <a href="../../api/ushka/cli/commands/new.md" class="md-nav__link">
         
   
   
@@ -1248,7 +1391,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/cli/commands/routes.md" class="md-nav__link">
+      <a href="../../api/ushka/cli/commands/routes.md" class="md-nav__link">
         
   
   
@@ -1276,7 +1419,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/cli/commands/run.md" class="md-nav__link">
+      <a href="../../api/ushka/cli/commands/run.md" class="md-nav__link">
         
   
   
@@ -1372,7 +1515,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/core/app.md" class="md-nav__link">
+      <a href="../../api/ushka/core/app.md" class="md-nav__link">
         
   
   
@@ -1400,7 +1543,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/core/config.md" class="md-nav__link">
+      <a href="../../api/ushka/core/config.md" class="md-nav__link">
         
   
   
@@ -1428,7 +1571,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/core/error_handler.md" class="md-nav__link">
+      <a href="../../api/ushka/core/error_handler.md" class="md-nav__link">
         
   
   
@@ -1456,7 +1599,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/core/exceptions.md" class="md-nav__link">
+      <a href="../../api/ushka/core/exceptions.md" class="md-nav__link">
         
   
   
@@ -1484,7 +1627,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/core/log.md" class="md-nav__link">
+      <a href="../../api/ushka/core/log.md" class="md-nav__link">
         
   
   
@@ -1512,7 +1655,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/core/router.md" class="md-nav__link">
+      <a href="../../api/ushka/core/router.md" class="md-nav__link">
         
   
   
@@ -1600,7 +1743,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/cookies.md" class="md-nav__link">
+      <a href="../../api/ushka/http/cookies.md" class="md-nav__link">
         
   
   
@@ -1628,7 +1771,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/error.md" class="md-nav__link">
+      <a href="../../api/ushka/http/error.md" class="md-nav__link">
         
   
   
@@ -1656,7 +1799,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/exceptions.md" class="md-nav__link">
+      <a href="../../api/ushka/http/exceptions.md" class="md-nav__link">
         
   
   
@@ -1684,7 +1827,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/multipart.md" class="md-nav__link">
+      <a href="../../api/ushka/http/multipart.md" class="md-nav__link">
         
   
   
@@ -1712,7 +1855,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/redirect.md" class="md-nav__link">
+      <a href="../../api/ushka/http/redirect.md" class="md-nav__link">
         
   
   
@@ -1740,7 +1883,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/request.md" class="md-nav__link">
+      <a href="../../api/ushka/http/request.md" class="md-nav__link">
         
   
   
@@ -1768,7 +1911,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/response.md" class="md-nav__link">
+      <a href="../../api/ushka/http/response.md" class="md-nav__link">
         
   
   
@@ -1796,7 +1939,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/sessions.md" class="md-nav__link">
+      <a href="../../api/ushka/http/sessions.md" class="md-nav__link">
         
   
   
@@ -1884,7 +2027,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/contrib/db/database.md" class="md-nav__link">
+      <a href="../../api/ushka/contrib/db/database.md" class="md-nav__link">
         
   
   
@@ -1972,7 +2115,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/static/files.md" class="md-nav__link">
+      <a href="../../api/ushka/static/files.md" class="md-nav__link">
         
   
   
@@ -2060,7 +2203,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/templating/engine.md" class="md-nav__link">
+      <a href="../../api/ushka/templating/engine.md" class="md-nav__link">
         
   
   
@@ -2148,7 +2291,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/contrib/templating/flash.md" class="md-nav__link">
+      <a href="../../api/ushka/contrib/templating/flash.md" class="md-nav__link">
         
   
   
@@ -2209,6 +2352,94 @@
   
   
   
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#convention-based-routing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Convention-Based Routing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Convention-Based Routing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dynamic-routes-path-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dynamic Routes (Path Parameters)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dynamic Routes (Path Parameters)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example:
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#listing-routes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Listing Routes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#app-prefixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        App Prefixes
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -2221,8 +2452,124 @@
               
               <article class="md-content__inner md-typeset">
                 
-  <h1>404 - Not found</h1>
+                  
 
+
+
+<h1 id="routing">Routing<a class="headerlink" href="#routing" title="Permanent link">&para;</a></h1>
+<p>Ushka uses a simple but powerful convention-based routing system. You don't need to manually register your routes with decorators. Just name your functions correctly in a <code>views.py</code> file, and Ushka will discover them.</p>
+<h2 id="convention-based-routing">Convention-Based Routing<a class="headerlink" href="#convention-based-routing" title="Permanent link">&para;</a></h2>
+<p>The core idea is to name your functions <code>METHOD_endpoint</code>.</p>
+<ul>
+<li><strong>METHOD:</strong> The HTTP method in lowercase (e.g., <code>get</code>, <code>post</code>, <code>put</code>, <code>delete</code>).</li>
+<li><strong>endpoint:</strong> The URL path. Use <code>index</code> for the root (<code>/</code>) of your app, and underscores (<code>_</code>) to represent slashes (<code>/</code>) in the URL.</li>
+</ul>
+<p>Ushka automatically discovers any function matching this pattern in any <code>apps/&lt;app_name&gt;/views.py</code> file (for apps listed in your <code>ushka.toml</code>).</p>
+<h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
+<p>Let's assume these are in <code>apps/products/views.py</code>, and this app has a prefix of <code>/products</code> defined in <code>apps/products/app.toml</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Function Name</th>
+<th>HTTP Method</th>
+<th>Resulting URL Path</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>get_index</code></td>
+<td><code>GET</code></td>
+<td><code>/products/</code></td>
+</tr>
+<tr>
+<td><code>post_index</code></td>
+<td><code>POST</code></td>
+<td><code>/products/</code></td>
+</tr>
+<tr>
+<td><code>get_all</code></td>
+<td><code>GET</code></td>
+<td><code>/products/all</code></td>
+</tr>
+<tr>
+<td><code>get_featured_items</code></td>
+<td><code>GET</code></td>
+<td><code>/products/featured/items</code></td>
+</tr>
+<tr>
+<td><code>delete_item</code></td>
+<td><code>DELETE</code></td>
+<td><code>/products/item</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="dynamic-routes-path-parameters">Dynamic Routes (Path Parameters)<a class="headerlink" href="#dynamic-routes-path-parameters" title="Permanent link">&para;</a></h2>
+<p>To capture segments from the URL, you can add parameters to your view function's signature. Ushka will automatically map these to dynamic parts of the URL.</p>
+<p>You can also add type hints to the parameters, and Ushka will use a matching regex and attempt to cast the value. Currently, <code>int</code> is supported for digit-only matching.</p>
+<h3 id="example">Example:<a class="headerlink" href="#example" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># in apps/users/views.py</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ushka.http</span><span class="w"> </span><span class="kn">import</span> <span class="n">Request</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_by_id</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  <span class="c1"># Because of the `user_id: int` type hint, this will only match</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>  <span class="c1"># URLs like /users/by/id/123, but not /users/by/id/abc.</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>  <span class="c1"># The value of `user_id` will be an integer.</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>  <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">user_id</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Test User&quot;</span><span class="p">}}</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_by_username</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>  <span class="c1"># Without a type hint (or with `str`), this will match any value</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>  <span class="c1"># in that URL segment. The value of `username` will be a string.</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>  <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="n">username</span><span class="p">}}</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Function Name</th>
+<th>HTTP Method</th>
+<th>Example URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>get_by_id(request: Request, user_id: int)</code></td>
+<td><code>GET</code></td>
+<td><code>/users/by/id/123</code></td>
+</tr>
+<tr>
+<td><code>get_by_username(request: Request, username: str)</code></td>
+<td><code>GET</code></td>
+<td><code>/users/by/username/neo</code></td>
+</tr>
+</tbody>
+</table>
+<p>The path is constructed by appending the parameter names to the function's endpoint name.</p>
+<h2 id="listing-routes">Listing Routes<a class="headerlink" href="#listing-routes" title="Permanent link">&para;</a></h2>
+<p>To see a complete list of all registered routes in your application, you can use the <code>routes list</code> command:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>ushka<span class="w"> </span>routes<span class="w"> </span>list
+</code></pre></div>
+<p>This is very useful for debugging and getting a quick overview of all your application's endpoints.</p>
+<h2 id="app-prefixes">App Prefixes<a class="headerlink" href="#app-prefixes" title="Permanent link">&para;</a></h2>
+<p>Routes for an app are automatically prefixed with the <code>prefix</code> defined in that app's <code>app.toml</code> configuration file.</p>
+<p>For example, if <code>apps/products/app.toml</code> contains:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">[app]</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;products&quot;</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/api/v1/products&quot;</span>
+</code></pre></div>
+<p>Then a view function named <code>get_all</code> in <code>apps/products/views.py</code> will be mapped to <code>GET /api/v1/products/all</code>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
               </article>
             </div>
           
@@ -2294,12 +2641,12 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "/ushka/", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy", "search.suggest"], "search": "/ushka/assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy", "search.suggest"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="/ushka/assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
-        <script src="/ushka/termynal.js"></script>
+        <script src="../../termynal.js"></script>
       
     
   </body>

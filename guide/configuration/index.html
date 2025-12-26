@@ -8,25 +8,31 @@
       
       
       
+        <link rel="canonical" href="https://kleber-code.github.io/ushka/guide/configuration/">
       
+      
+        <link rel="prev" href="../getting-started/">
+      
+      
+        <link rel="next" href="../routing/">
       
       
         
       
       
-      <link rel="icon" href="/ushka/assets/favicon/favicon.ico">
+      <link rel="icon" href="../../assets/favicon/favicon.ico">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
-        <title>Ushka Framework</title>
+        <title>Configuration - Ushka Framework</title>
       
     
     
-      <link rel="stylesheet" href="/ushka/assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="/ushka/assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -45,11 +51,11 @@
       
     
     
-      <link rel="stylesheet" href="/ushka/assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="/ushka/termynal.css">
+      <link rel="stylesheet" href="../../termynal.css">
     
-    <script>__md_scope=new URL("/ushka/",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -73,6 +79,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#configuration" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -87,9 +98,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="/ushka/." title="Ushka Framework" class="md-header__button md-logo" aria-label="Ushka Framework" data-md-component="logo">
+    <a href="../.." title="Ushka Framework" class="md-header__button md-logo" aria-label="Ushka Framework" data-md-component="logo">
       
-  <img src="/ushka/assets/logo.png" alt="logo">
+  <img src="../../assets/logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -106,7 +117,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              
+              Configuration
             
           </span>
         </div>
@@ -219,7 +230,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/ushka/." class="md-tabs__link">
+      <a href="../.." class="md-tabs__link">
         
   
   
@@ -236,11 +247,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="/ushka/guide/getting-started/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../getting-started/" class="md-tabs__link">
           
   
   
@@ -260,7 +273,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="/ushka/features/database/" class="md-tabs__link">
+        <a href="../../features/database/" class="md-tabs__link">
           
   
   
@@ -278,7 +291,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="/ushka/roadmap.md" class="md-tabs__link">
+      <a href="../../roadmap.md" class="md-tabs__link">
         
   
   
@@ -320,7 +333,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="/ushka/api/ushka/cli/commands/db.md" class="md-tabs__link">
+        <a href="../../api/ushka/cli/commands/db.md" class="md-tabs__link">
           
   
   
@@ -363,9 +376,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="/ushka/." title="Ushka Framework" class="md-nav__button md-logo" aria-label="Ushka Framework" data-md-component="logo">
+    <a href="../.." title="Ushka Framework" class="md-nav__button md-logo" aria-label="Ushka Framework" data-md-component="logo">
       
-  <img src="/ushka/assets/logo.png" alt="logo">
+  <img src="../../assets/logo.png" alt="logo">
 
     </a>
     Ushka Framework
@@ -392,7 +405,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -416,26 +429,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
             
   
   
@@ -453,7 +471,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -471,7 +489,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/getting-started/" class="md-nav__link">
+      <a href="../getting-started/" class="md-nav__link">
         
   
   
@@ -496,10 +514,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="/ushka/guide/configuration/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -515,6 +560,109 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-ushkatoml-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The ushka.toml File
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-sections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Sections
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Core Sections">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#app" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [app]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [server]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#apps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [apps]
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#feature-sections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Feature Sections
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#app-specific-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        App-Specific Configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -527,7 +675,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/routing/" class="md-nav__link">
+      <a href="../routing/" class="md-nav__link">
         
   
   
@@ -555,7 +703,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/requests/" class="md-nav__link">
+      <a href="../requests/" class="md-nav__link">
         
   
   
@@ -583,7 +731,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/responses/" class="md-nav__link">
+      <a href="../responses/" class="md-nav__link">
         
   
   
@@ -611,7 +759,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/templates/" class="md-nav__link">
+      <a href="../templates/" class="md-nav__link">
         
   
   
@@ -639,7 +787,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/dependency-injection/" class="md-nav__link">
+      <a href="../dependency-injection/" class="md-nav__link">
         
   
   
@@ -667,7 +815,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/guide/cli/" class="md-nav__link">
+      <a href="../cli/" class="md-nav__link">
         
   
   
@@ -754,7 +902,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/features/database/" class="md-nav__link">
+      <a href="../../features/database/" class="md-nav__link">
         
   
   
@@ -782,7 +930,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/features/static-files/" class="md-nav__link">
+      <a href="../../features/static-files/" class="md-nav__link">
         
   
   
@@ -810,7 +958,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/features/admin/" class="md-nav__link">
+      <a href="../../features/admin/" class="md-nav__link">
         
   
   
@@ -838,7 +986,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/features/caching/" class="md-nav__link">
+      <a href="../../features/caching/" class="md-nav__link">
         
   
   
@@ -866,7 +1014,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/features/queuing/" class="md-nav__link">
+      <a href="../../features/queuing/" class="md-nav__link">
         
   
   
@@ -894,7 +1042,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/features/pwa/" class="md-nav__link">
+      <a href="../../features/pwa/" class="md-nav__link">
         
   
   
@@ -929,7 +1077,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/roadmap.md" class="md-nav__link">
+      <a href="../../roadmap.md" class="md-nav__link">
         
   
   
@@ -1164,7 +1312,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/cli/commands/db.md" class="md-nav__link">
+      <a href="../../api/ushka/cli/commands/db.md" class="md-nav__link">
         
   
   
@@ -1192,7 +1340,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/cli/commands/dev.md" class="md-nav__link">
+      <a href="../../api/ushka/cli/commands/dev.md" class="md-nav__link">
         
   
   
@@ -1220,7 +1368,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/cli/commands/new.md" class="md-nav__link">
+      <a href="../../api/ushka/cli/commands/new.md" class="md-nav__link">
         
   
   
@@ -1248,7 +1396,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/cli/commands/routes.md" class="md-nav__link">
+      <a href="../../api/ushka/cli/commands/routes.md" class="md-nav__link">
         
   
   
@@ -1276,7 +1424,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/cli/commands/run.md" class="md-nav__link">
+      <a href="../../api/ushka/cli/commands/run.md" class="md-nav__link">
         
   
   
@@ -1372,7 +1520,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/core/app.md" class="md-nav__link">
+      <a href="../../api/ushka/core/app.md" class="md-nav__link">
         
   
   
@@ -1400,7 +1548,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/core/config.md" class="md-nav__link">
+      <a href="../../api/ushka/core/config.md" class="md-nav__link">
         
   
   
@@ -1428,7 +1576,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/core/error_handler.md" class="md-nav__link">
+      <a href="../../api/ushka/core/error_handler.md" class="md-nav__link">
         
   
   
@@ -1456,7 +1604,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/core/exceptions.md" class="md-nav__link">
+      <a href="../../api/ushka/core/exceptions.md" class="md-nav__link">
         
   
   
@@ -1484,7 +1632,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/core/log.md" class="md-nav__link">
+      <a href="../../api/ushka/core/log.md" class="md-nav__link">
         
   
   
@@ -1512,7 +1660,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/core/router.md" class="md-nav__link">
+      <a href="../../api/ushka/core/router.md" class="md-nav__link">
         
   
   
@@ -1600,7 +1748,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/cookies.md" class="md-nav__link">
+      <a href="../../api/ushka/http/cookies.md" class="md-nav__link">
         
   
   
@@ -1628,7 +1776,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/error.md" class="md-nav__link">
+      <a href="../../api/ushka/http/error.md" class="md-nav__link">
         
   
   
@@ -1656,7 +1804,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/exceptions.md" class="md-nav__link">
+      <a href="../../api/ushka/http/exceptions.md" class="md-nav__link">
         
   
   
@@ -1684,7 +1832,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/multipart.md" class="md-nav__link">
+      <a href="../../api/ushka/http/multipart.md" class="md-nav__link">
         
   
   
@@ -1712,7 +1860,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/redirect.md" class="md-nav__link">
+      <a href="../../api/ushka/http/redirect.md" class="md-nav__link">
         
   
   
@@ -1740,7 +1888,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/request.md" class="md-nav__link">
+      <a href="../../api/ushka/http/request.md" class="md-nav__link">
         
   
   
@@ -1768,7 +1916,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/response.md" class="md-nav__link">
+      <a href="../../api/ushka/http/response.md" class="md-nav__link">
         
   
   
@@ -1796,7 +1944,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/http/sessions.md" class="md-nav__link">
+      <a href="../../api/ushka/http/sessions.md" class="md-nav__link">
         
   
   
@@ -1884,7 +2032,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/contrib/db/database.md" class="md-nav__link">
+      <a href="../../api/ushka/contrib/db/database.md" class="md-nav__link">
         
   
   
@@ -1972,7 +2120,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/static/files.md" class="md-nav__link">
+      <a href="../../api/ushka/static/files.md" class="md-nav__link">
         
   
   
@@ -2060,7 +2208,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/templating/engine.md" class="md-nav__link">
+      <a href="../../api/ushka/templating/engine.md" class="md-nav__link">
         
   
   
@@ -2148,7 +2296,7 @@
   
   
     <li class="md-nav__item">
-      <a href="/ushka/api/ushka/contrib/templating/flash.md" class="md-nav__link">
+      <a href="../../api/ushka/contrib/templating/flash.md" class="md-nav__link">
         
   
   
@@ -2209,6 +2357,99 @@
   
   
   
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-ushkatoml-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The ushka.toml File
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-sections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Sections
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Core Sections">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#app" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [app]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [server]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#apps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [apps]
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#feature-sections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Feature Sections
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#app-specific-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        App-Specific Configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -2221,8 +2462,88 @@
               
               <article class="md-content__inner md-typeset">
                 
-  <h1>404 - Not found</h1>
+                  
 
+
+
+<h1 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h1>
+<p>Ushka uses a simple and clean TOML file for configuration, named <code>ushka.toml</code>. This file is the central place to manage your application's settings.</p>
+<p>When you create a new project with <code>ushka new</code>, a default <code>ushka.toml</code> file is generated for you.</p>
+<h2 id="the-ushkatoml-file">The <code>ushka.toml</code> File<a class="headerlink" href="#the-ushkatoml-file" title="Permanent link">&para;</a></h2>
+<p>Here is an example of a <code>ushka.toml</code> file with some common sections:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Main application settings</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">[app]</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;My Ushka App&quot;</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">debug</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">secret_key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;a-very-long-and-secret-string-for-sessions&quot;</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># Web server settings</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="k">[server]</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;127.0.0.1&quot;</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="n">port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8000</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="c1"># Database configuration</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="k">[database]</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;sqlite+aiosqlite:///ushka.db&quot;</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="c1"># List of installed apps</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="k">[apps]</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="n">installed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;home&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;products&quot;</span><span class="p">]</span>
+</code></pre></div>
+<h2 id="core-sections">Core Sections<a class="headerlink" href="#core-sections" title="Permanent link">&para;</a></h2>
+<h3 id="app"><code>[app]</code><a class="headerlink" href="#app" title="Permanent link">&para;</a></h3>
+<p>This section contains the core settings for your application.</p>
+<ul>
+<li><code>name</code> (string): The name of your application.</li>
+<li><code>debug</code> (boolean): If <code>true</code>, enables debug mode. This provides more detailed error pages and enables features like auto-reloading. <strong>Should be <code>false</code> in production.</strong></li>
+<li><code>secret_key</code> (string): A long, random string used for securely signing sessions. This should be kept secret.</li>
+</ul>
+<h3 id="server"><code>[server]</code><a class="headerlink" href="#server" title="Permanent link">&para;</a></h3>
+<p>This section configures the web server.</p>
+<ul>
+<li><code>host</code> (string): The IP address to bind the server to. <code>127.0.0.1</code> is only accessible from your local machine. Use <code>0.0.0.0</code> to make it accessible from other machines on your network.</li>
+<li><code>port</code> (integer): The port for the server to listen on.</li>
+<li><code>workers</code> (integer): The number of worker processes to run (only effective in production, not with <code>ushka dev</code>).</li>
+</ul>
+<h3 id="apps"><code>[apps]</code><a class="headerlink" href="#apps" title="Permanent link">&para;</a></h3>
+<p>This section manages your application modules.</p>
+<ul>
+<li><code>installed</code> (list of strings): A list of the app modules that Ushka should discover and load. Ushka will look for these in the <code>apps/</code> directory.</li>
+</ul>
+<h2 id="feature-sections">Feature Sections<a class="headerlink" href="#feature-sections" title="Permanent link">&para;</a></h2>
+<p>Many of Ushka's built-in features are configured in their own sections. For example:</p>
+<ul>
+<li><code>[database]</code>: Configures the database connection.</li>
+<li><code>[static]</code>: Configures static file serving.</li>
+<li><code>[admin]</code>: Configures the built-in admin panel.</li>
+<li><code>[cache]</code>: Configures the caching system.</li>
+<li><code>[queue]</code>: Configures the background task queue.</li>
+<li><code>[pwa]</code>: Configures Progressive Web App features.</li>
+</ul>
+<p>Please see the documentation for each specific feature to learn about its available configuration options.</p>
+<h2 id="app-specific-configuration">App-Specific Configuration<a class="headerlink" href="#app-specific-configuration" title="Permanent link">&para;</a></h2>
+<p>Sometimes, an app module needs its own specific configuration that doesn't belong in the main <code>ushka.toml</code>. You can create an <code>app.toml</code> file inside any app's directory (e.g., <code>apps/products/app.toml</code>).</p>
+<p>The most common use for this is to define a URL prefix for all routes in that app.</p>
+<p><strong>Example <code>apps/products/app.toml</code>:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">[app]</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;products&quot;</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/api/products&quot;</span>
+</code></pre></div></p>
+<p>With this configuration, all routes defined in <code>apps/products/views.py</code> will be automatically prefixed with <code>/api/products</code>. For example, a <code>get_all</code> view function would be accessible at <code>/api/products/all</code>.</p>
+<p>Ushka automatically loads these <code>app.toml</code> files for all apps listed in the <code>[apps].installed</code> list.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
               </article>
             </div>
           
@@ -2294,12 +2615,12 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "/ushka/", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy", "search.suggest"], "search": "/ushka/assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy", "search.suggest"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="/ushka/assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
-        <script src="/ushka/termynal.js"></script>
+        <script src="../../termynal.js"></script>
       
     
   </body>
