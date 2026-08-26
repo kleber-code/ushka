@@ -94,8 +94,9 @@ extra:
         - icon: fontawesome/brands/python
           link: https://pypi.org/project/ushka/
     manifest: "assets/favicon/site.webmanifest"
-    extra_css:
-        - assets/custom.css
+
+extra_css:
+    - assets/custom.css
 
 markdown_extensions:
     - admonition
@@ -113,5 +114,6 @@ plugins:
     - mkdocstrings:
         handlers:
             python:
+                paths: [src]
                 options:
                     docstring_style: numpy

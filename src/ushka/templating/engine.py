@@ -4,7 +4,7 @@ It allows registering custom filters, global variables, and context processors.
 Signature style: Django-like (request, template_name, context).
 """
 
-import asyncio
+import inspect
 import typing
 from pathlib import Path
 
@@ -135,7 +135,7 @@ class UshkaTemplates:
 
         # Context Processors
         for processor in self.context_processors:
-            if asyncio.iscoroutinefunction(processor):
+            if inspect.iscoroutinefunction(processor):
                 extra = await processor(request)
             else:
                 extra = processor(request)

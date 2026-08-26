@@ -17,6 +17,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: MIT License",
     "Framework :: AsyncIO",
     "Intended Audience :: Developers",
@@ -28,11 +29,15 @@ classifiers = [
 
 # --- 1. CORE / MINIMAL ---
 # Instalado com: pip install ushka
+# `ushka.core.error_handler` renders the built-in error pages through
+# `ushka.templating`, so Jinja2 is imported on every `import ushka` and has to
+# be a core dependency rather than a `web` extra.
 dependencies = [
     "uvicorn>=0.38.0",
     "tomlkit>=0.13.3",
     "rich>=13.7.1",
     "python-multipart>=0.0.20",
+    "jinja2>=3.1.6",
 ]
 
 [project.urls]
@@ -47,6 +52,7 @@ ushka = "ushka.cli:main"
 [project.optional-dependencies]
 
 # pip install ushka[web]
+# Kept for backwards compatibility: both packages are part of the core install.
 web = [
     "jinja2>=3.1.6",
     "python-multipart>=0.0.20",
@@ -110,4 +116,10 @@ dev = [
     "pyyaml>=6.0.3",
     "pyment>=0.3.3",
     "docstring-parser>=0.17.0",
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
 ]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "-q"

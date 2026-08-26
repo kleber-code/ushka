@@ -41,23 +41,27 @@ def create_project(project_name: str):
     os.makedirs(os.path.join(project_name, "templates"))
 
     # Create app.py
+    # `Ushka` takes no arguments: it discovers its own working directory and
+    # loads `ushka.toml` from there.
     with open(os.path.join(project_name, "app.py"), "w") as f:
         f.write(
             """from ushka import Ushka
-from ushka.core.config import Config
 
-config = Config()
-app = Ushka(config=config)
+app = Ushka()
+
+if __name__ == "__main__":
+    app.run()
 """
         )
 
-    # Create config.toml
+    # Create ushka.toml
+    # This is the file `Config` actually reads; any key left out here is filled
+    # in with its default on the first run.
     config_data = {
-        "APP_NAME": project_name,
-        "DEBUG": True,
-        "database": {"URL": f"sqlite+aiosqlite:///{project_name}.db"},
+        "app": {"name": project_name, "debug": True},
+        "database": {"url": f"sqlite+aiosqlite:///{project_name}.db"},
     }
-    with open(os.path.join(project_name, "config.toml"), "w") as f:
+    with open(os.path.join(project_name, "ushka.toml"), "w") as f:
         f.write(tomlkit.dumps(config_data))
 
     # Create routes/index.py
@@ -77,7 +81,7 @@ async def get(request: Request):
             """<!DOCTYPE html>
 <html>
 <head>
-    <title>{{ APP_NAME }}</title>
+    <title>{{ request.app.config.APP_NAME }}</title>
 </head>
 <body>
     <h1>{{ message }}</h1>
@@ -89,4 +93,4 @@ async def get(request: Request):
     print(f"✅ Project '{project_name}' created successfully!")
     print("\nTo get started:")
     print(f"  cd {project_name}")
-    print("  ushka server")
+    print("  ushka dev")

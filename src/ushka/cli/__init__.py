@@ -3,7 +3,34 @@ import argparse
 import os
 import sys
 
-from ushka.cli.commands import db, dev, new, routes, run
+from ushka.cli.commands import dev, new, routes, run
+
+
+def _load_db_command():
+    """Imports the `db` command module lazily.
+
+    The module depends on Alembic and SQLAlchemy, which only ship with the
+    `orm` extra, so importing it eagerly would break the whole CLI on a core
+    install.
+
+    Returns
+    -------
+    module
+        The `ushka.cli.commands.db` module.
+
+    Raises
+    ------
+    SystemExit
+        If the ORM dependencies are not installed.
+    """
+    try:
+        from ushka.cli.commands import db
+    except ImportError as exc:
+        raise SystemExit(
+            "The 'db' command requires the ORM extra. "
+            "Install it with: pip install 'ushka[orm]'"
+        ) from exc
+    return db
 
 
 def main():
@@ -142,6 +169,10 @@ def main():
         run.run(args.app, args.host, args.port)
 
     elif args.command == "db":
+        if not args.db_command:
+            parser_db.print_help()
+            return
+        db = _load_db_command()
         if args.db_command == "init":
             db.init()
         elif args.db_command == "make":

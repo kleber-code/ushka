@@ -7,7 +7,6 @@ configuration, and error handling within the framework.
 # ushka/application.py
 import inspect
 import logging
-from asyncio import iscoroutinefunction
 from pathlib import Path
 from types import FrameType
 
@@ -192,7 +191,7 @@ class Ushka:
                 return Response(await render(request, "startup.html", {}))
             raise HttpNotFound()
 
-        if iscoroutinefunction(handler):
+        if inspect.iscoroutinefunction(handler):
             result = await handler(**params)
         else:
             result = handler(**params)

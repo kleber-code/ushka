@@ -6,8 +6,22 @@ on the next request.
 It includes a `Category` enum for message types and functions to store (`flash`)
 and retrieve (`get_flashed_messages`) these messages.
 """
-from enum import StrEnum
+import sys
 from typing import TYPE_CHECKING, List, Tuple, Union
+
+if sys.version_info >= (3, 11):
+    from enum import StrEnum
+else:  # pragma: no cover - compatibility shim for Python 3.10
+    # `enum.StrEnum` only exists from 3.11 on, and a plain `(str, Enum)` keeps
+    # `str(member)` as "Category.INFO" instead of "info", so `__str__` is
+    # restored explicitly.
+    from enum import Enum
+
+    class StrEnum(str, Enum):
+        """Minimal backport of :class:`enum.StrEnum`."""
+
+        def __str__(self) -> str:
+            return str(self.value)
 
 if TYPE_CHECKING:
     from ushka.http.request import Request

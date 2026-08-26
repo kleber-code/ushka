@@ -134,9 +134,13 @@ class Config:
 
                 # --- USHKA SECTION (IMMUTABLE) ---
                 if section_name == "ushka":
-                    tbl.comment(
-                        "SYSTEM INFORMATION (Read-only).\n"
-                        "Changes here are ignored; these are defined by the runtime."
+                    # tomlkit rejects "\n" inside a comment, so every line is
+                    # added as its own comment entry.
+                    tbl.add(tomlkit.comment("SYSTEM INFORMATION (Read-only)."))
+                    tbl.add(
+                        tomlkit.comment(
+                            "Changes here are ignored; these are defined by the runtime."
+                        )
                     )
                     for k, v in section_data.items():
                         tbl.add(k, v)
@@ -145,15 +149,16 @@ class Config:
 
                 # --- DATABASE SECTION (RICH COMMENTS) ---
                 if section_name == "database":
+                    for line in (
+                        "Database connection URL (SQLAlchemy format).",
+                        "Defaults to SQLite for local development.",
+                        "",
+                        "Examples for other drivers:",
+                        'url = "postgresql://user:pass@localhost:5432/my_database"',
+                        'url = "mysql://user:pass@localhost:3306/my_database"',
+                    ):
+                        tbl.add(tomlkit.comment(line))
                     tbl.add("url", "sqlite:///ushka.db")
-                    tbl["url"].comment(
-                        "Database connection URL (SQLAlchemy format).\n"
-                        "Defaults to SQLite for local development.\n"
-                        "\n"
-                        "Examples for other drivers:\n"
-                        '# url = "postgresql://user:pass@localhost:5432/my_database"\n'
-                        '# url = "mysql://user:pass@localhost:3306/my_database"'
-                    )
                     doc.add(section_name, tbl)
                     continue
 
