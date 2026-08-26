@@ -1,0 +1,95 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - review
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10', '3.11', '3.12', '3.13']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PDM
+        uses: pdm-project/setup-pdm@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: true
+
+      - name: Install dependencies
+        run: pdm install -d
+
+      - name: Run tests
+        run: pdm run pytest
+
+  build:
+    name: Build distribution
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PDM
+        uses: pdm-project/setup-pdm@v4
+        with:
+          python-version: '3.12'
+          cache: true
+
+      - name: Build sdist and wheel
+        run: pdm build
+
+      # A core `pip install ushka` must not need any extra to import the
+      # package or to run the CLI.
+      - name: Smoke test the wheel with core dependencies only
+        run: |
+          python -m venv /tmp/core
+          /tmp/core/bin/pip install dist/*.whl
+          /tmp/core/bin/python -c "import ushka; print(ushka.__all__)"
+          /tmp/core/bin/ushka --help
+
+      - name: Upload distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  docs:
+    name: Build documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # The `optimize` plugin in mkdocs.yml shells out to `pngquant`, which is
+      # not present on the runner image.
+      - name: Install pngquant
+        run: sudo apt-get update && sudo apt-get install -y pngquant
+
+      - name: Set up PDM
+        uses: pdm-project/setup-pdm@v4
+        with:
+          python-version: '3.12'
+          cache: true
+
+      - name: Install dependencies
+        run: pdm install -d
+
+      - name: Build the site
+        run: pdm run mkdocs build --strict

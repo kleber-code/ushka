@@ -14,6 +14,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      # The `optimize` plugin in mkdocs.yml shells out to `pngquant`, which is
+      # not present on the runner image.
+      - name: Install pngquant
+        run: sudo apt-get update && sudo apt-get install -y pngquant
 
       - name: Set up PDM
         uses: pdm-project/setup-pdm@v4
@@ -21,7 +33,7 @@ jobs:
           python-version: '3.12'
           cache: true
 
-      - name of: Install dependencies
+      - name: Install dependencies
         run: pdm install -d
 
       - name: Deploy with MkDocs

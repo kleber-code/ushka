@@ -58,7 +58,9 @@ jobs:
       #
       # ALTERNATIVE: if your GitHub Release name is the PyPI project version string
       # ALTERNATIVE: exactly, uncomment the following line instead:
-      url: https://pypi.org/project/ushka/${{ github.event.release.name }}
+      # This workflow also runs on a plain "v*" tag push, where
+      # `github.event.release` does not exist.
+      url: https://pypi.org/project/ushka/${{ github.event.release.name || github.ref_name }}
 
     steps:
       - name: Retrieve release distributions
