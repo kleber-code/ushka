@@ -14,14 +14,14 @@
         <link rel="prev" href="../configuration/">
       
       
-        <link rel="next" href="../requests/">
+        <link rel="next" href="../templates/">
       
       
         
       
       
       <link rel="icon" href="../../assets/favicon/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -52,6 +52,8 @@
     
     
       <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../assets/custom.css">
     
       <link rel="stylesheet" href="../../termynal.css">
     
@@ -100,7 +102,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href="../.." title="Ushka Framework" class="md-header__button md-logo" aria-label="Ushka Framework" data-md-component="logo">
       
-  <img src="../../assets/logo.png" alt="logo">
+  <img src="../../assets/logo.jpg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -247,13 +249,32 @@
   
   
   
+  
+    <li class="md-tabs__item">
+      <a href="../../features/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Features
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
     
   
   
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../getting-started/" class="md-tabs__link">
+        <a href="../" class="md-tabs__link">
           
   
   
@@ -273,14 +294,83 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../features/database/" class="md-tabs__link">
+        <a href="../../tutorials/" class="md-tabs__link">
           
   
   
-  Features
+  Tutorials
 
         </a>
       </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../roadmap/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Roadmap
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/ushka/cli/commands/db/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+    
+  
+
     
   
 
@@ -309,7 +399,7 @@
   <label class="md-nav__title" for="__drawer">
     <a href="../.." title="Ushka Framework" class="md-nav__button md-logo" aria-label="Ushka Framework" data-md-component="logo">
       
-  <img src="../../assets/logo.png" alt="logo">
+  <img src="../../assets/logo.jpg" alt="logo">
 
     </a>
     Ushka Framework
@@ -360,6 +450,33 @@
       
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../../features/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Features
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
     
   
   
@@ -381,10 +498,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -402,8 +519,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_2">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -420,14 +537,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../getting-started/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Getting Started
+    Introduction
   
 
     
@@ -536,22 +653,33 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#convention-based-routing" class="md-nav__link">
+  <a href="#filesystem-based-routing-the-aha-moment" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Convention-Based Routing
+        Filesystem-Based Routing: The "Aha!" Moment
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Convention-Based Routing">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dynamic-routes-capturing-a-piece-of-the-url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dynamic Routes: Capturing a Piece of the URL
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dynamic Routes: Capturing a Piece of the URL">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#examples" class="md-nav__link">
+  <a href="#type-hinting-for-fun-and-profit" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Examples
+        Type Hinting for Fun and Profit
       
     </span>
   </a>
@@ -564,49 +692,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#dynamic-routes-path-parameters" class="md-nav__link">
+  <a href="#dependency-injection-your-helpful-assistant" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Dynamic Routes (Path Parameters)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Dynamic Routes (Path Parameters)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Example:
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#listing-routes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Listing Routes
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#app-prefixes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        App Prefixes
+        Dependency Injection: Your Helpful Assistant
       
     </span>
   </a>
@@ -617,62 +706,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../requests/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Requests
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../responses/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Responses
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -713,14 +746,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../dependency-injection/" class="md-nav__link">
+      <a href="../static_files/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Dependency Injection
+    Static Files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../orm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ORM
   
 
     
@@ -762,6 +823,90 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dependency_injection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependency Injection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../flashing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flashing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../error_handling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error Handling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -789,17 +934,17 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
     
   
-    Features
+    Tutorials
   
 
     
@@ -810,12 +955,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Features
+    Tutorials
   
 
           </label>
@@ -828,14 +973,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/database/" class="md-nav__link">
+      <a href="../../tutorials/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Database & ORM
+    Getting Started
   
 
     
@@ -856,14 +1001,284 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/static-files/" class="md-nav__link">
+      <a href="../tutorial_simple_api/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Static Files
+    Simple API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_1" id="__nav_6_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ushka
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Ushka
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_1_1" id="__nav_6_1_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cli
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Cli
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_1_1_1" id="__nav_6_1_1_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Commands
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_1_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_1_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Commands
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ushka/cli/commands/db/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Db
   
 
     
@@ -884,14 +1299,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/admin/" class="md-nav__link">
+      <a href="../../api/ushka/cli/commands/dev/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Admin Panel
+    Dev
   
 
     
@@ -912,14 +1327,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/caching/" class="md-nav__link">
+      <a href="../../api/ushka/cli/commands/new/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Caching
+    New
   
 
     
@@ -940,14 +1355,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/queuing/" class="md-nav__link">
+      <a href="../../api/ushka/cli/commands/routes/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Task Queuing
+    Routes
   
 
     
@@ -968,14 +1383,110 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/pwa/" class="md-nav__link">
+      <a href="../../api/ushka/cli/commands/run/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Auto PWA
+    Run
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_1_2" id="__nav_6_1_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Core
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ushka/core/app/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    App
   
 
     
@@ -996,14 +1507,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../features/api-docs/" class="md-nav__link">
+      <a href="../../api/ushka/core/config/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Automatic API Docs
+    Config
   
 
     
@@ -1012,6 +1523,770 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ushka/core/error_handler/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error Handler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ushka/core/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ushka/core/log/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ushka/core/router/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Router
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_1_3" id="__nav_6_1_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Http
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_1_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Http
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ushka/http/cookies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cookies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ushka/http/error/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ushka/http/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ushka/http/multipart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multipart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ushka/http/redirect/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Redirect
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ushka/http/request/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Request
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ushka/http/response/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Response
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ushka/http/sessions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sessions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_1_4" id="__nav_6_1_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Orm
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_1_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Orm
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ushka/orm/database/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Database
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_1_5" id="__nav_6_1_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Static
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_1_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_1_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Static
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ushka/static/files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_1_6" id="__nav_6_1_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Templating
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_1_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_1_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Templating
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ushka/templating/engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_1_7" id="__nav_6_1_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Utils
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_1_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_1_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Utils
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/ushka/utils/flash/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flash
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -1051,22 +2326,33 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#convention-based-routing" class="md-nav__link">
+  <a href="#filesystem-based-routing-the-aha-moment" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Convention-Based Routing
+        Filesystem-Based Routing: The "Aha!" Moment
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Convention-Based Routing">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dynamic-routes-capturing-a-piece-of-the-url" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dynamic Routes: Capturing a Piece of the URL
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Dynamic Routes: Capturing a Piece of the URL">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#examples" class="md-nav__link">
+  <a href="#type-hinting-for-fun-and-profit" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Examples
+        Type Hinting for Fun and Profit
       
     </span>
   </a>
@@ -1079,49 +2365,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#dynamic-routes-path-parameters" class="md-nav__link">
+  <a href="#dependency-injection-your-helpful-assistant" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Dynamic Routes (Path Parameters)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Dynamic Routes (Path Parameters)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Example:
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#listing-routes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Listing Routes
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#app-prefixes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        App Prefixes
+        Dependency Injection: Your Helpful Assistant
       
     </span>
   </a>
@@ -1146,106 +2393,67 @@
 
 
 <h1 id="routing">Routing<a class="headerlink" href="#routing" title="Permanent link">&para;</a></h1>
-<p>Ushka uses a simple but powerful convention-based routing system. You don't need to manually register your routes with decorators. Just name your functions correctly in a <code>views.py</code> file, and Ushka will discover them.</p>
-<h2 id="convention-based-routing">Convention-Based Routing<a class="headerlink" href="#convention-based-routing" title="Permanent link">&para;</a></h2>
-<p>The core idea is to name your functions <code>METHOD_endpoint</code>.</p>
+<p>Routing is the heart of any web framework. It's the system that connects incoming requests (URLs) to the Python functions that handle them. In Ushka, we've made routing as simple and intuitive as possible.</p>
+<h2 id="filesystem-based-routing-the-aha-moment">Filesystem-Based Routing: The "Aha!" Moment<a class="headerlink" href="#filesystem-based-routing-the-aha-moment" title="Permanent link">&para;</a></h2>
+<p>Imagine your website's URL structure is a map. In many frameworks, you have to draw this map by hand, listing every single route in a configuration file. It's tedious and prone to errors.</p>
+<p>Ushka takes a different approach: your filesystem <em>is</em> the map.</p>
+<p>The structure of your <code>routes</code> directory directly translates to your application's URL structure.</p>
 <ul>
-<li><strong>METHOD:</strong> The HTTP method in lowercase (e.g., <code>get</code>, <code>post</code>, <code>put</code>, <code>delete</code>).</li>
-<li><strong>endpoint:</strong> The URL path. Use <code>index</code> for the root (<code>/</code>) of your app, and underscores (<code>_</code>) to represent slashes (<code>/</code>) in the URL.</li>
+<li>A file named <code>routes/index.py</code> corresponds to the root URL: <code>/</code>.</li>
+<li>A file named <code>routes/about.py</code> corresponds to the URL: <code>/about</code>.</li>
+<li>A nested file like <code>routes/blog/posts.py</code> corresponds to: <code>/blog/posts</code>.</li>
 </ul>
-<p>Ushka automatically discovers any function matching this pattern in any <code>apps/&lt;app_name&gt;/views.py</code> file (for apps listed in your <code>ushka.toml</code>).</p>
-<h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
-<p>Let's assume these are in <code>apps/products/views.py</code>, and this app has a prefix of <code>/products</code> defined in <code>apps/products/app.toml</code>.</p>
-<table>
-<thead>
-<tr>
-<th>Function Name</th>
-<th>HTTP Method</th>
-<th>Resulting URL Path</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>get_index</code></td>
-<td><code>GET</code></td>
-<td><code>/products/</code></td>
-</tr>
-<tr>
-<td><code>post_index</code></td>
-<td><code>POST</code></td>
-<td><code>/products/</code></td>
-</tr>
-<tr>
-<td><code>get_all</code></td>
-<td><code>GET</code></td>
-<td><code>/products/all</code></td>
-</tr>
-<tr>
-<td><code>get_featured_items</code></td>
-<td><code>GET</code></td>
-<td><code>/products/featured/items</code></td>
-</tr>
-<tr>
-<td><code>delete_item</code></td>
-<td><code>DELETE</code></td>
-<td><code>/products/item</code></td>
-</tr>
-</tbody>
-</table>
-<h2 id="dynamic-routes-path-parameters">Dynamic Routes (Path Parameters)<a class="headerlink" href="#dynamic-routes-path-parameters" title="Permanent link">&para;</a></h2>
-<p>To capture segments from the URL, you can add parameters to your view function's signature. Ushka will automatically map these to dynamic parts of the URL.</p>
-<p>You can also add type hints to the parameters, and Ushka will use a matching regex and attempt to cast the value. Currently, <code>int</code> is supported for digit-only matching.</p>
-<h3 id="example">Example:<a class="headerlink" href="#example" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># in apps/users/views.py</span>
+<p>Inside these files, you define functions that handle specific HTTP methods (like GET, POST, etc.).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># In routes/index.py</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ushka.http</span><span class="w"> </span><span class="kn">import</span> <span class="n">Request</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_by_id</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  <span class="c1"># Because of the `user_id: int` type hint, this will only match</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>  <span class="c1"># URLs like /users/by/id/123, but not /users/by/id/abc.</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>  <span class="c1"># The value of `user_id` will be an integer.</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>  <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">user_id</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Test User&quot;</span><span class="p">}}</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_by_username</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>  <span class="c1"># Without a type hint (or with `str`), this will match any value</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>  <span class="c1"># in that URL segment. The value of `username` will be a string.</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>  <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;username&quot;</span><span class="p">:</span> <span class="n">username</span><span class="p">}}</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">():</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">"message"</span><span class="p">:</span> <span class="s2">"Welcome to the home page!"</span><span class="p">}</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">post</span><span class="p">():</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">"message"</span><span class="p">:</span> <span class="s2">"You've submitted something!"</span><span class="p">}</span>
 </code></pre></div>
-<table>
-<thead>
-<tr>
-<th>Function Name</th>
-<th>HTTP Method</th>
-<th>Example URL</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>get_by_id(request: Request, user_id: int)</code></td>
-<td><code>GET</code></td>
-<td><code>/users/by/id/123</code></td>
-</tr>
-<tr>
-<td><code>get_by_username(request: Request, username: str)</code></td>
-<td><code>GET</code></td>
-<td><code>/users/by/username/neo</code></td>
-</tr>
-</tbody>
-</table>
-<p>The path is constructed by appending the parameter names to the function's endpoint name.</p>
-<h2 id="listing-routes">Listing Routes<a class="headerlink" href="#listing-routes" title="Permanent link">&para;</a></h2>
-<p>To see a complete list of all registered routes in your application, you can use the <code>routes list</code> command:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>ushka<span class="w"> </span>routes<span class="w"> </span>list
+<p>This is the magic of filesystem-based routing. You don't need a central routing file. Just create a file, define a function, and your route is live.</p>
+<blockquote>
+<p><strong>Ushka Tip:</strong> Organizing your project with filesystem-based routing is like tidying up your room. It might seem like a small thing, but it makes it much easier to find things later! Your future self will thank you.</p>
+</blockquote>
+<h2 id="dynamic-routes-capturing-a-piece-of-the-url">Dynamic Routes: Capturing a Piece of the URL<a class="headerlink" href="#dynamic-routes-capturing-a-piece-of-the-url" title="Permanent link">&para;</a></h2>
+<p>Sometimes, you need to create routes that capture a variable part of a URL. For example, you might want a user's profile page to be at <code>/users/alice</code> or <code>/users/bob</code>. This is where dynamic routes come in.</p>
+<p>In Ushka, you create a dynamic route by using square brackets <code>[]</code> in your filename or directory name.</p>
+<p>Let's say you want to create a route that handles URLs like <code>/users/[username]</code>. You would create a file named <code>routes/users/[username].py</code>.</p>
+<p>The value inside the brackets is then passed as an argument to your handler function.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># In routes/users/[username].py</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">"message"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"This is the profile page for </span><span class="si">{</span><span class="n">username</span><span class="si">}</span><span class="s2">."</span><span class="p">}</span>
 </code></pre></div>
-<p>This is very useful for debugging and getting a quick overview of all your application's endpoints.</p>
-<h2 id="app-prefixes">App Prefixes<a class="headerlink" href="#app-prefixes" title="Permanent link">&para;</a></h2>
-<p>Routes for an app are automatically prefixed with the <code>prefix</code> defined in that app's <code>app.toml</code> configuration file.</p>
-<p>For example, if <code>apps/products/app.toml</code> contains:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">[app]</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;products&quot;</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/api/v1/products&quot;</span>
+<p>Now, if you visit <code>/users/charlie</code>, your function will receive <code>"charlie"</code> as the <code>username</code> argument.</p>
+<h3 id="type-hinting-for-fun-and-profit">Type Hinting for Fun and Profit<a class="headerlink" href="#type-hinting-for-fun-and-profit" title="Permanent link">&para;</a></h3>
+<p>Python's type hints are not just for show! They make your code more readable and can help prevent bugs. In Ushka, you should always use type hints for your dynamic route parameters.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># In routes/posts/[id].py</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="nb">id</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="c1"># Now, `id` is guaranteed to be an integer.</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="c1"># If a non-integer is provided in the URL, Ushka will handle it.</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">"message"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"You are reading post number </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">."</span><span class="p">}</span>
 </code></pre></div>
-<p>Then a view function named <code>get_all</code> in <code>apps/products/views.py</code> will be mapped to <code>GET /api/v1/products/all</code>.</p>
+<p>Using <code>int</code> will automatically convert the URL part to an integer and provide basic validation.</p>
+<h2 id="dependency-injection-your-helpful-assistant">Dependency Injection: Your Helpful Assistant<a class="headerlink" href="#dependency-injection-your-helpful-assistant" title="Permanent link">&para;</a></h2>
+<p>Imagine you're a busy chef in a kitchen. You need ingredients like <code>request</code> details, a <code>response</code> object to fill, or your application's <code>config</code>. Instead of running around to get them yourself, you have an assistant who brings them to you right when you need them.</p>
+<p>That's what dependency injection is in Ushka.</p>
+<p>If your route handler function includes parameters named <code>request</code>, <code>response</code>, or <code>config</code>, or uses their types (<code>Request</code>, <code>Response</code>, <code>Config</code>), Ushka will automatically provide them for you.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># In routes/search.py</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ushka.http.request</span><span class="w"> </span><span class="kn">import</span> <span class="n">Request</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">ushka.core.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">):</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="n">query</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"q"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="n">api_key</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"SEARCH_API_KEY"</span><span class="p">)</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>    <span class="c1"># ... perform search using the query and API key ...</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    <span class="k">return</span> <span class="p">{</span><span class="s2">"message"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"You searched for: </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">"</span><span class="p">}</span>
+</code></pre></div>
+<p>In this example, you don't have to create the <code>request</code> or <code>config</code> objects yourself. Ushka's "assistant" sees that you need them and provides them automatically. This keeps your code clean, focused on the task at hand, and much easier to test.</p>
 
 
 
@@ -1333,7 +2541,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.tabs.link", "content.code.annotation", "content.code.copy", "search.suggest"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../../termynal.js"></script>
       

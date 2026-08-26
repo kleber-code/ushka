@@ -2,66 +2,154 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://kleber-code.github.io/ushka/</loc>
-         <lastmod>2025-12-26</lastmod>
+         <lastmod>2026-08-26</lastmod>
     </url>
     <url>
-         <loc>https://kleber-code.github.io/ushka/features/admin/</loc>
-         <lastmod>2025-12-26</lastmod>
+         <loc>https://kleber-code.github.io/ushka/features/</loc>
+         <lastmod>2026-08-26</lastmod>
     </url>
     <url>
-         <loc>https://kleber-code.github.io/ushka/features/api-docs/</loc>
-         <lastmod>2025-12-26</lastmod>
+         <loc>https://kleber-code.github.io/ushka/roadmap/</loc>
+         <lastmod>2026-08-26</lastmod>
     </url>
     <url>
-         <loc>https://kleber-code.github.io/ushka/features/caching/</loc>
-         <lastmod>2025-12-26</lastmod>
+         <loc>https://kleber-code.github.io/ushka/api/ushka/cli/commands/db/</loc>
+         <lastmod>2026-08-26</lastmod>
     </url>
     <url>
-         <loc>https://kleber-code.github.io/ushka/features/database/</loc>
-         <lastmod>2025-12-26</lastmod>
+         <loc>https://kleber-code.github.io/ushka/api/ushka/cli/commands/dev/</loc>
+         <lastmod>2026-08-26</lastmod>
     </url>
     <url>
-         <loc>https://kleber-code.github.io/ushka/features/pwa/</loc>
-         <lastmod>2025-12-26</lastmod>
+         <loc>https://kleber-code.github.io/ushka/api/ushka/cli/commands/new/</loc>
+         <lastmod>2026-08-26</lastmod>
     </url>
     <url>
-         <loc>https://kleber-code.github.io/ushka/features/queuing/</loc>
-         <lastmod>2025-12-26</lastmod>
+         <loc>https://kleber-code.github.io/ushka/api/ushka/cli/commands/routes/</loc>
+         <lastmod>2026-08-26</lastmod>
     </url>
     <url>
-         <loc>https://kleber-code.github.io/ushka/features/static-files/</loc>
-         <lastmod>2025-12-26</lastmod>
+         <loc>https://kleber-code.github.io/ushka/api/ushka/cli/commands/run/</loc>
+         <lastmod>2026-08-26</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/api/ushka/core/app/</loc>
+         <lastmod>2026-08-26</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/api/ushka/core/config/</loc>
+         <lastmod>2026-08-26</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/api/ushka/core/error_handler/</loc>
+         <lastmod>2026-08-26</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/api/ushka/core/exceptions/</loc>
+         <lastmod>2026-08-26</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/api/ushka/core/log/</loc>
+         <lastmod>2026-08-26</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/api/ushka/core/router/</loc>
+         <lastmod>2026-08-26</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/api/ushka/http/cookies/</loc>
+         <lastmod>2026-08-26</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/api/ushka/http/error/</loc>
+         <lastmod>2026-08-26</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/api/ushka/http/exceptions/</loc>
+         <lastmod>2026-08-26</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/api/ushka/http/multipart/</loc>
+         <lastmod>2026-08-26</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/api/ushka/http/redirect/</loc>
+         <lastmod>2026-08-26</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/api/ushka/http/request/</loc>
+         <lastmod>2026-08-26</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/api/ushka/http/response/</loc>
+         <lastmod>2026-08-26</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/api/ushka/http/sessions/</loc>
+         <lastmod>2026-08-26</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/api/ushka/orm/database/</loc>
+         <lastmod>2026-08-26</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/api/ushka/static/files/</loc>
+         <lastmod>2026-08-26</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/api/ushka/templating/engine/</loc>
+         <lastmod>2026-08-26</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/api/ushka/utils/flash/</loc>
+         <lastmod>2026-08-26</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/guide/</loc>
+         <lastmod>2026-08-26</lastmod>
     </url>
     <url>
          <loc>https://kleber-code.github.io/ushka/guide/cli/</loc>
-         <lastmod>2025-12-26</lastmod>
+         <lastmod>2026-08-26</lastmod>
     </url>
     <url>
          <loc>https://kleber-code.github.io/ushka/guide/configuration/</loc>
-         <lastmod>2025-12-26</lastmod>
+         <lastmod>2026-08-26</lastmod>
     </url>
     <url>
-         <loc>https://kleber-code.github.io/ushka/guide/dependency-injection/</loc>
-         <lastmod>2025-12-26</lastmod>
+         <loc>https://kleber-code.github.io/ushka/guide/dependency_injection/</loc>
+         <lastmod>2026-08-26</lastmod>
     </url>
     <url>
-         <loc>https://kleber-code.github.io/ushka/guide/getting-started/</loc>
-         <lastmod>2025-12-26</lastmod>
+         <loc>https://kleber-code.github.io/ushka/guide/error_handling/</loc>
+         <lastmod>2026-08-26</lastmod>
     </url>
     <url>
-         <loc>https://kleber-code.github.io/ushka/guide/requests/</loc>
-         <lastmod>2025-12-26</lastmod>
+         <loc>https://kleber-code.github.io/ushka/guide/flashing/</loc>
+         <lastmod>2026-08-26</lastmod>
     </url>
     <url>
-         <loc>https://kleber-code.github.io/ushka/guide/responses/</loc>
-         <lastmod>2025-12-26</lastmod>
+         <loc>https://kleber-code.github.io/ushka/guide/orm/</loc>
+         <lastmod>2026-08-26</lastmod>
     </url>
     <url>
          <loc>https://kleber-code.github.io/ushka/guide/routing/</loc>
-         <lastmod>2025-12-26</lastmod>
+         <lastmod>2026-08-26</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/guide/static_files/</loc>
+         <lastmod>2026-08-26</lastmod>
     </url>
     <url>
          <loc>https://kleber-code.github.io/ushka/guide/templates/</loc>
-         <lastmod>2025-12-26</lastmod>
+         <lastmod>2026-08-26</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/guide/tutorial_simple_api/</loc>
+         <lastmod>2026-08-26</lastmod>
+    </url>
+    <url>
+         <loc>https://kleber-code.github.io/ushka/tutorials/</loc>
+         <lastmod>2026-08-26</lastmod>
     </url>
 </urlset>
