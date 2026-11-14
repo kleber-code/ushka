@@ -1,7 +1,8 @@
 # Dependency Injection
 
 A handler declares what it needs in its signature, and Ushka passes it in.
-There is nothing to register and no container to configure.
+There is nothing to register and no container to configure. For typed
+parameters, request bodies and `Depends`, see [Validation and typed parameters](validation.md).
 
 ## What you can ask for
 
@@ -64,9 +65,9 @@ async def get(request, user_id, post_id):
     }
 ```
 
-Values are always strings; annotations such as `user_id: int` do **not**
-convert them. Use `safe.integer()` and the other
-[sanitisers](guard.md#sanitisers-the-way-out).
+Without an annotation the value is an `Untrusted` string. With one, such as
+`user_id: int`, Ushka converts and validates it, and answers **422** if it does
+not fit. See [Validation and typed parameters](validation.md).
 
 !!! note
     The names `request`, `response` and `config` are reserved for the injected

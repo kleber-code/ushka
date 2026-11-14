@@ -48,6 +48,8 @@ class Request:
         self.path = str(scope["path"])
 
         self._receive = receive
+        #: Values captured from the URL (``[item_id]``); set by the router.
+        self.path_params: Dict[str, Any] = {}
         self._cached_data: Dict[str, Any] = {}
 
         # Configs

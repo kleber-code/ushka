@@ -22,6 +22,7 @@ from ushka.guard import RejectedValueError, UnsafeValueError
 from ushka.http.exceptions import HTTPBadRequest, HTTPError
 from ushka.http.request import Request
 from ushka.http.response import Response
+from ushka.http.validation import RequestValidationError
 from .router import Router
 
 DEFAULT_SENSITIVE_KEYS = {
@@ -219,6 +220,9 @@ class ErrorHandler:
         # A sanitiser refused client input: that is the client's fault (400).
         if isinstance(exc, RejectedValueError):
             exc = HTTPBadRequest(message=str(exc))
+
+        if isinstance(exc, RequestValidationError):
+            return Response({"detail": exc.errors}, status_code=422, media_type="application/json")
 
         if isinstance(exc, HTTPError):
             return await self._handle_http_error(exc, request)

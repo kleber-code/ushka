@@ -305,6 +305,7 @@ class Router:
                         path_params = {
                             k: Untrusted(v, f"path:{k}") for k, v in path_params.items()
                         }
+                    request.path_params = path_params
                     injected_args = self._resolve_dependencies(request, deps)
                     # Joins dependencies (request, config) with URL params (id, slug)
                     return func, {**injected_args, **path_params}

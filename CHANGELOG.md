@@ -13,10 +13,19 @@ All notable changes to Ushka. The format follows
   - Trusted hosts (`allowed_hosts`) and CORS with preflight (`cors_*`). A wildcard origin with credentials is refused at startup.
   - Configured in `[security]`; each part can be turned off.
 - **`app.add_middleware` / `@app.middleware`**: `async def mw(request, call_next)`. Errors reach middleware as ordinary responses.
+- **Typed parameters and validation** (guide: Validation and typed parameters), standard library only:
+  - Path, query, header, cookie, JSON body and form parameters are converted to their annotations, with `Query`, `Header`, `Cookie`, `Path`, `Body`, `Form` and `Field` for sources and limits.
+  - Bodies can be dataclasses or `TypedDict`s, nested. Undeclared fields are dropped (no mass assignment).
+  - Invalid requests get **422** with every error and its location, never echoing the input.
+  - Converted values (`int`, `UUID`, `Enum`, `Literal`...) are plain, so conversion also sanitises. `str` stays `Untrusted`.
+- **`Depends`**: sync, async and `yield` dependencies, once per request, nested, sharing the handler's `Response`, with `app.dependency_overrides` for tests.
+- `request.path_params`.
 - `HTTPForbidden` (403), and list settings in environment variables (`a,b`).
 
 ### Changed
 
+- **Behaviour change:** an annotation on a path parameter (`user_id: int`) now converts and validates it (422 when invalid). Before, annotations were ignored. Unannotated parameters are unchanged.
+- A parameter that is not injected, not in the route and has no default is now a required query parameter (422 when missing) instead of a 500.
 - **Behaviour change:** browser requests from another site that write (`POST`, `PUT`, `PATCH`, `DELETE`) now get 403, and responses carry a CSP that blocks inline scripts and third-party resources. Adjust with `csp`, `csrf_trusted_origins` or `csrf = false`.
 
 ### Fixed

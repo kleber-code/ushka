@@ -19,6 +19,7 @@ lists what has shipped and what is next.
 - [x] [Security middleware](guide/security.md), on by default: CSRF protection,
       security headers (CSP, HSTS, `nosniff`), CORS and trusted hosts.
 - [x] `app.add_middleware` / `@app.middleware`.
+- [x] Typed parameters, request validation and `Depends`.
 
 ## Next
 

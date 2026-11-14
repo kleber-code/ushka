@@ -16,6 +16,7 @@ from ushka.core.config import Config
 from ushka.core.error_handler import ErrorHandler
 from ushka.core.log import LogLevelType, get_log_config, setup_logging
 from ushka.http.exceptions import HTTPMethodNotAllowed, HttpNotFound
+from ushka.http.params import Resolver
 from ushka.http.request import Request
 from ushka.security import SecurityMiddleware
 from ushka.http.response import Response
@@ -71,6 +72,8 @@ class Ushka:
 
         self._startup: list = []
         self._shutdown: list = []
+        #: ``{original: replacement}`` for `Depends`, handy in tests.
+        self.dependency_overrides: dict = {}
         #: Your middleware, outermost first. See `add_middleware`.
         self._middleware: list = []
 
@@ -258,10 +261,14 @@ class Ushka:
                 raise HTTPMethodNotAllowed(allowed)
             raise HttpNotFound()
 
-        if inspect.iscoroutinefunction(handler):
-            result = await handler(**params)
-        else:
-            result = handler(**params)
+        resolver = Resolver(request)
+        try:
+            kwargs = await resolver.call(handler, params)
+            result = handler(**kwargs)
+            if inspect.isawaitable(result):
+                result = await result
+        finally:
+            await resolver.close()  # generator dependencies clean up here
 
         return _to_response(result)
 
