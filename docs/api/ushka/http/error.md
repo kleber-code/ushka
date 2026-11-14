@@ -1,3 +1,0 @@
-# Error
-
-::: ushka.http.error

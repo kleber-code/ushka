@@ -1,3 +1,0 @@
-# Redirect
-
-::: ushka.http.redirect

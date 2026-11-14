@@ -1,3 +1,0 @@
-# Log
-
-::: ushka.core.log

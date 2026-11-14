@@ -1,3 +1,0 @@
-# Templates
-
-::: ushka.guard.templates

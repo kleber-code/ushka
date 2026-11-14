@@ -1,3 +1,0 @@
-# Cookies
-
-::: ushka.http.cookies

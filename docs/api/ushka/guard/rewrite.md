@@ -1,3 +1,0 @@
-# Rewrite
-
-::: ushka.guard.rewrite

@@ -1,3 +1,0 @@
-# Sinks
-
-::: ushka.guard.sinks

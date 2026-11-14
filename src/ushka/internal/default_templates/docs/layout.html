@@ -1,0 +1,95 @@
+{#- Ushka Docs theme. Override any of these templates from your project's
+    templates/docs/ folder. -#}
+<!DOCTYPE html>
+<html lang="{{ docs_lang | default('en') }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {%- set page_title = (page.title ~ " | " ~ docs.title) if page and page.url else docs.title ~ " documentation" %}
+  <title>{% block title %}{{ page_title }}{% endblock %}</title>
+  {%- if page and page.description %}
+  <meta name="description" content="{{ page.description }}">
+  {%- endif %}
+  {%- if canonical %}
+  <link rel="canonical" href="{{ canonical }}">
+  <meta property="og:url" content="{{ canonical }}">
+  {%- endif %}
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="{{ docs.title }}">
+  <meta property="og:title" content="{{ page_title }}">
+  {%- if page and page.description %}
+  <meta property="og:description" content="{{ page.description }}">
+  {%- endif %}
+  {%- if docs.og_image %}
+  <meta property="og:image" content="{{ docs.og_image }}">
+  <meta name="twitter:card" content="summary_large_image">
+  {%- endif %}
+  <meta name="theme-color" content="#1b1720">
+  {%- if docs.logo %}
+  <link rel="icon" href="{{ docs.logo }}">
+  {%- endif %}
+  <link rel="stylesheet" href="{{ docs.prefix }}/_theme/docs.css">
+  {%- for href in docs.extra_css %}
+  <link rel="stylesheet" href="{{ href }}">
+  {%- endfor %}
+  {%- if page and canonical %}
+  <script type="application/ld+json">{{ {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {"@type": "ListItem", "position": 1, "name": docs.title, "item": docs.base_url ~ docs.prefix ~ "/"},
+      {"@type": "ListItem", "position": 2, "name": page.title, "item": canonical}
+    ]
+  } | tojson }}</script>
+  {%- endif %}
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="d-top">
+    <div class="d-top__inner">
+      <a class="d-brand" href="{{ docs.home_url }}">
+        {%- if docs.logo %}<img src="{{ docs.logo }}" alt="" width="32" height="32">{% endif %}
+        <span>{{ docs.title }}</span>
+      </a>
+      <form class="d-search" role="search" action="{{ docs.prefix }}/search" method="get">
+        <label class="visually-hidden" for="d-q">Search the documentation</label>
+        <input id="d-q" name="q" type="search" placeholder="Search the docs" value="{{ query | default('') }}" maxlength="100" autocomplete="off">
+      </form>
+      <nav class="d-links" aria-label="Project">
+        <a href="{{ docs.prefix }}/">Docs</a>
+        {%- for label, url in docs.links %}
+        <a href="{{ url }}">{{ label }}</a>
+        {%- endfor %}
+      </nav>
+    </div>
+  </header>
+
+  <div class="d-shell">
+    <aside class="d-nav" aria-label="Documentation">
+      <details class="d-nav__menu" open>
+        <summary>Menu</summary>
+        {%- for section in nav %}
+        <div class="d-nav__section">
+          {%- if section.title %}<p class="d-nav__title">{{ section.title }}</p>{% endif %}
+          <ul>
+            {%- for item in section["items"] %}
+            <li><a href="{{ item.url }}"{% if item.active %} aria-current="page"{% endif %}>{{ item.title }}</a></li>
+            {%- endfor %}
+          </ul>
+        </div>
+        {%- endfor %}
+      </details>
+    </aside>
+
+    <main id="content" class="d-main">
+      {% block content %}{% endblock %}
+    </main>
+
+    <aside class="d-toc" aria-label="On this page">
+      {% block toc %}{% endblock %}
+    </aside>
+  </div>
+  <script src="{{ docs.prefix }}/_theme/docs.js" defer></script>
+</body>
+</html>

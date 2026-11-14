@@ -1,3 +1,0 @@
-# Request
-
-::: ushka.http.request

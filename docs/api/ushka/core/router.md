@@ -1,3 +1,0 @@
-# Router
-
-::: ushka.core.router
