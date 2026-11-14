@@ -14,12 +14,14 @@ import uvicorn
 
 from ushka.core.config import Config
 from ushka.core.error_handler import ErrorHandler
-from ushka.core.log import LogLevelType, get_log_config
-from ushka.static import server_static_files
-from ushka.templating import render
-from ushka.http.exceptions import HttpNotFound
+from ushka.core.log import LogLevelType, get_log_config, setup_logging
+from ushka.http.exceptions import HTTPMethodNotAllowed, HttpNotFound
 from ushka.http.request import Request
 from ushka.http.response import Response
+from ushka.static import server_static_files
+from ushka.templating import render
+from ushka.templating.engine import engine as template_engine
+
 from .router import Router
 
 
@@ -58,11 +60,19 @@ class Ushka:
         self._setup_workdir()
         self.log = logging.getLogger("ushka")
 
-        self.config = Config()
-        self.config.load_from_file(self.workdir.joinpath("ushka.toml"))
+        self.config = Config(self.workdir).set_workdir(self.workdir)
+        self.config.load_from_file()
+
+        # Templates are looked up next to the app, not in whatever directory
+        # the process happened to start in.
+        template_engine.set_project_dir(self.workdir / "templates")
+
+        self._startup: list = []
+        self._shutdown: list = []
 
         self.router = Router(self.log, self.workdir)
-        self.router.autodiscover()
+        if self.config.get("APP_AUTO_DISCOVER", True):
+            self.router.autodiscover()
         self.error_handler = ErrorHandler(self.config, self.log, self.router)
 
         if self.config.get("STATIC_ENABLE"):
@@ -110,10 +120,10 @@ class Ushka:
             await self._handle_http(scope, receive, send)
         elif scope_type == "lifespan":
             await self._handle_lifespan(scope, receive, send)
-        else:
-            # WebSocket or other protocols not yet supported
-            response = Response("Not Supported", 501)
-            await response(send)
+        elif scope_type == "websocket":
+            # Not supported yet: refuse the handshake the way the protocol expects.
+            await receive()
+            await send({"type": "websocket.close", "code": 1000})
 
     async def _handle_lifespan(self, scope, receive, send):
         """Manages startup and shutdown events according to the ASGI lifespan protocol.
@@ -130,10 +140,20 @@ class Ushka:
         while True:
             message = await receive()
             if message["type"] == "lifespan.startup":
-                # Here you can add DB initialization logic, etc.
+                try:
+                    for hook in self._startup:
+                        await _maybe_await(hook())
+                except Exception as exc:  # report it instead of hanging the server
+                    self.log.exception("Startup hook failed")
+                    await send({"type": "lifespan.startup.failed", "message": str(exc)})
+                    return
                 await send({"type": "lifespan.startup.complete"})
             elif message["type"] == "lifespan.shutdown":
-                # Cleanup logic here
+                for hook in reversed(self._shutdown):
+                    try:
+                        await _maybe_await(hook())
+                    except Exception:
+                        self.log.exception("Shutdown hook failed")
                 await send({"type": "lifespan.shutdown.complete"})
                 return
 
@@ -155,11 +175,18 @@ class Ushka:
         request = Request(self, scope, receive)
         try:
             response = await self._dispatch_request(request)
-            response.request = request
-
         except Exception as e:
-            response = await self.error_handler.handle_exception(e, request)
+            try:
+                response = await self.error_handler.handle_exception(e, request)
+            except Exception:
+                # The error page itself failed: never leave the client hanging.
+                self.log.exception("Error handler failed")
+                response = Response("Internal Server Error", 500)
+        # Lets the response persist cookie/session changes, even on errors.
+        response.request = request
 
+        if request.method == "HEAD":
+            response.head_only = True
         await response(send)
 
     async def _dispatch_request(self, request: Request) -> Response:
@@ -189,6 +216,9 @@ class Ushka:
             is_empty = not self.router.static_routes and not self.router.dynamic_routes
             if is_empty:
                 return Response(await render(request, "startup.html", {}))
+            allowed = self.router.allowed_methods(request.path)
+            if allowed:
+                raise HTTPMethodNotAllowed(allowed)
             raise HttpNotFound()
 
         if inspect.iscoroutinefunction(handler):
@@ -196,13 +226,11 @@ class Ushka:
         else:
             result = handler(**params)
 
-        if isinstance(result, Response):
-            return result
-        return Response(result)
+        return _to_response(result)
 
     # --- Server Helper ---
 
-    def run(self, host="127.0.0.1", port=8000, log_level: LogLevelType = "INFO"):
+    def run(self, host: str = "", port: int = 0, log_level: LogLevelType = "INFO"):
         """Starts the Uvicorn server, running the Ushka application instance.
 
         Parameters
@@ -215,6 +243,9 @@ class Ushka:
             The logging level for the server (e.g., "INFO", "DEBUG").
             (Default is "INFO").
         """
+        setup_logging(log_level)
+        host = host or self.config.get("SERVER_HOST", "127.0.0.1")
+        port = port or int(self.config.get("SERVER_PORT", 8000))
         self._print_banner(host, port)
 
         uvicorn.run(
@@ -284,6 +315,20 @@ class Ushka:
             return func
 
         return wrapper
+
+    def on_startup(self, func):
+        """Registers a function (sync or async) to run when the server starts.
+
+        Use it to open connection pools, warm caches, etc. If it raises, the
+        server refuses to start and logs the error.
+        """
+        self._startup.append(func)
+        return func
+
+    def on_shutdown(self, func):
+        """Registers a function (sync or async) to run when the server stops."""
+        self._shutdown.append(func)
+        return func
 
     def get(self, path: str):
         """Decorator to register a function as a GET route handler.
@@ -359,3 +404,30 @@ class Ushka:
             The route registration decorator.
         """
         return self._add_route("DELETE", path)
+
+
+async def _maybe_await(value):
+    if inspect.isawaitable(value):
+        return await value
+    return value
+
+
+def _to_response(result) -> Response:
+    """Turns a handler's return value into a `Response`.
+
+    ``Response`` → as is; ``(body, status)`` / ``(body, status, headers)`` →
+    that status (and headers); ``None`` → ``204 No Content``; anything else is
+    the body (see `Response.body`).
+    """
+    if isinstance(result, Response):
+        return result
+    if isinstance(result, tuple) and 2 <= len(result) <= 3 and isinstance(result[1], int):
+        body, status, *rest = result
+        response = body if isinstance(body, Response) else Response(body)
+        response.status_code = status
+        if rest:
+            response.headers.update(rest[0])
+        return response
+    if result is None:
+        return Response(b"", status_code=204)
+    return Response(result)

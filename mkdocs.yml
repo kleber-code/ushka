@@ -6,9 +6,11 @@ edit_uri: ""
 
 nav:
     - "Home": index.md
+    - "Why Ushka changed": why-ushka-changed.md
     - "Features": features.md
     - "Guide":
           - "Introduction": "guide/index.md"
+          - "Ushka Guard": "guide/guard.md"
           - "Configuration": "guide/configuration.md"
           - "Routing": "guide/routing.md"
           - "Templates": "guide/templates.md"
@@ -26,6 +28,7 @@ nav:
         - Ushka:
             - Cli:
                 - Commands:
+                    - Check: api/ushka/cli/commands/check.md
                     - Db: api/ushka/cli/commands/db.md
                     - Dev: api/ushka/cli/commands/dev.md
                     - New: api/ushka/cli/commands/new.md
@@ -38,6 +41,13 @@ nav:
                 - Exceptions: api/ushka/core/exceptions.md
                 - Log: api/ushka/core/log.md
                 - Router: api/ushka/core/router.md
+            - Guard:
+                - Untrusted: api/ushka/guard/untrusted.md
+                - Safe: api/ushka/guard/safe.md
+                - Sinks: api/ushka/guard/sinks.md
+                - Errors: api/ushka/guard/errors.md
+                - Templates: api/ushka/guard/templates.md
+                - Rewrite: api/ushka/guard/rewrite.md
             - Http:
                 - Cookies: api/ushka/http/cookies.md
                 - Error: api/ushka/http/error.md

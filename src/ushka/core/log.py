@@ -1,109 +1,115 @@
-"""This module provides logging configuration for the Ushka framework.
+"""Terminal output for Ushka: coloured, compact, standard-library only.
 
-It sets up a visually appealing and informative logging system using the `rich`
-library. It includes a custom `RichHandler` for console output and provides
-a method to configure Uvicorn for silent logging, ensuring that all output
-is consistently formatted.
+Colours are used only when the stream is a terminal, and never when the
+``NO_COLOR`` environment variable is set (https://no-color.org). Setting
+``FORCE_COLOR`` forces them on (useful in CI logs that render ANSI).
 """
 
+from __future__ import annotations
+
 import logging
-from typing import Literal
-
-from rich.logging import RichHandler
-
-from ushka.http import Request, Response
+import os
+import sys
+from typing import IO, Literal
 
 LogLevelType = Literal["NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
 log = logging.getLogger("ushka")
 
+RESET = "\033[0m"
+STYLES = {
+    "dim": "\033[2m",
+    "bold": "\033[1m",
+    "red": "\033[31m",
+    "green": "\033[32m",
+    "yellow": "\033[33m",
+    "blue": "\033[34m",
+    "magenta": "\033[35m",
+    "cyan": "\033[36m",
+    "pink": "\033[38;5;211m",
+}
+LEVEL_STYLE = {
+    logging.DEBUG: ("dim", "debug"),
+    logging.INFO: ("cyan", "info "),
+    logging.WARNING: ("yellow", "warn "),
+    logging.ERROR: ("red", "error"),
+    logging.CRITICAL: ("red", "crit "),
+}
 
-def setup_logging(level: LogLevelType = "INFO"):
-    """Configures the 'ushka' logger with a `RichHandler`.
 
-    This sets up a visually appealing and informative console logger using
-    the `rich` library.
+def supports_color(stream: IO | None = None) -> bool:
+    """True if ANSI colours should be written to `stream` (stderr by default)."""
+    if os.environ.get("NO_COLOR"):
+        return False
+    if os.environ.get("FORCE_COLOR"):
+        return True
+    stream = stream if stream is not None else sys.stderr
+    return bool(getattr(stream, "isatty", lambda: False)())
 
-    Parameters
-    ----------
-    level : LogLevelType, optional
-        The desired logging level. Defaults to "INFO".
-    """
+
+def paint(text: str, *styles: str, enabled: bool | None = None) -> str:
+    """Wraps `text` in ANSI styles (see `STYLES`) when colour is enabled."""
+    if enabled is None:
+        enabled = supports_color()
+    if not enabled or not styles:
+        return text
+    return "".join(STYLES[s] for s in styles) + text + RESET
+
+
+class UshkaFormatter(logging.Formatter):
+    """``12:01:02 info  message`` with a coloured level tag."""
+
+    def __init__(self, color: bool):
+        super().__init__(datefmt="%H:%M:%S")
+        self.color = color
+
+    def format(self, record: logging.LogRecord) -> str:
+        style, label = LEVEL_STYLE.get(record.levelno, ("", record.levelname.lower()))
+        time = self.formatTime(record, self.datefmt)
+        line = (
+            f"{paint(time, 'dim', enabled=self.color)} "
+            f"{paint(label, style, enabled=self.color)} {record.getMessage()}"
+        )
+        if record.exc_info:
+            line += "\n" + self.formatException(record.exc_info)
+        return line
+
+
+class _UshkaHandler(logging.StreamHandler):
+    """Marker subclass so `setup_logging` can be called more than once."""
+
+
+def setup_logging(level: LogLevelType = "INFO") -> logging.Logger:
+    """Configures the ``ushka`` logger. Safe to call repeatedly."""
     log.setLevel(level)
-    handler = RichHandler(rich_tracebacks=True)
-    handler.setFormatter(logging.Formatter("%(message)s", datefmt="[%X]"))
+    for handler in list(log.handlers):
+        if isinstance(handler, _UshkaHandler):
+            log.removeHandler(handler)
+    handler = _UshkaHandler(sys.stderr)
+    handler.setFormatter(UshkaFormatter(color=supports_color(sys.stderr)))
     log.addHandler(handler)
     log.propagate = False
-
-
-def log_http(request: Request, response: Response, process_time: float):
-    """Logs an HTTP request/response cycle.
-
-    Formats the log message with icons and colors based on the response
-    status code.
-
-    Parameters
-    ----------
-    request : Request
-        The incoming Request object.
-    response : Response
-        The outgoing Response object.
-    process_time : float
-        The total time taken to process the request, in milliseconds.
-    """
-    log.info("Request processed in %.2fms", process_time)
+    return log
 
 
 def get_log_config(level: LogLevelType = "INFO") -> dict:
-    """Gets a logging configuration to silence default Uvicorn loggers.
-
-    This method returns a dictionary that can be passed to `uvicorn.run`
-    to route Uvicorn's logs through Ushka's custom handler, ensuring
-    consistent log formatting.
-
-    Parameters
-    ----------
-    level : LogLevelType, optional
-        The desired logging level for the 'ushka' logger. Defaults to "INFO".
-
-    Returns
-    -------
-    dict
-        A dictionary containing the logging configuration for Uvicorn.
-    """
+    """A ``logging.config`` dict that routes Uvicorn's output through Ushka's style."""
     return {
         "version": 1,
         "disable_existing_loggers": False,
         "formatters": {
-            "default": {
-                "()": "uvicorn.logging.DefaultFormatter",
-                "fmt": "%(levelprefix)s %(message)s",
-                "use_colors": None,
-            },
-            "access": {
-                "()": "uvicorn.logging.AccessFormatter",
-                "fmt": '%(levelprefix)s %(client_addr)s - "%(request_line)s" %(status_code)s',
-            },
+            "ushka": {"()": UshkaFormatter, "color": supports_color(sys.stderr)},
         },
         "handlers": {
             "default": {
-                "formatter": "default",
+                "formatter": "ushka",
                 "class": "logging.StreamHandler",
                 "stream": "ext://sys.stderr",
             },
-            "access": {
-                "formatter": "access",
-                "class": "logging.StreamHandler",
-                "stream": "ext://sys.stdout",
-            },
         },
         "loggers": {
-            "uvicorn": {"handlers": ["default"], "level": level},
+            "uvicorn": {"handlers": ["default"], "level": level, "propagate": False},
             "uvicorn.error": {"level": level},
-            "uvicorn.access": {
-                "handlers": ["access"],
-                "level": level,
-                "propagate": False,
-            },
+            "uvicorn.access": {"handlers": ["default"], "level": level, "propagate": False},
         },
     }

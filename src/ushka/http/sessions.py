@@ -225,8 +225,12 @@ class Session(dict):
             return (content_to_sign + self.SEPARATOR + signature).decode("utf-8")
         except Exception as e:
             # In case of serialization error, return empty to not break the app
-            log.critical(f"CRITICAL ERROR ON SESSION (Encode): {e}")
-            log.critical(f"ATTEMPT TO SAVE THIS: {self}")
+            # Never log the session contents: they may hold user data/tokens.
+            log.critical(
+                "CRITICAL ERROR ON SESSION (Encode): %s (keys: %s)",
+                e,
+                sorted(map(str, self.keys())),
+            )
             return ""
 
     def _decode(self, cookie_value: str, max_age: int) -> dict:

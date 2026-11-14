@@ -1,65 +1,136 @@
 # Error Handling
 
-Even in the best-written applications, things can go wrong. A user might try to access a page that doesn't exist, a database connection might fail, or an unexpected bug might occur. How your application handles these errors is crucial for a good user experience.
+Ushka turns every error into a proper HTTP response: expected errors (404,
+400, ...) get an error page with the right status code, and unexpected
+exceptions become a 500 that shows details only in debug mode.
 
-Ushka provides a simple yet powerful way to handle errors.
+## What happens by default
 
-## The Default Error Pages
+| Situation | Status |
+| --- | --- |
+| No route matches the path | 404 Not Found |
+| The path exists, but not for this method | 405 Method Not Allowed, with an `Allow` header |
+| Invalid JSON, UTF-8, query string or form data | 400 Bad Request |
+| A sanitiser rejects a value (`RejectedValueError`) | 400 Bad Request |
+| Body larger than the [`[limits]`](configuration.md#all-settings) | 413 Payload Too Large |
+| Missing static file | 404 Not Found |
+| Any other exception, including `UnsafeValueError` from [Ushka Guard](guard.md) | 500 Internal Server Error |
 
-By default, Ushka comes with sensible error pages for common HTTP errors:
+Every error response is rendered with the `error.html` template.
 
-*   **404 Not Found:** When a user requests a URL that doesn't match any of your routes.
-*   **500 Internal Server Error:** When an unhandled exception occurs in your application code.
+## Debug mode
 
-In a development environment, the 500 error page will be a detailed "debug" page, showing the full traceback of the exception. This is incredibly helpful for finding and fixing bugs.
+With `[app] debug = true` (which `ushka dev` turns on for you):
 
-> **Ushka Tip:** In a production environment, the detailed debug page is disabled for security reasons. Users will see a generic "Internal Server Error" message. You should never run your application in debug mode in production!
+* a 500 shows a debug page with the exception, the traceback, the code around
+  each frame and its local variables (names containing `password`, `secret`,
+  `token`, `key`, `auth`, `credential`, `pass` or `cookie` are redacted);
+* a 404 lists the routes the app knows about;
+* an `UnsafeValueError` requested with `Accept: application/json` comes back as
+  JSON with the error `code`, the `risk` and the `fix`, so a coding agent can
+  correct the code ([details](guard.md#errors-for-humans-and-for-agents)).
 
-## Custom Error Pages
+With debug off (the default, and what you want in production) the client only
+sees a generic "Internal Server Error" page. The full traceback always goes to
+the log.
 
-While the default error pages are useful, you'll likely want to create your own custom error pages that match the look and feel of your site.
+!!! danger
+    Never run production with debug on: the debug page shows source code and
+    local variables to anyone. `ushka run` warns about it and
+    `ushka check --production` fails.
 
-To do this, you can create templates in your `templates` directory with the name of the error code, like `404.html` or `500.html`.
+## Raising HTTP errors
 
-For example, to create a custom 404 page, you could create a file at `templates/404.html`:
-
-```html
-<!-- templates/404.html -->
-{% extends "layout.html" %}
-
-{% block content %}
-  <h1>Oops! Page Not Found</h1>
-  <p>We couldn't find the page you were looking for.</p>
-  <a href="/">Go back home</a>
-{% endblock %}
-```
-
-Ushka will automatically detect this file and use it to render 404 errors.
-
-## Raising Errors
-
-Sometimes, you need to intentionally stop the request and show an error page. For example, if a user is trying to access a resource they don't have permission to see.
-
-Ushka provides a set of HTTP exception classes in `ushka.http.exceptions` that you can use for this.
+Raise an exception from `ushka.http.exceptions` to stop the request and answer
+with an error page:
 
 ```python
-from ushka.http.exceptions import NotFound, Forbidden
-from ushka.features.orm import db
+# routes/posts/[post_id].py
+from ushka.guard import safe
+from ushka.http.exceptions import HttpNotFound
+from ushka.templating import render
 
-class Post(db.Model):
-    # ... model definition ...
+from models import Post
 
-async def get(id: int):
-    post = await Post.get(id)
-    if not post:
-        raise NotFound("Sorry, we couldn't find that post.")
 
-    # A simple permission check
-    if not current_user.can_view(post):
-        raise Forbidden("You don't have permission to view this post.")
-
-    return await render(request, "post_detail.html", {"post": post})
-
+async def get(request, post_id):
+    post = await Post.get(safe.integer(post_id, min=1))
+    if post is None:
+        raise HttpNotFound(message="Sorry, we couldn't find that post.")
+    return await render(request, "post.html", {"post": post})
 ```
 
-When you raise one of these exceptions, Ushka will catch it and render the appropriate error page. For example, `raise NotFound()` will result in a 404 page.
+| Class | Default status and message |
+| --- | --- |
+| `HTTPError` | 400, "Bad Request". The base class: pass any `status_code`. |
+| `HttpNotFound` | 404, "Not Found" |
+| `HTTPBadRequest` | 400, "Bad Request" |
+| `HTTPPayloadTooLarge` | 413, "Payload Too Large" |
+| `HTTPMethodNotAllowed` | 405, "Method Not Allowed"; takes `allowed=[...]` for the `Allow` header. |
+| `HTTPStaticServerNotFound` | 404, "Static File Not Found" |
+
+They all accept `template`, `status_code` and `message`. **Pass them as
+keywords**: the first positional argument is the template name, so
+`HttpNotFound("Post not found")` would look for a template called
+"Post not found".
+
+For a status without its own class, use `HTTPError`:
+
+```python
+from ushka.http.exceptions import HTTPError
+
+
+async def delete(request):
+    if not request.session.get("is_admin"):
+        raise HTTPError(status_code=403, message="Admins only.")
+    ...
+```
+
+To answer with an error *without* an HTML page (in a JSON API, for example),
+return a tuple instead of raising:
+
+```python
+return {"error": "not found"}, 404
+```
+
+## Custom error pages
+
+Ushka looks up templates in your `templates/` folder before its own, so to
+replace the built-in error page create `templates/error.html`. It receives:
+
+| Variable | Value |
+| --- | --- |
+| `status_code` | `404`, `500`, ... |
+| `message` | The exception's `message`. |
+| `timestamp` | A `datetime` of when the error happened. |
+| `available_urls` | In debug mode, for HTTP errors: `(path, methods)` pairs. Empty otherwise. |
+| `request` | The current request. |
+
+```html
+<!-- templates/error.html -->
+<!DOCTYPE html>
+<html>
+<head><title>{{ status_code }} · {{ message }}</title></head>
+<body>
+  {% if status_code == 404 %}
+    <h1>Oops! Page not found</h1>
+    <p>We couldn't find the page you were looking for.</p>
+  {% else %}
+    <h1>{{ status_code }}</h1>
+    <p>{{ message }}</p>
+  {% endif %}
+  <a href="/">Go back home</a>
+</body>
+</html>
+```
+
+The same template serves every status, including the production 500 page;
+branch on `status_code` for different designs. The debug page
+(`debug_error.html`) is only used in debug mode.
+
+There is no automatic `404.html` or `500.html`. To use a different template
+for one error, pass it when you raise:
+
+```python
+raise HttpNotFound(template="post_missing.html", message="That post is gone.")
+```

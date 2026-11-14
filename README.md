@@ -1,88 +1,110 @@
-# Ushka: A Modern Asynchronous Python Web Framework
+# Ushka ฅ^•ﻌ•^ฅ
 
 [![PyPI Version](https://img.shields.io/pypi/v/ushka)](https://pypi.org/project/ushka/)
-[![Documentation](https://img.shields.io/badge/Documentation-View%20Here-blue)](https://kleber-code.github.io/ushka/)
+[![Documentation](https://img.shields.io/badge/docs-kleber--code.github.io%2Fushka-pink)](https://kleber-code.github.io/ushka/)
 ![Python Versions](https://img.shields.io/pypi/pyversions/ushka)
 ![License](https://img.shields.io/pypi/l/ushka)
-[![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-Ushka is a modern, asynchronous Python web framework designed for simplicity, performance, and an excellent developer experience. It provides a clean, intuitive API for building web applications and APIs with minimal boilerplate.
+**Ushka is the Python web framework where insecure code, whether you or an AI
+wrote it, does not run silently. It stops and tells you how to fix it.**
 
-## Key Principles
+It is an async (ASGI) framework with filesystem routing, and it is small on
+purpose. It needs few dependencies, but it ships everything a web app needs.
+Its main feature is **Ushka Guard**: anything that comes from outside your
+program arrives as an `Untrusted` string, and the places where such a string
+could do harm refuse it.
 
-*   **Simplicity:** Ushka's API is designed to be clean, intuitive, and easy to remember, allowing developers to focus on application logic.
-*   **Performance:** Built on top of modern asynchronous libraries, Ushka is fast, efficient, and capable of handling high-concurrency applications.
-*   **Developer Experience:** Features like filesystem-based routing, dependency injection, and informative error messages streamline the development workflow.
-*   **Flexibility:** While offering sensible defaults, Ushka is highly extensible, allowing you to integrate with your preferred tools and libraries.
+```python
+# routes/login.py
+from ushka.guard import safe
+from ushka.http import redirect
 
-## Features
+async def get(request):
+    target = request.query.get("next", "/")      # Untrusted
+    # return redirect(target)                    # ✗ USHKA-G003 open redirect, with the fix
+    return redirect(safe.url(target, allow=["/"], default="/"))   # ✓
+```
 
-Ushka comes equipped with a rich set of features to accelerate your development:
+## Why
 
-*   **Dual Routing System:**
-    *   **Filesystem-Based Routing:** Define routes simply by creating files in your `routes/` directory (e.g., `routes/users/profile.py` maps to `/users/profile`).
-    *   **Decorator-Based Routing:** Explicitly define routes using Python decorators (`@app.get("/users")`).
-*   **Asynchronous Core:** Built on `asyncio` for high performance and scalability, ready for concurrent operations.
-*   **Active Record ORM:** A simplified, asynchronous Object-Relational Mapper based on SQLAlchemy for efficient database interactions.
-*   **Jinja2 Templating:** Native support for the powerful Jinja2 templating engine, including asynchronous rendering and context processors.
-*   **Comprehensive Request & Response Objects:** Easily access HTTP headers, query parameters, body data (JSON, form, raw bytes), cookies, and sessions. Flexible response handling allows returning dictionaries (auto-JSON), strings (auto-HTML), or full `Response` objects.
-*   **Dependency Injection:** Automatically inject `Request`, `Response`, and configuration objects, as well as URL parameters, into your route handlers.
-*   **Configurability:** Simple, automatic configuration management via `ushka.toml`, with sensible defaults.
-*   **Enhanced Error Handling:** Informative and visually appealing error pages (404, 500) to aid debugging.
-*   **Rich Logging:** Clear, color-coded terminal logs for better visibility into application activity.
-*   **Static File Serving:** Easily serve static assets (CSS, JS, images) from a configurable directory.
-*   **CLI Tools:** A command-line interface for common tasks like running the development server, managing routes, and database migrations.
+AI assistants write a growing share of web code, and studies keep finding
+OWASP Top 10 flaws in
+[around 45% of generated samples](https://labs.cloudsecurityalliance.org/research/csa-research-note-ai-codegen-vulnerability-debt-20260406-csa/).
+Apps also pass **model output** into HTML, redirects and SQL, where prompt
+injection can steer it. Ushka puts the check where it cannot be skipped: in
+the framework, at runtime, on your real code. Read
+[Why Ushka changed](https://kleber-code.github.io/ushka/why-ushka-changed/).
 
-## Installation
+## What's in the box
 
-Getting started with Ushka is straightforward:
+- **Ushka Guard**:
+  - **Untrusted by default.** Query, form, JSON, headers, cookies and path parameters are `Untrusted`, and so is model output once marked with `guard.llm()`.
+  - **Guarded sinks.** HTML, redirects, file paths and raw SQL refuse those values.
+  - **Sanitisers and errors.** The way out is through explicit sanitisers. Errors give the risk and the fix, as text and as JSON for coding agents.
+- **Python 3.14 t-strings.** `t"<h1>{name}</h1>"` and `db.execute(t"... {id}")` are safe by construction.
+- **Routing.** Filesystem routing (`routes/users/[user_id].py`) plus decorators (`@app.get(...)`).
+- **Responses.** Return a `str`, a `dict`, a `(body, status)` tuple, `None` (204) or a `Response`. `HEAD` and `405 Allow` are handled for you.
+- **Data, sessions and templates:**
+  - Async Active Record ORM on SQLAlchemy, with migrations in `ushka db` (extra `ushka[orm]`).
+  - Jinja2 templates, signed sessions, cookies, flash messages, file uploads and request size limits.
+- **Config.** Defaults, then `ushka.toml`, then `.env`, then environment variables, all without extra packages. `DATABASE_URL` works out of the box.
+- **CLI.** `new`, `dev`, `run`, `check` (CI-friendly security check), `routes` and `db`.
+- **Low dependency.** The core needs only `uvicorn`, `jinja2` and `python-multipart` (plus `tomli` on 3.10).
+
+## Quick start
 
 ```bash
 pip install ushka
+ushka new hello
+cd hello
+ushka dev
 ```
 
-## Quick Start
+`ushka new` creates a project that is safe from the first commit:
 
-Here's a minimal example to create a simple web application using decorator-based routing:
+- `debug = false` in config (`ushka dev` turns debug on by itself)
+- a generated secret in `.env`
+- a `.gitignore`
+- an `AGENTS.md` that teaches coding agents the rules
 
-1.  **Create your application file (e.g., `app.py`):**
+Or write a single-file app:
 
-    ```python
-    from ushka import Ushka, Request, Response
+```python
+from ushka import Ushka
 
-    app = Ushka()
+app = Ushka()
 
-    @app.get("/")
-    async def hello_world(request: Request) -> Response:
-        return Response("<h1>Hello, Ushka!</h1>")
+@app.get("/greet/[name]")
+async def greet(name):
+    return f"Hello, {name}!"          # plain text: safe
 
-    @app.get("/greet/[name]")
-    async def greet_name(request: Request, name: str) -> Response:
-        return Response(f"Hello, {name}!")
+@app.post("/items")
+async def create(request):
+    data = await request.json()
+    return {"created": data["name"]}, 201
 
-    if __name__ == "__main__":
-        app.run()
-    ```
+if __name__ == "__main__":
+    app.run()
+```
 
-2.  **Run your application:**
+Before deploying:
 
-    ```bash
-    python app.py
-    ```
-
-3.  **Access it in your browser:**
-    Open `http://127.0.0.1:8000` or `http://127.0.0.1:8000/greet/World` in your web browser.
-
-For more detailed examples, tutorials on filesystem-based routing, and advanced usage, please refer to the [official documentation](https://kleber-code.github.io/ushka/).
+```bash
+ushka check --production   # fails (exit 1) on debug on, missing secret, guard off...
+```
 
 ## Documentation
 
-For comprehensive guides, API reference, and tutorials, visit the [Ushka Documentation](https://kleber-code.github.io/ushka/).
+Guides, the Ushka Guard reference and the API reference are at
+**https://kleber-code.github.io/ushka/**. For AI tools there is
+[`llms.txt`](https://kleber-code.github.io/ushka/llms.txt).
 
 ## Contributing
 
-We welcome contributions! If you find a bug, have a feature request, or want to contribute code, please check out our [Contributing Guidelines](https://github.com/kleber-code/ushka/blob/main/.github/CONTRIBUTING.md).
+Bug reports, ideas and pull requests are welcome. See the
+[contributing guidelines](https://github.com/kleber-code/ushka/blob/main/.github/CONTRIBUTING.md)
+and the [security policy](https://github.com/kleber-code/ushka/blob/main/SECURITY.md).
 
 ## License
 
-Ushka is open-source software licensed under the [MIT License](https://github.com/kleber-code/ushka/blob/main/LICENSE).
+[MIT](https://github.com/kleber-code/ushka/blob/main/LICENSE)

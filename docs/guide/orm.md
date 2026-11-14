@@ -1,77 +1,181 @@
-# ORM (Object-Relational Mapper)
+# ORM
 
-Interacting with a database can sometimes feel like trying to speak a different language. You have to write SQL queries, manage connections, and handle a lot of boilerplate code.
+Ushka ships an async ORM built on SQLAlchemy 2.0 with a small Active Record
+interface: models know how to save, delete and query themselves. Migrations
+are handled by Alembic through `ushka db`.
 
-An Object-Relational Mapper, or ORM, is like a universal translator. It lets you interact with your database using the Python objects and methods you already know and love.
+## Installing
 
-Ushka's ORM is built on the powerful SQLAlchemy library, but it provides a simple, Active Record-style interface. This means that your database models are not just definitions; they are active objects that know how to save, delete, and query themselves.
+The ORM is an optional extra, so the core install stays small:
 
-## Defining a Model
+```bash
+pip install "ushka[orm]"        # SQLAlchemy, Alembic and the SQLite driver (aiosqlite)
+pip install "ushka[postgres]"   # + asyncpg
+pip install "ushka[mysql]"      # + aiomysql
+```
 
-Think of a model as a blueprint for a table in your database. You define your models by creating a class that inherits from `db.Model`.
+## Choosing the database
 
-Let's create a simple `User` model:
+The URL comes from the [configuration](configuration.md), in this order of
+precedence: environment / `.env` (`USHKA_DATABASE_URL`, or `DATABASE_URL`, or
+the older `USHKA_DB_URL`), then `[database] url` in `ushka.toml`, then the
+default `sqlite:///ushka.db`.
+
+```toml
+# ushka.toml
+[database]
+url = "sqlite:///shop.db"
+```
+
+```bash
+# .env, keep credentials out of ushka.toml
+USHKA_DATABASE_URL=postgresql://user:password@localhost/shop
+```
+
+Write plain URLs: `sqlite://`, `postgresql://` (or `postgres://`) and
+`mysql://` are switched to their async drivers (`aiosqlite`, `asyncpg`,
+`aiomysql`) automatically. A URL that already names a driver
+(`postgresql+psycopg://...`) is used as is.
+
+A relative SQLite path such as `sqlite:///shop.db` is relative to the directory
+the process runs in, so start the server (and `ushka db`) from the project
+directory, or use an absolute path: `sqlite:////srv/shop/shop.db`.
+
+The engine is created lazily on first use. To point the ORM somewhere else from
+code (in tests, for example) call `db.configure(url)` before the first query.
+
+## Defining models
 
 ```python
-from ushka.features.orm import db
+# models.py
+import enum
+
+from ushka.orm import db
+
+
+class Status(enum.Enum):
+    DRAFT = "draft"
+    PUBLISHED = "published"
+
 
 class User(db.Model):
-    __tablename__ = "users"  # The name of the table in the database
+    __tablename__ = "users"
 
-    id = db.BigInt(primary_key=True)
     name = db.String(length=100)
     email = db.String(unique=True)
     is_active = db.Bool(default=True)
+    created_at = db.DateTime(auto_now=True)
+    posts = db.Relationship("Post", back_populates="author")
 
-    def __repr__(self):
-        return f"<User {self.id}: {self.name}>"
+
+class Post(db.Model):
+    __tablename__ = "posts"
+
+    title = db.String(length=200)
+    body = db.Text(nullable=True)
+    status = db.Enum(Status, default=Status.DRAFT)
+    tags = db.JSON(default=list)
+    author_id = db.ForeignKey("users.id")
+    author = db.Relationship("User", back_populates="posts")
 ```
 
-In this example, we're defining a `users` table with four columns: `id`, `name`, `email`, and `is_active`. We use the helper methods on the `db` object (`db.String`, `db.Bool`, etc.) to define the column types.
+Every model needs a `__tablename__`. **Do not declare `id`**: `db.Model` already
+provides an auto-incrementing `BigInteger` primary key named `id`.
 
-> **Ushka Tip:** Using `__repr__` is like giving your models a name tag. It's a small thing, but it makes debugging much more pleasant when you see `<User 1: Alice>` instead of a generic object address.
+### Column helpers
 
-## CRUD Operations: The Bread and Butter
+Columns are `NOT NULL` unless you pass `nullable=True`.
 
-CRUD stands for Create, Read, Update, and Delete. These are the fundamental operations you'll perform on your data. With Ushka's ORM, these operations are simple and intuitive.
+| Helper | Signature |
+| --- | --- |
+| `db.String` | `(length=255, unique=False, nullable=False, default=None, choices=None)`. `choices=[...]` restricts the values. |
+| `db.Text` | `(nullable=False, default=None)` |
+| `db.Int` | `(unique=False, nullable=False, default=None)` |
+| `db.BigInt` | `(unique=False, nullable=False, default=None)` |
+| `db.Float` | `(nullable=False, default=0.0)` |
+| `db.Decimal` | `(precision=10, scale=2, nullable=False, default=0)` |
+| `db.Bool` | `(default=False, nullable=False)` |
+| `db.DateTime` | `(auto_now=False, nullable=False)`. `auto_now=True` defaults to the current time on insert. |
+| `db.Date` | `(auto_now=False, nullable=False)` |
+| `db.Time` | `(nullable=False)` |
+| `db.JSON` | `(nullable=False, default=None)`. Defaults to a fresh `{}` per row; a `dict`/`list` default is copied per row. |
+| `db.Enum` | `(enum_cls, nullable=False, default=None)` |
+| `db.Binary` | `(length=None, nullable=False)` |
+| `db.UUID` | `(unique=False, nullable=False, primary_key=False, default=None)`. With `primary_key=True` the default is `uuid.uuid4`. |
+| `db.ForeignKey` | `(target, dtype=None, on_delete=db.CASCADE, nullable=False)`. `target` is `"table.column"`; the type defaults to `BigInteger`. `on_delete` is `db.CASCADE`, `db.SET_NULL` (makes the column nullable) or `db.RESTRICT`. |
+| `db.Relationship` | `(model, back_populates=None)`. `model` is the class name as a string. |
+
+`db.Model` is a regular SQLAlchemy declarative base, so plain SQLAlchemy
+`Column(...)` definitions work as well.
+
+## Creating the tables: migrations
+
+Tables are created and changed through migrations. Alembic has to see your
+models, and it looks for them by importing `app.models`, `app` or `main` from
+the project directory, so import your models in `app.py`:
+
+```python
+# app.py
+from ushka import Ushka
+
+import models  # noqa: F401  (registers the models for `ushka db make`)
+
+app = Ushka()
+```
+
+Then, from the project directory:
+
+```bash
+ushka db init                       # once: creates migrations/ and alembic.ini
+ushka db make -m "create users"     # generates a migration from your models
+ushka db migrate                    # applies it
+```
+
+Every time you change a model, run `ushka db make -m "..."` and
+`ushka db migrate` again. `ushka db revert` undoes the last migration. Review
+the generated file in `migrations/versions/` before applying it. The full list
+of commands is in the [CLI guide](cli.md#ushka-db).
+
+SQLite migrations run in Alembic's batch mode automatically, so columns can be
+altered and dropped there too.
+
+## CRUD
+
+All database methods are coroutines: remember the `await`.
 
 ### Create
 
-To create a new record in the database, you can create an instance of your model and call the `save()` method, or use the `create()` class method as a convenient shortcut.
-
 ```python
-# The create() shortcut (recommended)
 user = await User.create(name="Alice", email="alice@example.com")
 
-# The longer way
-new_user = User(name="Bob", email="bob@example.com")
-await new_user.save()
+bob = User(name="Bob", email="bob@example.com")
+await bob.save()
 ```
 
 ### Read
 
-There are several ways to read data from the database.
+```python
+users = await User.all()                     # list
+user = await User.get(1)                     # by primary key, or None
+alice = await User.first(name="Alice")       # first match, or None
+active = await User.filter(is_active=True)   # list of matches
+```
+
+`first()` and `filter()` take keyword arguments and compare for equality.
+For anything richer, build a SQLAlchemy statement with `Model.select()` and run
+it with `db.execute()`:
 
 ```python
-# Get all users
-users = await User.all()
-
-# Get a single user by their primary key
-user = await User.get(1)
-
-# Get the first user who matches a condition
-user = await User.first(name="Alice")
-
-# Get a list of users who match a condition
-active_users = await User.filter(is_active=True)
+result = await db.execute(
+    User.select().where(User.email.endswith("@example.com")).order_by(User.name)
+)
+users = result.scalars().all()
 ```
 
 ### Update
 
-To update a record, you simply change the attributes of a model instance and then call `save()`.
-
 ```python
-user = await User.first(name="Alice")
+user = await User.get(1)
 if user:
     user.name = "Alicia"
     await user.save()
@@ -79,16 +183,88 @@ if user:
 
 ### Delete
 
-To delete a record, call the `delete()` method on a model instance.
-
 ```python
 user = await User.first(name="Bob")
 if user:
     await user.delete()
 ```
 
-## Asynchronous All the Way
+### Serialising
 
-Notice the `await` keyword in all the examples above? That's because Ushka's ORM is fully asynchronous. This is a crucial feature for a modern web framework, as it means your application can handle other tasks while it's waiting for the database to respond. This leads to better performance and scalability.
+`instance.to_dict()` returns the columns as a dict (enums become their value,
+UUIDs become strings). Dates and times stay `datetime` objects, so convert them
+before returning the dict as JSON:
 
-By providing a simple yet powerful interface on top of SQLAlchemy's async capabilities, Ushka's ORM makes database interactions a seamless and enjoyable part of your development process.
+```python
+data = user.to_dict()
+data["created_at"] = user.created_at.isoformat()
+return data
+```
+
+## Request data and the ORM
+
+Values from the request are `Untrusted` strings. The ORM methods and SQLAlchemy
+expressions always send them as bound parameters, so they need no special care,
+but convert types yourself:
+
+```python
+# routes/users/[user_id].py
+from ushka.guard import safe
+from ushka.http.exceptions import HttpNotFound
+
+from models import User
+
+
+async def get(user_id):
+    user = await User.get(safe.integer(user_id, min=1))
+    if user is None:
+        raise HttpNotFound(message="No such user")
+    return {"id": user.id, "name": user.name}
+```
+
+## Raw SQL
+
+`db.execute()` accepts a SQLAlchemy construct, a SQL string, or (on Python
+3.14+) a t-string. SQL strings are guarded: if any part came from the request,
+the call is refused with [USHKA-G005](guard.md#ushka-g005). Pass values as
+parameters instead:
+
+```python
+# :name placeholders, values bound by the driver
+result = await db.execute(
+    db.text("SELECT id, name FROM users WHERE email = :email", email=email)
+)
+rows = result.all()
+
+# Python 3.14+: every {value} in a t-string becomes a bound parameter
+result = await db.execute(t"SELECT id, name FROM users WHERE email = {email}")
+```
+
+Use `db.text()` rather than `sqlalchemy.text()`: SQLAlchemy copies the string
+internally and the guard would lose track of where it came from.
+
+## Relationships and sessions
+
+The Active Record methods open a short session per call, so the objects they
+return are detached. Accessing a relationship that was not loaded
+(`post.author`) then raises `DetachedInstanceError`. Load it up front:
+
+```python
+from sqlalchemy.orm import selectinload
+
+result = await db.execute(Post.select().options(selectinload(Post.author)))
+for post in result.scalars().all():
+    print(post.title, post.author.name)
+```
+
+For several operations in one transaction, open a session yourself:
+
+```python
+async with db.Session() as session:
+    session.add_all([User(name="Ann", email="ann@example.com"),
+                     User(name="Ben", email="ben@example.com")])
+    await session.commit()
+```
+
+`db.engine` (the `AsyncEngine`) and `db.metadata` are available for anything
+else SQLAlchemy can do.

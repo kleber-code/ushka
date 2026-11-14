@@ -8,6 +8,7 @@ for redirection.
 
 from typing import TYPE_CHECKING, Optional
 
+from ushka.guard import check_redirect
 from ushka.http.response import Response
 
 if TYPE_CHECKING:
@@ -42,7 +43,15 @@ def redirect(
     Response
         A response object configured for redirection with the specified
         'Location' header and status code.
-    """  # The 'Location' header is what actually triggers the browser redirect.
+
+    Raises
+    ------
+    UnsafeValueError
+        If `to` is `Untrusted` (e.g. straight from ``request.query``). Validate
+        it first with ``safe.url(to, allow=["/"], default="/")``.
+    """
+    check_redirect(to)
+    # The 'Location' header is what actually triggers the browser redirect.
     headers = {"Location": to}
 
     return Response(

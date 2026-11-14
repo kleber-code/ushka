@@ -4,7 +4,9 @@ import json
 from typing import TYPE_CHECKING, Any, AsyncGenerator, Callable, Coroutine, Dict
 from urllib.parse import parse_qs
 
+from ushka.guard import Untrusted, taint_deep
 from ushka.http.cookies import Cookies
+from ushka.http.exceptions import HTTPBadRequest, HTTPPayloadTooLarge
 from ushka.http.multipart import parse_multipart_asgi
 from ushka.http.sessions import Session
 
@@ -56,6 +58,19 @@ class Request:
             self.app.config.get("limits_max_request_body_multipart_size_in_KB") or 51200
         )
         self._is_debug = bool(self.app.config.get("app_debug"))
+        #: Whether client-supplied values are wrapped in `Untrusted` (Ushka Guard).
+        self.taint_enabled = self.app.config.get("security_taint", True) is not False
+
+    def _mark(self, value: Any, source: str) -> Any:
+        """Wraps client-supplied data in `Untrusted` when the guard is on."""
+        return taint_deep(value, source) if self.taint_enabled else value
+
+    def _mark_mapping(self, data: Dict[str, Any], kind: str) -> Dict[str, Any]:
+        if not self.taint_enabled:
+            return data
+        return {
+            Untrusted(k, kind): taint_deep(v, f"{kind}:{k}") for k, v in data.items()
+        }
 
     # --- SYNCHRONOUS DATA (PROPERTIES) ---
     # This data is already in the connection 'scope', no I/O needed.
@@ -73,10 +88,11 @@ class Request:
             header values.
         """
         if "headers" not in self._cached_data:
-            self._cached_data["headers"] = {
-                k.decode("latin-1"): v.decode("latin-1")
-                for k, v in self.scope["headers"]
-            }
+            headers = {}
+            for k, v in self.scope["headers"]:
+                name = k.decode("latin-1")
+                headers[name] = self._mark(v.decode("latin-1"), f"header:{name}")
+            self._cached_data["headers"] = headers
         return self._cached_data["headers"]
 
     @property
@@ -94,10 +110,13 @@ class Request:
         """
         if "query" not in self._cached_data:
             raw = self.scope.get("query_string", b"")
-            parsed = parse_qs(raw.decode())
-            self._cached_data["query"] = {
-                k: v[0] if len(v) == 1 else v for k, v in parsed.items()
-            }
+            try:
+                parsed = parse_qs(raw.decode(), max_num_fields=1000)
+            except (UnicodeDecodeError, ValueError) as exc:
+                raise HTTPBadRequest(message="Invalid query string") from exc
+            self._cached_data["query"] = self._mark_mapping(
+                {k: v[0] if len(v) == 1 else v for k, v in parsed.items()}, "query"
+            )
         return self._cached_data["query"]
 
     @property
@@ -116,7 +135,9 @@ class Request:
         if "cookies" not in self._cached_data:
             cookie_header = self.headers.get("cookie", "")
             self._cached_data["cookies"] = Cookies(
-                header_value=cookie_header, secure_default=not self._is_debug
+                header_value=cookie_header,
+                secure_default=not self._is_debug,
+                taint_values=self.taint_enabled,
             )
         return self._cached_data["cookies"]
 
@@ -124,15 +145,14 @@ class Request:
     def session(self) -> Session:
         """Session is a property as it depends on the Cookie (Header), not the Body."""
         if "session" not in self._cached_data:
+            # In debug mode Config generates a per-process key when none is set.
             secret = self.app.config.get("APP_SECRET_KEY")
             if not secret:
-                if self._is_debug:
-                    self.app.log.warning(
-                        "⚠️ APP_SECRET_KEY not defined! Sessions insecure."
-                    )
-                    secret = "insecure-debug-key"
-                else:
-                    raise RuntimeError("APP_SECRET_KEY required in production.")
+                raise RuntimeError(
+                    "Sessions need a secret key. Set USHKA_APP_SECRET_KEY in the "
+                    "environment or in .env (generate one with: "
+                    'python -c "import secrets; print(secrets.token_urlsafe(48))").'
+                )
 
             raw_session_value = self.cookies.get(Session.COOKIE_NAME)
             self._cached_data["session"] = Session(
@@ -154,7 +174,7 @@ class Request:
             chunk = msg.get("body", b"")
             size += len(chunk)
             if size > (self.max_body_size_in_KB * 1024):
-                raise ValueError("Request body too large")
+                raise HTTPPayloadTooLarge(message="Request body too large")
             chunks.append(chunk)
             if not msg.get("more_body", False):
                 break
@@ -174,7 +194,7 @@ class Request:
 
         Raises
         ------
-        ValueError
+        HTTPPayloadTooLarge
             If the request body size exceeds `max_body_size_in_KB`.
         """
         if "body" not in self._cached_data:
@@ -197,9 +217,14 @@ class Request:
             yield self._cached_data["body"]
             return
 
+        total = 0
+        limit = max(self.max_body_size_in_KB, self.max_body_multipart_size_in_KB) * 1024
         while True:
             message = await self._receive()
             chunk = message.get("body", b"")
+            total += len(chunk)
+            if total > limit:
+                raise HTTPPayloadTooLarge(message="Request body too large")
             if chunk:
                 yield chunk
             if not message.get("more_body", False):
@@ -218,14 +243,18 @@ class Request:
 
         Raises
         ------
-        ValueError
+        HTTPPayloadTooLarge
             If the request body size exceeds `max_body_size_in_KB`.
         UnicodeDecodeError
             If the request body cannot be decoded as UTF-8.
         """
         if "text" not in self._cached_data:
             body_bytes = await self.body()
-            self._cached_data["text"] = body_bytes.decode("utf-8")
+            try:
+                decoded = body_bytes.decode("utf-8")
+            except UnicodeDecodeError as exc:
+                raise HTTPBadRequest(message="Request body is not valid UTF-8") from exc
+            self._cached_data["text"] = self._mark(decoded, "body")
         return self._cached_data["text"]
 
     async def json(self) -> Any:
@@ -242,14 +271,18 @@ class Request:
 
         Raises
         ------
-        ValueError
+        HTTPPayloadTooLarge
             If the request body size exceeds `max_body_size_in_KB`.
         json.JSONDecodeError
             If the request body contains invalid JSON.
         """
         if "json" not in self._cached_data:
             body_data = await self.body()
-            self._cached_data["json"] = json.loads(body_data)
+            try:
+                parsed = json.loads(body_data)
+            except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+                raise HTTPBadRequest(message="Request body is not valid JSON") from exc
+            self._cached_data["json"] = self._mark(parsed, "json")
         return self._cached_data["json"]
 
     async def form(self) -> Dict[str, Any]:
@@ -268,7 +301,7 @@ class Request:
 
         Raises
         ------
-        ValueError
+        HTTPPayloadTooLarge
             If the request body size exceeds `max_body_size_in_KB`.
         HTTPBadRequest
             If parsing multipart data fails (e.g., missing boundary).
@@ -282,14 +315,17 @@ class Request:
                 form_data, files_data = await parse_multipart_asgi(
                     self, self.max_body_size_in_KB, self.max_body_multipart_size_in_KB
                 )
-                self._cached_data["form"] = form_data
+                self._cached_data["form"] = self._mark_mapping(form_data, "form")
                 self._cached_data["files"] = files_data
             else:
                 body = await self.body()
-                parsed = parse_qs(body.decode("utf-8"))
-                self._cached_data["form"] = {
-                    k: v[0] if len(v) == 1 else v for k, v in parsed.items()
-                }
+                try:
+                    parsed = parse_qs(body.decode("utf-8"), max_num_fields=1000)
+                except (UnicodeDecodeError, ValueError) as exc:
+                    raise HTTPBadRequest(message="Invalid form data") from exc
+                self._cached_data["form"] = self._mark_mapping(
+                    {k: v[0] if len(v) == 1 else v for k, v in parsed.items()}, "form"
+                )
                 self._cached_data["files"] = {}
         return self._cached_data["form"]
 
@@ -308,7 +344,7 @@ class Request:
 
         Raises
         ------
-        ValueError
+        HTTPPayloadTooLarge
             If the request body size exceeds `max_body_size_in_KB`.
         HTTPBadRequest
             If parsing multipart data fails (e.g., missing boundary).

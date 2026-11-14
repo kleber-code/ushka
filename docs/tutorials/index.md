@@ -1,26 +1,24 @@
 # Tutorials
 
-Welcome to the Ushka tutorials! Here, we'll walk you through building complete, real-world applications from scratch. These tutorials are designed to bring together all the concepts from the guide and show you how they work in practice.
+The tutorials walk you through building something real with Ushka, step by
+step, bringing together the concepts from the [guide](../guide/index.md).
 
-## Learn by Doing
+## Available tutorials
 
-The best way to learn a new framework is by building something with it. Each tutorial will guide you step-by-step, providing code snippets and explanations along the way.
+* **[Building a Simple API](../guide/tutorial_simple_api.md)**
+    * Filesystem routes and JSON responses.
+    * Reading JSON bodies and returning status codes with `(body, status)`.
+    * Path parameters, `safe.integer()` and 404 errors.
+    * The development server with `ushka dev`.
 
-We recommend that you have a good understanding of the concepts in the [guide](../guide/index.md) before starting these tutorials.
+## Coming soon
 
-## Available Tutorials
+* **A to-do list app:** CRUD with the [ORM](../guide/orm.md), forms,
+  [templates](../guide/templates.md) and [flash messages](../guide/flashing.md).
+* **A micro-blog:** related models (users and posts), sessions and login, and
+  safe redirects with [Ushka Guard](../guide/guard.md).
 
-*   **Coming Soon: A Simple "To-Do" List App**
-    *   Learn the basics of CRUD (Create, Read, Update, Delete) operations.
-    *   Create a simple API and a web interface to interact with it.
-    *   Use templates, forms, and the ORM to build a functional application.
+## Have an idea for a tutorial?
 
-*   **Coming Soon: A Micro-Blog**
-    *   Dive deeper into relationships between models (users and posts).
-    *   Implement user authentication.
-    *   Use flashing to provide feedback to users.
-    *   Explore more advanced template features.
-
-## Have an Idea for a Tutorial?
-
-Is there a specific type of application you'd like to see a tutorial for? We'd love to hear your ideas! Please open an issue on our GitHub repository to suggest a new tutorial.
+Open an issue on [GitHub](https://github.com/kleber-code/ushka/issues) and tell
+us what you would like to build.

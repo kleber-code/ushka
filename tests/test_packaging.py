@@ -5,18 +5,23 @@ module level by `ushka` or `ushka.cli` therefore has to be a core dependency,
 otherwise the package - and the `ushka` console script - fail to import.
 """
 
+import sys
+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:  # pragma: no cover
+    import tomli as tomllib
+
+
 import subprocess
 import sys
 from pathlib import Path
 
 import pytest
 
-# `tomllib` is only in the standard library from 3.11 on, and the project
-# supports 3.10; `tomlkit` is a core dependency, so it is always available.
-import tomlkit
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-PYPROJECT = tomlkit.parse((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+PYPROJECT = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
 CORE_DEPENDENCIES = PYPROJECT["project"]["dependencies"]
 
 # Distributions that are only installed through an extra.
@@ -64,7 +69,7 @@ def test_cli_help_runs():
         cwd=REPO_ROOT,
     )
     assert result.returncode == 0
-    assert "Ushka Framework CLI" in result.stdout
+    assert "usage: ushka" in result.stdout
 
 
 def test_default_templates_ship_with_the_package():

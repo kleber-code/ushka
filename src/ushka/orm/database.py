@@ -9,16 +9,17 @@ methods for defining common SQLAlchemy column types.
 import os
 import uuid
 import enum
-import asyncio
 import sqlalchemy.types as sqltypes
-from sqlalchemy import Column, ForeignKey, inspect, select, MetaData
+from sqlalchemy import Column, ForeignKey, inspect, select, MetaData, text
+
+from ushka.guard import check_sql, is_template
+from ushka.guard.templates import sql as template_to_sql
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.sql import func
 from sqlalchemy.ext.asyncio import (
     create_async_engine,
     async_sessionmaker,
     AsyncSession,
-    async_scoped_session,
 )
 from typing import Optional, List, TypeVar, Type, Any
 
@@ -63,8 +64,8 @@ class UshkaDB:
         The asynchronous SQLAlchemy engine.
     session_factory : async_sessionmaker
         Factory for creating new async sessions.
-    Session : async_scoped_session
-        A scoped session linked to the current asyncio task.
+    Session : async_sessionmaker
+        Factory of independent async sessions (``async with db.Session() as s``).
     metadata : sqlalchemy.MetaData
         The metadata object used by the declarative base.
     Model : Type[_Base]
@@ -75,29 +76,77 @@ class UshkaDB:
     SET_NULL = "SET NULL"
     RESTRICT = "RESTRICT"
 
-    def __init__(self):
+    # Plain URLs are mapped to the async driver each backend needs.
+    ASYNC_DRIVERS = {
+        "sqlite": "sqlite+aiosqlite",
+        "postgresql": "postgresql+asyncpg",
+        "postgres": "postgresql+asyncpg",
+        "mysql": "mysql+aiomysql",
+    }
+
+    def __init__(self, url: Optional[str] = None):
         """
-        Initializes the database manager, setting up the engine and session scope.
+        Initializes the database manager.
+
+        The engine is created lazily, on first use, from `url` or, when it is
+        omitted, from the application config (``[database] url`` in
+        ``ushka.toml``, ``USHKA_DATABASE_URL`` or ``DATABASE_URL``). This is
+        the same setting the ``ushka db`` migration commands read, so the app
+        and its migrations always target the same database.
         """
-        self.url = os.getenv("USHKA_DB_URL", "sqlite:///ushka.db")
-
-        # Auto-configure driver for Async compatibility
-        if "sqlite" in self.url and "aiosqlite" not in self.url:
-            self.url = self.url.replace("sqlite://", "sqlite+aiosqlite://")
-
-        self.engine = create_async_engine(self.url, echo=False)
-
-        self.session_factory = async_sessionmaker(
-            bind=self.engine, class_=AsyncSession, expire_on_commit=False
-        )
-
-        # Scoped session linked to the current asyncio task
-        self.Session = async_scoped_session(
-            self.session_factory, scopefunc=asyncio.current_task
-        )
-
+        self._url = url
+        self._engine = None
+        self._session_factory = None
         self.metadata = _Base.metadata
         self.Model = self._create_model_base()
+
+    @classmethod
+    def to_async_url(cls, url: str) -> str:
+        """Returns `url` with an async driver (``sqlite://`` → ``sqlite+aiosqlite://``)."""
+        scheme, sep, rest = url.partition("://")
+        if not sep or "+" in scheme:
+            return url
+        return f"{cls.ASYNC_DRIVERS.get(scheme, scheme)}://{rest}"
+
+    @property
+    def url(self) -> str:
+        """The async database URL in use."""
+        if self._url is None:
+            from ushka.core.config import Config
+
+            self._url = Config().get("database_url") or "sqlite:///ushka.db"
+        return self.to_async_url(self._url)
+
+    def configure(self, url: str) -> None:
+        """Points the manager at another database (call before first use)."""
+        self._url = url
+        self._engine = self._session_factory = None
+
+    @property
+    def engine(self):
+        """The `AsyncEngine`, created on first access."""
+        if self._engine is None:
+            self._engine = create_async_engine(self.url, echo=False)
+        return self._engine
+
+    @property
+    def session_factory(self):
+        """Factory for new `AsyncSession` objects."""
+        if self._session_factory is None:
+            self._session_factory = async_sessionmaker(
+                bind=self.engine, class_=AsyncSession, expire_on_commit=False
+            )
+        return self._session_factory
+
+    @property
+    def Session(self):  # noqa: N802 - public name kept for compatibility
+        """Factory of new `AsyncSession` objects: ``async with db.Session() as s:``.
+
+        Each call opens an independent session. (A task-scoped registry was used
+        before; it was never cleared, so it leaked one session per request, and
+        nested calls in the same task closed each other's session.)
+        """
+        return self.session_factory
 
     def _create_model_base(self):
         """
@@ -119,8 +168,13 @@ class UshkaDB:
             """
 
             __abstract__ = True
+            # SQLite only auto-increments an `INTEGER PRIMARY KEY`; a BIGINT
+            # key stays NULL and every insert fails. 64-bit elsewhere.
             id = Column(
-                sqltypes.BigInteger, primary_key=True, index=True, autoincrement=True
+                sqltypes.BigInteger().with_variant(sqltypes.Integer(), "sqlite"),
+                primary_key=True,
+                index=True,
+                autoincrement=True,
             )
 
             # --- INSTANCE METHODS ---
@@ -297,6 +351,25 @@ class UshkaDB:
 
     # --- EXECUTION HELPERS ---
 
+    @staticmethod
+    def text(sql: str, **params: Any):
+        """Guarded ``sqlalchemy.text()``: refuses SQL built from request data.
+
+        ``sqlalchemy.text()`` copies the string through ``re.sub``, which drops
+        the `Untrusted` mark, so the check has to happen before the call. Use
+        this (or pass the string to `execute`) instead of importing ``text``.
+
+        Parameters
+        ----------
+        sql : str
+            The SQL with ``:name`` placeholders.
+        **params
+            Values bound to the placeholders (never pasted into the SQL).
+        """
+        check_sql(sql)
+        clause = text(sql)
+        return clause.bindparams(**params) if params else clause
+
     async def execute(self, stmt):
         """
         Executes a raw SQL statement or SQLAlchemy construct using a session.
@@ -310,7 +383,20 @@ class UshkaDB:
         -------
         sqlalchemy.engine.Result
             The result object from the execution.
+
+        Raises
+        ------
+        UnsafeValueError
+            If the SQL text is `Untrusted` (built from request data). Use
+            bound parameters, or a t-string on Python 3.14+, which binds every
+            interpolated value automatically:
+            ``await db.execute(t"SELECT * FROM users WHERE id = {user_id}")``.
         """
+        if is_template(stmt):
+            query, params = template_to_sql(stmt)
+            stmt = text(query).bindparams(**params)
+        elif isinstance(stmt, str):
+            stmt = self.text(stmt)
         async with self.Session() as session:
             return await session.execute(stmt)
 
@@ -541,7 +627,7 @@ class UshkaDB:
         Parameters
         ----------
         auto_now : bool, optional
-            If True, sets the default value to the current database date (func.now()).
+            If True, sets the default value to the current database date (func.current_date()).
             By default False.
         nullable : bool, optional
             If True, allows NULL values. By default False.
@@ -552,7 +638,7 @@ class UshkaDB:
             The configured Column object.
         """
         return Column(
-            sqltypes.Date, nullable=nullable, default=func.now() if auto_now else None
+            sqltypes.Date, nullable=nullable, default=func.current_date() if auto_now else None
         )
 
     def Time(self, nullable=False) -> Column:
@@ -588,7 +674,15 @@ class UshkaDB:
         sqlalchemy.Column
             The configured Column object.
         """
-        default_val = default if default is not None else {}
+        # A callable default gives every row its own dict; a literal `{}` would
+        # be one object shared (and mutated) across all rows.
+        if default is None:
+            default_val = dict
+        elif isinstance(default, (dict, list)):
+            snapshot = default
+            default_val = lambda: type(snapshot)(snapshot)  # noqa: E731
+        else:
+            default_val = default
         return Column(sqltypes.JSON, nullable=nullable, default=default_val)
 
     def Enum(self, enum_cls: Type[enum.Enum], nullable=False, default=None) -> Column:

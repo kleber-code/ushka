@@ -8,9 +8,13 @@ import json
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
 
 from ushka.core.exceptions import ContentToJsonParserFailed
+from ushka.guard import check_html, is_template
+from ushka.guard.templates import html as render_template_html
 
 if TYPE_CHECKING:
     from ushka.http.request import Request
+
+_MARKUP_TYPES = {"text/html", "application/xhtml+xml", "image/svg+xml", "text/xml"}
 
 
 class Response:
@@ -48,6 +52,8 @@ class Response:
         self.headers = headers or {}
         self.media_type = media_type or "text/plain"
         self.request = request
+        #: Set for HEAD requests: headers are sent, the body is not.
+        self.head_only = False
 
         # Body Processing
         self._body = ""
@@ -69,24 +75,41 @@ class Response:
         """
 
         # 1. Base Headers
-        asgi_headers = [[b"content-type", self.media_type.encode("utf-8")]]
+        # A Content-Type set in `headers` replaces media_type (never two headers).
+        custom_type = next(
+            (v for k, v in self.headers.items() if k.lower() == "content-type"), None
+        )
+        media_type = custom_type or self.media_type
+        if (media_type.startswith("text/") or media_type == "application/json") and "charset" not in media_type:
+            media_type += "; charset=utf-8"
+        asgi_headers = [[b"content-type", media_type.encode("latin-1")]]
 
         # 2. User-defined Custom Headers
         for key, value in self.headers.items():
+            if key.lower() == "content-type":
+                continue
+            # Header names are case-insensitive, values are NOT: lowercasing
+            # them corrupted Location URLs, tokens and signed values.
+            # CR/LF would allow response splitting / header injection.
+            if any(c in key + value for c in "\r\n\x00"):
+                raise ValueError(f"Invalid character in header {key!r}")
             key_bytes = key.lower().encode("latin-1")
-            value_bytes = value.lower().encode("latin-1")
+            value_bytes = value.encode("latin-1")
             asgi_headers.append([key_bytes, value_bytes])
 
         # 3. Infrastructure Headers (Cookies & Session)
         # The Response asks the Request if something has changed and needs to be saved.
+        # Only what the handler actually touched: reading `request.session`
+        # here would demand a secret key from apps that never use sessions.
         if self.request:
-            # Normal Cookies
-            if self.request.cookies.should_save:
-                asgi_headers.extend(self.request.cookies.get_response_headers())
+            touched = self.request._cached_data
+            cookies = touched.get("cookies")
+            if cookies is not None and cookies.should_save:
+                asgi_headers.extend(cookies.get_response_headers())
 
-            # Session (which also generates Set-Cookie)
-            if self.request.session.should_save:
-                asgi_headers.extend(self.request.session.get_response_headers())
+            session = touched.get("session")
+            if session is not None and session.should_save:
+                asgi_headers.extend(session.get_response_headers())
 
         # 4. Send Start
         await send(
@@ -101,7 +124,9 @@ class Response:
         body_to_send = (
             self._body_bytes if self._body_bytes else self._body.encode("utf-8")
         )
-        await send({"type": "http.response.body", "body": body_to_send})
+        await send(
+            {"type": "http.response.body", "body": b"" if self.head_only else body_to_send}
+        )
 
     @property
     def body(self) -> str:
@@ -131,6 +156,12 @@ class Response:
         self._body = ""
         self._body_bytes = b""
 
+        # t-string (Python 3.14+): HTML safe by construction.
+        if is_template(value):
+            value = render_template_html(value)
+            if self.media_type == "text/plain":
+                self.media_type = "text/html"
+
         if isinstance(value, bytes):
             self._body_bytes = value
             # If the user has not defined media_type, do we keep the default or assume octet-stream?
@@ -140,6 +171,9 @@ class Response:
             if self.media_type == "text/plain":  # Only infers if it's still the default
                 if "<!DOCTYPE html>" in value or "<html" in value:
                     self.media_type = "text/html"
+            # Ushka Guard: untrusted text must not be served as markup.
+            if self.media_type.split(";")[0].strip() in _MARKUP_TYPES:
+                check_html(value)
             self._body = value
 
         elif isinstance(value, (dict, list)):
@@ -149,5 +183,17 @@ class Response:
             except Exception as e:
                 raise ContentToJsonParserFailed(str(e)) from e
 
+        elif isinstance(value, (bool, float)) or value is None:
+            # JSON scalars: `true`, `1.5`, `null`.
+            self.media_type = "application/json"
+            self._body = json.dumps(value)
+
         elif isinstance(value, int):
             self._body = str(value)
+
+        else:
+            raise TypeError(
+                f"Cannot use {type(value).__name__} as a response body. Return str, "
+                "bytes, int, float, bool, None, dict, list, a t-string or a Response; "
+                "for a status code return (body, status)."
+            )

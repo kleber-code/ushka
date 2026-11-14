@@ -1,77 +1,102 @@
 # Flashing Messages
 
-Have you ever submitted a form and been redirected to a new page, only to see a little message at the top that says "Your profile has been updated successfully"? That's a "flashed" message.
+A flash message is a one-time note from one request to the next: "Profile
+saved", shown once on the page you are redirected to, then gone.
 
-Flashing is a way to send a one-time message from one request to the *next* one. It's like leaving a sticky note for the user that they'll see on the very next page they visit. Once they see it, the note disappears.
+## Before you start: sessions
 
-This is incredibly useful for providing feedback after an action.
+Flash messages are stored in the session, a signed cookie, so they need a
+[secret key](configuration.md#the-secret-key):
 
-## Sending a Message: `flash()`
+* Projects created with `ushka new` already have one in `.env`.
+* `ushka dev` (debug on) generates a temporary key if none is set.
+* Without a key and with debug off, `flash()` raises a `RuntimeError` that
+  explains how to create one.
 
-To send a message, you use the `flash()` function. It requires the `request` object, the message you want to send, and an optional category.
+With debug off the session cookie is marked `Secure`, so browsers only send it
+back over **HTTPS**. Serve production behind HTTPS (directly or through a
+proxy), or messages will seem to vanish.
 
-Let's imagine a user is updating their profile.
+## Sending a message: `flash()`
 
 ```python
-from ushka.utils.flash import flash, Category
-from ushka.http.request import Request
-from ushka.http.redirect import redirect
+# routes/profile.py
+from ushka.http import redirect
+from ushka.templating import render
+from ushka.utils import Category, flash
 
-async def post(request: Request):
-    # ... process the form data and update the user's profile ...
 
+async def get(request):
+    return await render(request, "profile.html")
+
+
+async def post(request):
+    form = await request.form()
+    # ... validate and save form["name"] ...
     flash(request, "Your profile has been updated!", Category.SUCCESS)
-
     return redirect("/profile")
 ```
 
-Here's what happens:
-1.  The user submits the form to this `post` handler.
-2.  The code updates the profile in the database.
-3.  We call `flash()`. This stores the message `"Your profile has been updated!"` and the category `"success"` in the user's session.
-4.  The user is redirected to the `/profile` page.
+`flash(request, message, category="info")` appends the message to the
+session. The session cookie is saved on the redirect response automatically.
 
-## Displaying the Message in a Template
+## Showing messages in a template
 
-Now, on the `/profile` page, we need to display the message we just flashed.
-
-Ushka provides a `flash_processor` that automatically makes flashed messages available in your templates. You can access them through the `messages` variable.
-
-The `messages` variable is a list of tuples, where each tuple is `(category, message)`.
-
-Here's how you might display them in your template:
+Every template rendered with `render()` gets a `messages` variable: a list of
+`(category, message)` pairs. Rendering it also removes them from the session,
+so they appear exactly once.
 
 ```html
-<!-- In your base layout or profile template -->
-
+<!-- templates/profile.html (or your base layout) -->
 {% if messages %}
   <div class="flashes">
     {% for category, message in messages %}
-      <div class="alert alert-{{ category }}">
-        {{ message }}
-      </div>
+      <div class="alert alert-{{ category }}">{{ message }}</div>
     {% endfor %}
   </div>
 {% endif %}
 ```
 
-When the `/profile` page is rendered, this code will:
-1.  Check if there are any messages in the `messages` list.
-2.  Loop through them.
-3.  Render a `div` for each message, using the `category` to apply a CSS class (e.g., `alert-success`).
-4.  Display the message text.
+Messages are autoescaped like any other value, so it is fine to include user
+input in them.
 
-The magic is that once this page has been rendered, the messages are removed from the session. If the user refreshes the page, the messages will be gone.
+## Reading messages in Python
 
-## Message Categories
+Outside templates (in a JSON API, for example) use `get_flashed_messages()`.
+It also removes the messages from the session.
 
-Categories help you style your messages. Think of them as labels. Ushka provides a few common categories out of the box in the `Category` enum:
+```python
+from ushka.utils import get_flashed_messages
 
-*   `Category.SUCCESS`: For positive feedback, like "Item created successfully."
-*   `Category.DANGER`: For errors or destructive actions, like "Could not delete item."
-*   `Category.WARNING`: For important, but not critical, information.
-*   `Category.INFO`: For general information (the default).
 
-You can use these categories to apply different colors or icons to your messages, making your UI more intuitive for the user.
+async def get(request):
+    return {
+        "messages": get_flashed_messages(request),                       # ["Saved!"]
+        # or: get_flashed_messages(request, with_categories=True)        # [["success", "Saved!"]]
+    }
+```
 
-> **Ushka Tip:** Don't go crazy with flashing. It's for simple, direct feedback. If you need to convey complex information or preserve data across multiple pages, a different approach (like storing it in the database or using more complex session management) is probably a better fit. Keep it simple, keep it flashy!
+Call it once per request: the first call takes the messages. Requests from
+clients without a session cookie simply get an empty list.
+
+## Categories
+
+`Category` gives you four standard labels; any string works too.
+
+| Value | Typical use |
+| --- | --- |
+| `Category.SUCCESS` (`"success"`) | Something worked. |
+| `Category.DANGER` (`"danger"`) | An error or a destructive action. |
+| `Category.WARNING` (`"warning"`) | Worth attention, not critical. |
+| `Category.INFO` (`"info"`) | General information (the default). |
+
+```python
+flash(request, "Could not delete the item.", Category.DANGER)
+flash(request, "Exported 42 rows.", "export")   # custom category
+```
+
+Categories are lower-cased, which makes them handy as CSS class names
+(`alert-success`, `alert-danger`, ...).
+
+> **Ushka Tip:** Keep flash messages short. The session lives in a cookie, and
+> browsers limit cookies to about 4 KB.

@@ -2,215 +2,58 @@
 
 {% block title %}Oopsie! {{ exception_type }}{% endblock %}
 
-{% block body_classes %}h-screen overflow-hidden flex flex-col bg-[var(--bg-color)]{% endblock %}
-
-{% block head_extra %}
-<style>
-    /* Basic reset to ensure highlight.js doesn't interfere */
-    .hljs, pre, code { background: transparent !important; color: inherit; }
-
-    /* Active Frame in sidebar list */
-    .frame-active {
-        background-color: var(--code-bg) !important;
-        border-left: 4px solid var(--text-main);
-        font-weight: bold;
-    }
-    
-    /* --- HIGHLIGHTING THE ERROR LINE --- */
-    .code-line {
-        transition: all 0.2s ease;
-    }
-
-    .code-line.error {
-        /* Color Inversion: Dark background on Light, Light on Dark */
-        background-color: var(--accent-hover) !important; 
-        color: var(--code-bg) !important;
-        
-        /* Cute details */
-        font-weight: bold;
-        /* Rounded corners for the line */
-        /* A little space so it doesn't stick */
-        /* Soft shadow to highlight */
-        /* Slight zoom to pop out */
-    }
-
-    /* Adjust line number within the error (needs color inversion too) */
-    .code-line.error .lineno {
-        color: var(--bg-color) !important;
-        border-right: 1px solid var(--bg-color) !important;
-        opacity: 0.8;
-    }
-    
-    /* Force code within the error line to inherit inverted color */
-    .code-line.error code {
-        color: inherit !important;
-    }
-    
-    .vars-table td { word-break: break-word; }
-</style>
-{% endblock %}
-
 {% block main_content %}
-    <header class="flex-shrink-0 bg-[var(--card-bg)] border-b border-[var(--card-border)] px-4 py-3 md:px-6 md:py-4 flex items-center justify-between z-20 shadow-sm relative">
-        <div class="flex items-center gap-3 md:gap-4 overflow-hidden">
-            <div class="kaomoji text-2xl md:text-3xl animate-pulse flex-shrink-0">/ᐠ - ˕ -マ Ⳋ</div>
-            <div class="overflow-hidden">
-                <h1 class="text-lg md:text-xl font-extrabold text-[var(--text-main)] truncate">Ushka Tripped!</h1>
-                <div class="text-xs font-bold text-[var(--text-sub)] uppercase tracking-wide bg-[var(--bg-color)] px-2 py-1 rounded-full inline-block mt-1 truncate">
-                    {{ exception_type }}
-                </div>
-            </div>
-        </div>
-        <button onclick="copyTraceback()" class="btn-cute text-xs flex-shrink-0 py-2 px-4 flex items-center gap-2 ml-2">
-            <i class="fa-solid fa-clipboard"></i>
-            <span id="copy-text" class="hidden md:inline">COPY</span>
-        </button>
+  <main class="wrap wrap-wide stack">
+    <header class="debug-head">
+      <span class="mascot mascot-sm" role="img" aria-label="Ushka the cat, flustered">ฅ^&gt;ﻌ&lt;^ฅ</span>
+      <div>
+        <h1>Ushka tripped! <span class="tag">500</span></h1>
+        <p class="muted small">Unhandled <code>{{ exception_type }}</code> &middot; debug mode is on, never enable it in production</p>
+      </div>
     </header>
 
-    <div class="bg-[var(--error-bg)] px-4 py-4 md:px-6 md:py-6 border-b border-[var(--card-border)] flex-shrink-0 text-[var(--error-color)]">
-        <p class="font-mono text-sm md:text-lg break-words font-semibold leading-relaxed">
-            <i class="fa-solid fa-circle-exclamation mr-2 opacity-70"></i>
-            {{ exception_message }}
-        </p>
-    </div>
+    <pre class="err-box" aria-label="Exception message"><strong>{{ exception_type }}</strong>{% if exception_message %}: {{ exception_message }}{% endif %}</pre>
 
-    <div class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
-        
-        <nav id="frame-list" class="h-1/3 md:h-full w-full md:w-96 bg-[var(--card-bg)] border-b md:border-b-0 md:border-r border-[var(--card-border)] overflow-y-auto flex-shrink-0 flex flex-col shadow-sm z-10">
-            <div class="p-3 bg-[var(--bg-color)] border-b border-[var(--card-border)] text-xs font-bold text-[var(--text-sub)] uppercase tracking-wider sticky top-0 z-10 flex items-center gap-2">
-                <i class="fa-solid fa-layer-group"></i> Trace Path
-            </div>
-            
-            {% for frame in frames %}
-            <button 
-                class="frame-item text-left p-4 border-b border-[var(--card-border)] hover:bg-[var(--bg-color)] transition-all focus:outline-none group {% if loop.first %}frame-active{% endif %}" 
-                data-frame-id="frame-{{ loop.index0 }}"
-            >
-                <div class="flex justify-between items-baseline mb-1">
-                    <span class="frame-func font-bold text-[var(--text-main)] font-mono text-sm truncate pr-2 transition-colors">
-                        {{ frame.function_name }}()
-                    </span>
-                    <span class="text-xs text-[var(--text-sub)] font-mono bg-[var(--bg-color)] px-2 py-0.5 rounded-full">L:{{ frame.line }}</span>
-                </div>
-                <div class="text-xs text-[var(--text-sub)] truncate font-mono opacity-75 group-hover:opacity-100 transition-opacity">
-                    {{ frame.filepath }}
-                </div>
-            </button>
-            {% endfor %}
-        </nav>
+    <section aria-labelledby="trace-title">
+      <h2 id="trace-title" class="small muted section-title">Traceback &middot; most recent call first ({{ frames|length }} frame{{ '' if frames|length == 1 else 's' }})</h2>
+      {% for frame in frames|reverse %}
+        <details class="frame"{% if loop.first %} open{% endif %}>
+          <summary>
+            <span class="fn">{{ frame.function_name }}()</span>
+            <span class="tag">line {{ frame.line }}</span>
+            {% if loop.first %}<span class="tag badge-now">raised here</span>{% endif %}
+            <span class="path">{{ frame.filepath }}</span>
+          </summary>
+          <div class="frame-body">
+            {% if frame.context %}
+            <pre class="code" aria-label="Source around line {{ frame.line }}"><code>{% for lineno, linetext in frame.context %}<span class="line{% if lineno == frame.line %} hl{% endif %}"><span class="ln">{{ lineno }}</span>{{ linetext }}
+</span>{% endfor %}</code></pre>
+            {% else %}
+            <p class="muted small">Source not available for this frame.</p>
+            {% endif %}
+            <details class="sub"{% if loop.first %} open{% endif %}>
+              <summary>Local variables <span class="tag">{{ frame.locals|length }}</span></summary>
+              {% if frame.locals %}
+              <table class="vars">
+                <tbody>
+                  {% for name, value in frame.locals.items() %}
+                  <tr><th scope="row">{{ name }}</th><td>{{ value }}</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+              {% else %}
+              <p class="muted small">No variables here. ฅ^•ﻌ•^ฅ</p>
+              {% endif %}
+            </details>
+          </div>
+        </details>
+      {% endfor %}
+    </section>
 
-        <main id="frame-details-container" class="flex-1 bg-[var(--code-bg)] overflow-y-auto relative">
-            {% for frame in frames %}
-            <div id="frame-{{ loop.index0 }}" class="frame-detail min-h-full flex flex-col {% if not loop.first %}hidden{% endif %}">
-                
-                <div class="px-4 py-3 md:px-6 border-b border-[var(--card-border)] flex items-center gap-2 sticky top-0 bg-[var(--card-bg)]/95 backdrop-blur z-20 shadow-sm">
-                    <i class="fa-regular fa-file-code text-[var(--text-sub)]"></i>
-                    <span class="text-[var(--text-sub)] font-mono text-xs md:text-sm font-bold break-all">
-                        {{ frame.filepath }}
-                    </span>
-                </div>
-
-                <div class="flex-1 py-6 px-2">
-                    <div class="overflow-x-auto rounded-cute bg-[var(--card-bg)] border border-[var(--card-border)] shadow-sm mx-2 md:mx-4 p-2">
-                        {% for lineno, linetext in frame.context %}
-                            <div class="code-line flex {% if lineno == frame.line %}error{% endif %}">
-                                <span class="lineno w-12 text-right pr-4 text-[var(--text-sub)] select-none text-xs leading-6 font-mono border-r border-[var(--card-border)] mr-2 opacity-70">
-                                    {{ lineno }}
-                                </span>
-                                <pre class="flex-1 m-0"><code class="language-python text-sm leading-6 inline-block min-w-full font-mono">{{ linetext }}</code></pre>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <div class="px-2 md:px-6 pb-8">
-                    <details class="group bg-[var(--card-bg)] border border-[var(--card-border)] rounded-cute open:shadow-md transition-all">
-                        <summary class="px-4 py-3 cursor-pointer select-none flex items-center gap-2 font-bold text-[var(--text-main)] hover:bg-[var(--bg-color)] rounded-cute transition-colors">
-                            <i class="fa-solid fa-box-open"></i>
-                            <span>Local Scope</span>
-                            <span class="ml-auto text-xs bg-[var(--text-main)] text-[var(--bg-color)] font-extrabold px-2.5 py-0.5 rounded-full">{{ frame.locals|length }}</span>
-                        </summary>
-                        
-                        <div class="p-4 border-t border-[var(--card-border)] bg-[var(--code-bg)] rounded-b-cute overflow-x-auto">
-                            {% if frame.locals %}
-                            <table class="w-full text-xs text-left border-collapse vars-table">
-                                <tbody class="font-mono">
-                                    {% for name, value in frame.locals.items() %}
-                                    <tr class="border-b border-[var(--card-border)] last:border-0 hover:bg-[var(--bg-color)] transition-colors">
-                                        <td class="py-2.5 pr-4 text-[var(--text-main)] font-bold align-top w-1/4 select-all">{{ name }}</td>
-                                        <td class="py-2.5 text-[var(--text-sub)] break-all whitespace-pre-wrap select-all opacity-90">{{ value|e }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                            {% else %}
-                                <div class="text-center text-[var(--text-sub)] italic text-sm py-4">
-                                    <i class="fa-regular fa-folder-open mb-2 block text-2xl opacity-50"></i>
-                                    No variables here.
-                                </div>
-                            {% endif %}
-                        </div>
-                    </details>
-                </div>
-            </div>
-            {% endfor %}
-        </main>
-    </div>
-
-    <textarea id="raw-traceback" class="hidden">{{ traceback_text }}</textarea>
-{% endblock %}
-
-{% block scripts_extra %}
-    <script>
-      function copyTraceback() {
-        const rawText = document.getElementById('raw-traceback').value;
-        const btnText = document.getElementById('copy-text');
-        const originalText = btnText.innerText;
-        
-        navigator.clipboard.writeText(rawText).then(() => {
-            btnText.innerHTML = '<i class="fa-solid fa-check"></i>';
-            setTimeout(() => {
-                btnText.innerText = originalText;
-            }, 2000);
-        });
-      }
-      
-      document.addEventListener('DOMContentLoaded', () => {
-        const frameList = document.getElementById('frame-list');
-        if (frameList) {
-            frameList.addEventListener('click', (event) => {
-              const button = event.target.closest('.frame-item');
-              if (!button) return;
-              document.querySelectorAll('.frame-item').forEach(item => {
-                item.classList.remove('frame-active');
-              });
-              button.classList.add('frame-active');
-              document.querySelectorAll('.frame-detail').forEach(detail => {
-                detail.classList.add('hidden');
-              });
-              const frameId = button.dataset.frameId;
-              const detail = document.getElementById(frameId);
-              if(detail) {
-                  detail.classList.remove('hidden');
-                  // Auto-scroll to error line when changing frame
-                  const errorLine = detail.querySelector('.code-line.error');
-                  if (errorLine) {
-                      errorLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                  }
-              }
-            });
-            
-            // Initial auto-scroll
-            const firstDetail = document.querySelector('.frame-detail:not(.hidden)');
-            if (firstDetail) {
-                const errorLine = firstDetail.querySelector('.code-line.error');
-                if (errorLine) {
-                    setTimeout(() => {
-                        errorLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 100);
-                }
-            }
-        }
-      });
-    </script>
+    <details class="frame">
+      <summary><span class="fn">Raw traceback</span><span class="path">Plain text, ready to select and copy.</span></summary>
+      <div class="frame-body"><pre class="code raw"><code>{{ traceback_text }}</code></pre></div>
+    </details>
+  </main>
+  <footer class="site">Ushka{% if framework_version and framework_version != 'unknown' %} v{{ framework_version }}{% endif %} &middot; ฅ^•ﻌ•^ฅ &middot; this page is only shown when <code>debug = true</code></footer>
 {% endblock %}

@@ -1,168 +1,210 @@
-# Command-Line Interface (CLI)
+# Command-Line Interface
 
-Ushka comes with a handy command-line interface (CLI) to help you with common development tasks. You can access it through the `ushka` command.
+Installing Ushka gives you the `ushka` command. It is built on the standard
+library (`argparse`), so it adds no dependencies.
 
 <!-- termynal -->
-```bash
+```console
 $ ushka --help
-Usage: ushka [OPTIONS] COMMAND [ARGS]...
+usage: ushka [-h] [-V] <command> ...
 
-  Ushka CLI
+Ushka: the web framework where untrusted data cannot slip through.
 
-Options:
-  --help  Show this message and exit.
+positional arguments:
+  <command>
+    new          create a new project
+    dev          development server (reload, debug on)
+    run          production server
+    check        validate configuration and security settings
+    routes       list and manage filesystem routes
+    db           database migrations (needs ushka[orm])
 
-Commands:
-  db      Database commands
-  dev     Starts the development server with auto-reload
-  new     Creates a new Ushka project
-  routes  Route management
-  run     Starts the production server
-
-$ ushka new my_awesome_project
-🚀 Creating new Ushka project: my_awesome_project
-✅ Project 'my_awesome_project' created successfully!
-
-$ cd my_awesome_project
-$ ushka dev
-INFO: Starting Ushka server in development mode on http://127.0.0.1:8000
-INFO: Auto-reload is enabled.
+options:
+  -h, --help     show this help message and exit
+  -V, --version  show program's version number and exit
 ```
 
-## Creating a New Project
+Every command has its own `--help` (`ushka dev --help`, `ushka db make --help`).
+`ushka --version` prints the installed version. Errors are printed with a short
+explanation and exit with status 1.
 
-The `new` command is the easiest way to start a new Ushka project. It creates a new directory with a recommended project structure, including a sample application, configuration file, and templates.
+Run the commands from your project directory: `dev`, `run`, `check`, `routes`
+and `db` read `ushka.toml`, `.env`, `routes/` and `app.py` from there.
+
+## `ushka new`
 
 ```bash
 ushka new my_project
 ```
 
-This will create a `my_project` directory with everything you need to get started.
+Creates `my_project/` with a runnable, secure-by-default layout:
 
-## Development Server (`dev`)
+| File | Contents |
+| --- | --- |
+| `app.py` | `app = Ushka()` and `app.run()` under `__main__`. |
+| `ushka.toml` | App name, `debug = false`, a SQLite URL and static files on. |
+| `.env` | A freshly generated `USHKA_APP_SECRET_KEY`. |
+| `.env.example` | The same keys, empty, safe to commit. |
+| `.gitignore` | Excludes `.env`, `*.db`, caches and virtualenvs. |
+| `AGENTS.md` | Rules for AI coding agents working on the project (layout, Ushka Guard, sanitisers). |
+| `routes/index.py` | `GET /`, rendering the template. |
+| `templates/index.html` | The welcome page. |
+| `static/style.css` | Its stylesheet. |
 
-The `dev` command starts the development server. This command is designed for local development and includes features like auto-reloading when you change your code.
+The name must start with a letter and contain only letters, digits, `-` and
+`_` (up to 64 characters). The command refuses to overwrite an existing
+directory.
+
+## `ushka dev`
 
 ```bash
-ushka dev
-```
-
-This will start a Uvicorn server on `http://127.0.0.1:8000` with auto-reload enabled.
-
-### Server Options
-
-*   `--host`: The host to bind to. Defaults to `127.0.0.1`.
-*   `--port`: The port to listen on. Defaults to `8000`.
-
-Example:
-
-```bash
+ushka dev                          # serves app:app
 ushka dev --host 0.0.0.0 --port 5000
+ushka dev myapp.main:application   # another module:attribute
 ```
 
-## Production Server (`run`)
+```text
+usage: ushka dev [-h] [--host HOST] [--port PORT] [app]
+```
 
-The `run` command starts the server in production mode. This command is optimized for performance and does not include auto-reloading.
+The development server: it reloads when your code changes and turns
+**debug on** (it sets `USHKA_APP_DEBUG=true` for the process), so you get the
+debug error page and a per-process secret key if you have none. Host and port
+default to `[server] host` and `port` (`127.0.0.1:8000`).
+
+## `ushka run`
 
 ```bash
 ushka run
+ushka run --host 0.0.0.0 --port 8080
 ```
 
-You can use the `--host` and `--port` options to configure the server, just like with the `dev` command. It's recommended to configure the number of workers in your `config.toml` file for production use.
+```text
+usage: ushka run [-h] [--host HOST] [--port PORT] [app]
+```
 
-## Route Management
+The production server: no reload, debug taken from your configuration, and
+`[server] workers` worker processes:
 
-The `routes` command provides a set of tools for managing your application's routes.
+```toml
+# ushka.toml
+[server]
+host = "0.0.0.0"
+port = 8080
+workers = 4
+```
 
-### `routes list`
+It warns when debug is on or when `USHKA_APP_SECRET_KEY` is missing. Run
+`ushka check --production` before deploying to turn those warnings into a
+failing check.
 
-Lists all the registered routes in your application. This is useful for debugging and for getting an overview of your application's endpoints.
+## `ushka check`
 
 ```bash
-ushka routes list
+ushka check
+ushka check --production
 ```
 
-### `routes add`
+Prints the main settings with the layer each one came from, then checks the
+project:
 
-Creates a new route file with a basic `get` function.
+```text
+ฅ^•ﻌ•^ฅ Ushka 0.4.0 · checking /home/me/hello
+
+  Settings
+  · app_debug = False  [ushka.toml]
+  · app_secret_key = (set)  [.env]
+  · database_url = 'sqlite:///hello.db'  [ushka.toml]
+  · security_taint = True  [default]
+  · server_host = '127.0.0.1'  [default]
+  · server_port = 8000  [default]
+  · static_enable = True  [ushka.toml]
+
+  Checks
+  ✓ ushka.toml found
+  ✓ Ushka Guard is on
+  ✓ debug is off
+  ✓ secret key is set
+  ✓ .env is git-ignored
+  ✓ 1 route file(s) in routes/
+  ✓ Python 3.14.0: t-strings available
+
+  ✓ all good ฅ^•ﻌ•^ฅ
+```
+
+It reports a problem when:
+
+* `ushka.toml` contains `secret_key` (it belongs in `.env`);
+* [Ushka Guard](guard.md) is turned off (`[security] taint = false`);
+* `.env` exists but is not listed in `.gitignore`;
+* with `--production`: debug is on, or the secret key is missing, only
+  generated for debug, or shorter than 32 characters.
+
+The command exits with status 1 when it finds a problem, so it works as a CI
+step or a pre-deploy gate:
+
+```yaml
+# .github/workflows/deploy.yml (excerpt)
+- run: ushka check --production
+  env:
+    USHKA_APP_SECRET_KEY: ${{ secrets.USHKA_APP_SECRET_KEY }}
+```
+
+## `ushka routes`
 
 ```bash
-ushka routes add /users/profile
+ushka routes list                        # every registered route
+ushka routes add /users                  # creates routes/users.py
+ushka routes add "/users/[user_id]"      # creates routes/users/[user_id].py
+ushka routes mv /users/profile /account  # moves the file
+ushka routes rm /account                 # deletes routes/account.py
 ```
 
-This will create the file `routes/users/profile.py`.
+`list` imports your app (`app:app` by default, or pass `module:attribute`) and
+prints each path with its methods:
 
-### `routes rm`
+```text
+ฅ^•ﻌ•^ฅ 2 route(s)
+  · / - GET
+  · /static/[path:filename] - GET
+```
 
-Removes a route file.
+`add`, `rm` and `mv` map URLs to files the same way the
+[router](routing.md#filesystem-routes) does: `/` is `routes/index.py`,
+`/users/[user_id]` is `routes/users/[user_id].py`. New files contain a small
+`get` handler. Segments may use letters, digits, `-`, `_`, `.`, or a parameter
+like `[user_id]` or `[path:rest]`; `..` and anything else is rejected, so the
+command cannot touch files outside `routes/`.
+
+!!! tip
+    Quote paths that contain brackets. Shells such as zsh treat `[...]` as a
+    pattern and fail with "no matches found" otherwise.
+
+## `ushka db`
+
+Database migrations with Alembic. Needs the ORM extra:
 
 ```bash
-ushka routes rm /users/profile
+pip install "ushka[orm]"
 ```
 
-This will delete the file `routes/users/profile.py`.
+| Command | What it does |
+| --- | --- |
+| `ushka db init` | Creates `migrations/` and `alembic.ini` (once per project). |
+| `ushka db make [-m MESSAGE]` | Generates a migration from your model changes. Without `-m`, the message is `auto_<timestamp>`. |
+| `ushka db migrate` | Applies all pending migrations. |
+| `ushka db revert [revision]` | Reverts one step (default `-1`), to `base` (everything) or to a revision id. |
+| `ushka db history` | Lists all migrations. |
+| `ushka db status` | Shows the revision the database is at. |
 
-### `routes mv`
-
-Moves or renames a route file.
-
-```bash
-ushka routes mv /users/profile /account/settings
-```
-
-This will move the file `routes/users/profile.py` to `routes/account/settings.py`.
-
-
-## Database Migrations
-
-Ushka provides a set of commands to help you manage your database schema using Alembic.
-
-### `db init`
-
-This command initializes the migrations environment. It creates a `migrations` directory and an `alembic.ini` file in your project.
+A typical session:
 
 ```bash
 ushka db init
-```
-
-### `db make`
-
-Once you've made changes to your models (e.g., added a new column), you can use the `make` command to automatically generate a new migration script.
-
-```bash
-ushka db make "Add a bio column to the user model"
-```
-
-### `db migrate`
-
-This command applies all pending migrations to your database.
-
-```bash
+ushka db make -m "create users"
 ushka db migrate
 ```
 
-### `db revert`
-
-If you need to undo a migration, you can use the `revert` command. By default, it will revert the last migration.
-
-```bash
-ushka db revert
-```
-
-### `db status`
-
-This command shows the current revision of your database.
-
-```bash
-ushka db status
-```
-
-### `db history`
-
-This command shows the full migration history.
-
-```bash
-ushka db history
-```
-
-> **Ushka Tip:** Database migrations are a powerful tool for managing changes to your database schema over time. It's a good practice to create a new migration for every change you make to your models. This makes it easy to track changes and to collaborate with other developers.
+The migrations use the same database URL as the app (`[database] url`,
+`USHKA_DATABASE_URL` or `DATABASE_URL`) and find your models by importing
+`app.models`, `app` or `main`. See [ORM](orm.md#creating-the-tables-migrations).

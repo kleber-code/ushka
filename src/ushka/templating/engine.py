@@ -10,6 +10,7 @@ from pathlib import Path
 
 from jinja2 import ChoiceLoader, Environment, FileSystemLoader, select_autoescape
 
+from ushka.guard import check_markup
 from ushka.utils.flash import get_flashed_messages
 
 if typing.TYPE_CHECKING:
@@ -47,11 +48,9 @@ class UshkaTemplates:
             Path(__file__).parent.parent / "internal/default_templates"
         )
 
+        self._project_loader = FileSystemLoader(str(project_templates))
         self.loader = ChoiceLoader(
-            [
-                FileSystemLoader(str(project_templates)),
-                FileSystemLoader(str(framework_templates)),
-            ]
+            [self._project_loader, FileSystemLoader(str(framework_templates))]
         )
 
         self.env = Environment(
@@ -60,7 +59,24 @@ class UshkaTemplates:
             enable_async=True,
         )
 
+        # Ushka Guard: `{{ value|safe }}` on client data is the classic way to
+        # reintroduce XSS into an autoescaped template; refuse it.
+        builtin_safe = self.env.filters["safe"]
+
+        def guarded_safe(value):
+            check_markup(value)
+            return builtin_safe(value)
+
+        self.env.filters["safe"] = guarded_safe
+
         self.context_processors = context_processors or []
+
+    def set_project_dir(self, path: typing.Union[str, Path]) -> None:
+        """Points the project loader at `path` (the app calls this with
+        ``<app dir>/templates``). Framework templates stay as the fallback."""
+        self._project_loader.searchpath = [str(path)]
+        if self.env.cache is not None:
+            self.env.cache.clear()
 
     def add_filter(self, name: str, func: typing.Callable) -> None:
         """Adds a custom filter to the Jinja2 environment.

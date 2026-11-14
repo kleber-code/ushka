@@ -1,0 +1,3 @@
+# Safe
+
+::: ushka.guard.safe
