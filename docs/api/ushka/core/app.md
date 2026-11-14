@@ -1,3 +1,0 @@
-# App
-
-::: ushka.core.app

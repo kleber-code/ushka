@@ -53,6 +53,18 @@ def build_parser() -> argparse.ArgumentParser:
         "--production", action="store_true", help="also require debug off and a secret key"
     )
 
+    docs = sub.add_parser("docs", help="check or preview Markdown docs (needs ushka[docs])")
+    docsub = docs.add_subparsers(dest="docs_command", metavar="<action>")
+    for name, help_text in (("check", "verify links, anchors and nav (exit 1 on problems)"),
+                            ("serve", "preview the docs locally")):
+        p = docsub.add_parser(name, help=help_text)
+        p.add_argument("directory", nargs="?", default="docs", help="docs folder (default: docs)")
+        p.add_argument("--api", default=None, help="package to document from docstrings")
+        p.add_argument("--api-path", default="src", help="where that package lives (default: src)")
+        if name == "serve":
+            p.add_argument("--host", default="127.0.0.1")
+            p.add_argument("--port", type=int, default=8001)
+
     routes = sub.add_parser("routes", help="list and manage filesystem routes")
     rsub = routes.add_subparsers(dest="routes_command", metavar="<action>")
     p = rsub.add_parser("list", help="list registered routes")
@@ -76,7 +88,7 @@ def build_parser() -> argparse.ArgumentParser:
     dsub.add_parser("history", help="show migration history")
     dsub.add_parser("status", help="show the current revision")
 
-    parser.set_defaults(_routes=routes, _db=db)
+    parser.set_defaults(_routes=routes, _db=db, _docs=docs)
     return parser
 
 
@@ -102,6 +114,17 @@ def main(argv: list[str] | None = None) -> None:
 
         if check(production=args.production):
             raise SystemExit(1)
+
+    elif args.command == "docs":
+        from ushka.cli.commands import docs as docs_command
+
+        if args.docs_command == "check":
+            if docs_command.check(args.directory, args.api, args.api_path):
+                raise SystemExit(1)
+        elif args.docs_command == "serve":
+            docs_command.serve(args.directory, args.api, args.api_path, args.host, args.port)
+        else:
+            args._docs.print_help()
 
     elif args.command == "routes":
         from ushka.cli.commands import routes

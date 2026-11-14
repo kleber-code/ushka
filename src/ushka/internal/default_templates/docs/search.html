@@ -1,0 +1,26 @@
+{% extends "docs/layout.html" %}
+
+{% block title %}{% if query %}Search: {{ query }} | {% endif %}{{ docs.title }}{% endblock %}
+{% block head %}<meta name="robots" content="noindex">{% endblock %}
+
+{% block content %}
+  <article class="d-article">
+    <h1>Search</h1>
+    {%- if not query %}
+    <p>Type words in the search box above.</p>
+    {%- elif not results %}
+    <p>Nothing matches <strong>{{ query }}</strong>. Try fewer or different words.</p>
+    {%- else %}
+    <p>{{ results | length }} result{{ "s" if results | length != 1 }} for <strong>{{ query }}</strong>.</p>
+    <ol class="d-results">
+      {%- for r in results %}
+      <li>
+        <a href="{{ docs.prefix }}/{{ r.page.url }}{% if r.anchor %}#{{ r.anchor }}{% endif %}">{{ r.page.title }}</a>
+        {%- if r.page.section %} <span class="d-results__section">{{ r.page.section }}</span>{% endif %}
+        <p>{{ r.snippet }}</p>
+      </li>
+      {%- endfor %}
+    </ol>
+    {%- endif %}
+  </article>
+{% endblock %}

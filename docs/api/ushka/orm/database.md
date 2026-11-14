@@ -1,3 +1,0 @@
-# Database
-
-::: ushka.orm.database

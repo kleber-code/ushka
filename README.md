@@ -3,7 +3,7 @@
 # Ushka
 
 [![PyPI Version](https://img.shields.io/pypi/v/ushka)](https://pypi.org/project/ushka/)
-[![Documentation](https://img.shields.io/badge/docs-kleber--code.github.io%2Fushka-pink)](https://kleber-code.github.io/ushka/)
+[![Documentation](https://img.shields.io/badge/docs-ushka.satela.com.br-F07A3A)](https://ushka.satela.com.br/docs/)
 ![Python Versions](https://img.shields.io/pypi/pyversions/ushka)
 ![License](https://img.shields.io/pypi/l/ushka)
 
@@ -35,7 +35,7 @@ OWASP Top 10 flaws in
 Apps also pass **model output** into HTML, redirects and SQL, where prompt
 injection can steer it. Ushka puts the check where it cannot be skipped: in
 the framework, at runtime, on your real code. Read
-[Why Ushka changed](https://kleber-code.github.io/ushka/why-ushka-changed/).
+[Why Ushka changed](https://ushka.satela.com.br/docs/why-ushka-changed/).
 
 ## What's in the box
 
@@ -50,7 +50,8 @@ the framework, at runtime, on your real code. Read
   - Async Active Record ORM on SQLAlchemy, with migrations in `ushka db` (extra `ushka[orm]`).
   - Jinja2 templates, signed sessions, cookies, flash messages, file uploads and request size limits.
 - **Config.** Defaults, then `ushka.toml`, then `.env`, then environment variables, all without extra packages. `DATABASE_URL` works out of the box.
-- **CLI.** `new`, `dev`, `run`, `check` (CI-friendly security check), `routes` and `db`.
+- **Ushka Docs.** A Markdown folder becomes a searchable docs site with an API reference, served by your app (`ushka[docs]`).
+- **CLI.** `new`, `dev`, `run`, `check` (CI-friendly security check), `docs`, `routes` and `db`.
 - **Low dependency.** The core needs only `uvicorn`, `jinja2` and `python-multipart` (plus `tomli` on 3.10).
 
 ## Quick start
@@ -98,8 +99,8 @@ ushka check --production   # fails (exit 1) on debug on, missing secret, guard o
 ## Documentation
 
 Guides, the Ushka Guard reference and the API reference are at
-**https://kleber-code.github.io/ushka/**. For AI tools there is
-[`llms.txt`](https://kleber-code.github.io/ushka/llms.txt).
+**https://ushka.satela.com.br/docs/**. For AI tools there is
+[`llms.txt`](https://ushka.satela.com.br/llms.txt).
 
 ## Contributing
 

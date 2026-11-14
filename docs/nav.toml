@@ -1,0 +1,66 @@
+# Navigation for Ushka Docs (ushka.docs). Pages are listed in reading order;
+# the API reference is generated from the docstrings of these modules.
+
+[[section]]
+title = ""
+pages = ["index.md", "why-ushka-changed.md", "features.md"]
+
+[[section]]
+title = "Guide"
+pages = [
+    "guide/index.md",
+    "guide/guard.md",
+    "guide/configuration.md",
+    "guide/routing.md",
+    "guide/templates.md",
+    "guide/static_files.md",
+    "guide/orm.md",
+    "guide/cli.md",
+    "guide/dependency_injection.md",
+    "guide/flashing.md",
+    "guide/error_handling.md",
+    "guide/docs.md",
+]
+
+[[section]]
+title = "Tutorials"
+pages = ["tutorials/index.md", "guide/tutorial_simple_api.md"]
+
+[[section]]
+title = "Project"
+pages = ["roadmap.md"]
+
+[api]
+title = "API reference"
+modules = [
+    "ushka.cli.commands.check",
+    "ushka.cli.commands.db",
+    "ushka.cli.commands.dev",
+    "ushka.cli.commands.new",
+    "ushka.cli.commands.routes",
+    "ushka.cli.commands.run",
+    "ushka.core.app",
+    "ushka.core.config",
+    "ushka.core.error_handler",
+    "ushka.core.exceptions",
+    "ushka.core.log",
+    "ushka.core.router",
+    "ushka.guard.errors",
+    "ushka.guard.rewrite",
+    "ushka.guard.safe",
+    "ushka.guard.sinks",
+    "ushka.guard.templates",
+    "ushka.guard.untrusted",
+    "ushka.http.cookies",
+    "ushka.http.error",
+    "ushka.http.exceptions",
+    "ushka.http.multipart",
+    "ushka.http.redirect",
+    "ushka.http.request",
+    "ushka.http.response",
+    "ushka.http.sessions",
+    "ushka.orm.database",
+    "ushka.static.files",
+    "ushka.templating.engine",
+    "ushka.utils.flash",
+]

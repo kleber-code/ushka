@@ -18,7 +18,8 @@ from ushka.core.log import LogLevelType, get_log_config, setup_logging
 from ushka.http.exceptions import HTTPMethodNotAllowed, HttpNotFound
 from ushka.http.request import Request
 from ushka.http.response import Response
-from ushka.static import server_static_files
+from ushka.http.redirect import redirect
+from ushka.static import DEFAULT_CACHE_CONTROL, file_response, resolve_in, server_static_files
 from ushka.templating import render
 from ushka.templating.engine import engine as template_engine
 
@@ -315,6 +316,52 @@ class Ushka:
             return func
 
         return wrapper
+
+    def mount_static(
+        self,
+        url: str,
+        directory: str | Path,
+        *,
+        html: bool = False,
+        cache_control: str = DEFAULT_CACHE_CONTROL,
+    ) -> None:
+        """Serves the files in `directory` under `url`.
+
+        Parameters
+        ----------
+        url : str
+            URL prefix, e.g. ``"/docs"``.
+        directory : str or Path
+            Folder to serve; relative paths are resolved against the app directory.
+        html : bool
+            Serve ``index.html`` for directories and redirect ``/docs/guide`` to
+            ``/docs/guide/`` so relative links work (static-site output).
+        cache_control : str
+            ``Cache-Control`` for every file, e.g.
+            ``"public, max-age=31536000, immutable"`` for fingerprinted assets.
+
+        Notes
+        -----
+        Every request path is validated with `ushka.guard.safe.path`; files get
+        an ``ETag`` and revalidation answers ``304 Not Modified``.
+        """
+        root = Path(directory)
+        if not root.is_absolute():
+            root = self.workdir / root
+        prefix = "/" + url.strip("/")
+
+        async def serve(request: Request, filename: str = ""):
+            target = resolve_in(root, filename, html=html)
+            if target is None:
+                raise HttpNotFound()
+            if html and target.name == "index.html" and not request.path.endswith("/"):
+                if (root / filename).resolve().is_dir() or not filename:
+                    return redirect(request.path + "/", status_code=301)
+            return file_response(target, request, cache_control)
+
+        self.router.add_route("GET", prefix + "/[path:filename]", serve)
+        if html:
+            self.router.add_route("GET", prefix, serve)
 
     def on_startup(self, func):
         """Registers a function (sync or async) to run when the server starts.

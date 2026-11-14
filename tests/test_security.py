@@ -148,3 +148,54 @@ def test_flash_with_pending_messages_marks_the_session_modified():
     flash(SimpleNamespace(session=session), "newer")
     assert session.should_save
     assert [m for _, m in session["_flashes"]] == ["older", "newer"]
+
+
+# --- static mounts / caching --------------------------------------------------
+
+
+@pytest.fixture
+def site_app(make_app, workdir):
+    docs = workdir / "public"
+    (docs / "guide").mkdir(parents=True)
+    (docs / "index.html").write_text("<h1>home</h1>")
+    (docs / "guide" / "index.html").write_text("<h1>guide</h1>")
+    (docs / "app.css").write_text("body{}")
+    (workdir / "secret.txt").write_text("SECRET")
+    app = make_app()
+    app.mount_static("/docs", "public", html=True)
+    app.mount_static("/assets", "public", cache_control="public, max-age=31536000, immutable")
+    return app
+
+
+async def test_mount_serves_files_with_validators(site_app, call):
+    res = await call(site_app, "GET", "/assets/app.css")
+    assert res["status"] == 200 and res["body"] == "body{}"
+    assert res["headers"]["content-type"].startswith("text/css")
+    assert res["headers"]["cache-control"] == "public, max-age=31536000, immutable"
+    assert res["headers"]["x-content-type-options"] == "nosniff"
+    etag = res["headers"]["etag"]
+    again = await call(site_app, "GET", "/assets/app.css", headers={"if-none-match": etag})
+    assert again["status"] == 304 and again["body"] == ""
+
+
+async def test_mount_html_directories_and_trailing_slash(site_app, call):
+    assert (await call(site_app, "GET", "/docs/"))["body"] == "<h1>home</h1>"
+    assert (await call(site_app, "GET", "/docs/guide/"))["body"] == "<h1>guide</h1>"
+    redirect_root = await call(site_app, "GET", "/docs")
+    assert redirect_root["status"] == 301 and redirect_root["headers"]["location"] == "/docs/"
+    redirect_dir = await call(site_app, "GET", "/docs/guide")
+    assert redirect_dir["status"] == 301 and redirect_dir["headers"]["location"] == "/docs/guide/"
+
+
+@pytest.mark.parametrize("path", ["/docs/../secret.txt", "/assets/%2e%2e/secret.txt", "/docs/nope/"])
+async def test_mount_refuses_escapes_and_missing(site_app, call, path):
+    res = await call(site_app, "GET", path)
+    assert res["status"] == 404 and "SECRET" not in res["body"]
+
+
+async def test_static_dir_uses_configured_cache_control(make_app, workdir, call):
+    (workdir / "static").mkdir()
+    (workdir / "static" / "a.js").write_text("1")
+    (workdir / "ushka.toml").write_text('[static]\nenable = true\ncache_control = "no-cache"\n')
+    res = await call(make_app(), "GET", "/static/a.js")
+    assert res["status"] == 200 and res["headers"]["cache-control"] == "no-cache"

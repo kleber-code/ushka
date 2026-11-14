@@ -14,16 +14,17 @@ Rules for generating Ushka code:
 
 ## Docs
 
-- [Why Ushka changed](https://kleber-code.github.io/ushka/why-ushka-changed/): purpose and direction
-- [Ushka Guard](https://kleber-code.github.io/ushka/guide/guard/): sources, sinks, sanitisers, error codes G001–G005, limits
-- [Routing](https://kleber-code.github.io/ushka/guide/routing/): file and decorator routes, parameters, return values
-- [Configuration](https://kleber-code.github.io/ushka/guide/configuration/): all keys, .env, environment variables
-- [Templates](https://kleber-code.github.io/ushka/guide/templates/): Jinja2, filters, context processors
-- [ORM](https://kleber-code.github.io/ushka/guide/orm/): models, queries, migrations
-- [CLI](https://kleber-code.github.io/ushka/guide/cli/): new, dev, run, check, routes, db
-- [Error handling](https://kleber-code.github.io/ushka/guide/error_handling/): HTTP errors, custom pages
+- [Why Ushka changed](https://ushka.satela.com.br/docs/why-ushka-changed/): purpose and direction
+- [Ushka Guard](https://ushka.satela.com.br/docs/guide/guard/): sources, sinks, sanitisers, error codes G001–G005, limits
+- [Routing](https://ushka.satela.com.br/docs/guide/routing/): file and decorator routes, parameters, return values
+- [Configuration](https://ushka.satela.com.br/docs/guide/configuration/): all keys, .env, environment variables
+- [Templates](https://ushka.satela.com.br/docs/guide/templates/): Jinja2, filters, context processors
+- [ORM](https://ushka.satela.com.br/docs/guide/orm/): models, queries, migrations
+- [CLI](https://ushka.satela.com.br/docs/guide/cli/): new, dev, run, check, routes, db
+- [Ushka Docs](https://ushka.satela.com.br/docs/guide/docs/): documentation sites from Markdown, built in
+- [Error handling](https://ushka.satela.com.br/docs/guide/error_handling/): HTTP errors, custom pages
 
 ## Optional
 
 - [Changelog](https://github.com/kleber-code/ushka/blob/main/CHANGELOG.md)
-- [Roadmap](https://kleber-code.github.io/ushka/roadmap/)
+- [Roadmap](https://ushka.satela.com.br/docs/roadmap/)

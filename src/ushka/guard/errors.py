@@ -12,7 +12,7 @@ from typing import Any
 
 __all__ = ["UnsafeValueError"]
 
-DOCS_BASE = "https://kleber-code.github.io/ushka/guide/guard/#"
+DOCS_BASE = "https://ushka.satela.com.br/docs/guide/guard/#"
 
 
 class UnsafeValueError(Exception):

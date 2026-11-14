@@ -1,3 +1,0 @@
-# Files
-
-::: ushka.static.files

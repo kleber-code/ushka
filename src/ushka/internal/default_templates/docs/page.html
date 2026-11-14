@@ -1,0 +1,36 @@
+{% extends "docs/layout.html" %}
+
+{% block content %}
+  {%- if page.section %}
+  <p class="d-crumb">{{ page.section }}</p>
+  {%- endif %}
+  <article class="d-article">
+    {%- if page.source.startswith("api:") %}
+    <h1><code>{{ page.title }}</code></h1>
+    {%- endif %}
+    {{ page.html | safe }}
+  </article>
+
+  <footer class="d-pager">
+    {%- if prev_page %}
+    <a class="d-pager__prev" href="{{ docs.prefix }}/{{ prev_page.url }}" rel="prev"><span>Previous</span>{{ prev_page.title }}</a>
+    {%- endif %}
+    {%- if next_page %}
+    <a class="d-pager__next" href="{{ docs.prefix }}/{{ next_page.url }}" rel="next"><span>Next</span>{{ next_page.title }}</a>
+    {%- endif %}
+  </footer>
+  {%- if edit_link %}
+  <p class="d-edit"><a href="{{ edit_link }}">Edit this page</a></p>
+  {%- endif %}
+{% endblock %}
+
+{% block toc %}
+  {%- if toc %}
+  <p class="d-toc__title">On this page</p>
+  <ul>
+    {%- for level, text, anchor in toc %}
+    <li class="lvl-{{ level }}"><a href="#{{ anchor }}">{{ text }}</a></li>
+    {%- endfor %}
+  </ul>
+  {%- endif %}
+{% endblock %}

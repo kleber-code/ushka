@@ -126,7 +126,7 @@ It uses **Ushka**, an async Python web framework with filesystem routing and
   `from ushka.guard import safe`.
 - Mark language-model output with `guard.llm(text)` before using it.
 - An `UnsafeValueError` (`USHKA-G00x`) explains the risk and the fix: apply
-  the fix, do not silence it. Docs: https://kleber-code.github.io/ushka/guide/guard/
+  the fix, do not silence it. Docs: https://ushka.satela.com.br/docs/guide/guard/
 
 ## Commands
 

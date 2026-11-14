@@ -1,3 +1,0 @@
-# Response
-
-::: ushka.http.response

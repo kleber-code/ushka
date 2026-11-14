@@ -1,0 +1,9 @@
+/* ushka.satela.com.br additions on top of the Ushka Docs theme. */
+@font-face { font-family: "Rounded"; font-weight: 400; font-display: swap; src: url("fonts/mplus-rounded-400-latin.woff2") format("woff2"); }
+@font-face { font-family: "Rounded"; font-weight: 700; font-display: swap; src: url("fonts/mplus-rounded-700-latin.woff2") format("woff2"); }
+@font-face { font-family: "Rounded"; font-weight: 800; font-display: swap; src: url("fonts/mplus-rounded-800-latin.woff2") format("woff2"); }
+@font-face { font-family: "Code"; font-weight: 100 900; font-display: swap; src: url("fonts/mplus-code-latin.woff2") format("woff2"); }
+
+/* Mascot stickers placed inside pages. */
+.ushka-sticker { float: right; width: 11rem; margin: 0 0 1rem 1.5rem; }
+@media (max-width: 40rem) { .ushka-sticker { float: none; display: block; width: 8.5rem; margin: 0 auto 1rem; } }

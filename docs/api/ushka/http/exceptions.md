@@ -1,3 +1,0 @@
-# Exceptions
-
-::: ushka.http.exceptions

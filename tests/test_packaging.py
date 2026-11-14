@@ -25,7 +25,7 @@ PYPROJECT = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf
 CORE_DEPENDENCIES = PYPROJECT["project"]["dependencies"]
 
 # Distributions that are only installed through an extra.
-OPTIONAL_MODULES = ["sqlalchemy", "alembic", "aiosqlite", "asyncpg", "aiomysql"]
+OPTIONAL_MODULES = ["sqlalchemy", "alembic", "aiosqlite", "asyncpg", "aiomysql", "markdown_it", "pygments", "griffe"]
 
 
 def _imported_modules(statement):

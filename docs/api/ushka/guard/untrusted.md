@@ -1,3 +1,0 @@
-# Untrusted
-
-::: ushka.guard.untrusted

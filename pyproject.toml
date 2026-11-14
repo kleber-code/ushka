@@ -46,7 +46,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/kleber-code/ushka"
+Homepage = "https://ushka.satela.com.br"
+Documentation = "https://ushka.satela.com.br/docs/"
+Changelog = "https://github.com/kleber-code/ushka/blob/main/CHANGELOG.md"
 Issues = "https://github.com/kleber-code/ushka/issues"
 Repository = "https://github.com/kleber-code/ushka"
 
@@ -73,6 +75,15 @@ orm = [
     "aiosqlite>=0.20.0",
 ]
 
+# pip install ushka[docs] -> Ushka Docs (ushka.docs): Markdown docs site with
+# server-side highlighting, search and an API reference from docstrings.
+docs = [
+    "markdown-it-py>=3.0",
+    "mdit-py-plugins>=0.4",
+    "pygments>=2.18",
+    "griffe>=1.5",
+]
+
 # pip install ushka[postgres]
 postgres = [
     "ushka[orm]",
@@ -94,6 +105,7 @@ standard = [
 # pip install ushka[full] -> O KIT COMPLETO
 full = [
     "ushka[standard]",
+    "ushka[docs]",
     "asyncpg>=0.29.0",
     "aiomysql>=0.2.0",
 ]
@@ -112,21 +124,11 @@ excludes = ["src/ushka/internal/assets", "example"]
 [dependency-groups]
 dev = [
     "ruff>=0.14.5",
-    "isort>=7.0.0",
-    "mkdocs>=1.6.1",
-    "mkdocs-material[imaging]>=9.7.0",
-    "mkdocstrings[python]>=1.0.0",
-    # 12.x changed Highlight() and breaks mkdocstrings < 1.0.8 (which needs Python 3.11+).
-    "pymdown-extensions>=10.17.2,<12",
-    "pylint>=4.0.4",
-    "py-spy>=0.4.1",
-    "termynal>=0.11.0",
     "pyyaml>=6.0.3",
-    "pyment>=0.3.3",
-    "docstring-parser>=0.17.0",
     "pytest>=8.3.0",
     "pytest-asyncio>=0.24.0",
 ]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"

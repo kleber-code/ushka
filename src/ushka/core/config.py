@@ -48,7 +48,12 @@ DEFAULTS: dict[str, dict[str, Any]] = {
     },
     "database": {"url": "sqlite:///ushka.db"},
     "server": {"host": "127.0.0.1", "port": 8000, "workers": 1},
-    "static": {"enable": False, "url": "/static", "dir": "static"},
+    "static": {
+        "enable": False,
+        "url": "/static",
+        "dir": "static",
+        "cache_control": "public, max-age=3600",
+    },
     "limits": {
         "max_request_body_size_in_KB": 2048,
         "max_request_body_multipart_size_in_KB": 51200,

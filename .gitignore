@@ -138,7 +138,8 @@ venv.bak/
 .ropeproject
 
 # mkdocs documentation
-/site
+# mkdocs output (site_dir in mkdocs.yml); site/ is the project website
+/.mkdocs-site/
 
 # mypy
 .mypy_cache/
@@ -165,3 +166,5 @@ cython_debug/
 pdm.lock
 context.md
 context_writer.md
+# satela site build output
+site/public/

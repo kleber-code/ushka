@@ -1,40 +1,47 @@
-name: Deploy Documentation
+name: Redirect GitHub Pages
+
+# The documentation moved to https://ushka.satela.com.br/docs/ (rendered by
+# ushka.docs). GitHub Pages now only redirects old links there.
 
 on:
   push:
     branches:
       - main
+    paths:
+      - .github/workflows/docs-deploy.yml
 
 permissions:
   contents: write
 
 jobs:
-  deploy-docs:
+  redirect:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Configure Git identity
+      - name: Write the redirect pages
         run: |
+          mkdir -p out
+          cat > out/index.html <<'HTML'
+          <!DOCTYPE html><meta charset="utf-8"><title>Ushka docs moved</title>
+          <link rel="canonical" href="https://ushka.satela.com.br/docs/">
+          <meta http-equiv="refresh" content="0; url=https://ushka.satela.com.br/docs/">
+          <p>The Ushka documentation moved to <a href="https://ushka.satela.com.br/docs/">ushka.satela.com.br/docs</a>.</p>
+          HTML
+          cat > out/404.html <<'HTML'
+          <!DOCTYPE html><meta charset="utf-8"><title>Ushka docs moved</title>
+          <script>
+            var path = location.pathname.replace(/^\/ushka/, "") || "/";
+            location.replace("https://ushka.satela.com.br/docs" + path + location.hash);
+          </script>
+          <p>The Ushka documentation moved to <a href="https://ushka.satela.com.br/docs/">ushka.satela.com.br/docs</a>.</p>
+          HTML
+          touch out/.nojekyll
+
+      - name: Publish to the gh-pages branch
+        working-directory: out
+        run: |
+          git init -q -b gh-pages
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-      # The `optimize` plugin in mkdocs.yml shells out to `pngquant`, which is
-      # not present on the runner image.
-      - name: Install pngquant
-        run: sudo apt-get update && sudo apt-get install -y pngquant
-
-      - name: Set up PDM
-        uses: pdm-project/setup-pdm@v4
-        with:
-          python-version: '3.12'
-          cache: true
-
-      - name: Install dependencies
-        run: pdm install -d
-
-      - name: Deploy with MkDocs
-        run: pdm run mkdocs gh-deploy --force --clean
+          git add -A
+          git commit -q -m "Redirect to ushka.satela.com.br/docs"
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" gh-pages
