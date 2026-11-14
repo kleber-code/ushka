@@ -1,4 +1,6 @@
-<p align="center"><img src="https://raw.githubusercontent.com/kleber-code/ushka/main/docs/assets/logo.png" width="120" alt="Ushka, the maned wolf"></p>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/kleber-code/ushka/main/docs/assets/hero.webp" width="220" alt="Ushka, the maned-wolf guardian mascot, giving a thumbs up">
+</p>
 
 # Ushka
 
@@ -6,6 +8,8 @@
 [![Documentation](https://img.shields.io/badge/docs-ushka.satela.com.br-F07A3A)](https://ushka.satela.com.br/docs/)
 ![Python Versions](https://img.shields.io/pypi/pyversions/ushka)
 ![License](https://img.shields.io/pypi/l/ushka)
+
+**Website and docs: [ushka.satela.com.br](https://ushka.satela.com.br)**
 
 **Ushka is the Python web framework where insecure code, whether you or an AI
 wrote it, does not run silently. It stops and tells you how to fix it.**
@@ -50,6 +54,7 @@ the framework, at runtime, on your real code. Read
   - Async Active Record ORM on SQLAlchemy, with migrations in `ushka db` (extra `ushka[orm]`).
   - Jinja2 templates, signed sessions, cookies, flash messages, file uploads and request size limits.
 - **Config.** Defaults, then `ushka.toml`, then `.env`, then environment variables, all without extra packages. `DATABASE_URL` works out of the box.
+- **Static files.** `app.mount_static("/assets", "public")` serves any folder, with `ETag`/`304` and your choice of `Cache-Control`.
 - **Ushka Docs.** A Markdown folder becomes a searchable docs site with an API reference, served by your app (`ushka[docs]`).
 - **CLI.** `new`, `dev`, `run`, `check` (CI-friendly security check), `docs`, `routes` and `db`.
 - **Low dependency.** The core needs only `uvicorn`, `jinja2` and `python-multipart` (plus `tomli` on 3.10).
@@ -57,10 +62,19 @@ the framework, at runtime, on your real code. Read
 ## Quick start
 
 ```bash
-pip install ushka
+pip install ushka        # or: uv add ushka
 ushka new hello
 cd hello
 ushka dev
+```
+
+Prefer a script? It installs the `ushka` command for your user, with no sudo.
+Read it first and check it against the published SHA-256:
+
+```bash
+curl -LsSf https://ushka.satela.com.br/install.sh -o install.sh
+curl -LsSf https://ushka.satela.com.br/install.sh.sha256 | sha256sum -c -
+sh install.sh
 ```
 
 `ushka new` creates a project that is safe from the first commit:
@@ -99,8 +113,15 @@ ushka check --production   # fails (exit 1) on debug on, missing secret, guard o
 ## Documentation
 
 Guides, the Ushka Guard reference and the API reference are at
-**https://ushka.satela.com.br/docs/**. For AI tools there is
+**https://ushka.satela.com.br/docs/**. The site is built with Ushka itself and
+its docs are rendered by Ushka Docs. For AI tools there is
 [`llms.txt`](https://ushka.satela.com.br/llms.txt).
+
+## Meet Ushka
+
+The mascot is Ushka, a guardian with the ears and tail of a lobo-guará
+(maned wolf), Brazil's tall red wolf. Her shield pin is the mint diamond you
+see whenever the guard stops something.
 
 ## Contributing
 
