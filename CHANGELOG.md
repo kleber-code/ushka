@@ -19,6 +19,10 @@ All notable changes to Ushka. The format follows
   - Invalid requests get **422** with every error and its location, never echoing the input.
   - Converted values (`int`, `UUID`, `Enum`, `Literal`...) are plain, so conversion also sanitises. `str` stays `Untrusted`.
 - **`Depends`**: sync, async and `yield` dependencies, once per request, nested, sharing the handler's `Response`, with `app.dependency_overrides` for tests.
+- **Ushka Guard for FastAPI, Starlette and Django** (guide: Ushka Guard on FastAPI, Starlette and Django): `ushka.guard.integrations.fastapi|starlette|django`, each with `install()` and `uninstall()` and no new dependency.
+  - Client data becomes `Untrusted`: query, headers, cookies, path, JSON and forms. For FastAPI the values are marked after pydantic validation, because pydantic returns plain `str`. `int`, `Enum` and `Literal` stay as validated values.
+  - `HTMLResponse`, redirects, `FileResponse` (Starlette) and `HttpResponse`, redirects and `mark_safe` (Django) refuse them.
+  - `install(rewrite_packages=[...])` keeps the mark through f-strings. The FastAPI integration fails loudly if FastAPI changes the internal it relies on.
 - **`ushka verify`** (guide: ushka verify): sends hostile payloads (XSS, SQL injection, template injection, path traversal, open redirect, header injection, junk) to your own routes and reports what got through. It runs in-process against your app and cannot reach any other server. `GET` routes only unless `--include-writes`. Also flags debug on, the guard, headers or CSRF turned off, and cross-site writes that are accepted. Exits 1 on findings (`--fail-on`, `--json`, `--param`).
 - **Routes as agent tools over MCP** (`ushka.mcp`, guide: Routes as agent tools): mark routes with `@tool(reads=, writes=, calls=)` and serve them with `app.enable_mcp()`.
   - Only marked routes are exposed, and the input schema comes from the typed parameters.

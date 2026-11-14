@@ -10,6 +10,7 @@ title = "Guide"
 pages = [
     "guide/index.md",
     "guide/guard.md",
+    "guide/guard-frameworks.md",
     "guide/security.md",
     "guide/configuration.md",
     "guide/routing.md",
@@ -51,6 +52,9 @@ modules = [
     "ushka.core.log",
     "ushka.core.router",
     "ushka.security.middleware",
+    "ushka.guard.integrations.django",
+    "ushka.guard.integrations.fastapi",
+    "ushka.guard.integrations.starlette",
     "ushka.guard.errors",
     "ushka.guard.rewrite",
     "ushka.guard.safe",

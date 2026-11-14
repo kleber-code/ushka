@@ -23,10 +23,10 @@ lists what has shipped and what is next.
 - [x] WebSockets and Server-Sent Events.
 - [x] Routes as agent tools over MCP, with declared capabilities and human approval.
 - [x] `ushka verify`.
+- [x] Ushka Guard for FastAPI, Starlette and Django.
 
 ## Next
 
-- **Standalone `ushka.guard`.** The same protection for FastAPI, Starlette and Django.
 - **Supply-chain hardening.** Pinned actions, SBOM and attestations.
 
 ## Get involved
