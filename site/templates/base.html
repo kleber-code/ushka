@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Ushka: the Python web framework where untrusted data cannot slip through{% endblock %}</title>
+  <meta name="description" content="Ushka is an async Python web framework where insecure code, whether you or an AI wrote it, does not run silently: untrusted data is a type, and dangerous sinks refuse it.">
+  <meta name="theme-color" content="#1B1720">
+  <meta property="og:title" content="Ushka">
+  <meta property="og:description" content="The Python web framework where insecure code does not run silently.">
+  <meta property="og:image" content="https://ushka.satela.com.br/docs/assets/hero.webp">
+  <link rel="icon" href="/docs/assets/favicon.png" type="image/png">
+  <link rel="stylesheet" href="/s/site.css">
+  <link rel="preload" href="/s/fonts/mplus-rounded-800-latin.woff2" as="font" type="font/woff2" crossorigin>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <a class="brand" href="/"><img src="/docs/assets/logo.png" alt="" width="34" height="34">Ushka</a>
+      <nav aria-label="Main">
+        <a href="/docs/">Docs</a>
+        <a href="/docs/guide/guard/">Ushka Guard</a>
+        <a class="wide" href="https://github.com/kleber-code/ushka/blob/main/CHANGELOG.md">Changelog</a>
+        <a class="wide" href="https://github.com/kleber-code/ushka">GitHub</a>
+      </nav>
+    </div>
+  </header>
+  <main>{% block main %}{% endblock %}</main>
+  <footer class="foot">
+    <div class="wrap">
+      <span>MIT licensed. Made in Brazil, like the lobo-guará.</span>
+      <a href="https://pypi.org/project/ushka/">PyPI</a>
+      <a href="/docs/">Documentation</a>
+      <a href="/llms.txt">llms.txt</a>
+      <a href="https://github.com/kleber-code/ushka/blob/main/SECURITY.md">Security policy</a>
+    </div>
+    <img class="peek" src="/docs/assets/stickers/peeking.webp" alt="" width="222" height="420" loading="lazy">
+  </footer>
+</body>
+</html>

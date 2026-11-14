@@ -1,0 +1,12 @@
+# ushka.satela.com.br. Secrets (none needed today) would come from the
+# environment set in the Satela panel, never from this file.
+[app]
+name = "Ushka"
+debug = false
+# Routes are declared in app.py; there is no routes/ folder.
+auto_discover = false
+
+[server]
+host = "0.0.0.0"
+port = 8000
+workers = 2

@@ -1,6 +1,9 @@
 site_name: Ushka
-site_url: https://kleber-code.github.io/ushka
+# Overridden by the satela site build (served under /docs/).
+site_url: !ENV [USHKA_DOCS_URL, "https://kleber-code.github.io/ushka/"]
 repo_url: https://github.com/kleber-code/ushka
+# site/ holds the project website, so the docs build elsewhere.
+site_dir: .mkdocs-site
 repo_name: kleber-code/ushka
 edit_uri: ""
 
@@ -126,7 +129,8 @@ markdown_extensions:
           permalink: true
 plugins:
     - termynal
-    - optimize
+    - optimize:
+        enabled: !ENV [USHKA_DOCS_OPTIMIZE, true]
     - search
     - mkdocstrings:
         handlers:

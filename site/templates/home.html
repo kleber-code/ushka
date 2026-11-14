@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block main %}
+<section class="cover" aria-labelledby="title">
+  <div class="wrap">
+    <div class="cover-text">
+      <p class="kana" lang="ja" aria-hidden="true">ウシュカ</p>
+      <p class="volume">Vol. {{ volume }}</p>
+      <h1 class="title" id="title">Ushka</h1>
+      <p class="lede">The Python web framework where insecure code, whether you or an AI wrote it, does not run silently. It stops and tells you how to fix it.</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="/docs/guide/">Get started</a>
+        <a class="btn" href="/docs/guide/guard/">Meet Ushka Guard</a>
+      </div>
+      <div class="install">
+        <pre><code><span class="prompt">$ </span>pip install ushka</code></pre>
+        <p>Or <code>uv add ushka</code>, or the <a href="/install.sh">install script</a>
+          (<a href="/install.sh.sha256">SHA-256</a>: <code>{{ installer_sha256[:12] }}…</code>).</p>
+      </div>
+    </div>
+    <figure class="cover-art">
+      <img src="/docs/assets/hero.webp" alt="Ushka, a cheerful girl with maned-wolf ears and tail in a black hoodie, giving a thumbs up" width="640" height="782" fetchpriority="high">
+    </figure>
+  </div>
+</section>
+
+<section class="band" aria-labelledby="guard">
+  <div class="wrap">
+    <div>
+      <h2 id="guard">It stops the bug and hands you the fix</h2>
+      <p>Everything from outside your program arrives as <code>Untrusted</code>: query, form, JSON, headers, cookies, path parameters, and model output. Raw HTML, <code>|safe</code>, redirects, file paths and raw SQL refuse it.</p>
+<pre class="code"><code><span class="c"># routes/login.py</span>
+<span class="k">async def</span> get(request):
+    <span class="k">return</span> redirect(request.query[<span class="s">"next"</span>])
+
+<span class="err">UnsafeValueError [USHKA-G003] untrusted value from query:next
+reached redirect() (open redirect / phishing).
+Fix: redirect(safe.url(value, allow=["/"], default="/"))</span></code></pre>
+    </div>
+    <img class="sticker" src="/docs/assets/stickers/stop.webp" alt="Ushka holding up her palm: stop" width="360" height="400" loading="lazy">
+  </div>
+</section>
+
+<section class="band flip" aria-labelledby="box">
+  <div class="wrap">
+    <img class="sticker" src="/docs/assets/stickers/coffee.webp" alt="Ushka sitting with a warm mug" width="360" height="400" loading="lazy">
+    <div>
+      <h2 id="box">A small core with everything in the box</h2>
+      <p>The core needs only uvicorn, Jinja2 and python-multipart. The rest is in the box and stays out of memory until you use it.</p>
+      <ul class="batteries">
+        <li><strong>Filesystem routing</strong><span><code>routes/users/[user_id].py</code> is a route.</span></li>
+        <li><strong>t-strings on Python 3.14</strong><span>HTML and SQL that are safe by construction.</span></li>
+        <li><strong>Async ORM and migrations</strong><span>Active Record on SQLAlchemy, with <code>ushka db</code>.</span></li>
+        <li><strong>Templates, sessions, flash</strong><span>Jinja2 with autoescaping and signed cookies.</span></li>
+        <li><strong>Config without extra packages</strong><span><code>ushka.toml</code>, <code>.env</code> and environment variables.</span></li>
+        <li><strong><code>ushka check</code></strong><span>Fails your CI on debug mode or a missing secret.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="band" aria-labelledby="agents">
+  <div class="wrap">
+    <div>
+      <h2 id="agents">Made for you and your coding agent</h2>
+      <p>Errors carry a stable code and a concrete fix, as JSON when an agent asks for it. <code>ushka new</code> writes an <code>AGENTS.md</code> that teaches the rules, and <a href="/llms.txt">llms.txt</a> maps these docs for AI tools.</p>
+      <p><a class="btn btn-primary" href="/docs/guide/">Build your first app</a></p>
+    </div>
+    <img class="sticker" src="/docs/assets/stickers/coding.webp" alt="Ushka typing on a laptop" width="360" height="400" loading="lazy">
+  </div>
+</section>
+{% endblock %}
