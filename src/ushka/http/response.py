@@ -120,7 +120,9 @@ class Response:
             }
         )
 
-        # 5. Send Body
+        await self._send_body(send)
+
+    async def _send_body(self, send: Callable) -> None:
         body_to_send = (
             self._body_bytes if self._body_bytes else self._body.encode("utf-8")
         )

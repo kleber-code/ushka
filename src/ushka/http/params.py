@@ -23,6 +23,7 @@ from typing import Any, Callable
 from ushka.core.config import Config
 from ushka.http.request import Request
 from ushka.http.response import Response
+from ushka.http.websocket import WebSocket
 from ushka.http.validation import Field, RequestValidationError, _MISSING, coerce, hints_of
 
 _BODY_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
@@ -96,7 +97,9 @@ class _Spec:
 _plans: dict[tuple, list[_Spec]] = {}
 
 
-def _special(name: str, ann: Any) -> str | None:
+def _special(name: str, ann: Any, method: str = "") -> str | None:
+    if ann is WebSocket or (method == "WEBSOCKET" and name in ("ws", "websocket")):
+        return "websocket"
     if name == "request" or ann is Request:
         return "request"
     if name == "response" or ann is Response:
@@ -149,7 +152,7 @@ def build_plan(func: Callable, path_names: frozenset, method: str) -> list[_Spec
         if depends:
             plan.append(_Spec(name, ann, "depends", default=default, depends=depends))
             continue
-        special = _special(name, inner)
+        special = _special(name, inner, method)
         if special:
             plan.append(_Spec(name, ann, special))
             continue
@@ -172,6 +175,7 @@ class Resolver:
     def __init__(self, request: Request, response: Response | None = None) -> None:
         self.request = request
         self.response = response
+        self.websocket: WebSocket | None = None
         self.cache: dict[Any, Any] = {}
         self.stack = contextlib.AsyncExitStack()
 
@@ -216,6 +220,8 @@ class Resolver:
             return self.response
         if spec.kind == "config":
             return req.app.config
+        if spec.kind == "websocket":
+            return self.websocket
         if spec.kind == "depends":
             return await self._depends(spec.depends, errors)
         name = (spec.marker.alias if spec.marker and spec.marker.alias else spec.name)

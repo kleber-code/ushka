@@ -57,6 +57,7 @@ DEFAULTS: dict[str, dict[str, Any]] = {
     "limits": {
         "max_request_body_size_in_KB": 2048,
         "max_request_body_multipart_size_in_KB": 51200,
+        "websocket_max_message_in_KB": 1024,
     },
     # Ushka Guard: request data arrives as `Untrusted` and dangerous sinks
     # refuse it. Turning it off is a migration aid, not a mode.

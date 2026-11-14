@@ -119,6 +119,17 @@ class SecurityMiddleware:
             self._cors_headers(response, origin)
         return self._finish(request, response)
 
+    def websocket_allowed(self, request: Request) -> bool:
+        """Handshake check: trusted host, and no cross-site browser (the
+        WebSocket twin of CSRF: cookies ride along on a cross-site `new WebSocket`)."""
+        h = request.headers
+        if self.allowed_hosts and not _host_allowed(str(h.get("host") or ""), self.allowed_hosts):
+            return False
+        origin = (h.get("origin") or "").lower().rstrip("/")
+        if not self.csrf:
+            return True
+        return self._same_site_ok(request, origin, bool(origin) and self._cors_allows(origin))
+
     # -- parts -------------------------------------------------------------------
 
     def _same_site_ok(self, request: Request, origin: str, cors_ok: bool) -> bool:

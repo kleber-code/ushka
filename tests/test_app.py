@@ -140,19 +140,21 @@ async def test_lifespan_protocol(app):
     ]
 
 
-async def test_unsupported_scope_type_is_rejected(app):
+async def test_websocket_without_a_route_is_refused(app):
     sent = []
+    inbox = [{"type": "websocket.connect"}]
 
     async def receive():
-        return {}
+        return inbox.pop(0) if inbox else {"type": "websocket.disconnect"}
 
     async def send(message):
         sent.append(message)
 
-    await app({"type": "websocket"}, receive, send)
+    scope = {"type": "websocket", "path": "/nothing", "query_string": b"", "headers": [], "scheme": "ws"}
+    await app(scope, receive, send)
 
-    # WebSockets are not supported yet: the handshake is refused politely.
-    assert sent == [{"type": "websocket.close", "code": 1000}]
+    # No handler: the handshake is refused (the client sees HTTP 403).
+    assert [m["type"] for m in sent] == ["websocket.close"] and sent[0]["code"] == 1008
 
 
 # --- return values, HEAD, lifespan, discovery ---------------------------------

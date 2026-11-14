@@ -20,6 +20,7 @@ lists what has shipped and what is next.
       security headers (CSP, HSTS, `nosniff`), CORS and trusted hosts.
 - [x] `app.add_middleware` / `@app.middleware`.
 - [x] Typed parameters, request validation, `Depends` and OpenAPI.
+- [x] WebSockets and Server-Sent Events.
 
 ## Next
 
@@ -29,7 +30,6 @@ lists what has shipped and what is next.
 - **`ushka verify`.** Send attack payloads to your own routes and report what
   got through.
 - **Standalone `ushka.guard`.** The same protection for FastAPI, Starlette and Django.
-- **WebSockets and Server-Sent Events.**
 - **Supply-chain hardening.** Pinned actions, SBOM and attestations.
 
 ## Get involved

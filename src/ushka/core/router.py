@@ -52,6 +52,7 @@ class Router:
 
     # Valid HTTP verbs (Set is O(1) for lookup)
     HTTP_METHODS: Set[str] = {
+        "WEBSOCKET",  # a pseudo-method: the handshake is routed like a request
         "GET",
         "POST",
         "PUT",
@@ -324,6 +325,7 @@ class Router:
         for method, routes in self.dynamic_routes.items():
             if any(r[0].match(path) for r in routes):
                 found.add(method)
+        found.discard("WEBSOCKET")  # not an HTTP method: never advertised in `Allow`
         if "GET" in found:
             found.add("HEAD")
         return sorted(found)

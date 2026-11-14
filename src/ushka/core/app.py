@@ -16,7 +16,10 @@ from ushka.core.config import Config
 from ushka.core.error_handler import ErrorHandler
 from ushka.core.log import LogLevelType, get_log_config, setup_logging
 from ushka.http.exceptions import HTTPMethodNotAllowed, HttpNotFound
+from ushka.http.exceptions import HTTPError
 from ushka.http.params import Resolver
+from ushka.http.validation import RequestValidationError
+from ushka.http.websocket import WebSocket, WebSocketDisconnect
 from ushka.http.request import Request
 from ushka.security import SecurityMiddleware
 from ushka.http.response import Response
@@ -130,9 +133,39 @@ class Ushka:
         elif scope_type == "lifespan":
             await self._handle_lifespan(scope, receive, send)
         elif scope_type == "websocket":
-            # Not supported yet: refuse the handshake the way the protocol expects.
-            await receive()
-            await send({"type": "websocket.close", "code": 1000})
+            await self._handle_websocket(scope, receive, send)
+
+    async def _handle_websocket(self, scope, receive, send):
+        """Routes a WebSocket handshake like a request, checks it, runs the handler."""
+        request = Request(self, {**scope, "type": "http", "method": "WEBSOCKET"}, receive)
+        ws = WebSocket(request, receive, send)
+        resolver = Resolver(request)
+        resolver.websocket = ws
+        try:
+            handler, params = self.router.get_route(request)
+            if handler is None or not self.security.websocket_allowed(request):
+                await ws.close(1008, "refused")  # before accept: the client sees HTTP 403
+                return
+            kwargs = await resolver.call(handler, params)
+            result = handler(**kwargs)
+            if inspect.isawaitable(result):
+                await result
+        except WebSocketDisconnect:
+            pass
+        except HTTPError:
+            await ws.close(1008, "refused")
+        except RequestValidationError:
+            await ws.close(1008, "invalid request")
+        except Exception:
+            self.log.exception("WebSocket handler failed")
+            await ws.close(1011, "server error")
+        finally:
+            await resolver.close()
+        await ws.close(1000)
+
+    def websocket(self, path: str):
+        """Registers a WebSocket handler: ``@app.websocket("/ws")``."""
+        return self._add_route("WEBSOCKET", path)
 
     async def _handle_lifespan(self, scope, receive, send):
         """Manages startup and shutdown events according to the ASGI lifespan protocol.

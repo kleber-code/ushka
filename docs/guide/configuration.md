@@ -50,6 +50,7 @@ that names the file and the position of the error.
 | `[static]` | `dir` | `"static"` | Folder with the files, relative to the app directory or absolute. |
 | `[limits]` | `max_request_body_size_in_KB` | `2048` | Largest request body (2 MB). Bigger bodies get **413**. |
 | `[limits]` | `max_request_body_multipart_size_in_KB` | `51200` | Largest multipart upload (50 MB). |
+| `[limits]` | `websocket_max_message_in_KB` | `1024` | Largest [WebSocket](realtime.md) message (1 MB). Bigger ones close the socket with 1009. |
 | `[security]` | `taint` | `true` | [Ushka Guard](guard.md). Turning it off is a migration aid, not a mode. |
 | `[security]` | `headers`, `csp`, `frame_options`, `referrer_policy`, `hsts_seconds`, `csrf`, `csrf_trusted_origins`, `csrf_exempt_paths`, `allowed_hosts`, `cors_*` | see page | The [security middleware](security.md). Lists are written `["a", "b"]` in TOML and `a,b` in environment variables. |
 
