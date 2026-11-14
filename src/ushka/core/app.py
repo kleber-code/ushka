@@ -453,8 +453,33 @@ class Ushka:
         async def openapi_json():
             return self.openapi(title, version)
 
-        self._openapi_skip = {openapi_json}
+        self._openapi_skip = getattr(self, "_openapi_skip", set()) | {openapi_json}
         self.router.add_route("GET", path, openapi_json)
+
+    def enable_mcp(self, path: str = "/mcp", token=None, approve=None, name: str | None = None, instructions: str | None = None, internal_headers=None) -> None:
+        """Serves the routes marked with `ushka.mcp.tool` to AI agents over MCP.
+
+        Call it after your routes are registered. `token` (or ``USHKA_MCP_TOKEN``)
+        is the bearer token agents must send; without one it refuses to start
+        unless debug is on. `approve` is an async callable (or
+        `ushka.mcp.ApprovalQueue`) that a human answers for sensitive tools.
+        `internal_headers` (a dict, or a function of the request) adds headers to
+        the internal request, e.g. a service credential your routes check.
+        With ``token=False`` the endpoint has no shared secret: the caller's
+        ``Authorization`` is passed to the routes, which authenticate it.
+        """
+        from ushka.mcp import MCPServer
+
+        server = MCPServer(self, path, token, approve, name, instructions, internal_headers)
+        self.mcp = server
+
+        async def mcp_endpoint(request):
+            status, payload = await server.handle(request)
+            return (payload, status) if payload is not None else Response(b"", status_code=status)
+
+        server_endpoint = mcp_endpoint
+        self._openapi_skip = getattr(self, "_openapi_skip", set()) | {server_endpoint}
+        self.router.add_route("POST", path, server_endpoint)
 
     def on_startup(self, func):
         """Registers a function (sync or async) to run when the server starts.

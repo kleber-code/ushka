@@ -19,6 +19,11 @@ All notable changes to Ushka. The format follows
   - Invalid requests get **422** with every error and its location, never echoing the input.
   - Converted values (`int`, `UUID`, `Enum`, `Literal`...) are plain, so conversion also sanitises. `str` stays `Untrusted`.
 - **`Depends`**: sync, async and `yield` dependencies, once per request, nested, sharing the handler's `Response`, with `app.dependency_overrides` for tests.
+- **Routes as agent tools over MCP** (`ushka.mcp`, guide: Routes as agent tools): mark routes with `@tool(reads=, writes=, calls=)` and serve them with `app.enable_mcp()`.
+  - Only marked routes are exposed, and the input schema comes from the typed parameters.
+  - Declared capabilities become MCP annotations and decide approval: sensitive tools need a human (`ApprovalQueue`, `terminal_approver` or your own callable), and are refused when no approver is configured. A `GET` route cannot declare `writes`.
+  - A bearer token is required (`USHKA_MCP_TOKEN`). Calls run through the whole app, so security middleware, validation and `Depends` still apply.
+  - `app.router.iter_routes()` lists the registered routes.
 - **WebSockets** (guide: WebSockets and Server-Sent Events): a `websocket` function in `routes/` or `@app.websocket`. Typed parameters and `Depends` work on the handshake. Secured by default: cross-site `Origin` refused (cross-site WebSocket hijacking), trusted hosts, a message size limit, and received data is `Untrusted`.
 - **Server-Sent Events and streaming**: `EventSourceResponse`, `ServerSentEvent` and `StreamingResponse`. Keep-alive pings, cleanup when the client disconnects, and field injection through line breaks is refused.
 - **OpenAPI 3.1** generated from the same signatures: `app.openapi()` and `app.enable_openapi()` (opt-in, `/openapi.json`).

@@ -21,12 +21,10 @@ lists what has shipped and what is next.
 - [x] `app.add_middleware` / `@app.middleware`.
 - [x] Typed parameters, request validation, `Depends` and OpenAPI.
 - [x] WebSockets and Server-Sent Events.
+- [x] Routes as agent tools over MCP, with declared capabilities and human approval.
 
 ## Next
 
-- **Routes as agent tools.** Expose chosen routes over MCP, with declared
-  capabilities (what each route reads, writes and calls) and human approval
-  for sensitive actions.
 - **`ushka verify`.** Send attack payloads to your own routes and report what
   got through.
 - **Standalone `ushka.guard`.** The same protection for FastAPI, Starlette and Django.

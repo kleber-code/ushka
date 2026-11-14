@@ -400,6 +400,16 @@ class Router:
                     full_path = f"/{route_base}"
                     self.add_route(method_name, full_path, func)
 
+    def iter_routes(self):
+        """Yields ``(method, raw_path, handler)`` for every registered route,
+        with the path as written (``/users/[id]``)."""
+        for method, routes in self.static_routes.items():
+            for path, (func, _) in routes.items():
+                yield method, path, func
+        for method, routes in self.dynamic_routes.items():
+            for _, _, func, _, raw in routes:
+                yield method, raw, func
+
     def get_urls(
         self, host: str = "127.0.0.1", port: int = 8000, with_host: bool = True
     ) -> List[str]:

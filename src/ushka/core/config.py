@@ -46,6 +46,8 @@ DEFAULTS: dict[str, dict[str, Any]] = {
         # Never put a real key in ushka.toml: use USHKA_APP_SECRET_KEY (.env).
         "secret_key": "",
     },
+    # MCP endpoint (app.enable_mcp). Keep the token in USHKA_MCP_TOKEN, not in ushka.toml.
+    "mcp": {"token": ""},
     "database": {"url": "sqlite:///ushka.db"},
     "server": {"host": "127.0.0.1", "port": 8000, "workers": 1},
     "static": {

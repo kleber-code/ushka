@@ -190,12 +190,9 @@ def build(router, title: str = "Ushka API", version: str = "0.1.0", skip: set | 
         url = _PATH_SEGMENT.sub(r"{\1}", raw_path)
         paths.setdefault(url, {})[method.lower()] = _operation(func, names, method, schemas)
 
-    for method, routes in router.static_routes.items():
-        for path, (func, _) in routes.items():
-            add(method, path, func)
-    for method, routes in router.dynamic_routes.items():
-        for _, _, func, _, raw in routes:
-            add(method, raw, func)
+    for method, raw_path, func in router.iter_routes():
+        if method != "WEBSOCKET":
+            add(method, raw_path, func)
 
     doc: dict[str, Any] = {
         "openapi": "3.1.0",
