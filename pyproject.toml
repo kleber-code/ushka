@@ -1,14 +1,14 @@
 [project]
 name = "ushka"
-version = "0.4.0"
-description = "Ushka is a minimal, experimental Python micro-framework for hobbyists and solo developers. Its goal is to enable rapid API development with zero boilerplate by using file-based routing."
+version = "0.5.0"
+description = "The async Python web framework where insecure code - yours or your AI's - does not run silently: untrusted data is a type, dangerous sinks refuse it."
 authors = [
     { name = "kleber-code", email = "kleber.code@gmail.com" },
 ]
 requires-python = ">=3.10"
 readme = "README.md"
 license = { text = "MIT" }
-keywords = ["web", "framework", "asgi", "routing", "autodiscovery", "async", "orm"]
+keywords = ["web", "framework", "asgi", "async", "security", "taint", "xss", "llm", "prompt-injection", "t-strings", "routing", "orm"]
 
 # Classifiers atualizados para refletir suporte a Banco de Dados
 classifiers = [
@@ -18,6 +18,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "License :: OSI Approved :: MIT License",
     "Framework :: AsyncIO",
     "Intended Audience :: Developers",
@@ -25,19 +26,23 @@ classifiers = [
     "Topic :: Internet :: WWW/HTTP",
     "Topic :: Software Development :: Libraries :: Application Frameworks",
     "Topic :: Database :: Front-Ends",
+    "Topic :: Security",
 ]
 
-# --- 1. CORE / MINIMAL ---
-# Instalado com: pip install ushka
-# `ushka.core.error_handler` renders the built-in error pages through
-# `ushka.templating`, so Jinja2 is imported on every `import ushka` and has to
-# be a core dependency rather than a `web` extra.
+# --- 1. CORE ---
+# pip install ushka
+# Kept deliberately small. Everything else (config, .env, terminal colours,
+# CLI, Ushka Guard) is implemented with the standard library.
+# - uvicorn: the ASGI server behind `ushka dev` / `ushka run` / `app.run()`.
+# - jinja2: templates; the built-in error pages use it on every import.
+# - python-multipart: a hardened multipart parser. Parsing untrusted uploads
+#   is security-critical, so it is not reimplemented here.
+# - tomli: TOML reader, only on Python 3.10 (3.11+ ships `tomllib`).
 dependencies = [
     "uvicorn>=0.38.0",
-    "tomlkit>=0.13.3",
-    "rich>=13.7.1",
-    "python-multipart>=0.0.20",
     "jinja2>=3.1.6",
+    "python-multipart>=0.0.20",
+    "tomli>=2.0; python_version < '3.11'",
 ]
 
 [project.urls]
@@ -61,7 +66,9 @@ web = [
 # pip install ushka[orm]
 # Inclui o driver aiosqlite por padrão para a melhor experiência "out-of-the-box"
 orm = [
-    "sqlalchemy>=2.0.44",
+    # `[asyncio]` pulls in greenlet, which SQLAlchemy 2.1 no longer installs by
+    # default; without it `sqlalchemy.ext.asyncio` fails to import.
+    "sqlalchemy[asyncio]>=2.0.44",
     "alembic>=1.13.1",
     "aiosqlite>=0.20.0",
 ]

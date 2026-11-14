@@ -6,16 +6,23 @@ locally (development happens on a newer interpreter) and only showed up on the
 oldest entry of the CI matrix.
 """
 
+import sys
+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:  # pragma: no cover
+    import tomli as tomllib
+
+
 import re
 from pathlib import Path
 
-import tomlkit
 import yaml
 
 from ushka.utils.flash import Category
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-PYPROJECT = tomlkit.parse((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+PYPROJECT = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
 CI = yaml.safe_load(
     (REPO_ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
 )
