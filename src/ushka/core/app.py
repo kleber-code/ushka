@@ -17,7 +17,7 @@ from ushka.core.error_handler import ErrorHandler
 from ushka.core.log import LogLevelType, get_log_config
 from ushka.static import server_static_files
 from ushka.templating import render
-from ushka.http.exceptions import HttpNotFound
+from ushka.http.exceptions import HttpNotFound, HTTPMethodNotAllowed
 from ushka.http.request import Request
 from ushka.http.response import Response
 from .router import Router
@@ -58,7 +58,7 @@ class Ushka:
         self._setup_workdir()
         self.log = logging.getLogger("ushka")
 
-        self.config = Config()
+        self.config = Config(self.workdir)
         self.config.load_from_file(self.workdir.joinpath("ushka.toml"))
 
         self.router = Router(self.log, self.workdir)
@@ -189,6 +189,9 @@ class Ushka:
             is_empty = not self.router.static_routes and not self.router.dynamic_routes
             if is_empty:
                 return Response(await render(request, "startup.html", {}))
+            allowed = self.router.allowed_methods(request.path)
+            if allowed:
+                raise HTTPMethodNotAllowed(allowed)
             raise HttpNotFound()
 
         if inspect.iscoroutinefunction(handler):

@@ -245,7 +245,11 @@ class ErrorHandler:
         }
 
         content = await render(request, exc.template, context)
-        return Response(content, status_code=exc.status_code)
+        headers = {}
+        allowed = getattr(exc, "allowed", None)
+        if allowed:
+            headers["Allow"] = ", ".join(allowed)
+        return Response(content, status_code=exc.status_code, headers=headers)
 
     async def _handle_server_error(self, exc: Exception, request: Request) -> Response:
         """Handles unexpected errors (500 Internal Server Error).

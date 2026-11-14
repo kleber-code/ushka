@@ -56,7 +56,7 @@ class Config:
                     cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __init__(self, workdir: Path | str = Path.cwd()) -> None:
+    def __init__(self, workdir: Path | str | None = None) -> None:
         """Initializes the Config instance with default settings.
 
         Parameters
@@ -67,6 +67,10 @@ class Config:
         """
         if self._initialized:
             return
+
+        # Resolved at call time: a default of `Path.cwd()` is evaluated once,
+        # at import, and points at whatever directory imported the package.
+        workdir = Path(workdir) if workdir else Path.cwd()
 
         self._defaults = {
             "ushka": {"version": version("ushka"), "workdir": str(workdir)},

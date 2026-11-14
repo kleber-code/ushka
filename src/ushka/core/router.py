@@ -303,6 +303,15 @@ class Router:
 
         return None, {}
 
+    def allowed_methods(self, path: str) -> List[str]:
+        """Returns the methods registered for `path` (used to answer 405)."""
+        path = self._normalize_path(path)
+        found = {m for m, routes in self.static_routes.items() if path in routes}
+        for method, routes in self.dynamic_routes.items():
+            if any(r[0].match(path) for r in routes):
+                found.add(method)
+        return sorted(found)
+
     def autodiscover(self, folder: str = "routes") -> None:
         """Filesystem-based routing discovery.
 

@@ -75,6 +75,7 @@ class HTTPBadRequest(HTTPError):
         message : str, optional
             The error message. Defaults to "Bad Request".
         """
+        super().__init__(template, status_code, message)
 
 
 class HTTPStaticServerNotFound(HttpNotFound):
@@ -102,6 +103,7 @@ class HTTPStaticServerNotFound(HttpNotFound):
         message : str, optional
             The error message. Defaults to "Static File Not Found".
         """
+        super().__init__(template, status_code, message)
 
 
 class HTTPPayloadTooLarge(HTTPError):
@@ -124,3 +126,25 @@ class HTTPPayloadTooLarge(HTTPError):
         message : str, optional
             The error message. Defaults to "Payload Too Large".
         """
+        super().__init__(template, status_code, message)
+
+
+class HTTPMethodNotAllowed(HTTPError):
+    """Exception raised for HTTP 405 Method Not Allowed errors."""
+
+    def __init__(
+        self,
+        allowed: list[str] | None = None,
+        template: str = "error.html",
+        status_code: int = 405,
+        message: str = "Method Not Allowed",
+    ) -> None:
+        """Initializes the HTTPMethodNotAllowed error.
+
+        Parameters
+        ----------
+        allowed : list of str, optional
+            Methods the path does accept; sent back in the `Allow` header.
+        """
+        super().__init__(template, status_code, message)
+        self.allowed = sorted(allowed or [])

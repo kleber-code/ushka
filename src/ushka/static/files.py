@@ -73,13 +73,21 @@ async def server_static_files(
     workdir = Path(config.get("USHKA_WORKDIR"))
     static_root = await get_static_absolute_path(workdir, static_dir)
 
+    # Resolve the root too, so symlinks and `..` are compared on equal terms.
+    static_root = static_root.resolve()
+
     try:
+        # Null bytes make `resolve()` raise; reject them explicitly.
+        if "\x00" in filename:
+            raise ValueError("null byte in path")
         file_path = (static_root / filename).resolve()
     except Exception as exc:
         raise HTTPStaticServerNotFound() from exc
 
     # SECURITY CHECK (Anti-Path Traversal)
-    if not str(file_path).startswith(str(static_root)):
+    # `is_relative_to` compares path components, unlike a string prefix check
+    # which let `/static_private` pass as being inside `/static`.
+    if not file_path.is_relative_to(static_root):
         raise HTTPStaticServerNotFound()
 
     # CHECK IF EXIST

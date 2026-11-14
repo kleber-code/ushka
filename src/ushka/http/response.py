@@ -73,8 +73,13 @@ class Response:
 
         # 2. User-defined Custom Headers
         for key, value in self.headers.items():
+            # Header names are case-insensitive, values are NOT: lowercasing
+            # them corrupted Location URLs, tokens and signed values.
+            # CR/LF would allow response splitting / header injection.
+            if any(c in key + value for c in "\r\n\x00"):
+                raise ValueError(f"Invalid character in header {key!r}")
             key_bytes = key.lower().encode("latin-1")
-            value_bytes = value.lower().encode("latin-1")
+            value_bytes = value.encode("latin-1")
             asgi_headers.append([key_bytes, value_bytes])
 
         # 3. Infrastructure Headers (Cookies & Session)

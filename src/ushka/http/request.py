@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any, AsyncGenerator, Callable, Coroutine, Dict
 from urllib.parse import parse_qs
 
 from ushka.http.cookies import Cookies
+from ushka.http.exceptions import HTTPBadRequest, HTTPPayloadTooLarge
 from ushka.http.multipart import parse_multipart_asgi
 from ushka.http.sessions import Session
 
@@ -94,7 +95,10 @@ class Request:
         """
         if "query" not in self._cached_data:
             raw = self.scope.get("query_string", b"")
-            parsed = parse_qs(raw.decode())
+            try:
+                parsed = parse_qs(raw.decode(), max_num_fields=1000)
+            except (UnicodeDecodeError, ValueError) as exc:
+                raise HTTPBadRequest(message="Invalid query string") from exc
             self._cached_data["query"] = {
                 k: v[0] if len(v) == 1 else v for k, v in parsed.items()
             }
@@ -154,7 +158,7 @@ class Request:
             chunk = msg.get("body", b"")
             size += len(chunk)
             if size > (self.max_body_size_in_KB * 1024):
-                raise ValueError("Request body too large")
+                raise HTTPPayloadTooLarge(message="Request body too large")
             chunks.append(chunk)
             if not msg.get("more_body", False):
                 break
@@ -174,7 +178,7 @@ class Request:
 
         Raises
         ------
-        ValueError
+        HTTPPayloadTooLarge
             If the request body size exceeds `max_body_size_in_KB`.
         """
         if "body" not in self._cached_data:
@@ -197,9 +201,14 @@ class Request:
             yield self._cached_data["body"]
             return
 
+        total = 0
+        limit = max(self.max_body_size_in_KB, self.max_body_multipart_size_in_KB) * 1024
         while True:
             message = await self._receive()
             chunk = message.get("body", b"")
+            total += len(chunk)
+            if total > limit:
+                raise HTTPPayloadTooLarge(message="Request body too large")
             if chunk:
                 yield chunk
             if not message.get("more_body", False):
@@ -218,7 +227,7 @@ class Request:
 
         Raises
         ------
-        ValueError
+        HTTPPayloadTooLarge
             If the request body size exceeds `max_body_size_in_KB`.
         UnicodeDecodeError
             If the request body cannot be decoded as UTF-8.
@@ -242,7 +251,7 @@ class Request:
 
         Raises
         ------
-        ValueError
+        HTTPPayloadTooLarge
             If the request body size exceeds `max_body_size_in_KB`.
         json.JSONDecodeError
             If the request body contains invalid JSON.
@@ -268,7 +277,7 @@ class Request:
 
         Raises
         ------
-        ValueError
+        HTTPPayloadTooLarge
             If the request body size exceeds `max_body_size_in_KB`.
         HTTPBadRequest
             If parsing multipart data fails (e.g., missing boundary).
@@ -286,7 +295,10 @@ class Request:
                 self._cached_data["files"] = files_data
             else:
                 body = await self.body()
-                parsed = parse_qs(body.decode("utf-8"))
+                try:
+                    parsed = parse_qs(body.decode("utf-8"), max_num_fields=1000)
+                except (UnicodeDecodeError, ValueError) as exc:
+                    raise HTTPBadRequest(message="Invalid form data") from exc
                 self._cached_data["form"] = {
                     k: v[0] if len(v) == 1 else v for k, v in parsed.items()
                 }
@@ -308,7 +320,7 @@ class Request:
 
         Raises
         ------
-        ValueError
+        HTTPPayloadTooLarge
             If the request body size exceeds `max_body_size_in_KB`.
         HTTPBadRequest
             If parsing multipart data fails (e.g., missing boundary).
