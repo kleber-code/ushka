@@ -19,6 +19,7 @@ All notable changes to Ushka. The format follows
   - Invalid requests get **422** with every error and its location, never echoing the input.
   - Converted values (`int`, `UUID`, `Enum`, `Literal`...) are plain, so conversion also sanitises. `str` stays `Untrusted`.
 - **`Depends`**: sync, async and `yield` dependencies, once per request, nested, sharing the handler's `Response`, with `app.dependency_overrides` for tests.
+- **`ushka verify`** (guide: ushka verify): sends hostile payloads (XSS, SQL injection, template injection, path traversal, open redirect, header injection, junk) to your own routes and reports what got through. It runs in-process against your app and cannot reach any other server. `GET` routes only unless `--include-writes`. Also flags debug on, the guard, headers or CSRF turned off, and cross-site writes that are accepted. Exits 1 on findings (`--fail-on`, `--json`, `--param`).
 - **Routes as agent tools over MCP** (`ushka.mcp`, guide: Routes as agent tools): mark routes with `@tool(reads=, writes=, calls=)` and serve them with `app.enable_mcp()`.
   - Only marked routes are exposed, and the input schema comes from the typed parameters.
   - Declared capabilities become MCP annotations and decide approval: sensitive tools need a human (`ApprovalQueue`, `terminal_approver` or your own callable), and are refused when no approver is configured. A `GET` route cannot declare `writes`.
@@ -29,6 +30,10 @@ All notable changes to Ushka. The format follows
 - **OpenAPI 3.1** generated from the same signatures: `app.openapi()` and `app.enable_openapi()` (opt-in, `/openapi.json`).
 - `request.path_params`.
 - `HTTPForbidden` (403), and list settings in environment variables (`a,b`).
+
+### Fixed
+
+- A response that cannot be sent (for example a header value with a line break, with the guard off) now gets a clean 500 instead of an exception escaping to the ASGI server.
 
 ### Changed
 

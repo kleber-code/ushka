@@ -224,7 +224,23 @@ class Ushka:
 
         if request.method == "HEAD":
             response.head_only = True
-        await response(send)
+
+        started = False
+
+        async def tracked_send(message):
+            nonlocal started
+            started = started or message["type"] == "http.response.start"
+            await send(message)
+
+        try:
+            await response(tracked_send)
+        except Exception:
+            if started:
+                raise  # the status line is gone: only the server can abort now
+            # Building the response failed (for example a header value with a
+            # line break): answer with a clean 500 instead of leaking the error to the server.
+            self.log.exception("Could not send the response")
+            await Response("Internal Server Error", 500)(send)
 
     async def _error_response(self, exc: Exception, request: Request) -> Response:
         try:

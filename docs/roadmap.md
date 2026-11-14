@@ -22,11 +22,10 @@ lists what has shipped and what is next.
 - [x] Typed parameters, request validation, `Depends` and OpenAPI.
 - [x] WebSockets and Server-Sent Events.
 - [x] Routes as agent tools over MCP, with declared capabilities and human approval.
+- [x] `ushka verify`.
 
 ## Next
 
-- **`ushka verify`.** Send attack payloads to your own routes and report what
-  got through.
 - **Standalone `ushka.guard`.** The same protection for FastAPI, Starlette and Django.
 - **Supply-chain hardening.** Pinned actions, SBOM and attestations.
 

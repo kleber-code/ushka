@@ -53,6 +53,13 @@ def build_parser() -> argparse.ArgumentParser:
         "--production", action="store_true", help="also require debug off and a secret key"
     )
 
+    p = sub.add_parser("verify", help="attack your own routes with hostile payloads and report what got through")
+    p.add_argument("app", help="the app as module:attribute, e.g. app:app")
+    p.add_argument("--include-writes", action="store_true", help="also probe POST/PUT/PATCH/DELETE routes (runs their handlers: use a test database)")
+    p.add_argument("--param", action="append", default=[], metavar="NAME", help="also probe this query parameter (repeatable)")
+    p.add_argument("--json", action="store_true", help="print the report as JSON")
+    p.add_argument("--fail-on", choices=["high", "medium", "none"], default="medium", help="lowest severity that makes the exit status 1 (default: medium)")
+
     docs = sub.add_parser("docs", help="check or preview Markdown docs (needs ushka[docs])")
     docsub = docs.add_subparsers(dest="docs_command", metavar="<action>")
     for name, help_text in (("check", "verify links, anchors and nav (exit 1 on problems)"),
@@ -113,6 +120,12 @@ def main(argv: list[str] | None = None) -> None:
         from ushka.cli.commands.check import check
 
         if check(production=args.production):
+            raise SystemExit(1)
+
+    elif args.command == "verify":
+        from ushka.cli.commands.verify import verify
+
+        if verify(args.app, args.include_writes, args.param, args.json, args.fail_on):
             raise SystemExit(1)
 
     elif args.command == "docs":

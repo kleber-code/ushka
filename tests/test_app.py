@@ -301,3 +301,16 @@ async def test_app_directory_wins_over_an_earlier_config(make_app, workdir, call
     res = await call(app, "GET", "/static/a.css")
     assert res["status"] == 200
     assert res["headers"]["content-type"].startswith("text/css")
+
+
+async def test_unsendable_response_becomes_a_clean_500(make_app, workdir, call):
+    # A header value with a line break cannot be sent. It must not escape to the server.
+    (workdir / "ushka.toml").write_text("[security]\ntaint = false\n")
+    app = make_app()
+
+    @app.get("/bad")
+    async def bad():
+        return "x", 200, {"X-Test": "a\r\nInjected: 1"}
+
+    res = await call(app, "GET", "/bad")
+    assert res["status"] == 500 and "injected" not in res["headers"]
