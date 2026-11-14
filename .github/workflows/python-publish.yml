@@ -8,12 +8,12 @@
 
 name: PYPI
 
+# Only on published releases: creating a release also pushes its tag, so a
+# `push: tags` trigger ran the job twice and the second upload failed with
+# "File already exists".
 on:
   release:
     types: [published]
-  push:
-    tags:
-      - "v*"
 
 permissions:
   contents: read
