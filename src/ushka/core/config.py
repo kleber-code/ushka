@@ -1,55 +1,134 @@
-"""
-This module defines the `Config` class, which is responsible for managing
-application configuration within the Ushka framework.
+"""Application configuration: defaults < ``ushka.toml`` < ``.env`` < environment.
 
-It implements a Singleton pattern to ensure a single, globally accessible
-configuration instance. Settings are loaded from an `ushka.toml` file,
-with provisions for default values and dynamic attribute mapping.
+`Config` is a process-wide singleton. Values are exposed as ``SECTION_KEY``
+attributes (``[app] debug`` becomes ``config.APP_DEBUG``) and through
+``config.get("app_debug")``.
+
+Layers, lowest to highest priority:
+
+1. Built-in defaults (`DEFAULTS` below).
+2. ``ushka.toml`` in the application directory. It is only *read*: Ushka
+   never rewrites your file.
+3. A ``.env`` file next to it (``KEY=value`` lines), for secrets you keep
+   out of version control.
+4. Real environment variables.
+
+Layers 3 and 4 use the name ``USHKA_<SECTION>_<KEY>``, e.g.
+``USHKA_APP_DEBUG=true`` or ``USHKA_APP_SECRET_KEY=...``. Values are
+converted to the type of the default (``true/false/1/0/yes/no/on/off`` for
+booleans). Two common names are understood too: ``DATABASE_URL`` (set by
+most hosting platforms) and the older ``USHKA_DB_URL``.
 """
+
+from __future__ import annotations
 
 import logging
 import os
+import secrets
+import sys
 import threading
-from importlib.metadata import version
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
-from secrets import token_urlsafe
 from typing import Any
 
-import tomlkit
+if sys.version_info >= (3, 11):
+    import tomllib
+else:  # pragma: no cover - exercised on Python 3.10 only
+    import tomli as tomllib
+
+log = logging.getLogger("ushka")
+
+DEFAULTS: dict[str, dict[str, Any]] = {
+    "app": {
+        "name": "Ushka App",
+        "debug": False,
+        "auto_discover": True,
+        # Never put a real key in ushka.toml: use USHKA_APP_SECRET_KEY (.env).
+        "secret_key": "",
+    },
+    "database": {"url": "sqlite:///ushka.db"},
+    "server": {"host": "127.0.0.1", "port": 8000, "workers": 1},
+    "static": {"enable": False, "url": "/static", "dir": "static"},
+    "limits": {
+        "max_request_body_size_in_KB": 2048,
+        "max_request_body_multipart_size_in_KB": 51200,
+    },
+    # Ushka Guard: request data arrives as `Untrusted` and dangerous sinks
+    # refuse it. Turning it off is a migration aid, not a mode.
+    "security": {"taint": True},
+}
+
+# Environment names honoured in addition to USHKA_<SECTION>_<KEY>.
+ENV_ALIASES = {"USHKA_DATABASE_URL": ("DATABASE_URL", "USHKA_DB_URL")}
+
+_TRUE = {"1", "true", "yes", "on"}
+_FALSE = {"0", "false", "no", "off", ""}
+
+
+def _package_version() -> str:
+    try:
+        return version("ushka")
+    except PackageNotFoundError:  # running from a source checkout
+        return "dev"
+
+
+def parse_dotenv(text: str) -> dict[str, str]:
+    """Parses ``.env`` content: ``KEY=value`` lines, ``#`` comments, optional quotes.
+
+    ``export KEY=value`` is accepted. Variable expansion is not supported.
+    """
+    values: dict[str, str] = {}
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key = key.strip().removeprefix("export ").strip()
+        value = value.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+            value = value[1:-1]
+        elif " #" in value:  # inline comment on an unquoted value
+            value = value.split(" #", 1)[0].rstrip()
+        if key:
+            values[key] = value
+    return values
+
+
+def _coerce(raw: str, like: Any, name: str) -> Any:
+    if isinstance(like, bool):
+        lowered = raw.strip().lower()
+        if lowered in _TRUE:
+            return True
+        if lowered in _FALSE:
+            return False
+        raise ValueError(f"{name}={raw!r} is not a boolean (use true/false)")
+    if isinstance(like, int):
+        try:
+            return int(raw)
+        except ValueError:
+            raise ValueError(f"{name}={raw!r} is not an integer") from None
+    if isinstance(like, float):
+        return float(raw)
+    return raw
 
 
 class Config:
-    """Manages application configuration using a Singleton pattern.
+    """Process-wide application configuration (singleton).
 
-    This class loads settings from an 'ushka.toml' file, provides default
-    values for missing keys, and makes configuration accessible throughout the
-    application.
-
-    Notes
-    -----
-    This class implements the Singleton pattern. Access the instance directly
-    by calling `Config()`.
-
-    Attributes
+    Parameters
     ----------
-    log : logging.Logger
-        The root logger instance.
-    workdir : Path | str
-        The current working directory used for configuration.
-    default_config_file_path : Path
-        The expected path to the 'ushka.toml' configuration file.
-
+    workdir : Path | str, optional
+        The application directory, where ``ushka.toml`` and ``.env`` live.
+        Defaults to the current working directory, resolved when the first
+        instance is created.
     """
 
-    _instance = None
+    _instance: Config | None = None
     _lock = threading.Lock()
     _initialized = False
-
-    # Sentinel object to distinguish between a value of None and a missing key.
     _sentinel = object()
 
     def __new__(cls, *args, **kwargs):
-        """Ensures only one instance of Config exists (Singleton pattern)."""
         if cls._instance is None:
             with cls._lock:
                 if cls._instance is None:
@@ -57,207 +136,116 @@ class Config:
         return cls._instance
 
     def __init__(self, workdir: Path | str | None = None) -> None:
-        """Initializes the Config instance with default settings.
-
-        Parameters
-        ----------
-        workdir : Path | str, optional
-            The base directory where 'ushka.toml' is expected to reside.
-            By default, uses the current working directory.
-        """
         if self._initialized:
             return
-
-        # Resolved at call time: a default of `Path.cwd()` is evaluated once,
-        # at import, and points at whatever directory imported the package.
-        workdir = Path(workdir) if workdir else Path.cwd()
-
-        self._defaults = {
-            "ushka": {"version": version("ushka"), "workdir": str(workdir)},
-            # --- DATABASE DEFAULTS ---
-            "database": {"url": "sqlite:///ushka.db"},
-            "app": {
-                "name": "Ushka App",
-                "debug": False,
-                "auto_discover": True,
-                "secret_key": token_urlsafe(128),
-            },
-            "server": {
-                "host": "127.0.0.1",
-                "port": 8000,
-                "workers": 1,
-                "ushka_suppress_uvicorn": True,
-            },
-            "static": {"enable": False, "url": "/static", "dir": "static"},
-            "limits": {
-                "max_request_body_size_in_KB": 2048,
-                "max_request_body_multipart_size_in_KB": 51200,
-            },
-        }
-
-        self._map_config_to_attributes(self._defaults)
+        self.log = log
+        self.workdir = Path(workdir) if workdir else Path.cwd()
+        self.default_config_file_path = self.workdir / "ushka.toml"
+        self.sources: dict[str, str] = {}
+        self._applied: set[str] = set()
+        self._apply(self._merged(file_data={}, dotenv={}, environ=dict(os.environ)))
         self._initialized = True
-        self.log = logging.getLogger()
-        self.workdir = workdir
-        self.default_config_file_path = Path(workdir) / "ushka.toml"
 
-    def load_from_file(self, config_path: Path | None = None):
-        """Loads configuration from a TOML file.
+    # -- loading ---------------------------------------------------------------
 
-        If the configuration file does not exist, it is created using default
-        values. The [ushka] section is immutable (runtime-defined) and will
-        always be overwritten by the current application state.
+    def set_workdir(self, workdir: Path | str) -> Config:
+        """Re-roots the configuration at `workdir` (where ushka.toml/.env live).
 
-        Parameters
-        ----------
-        config_path : Path | None, optional
-            The explicit path to the configuration file. If None, uses
-            `self.default_config_file_path`. By default, None.
+        The application calls this with its own directory, so a CLI that
+        created the singleton earlier from another current directory does not
+        decide where the app's files are.
+        """
+        self.workdir = Path(workdir)
+        self.default_config_file_path = self.workdir / "ushka.toml"
+        return self
+
+    def load_from_file(self, config_path: Path | None = None) -> Config:
+        """Reads ``ushka.toml`` and ``.env`` and applies the environment.
+
+        A missing ``ushka.toml`` is fine: defaults are used. The file is never
+        created or modified.
 
         Returns
         -------
         Config
-            The current Config instance, allowing for chaining.
+            The instance, for chaining.
         """
-        if not config_path:
-            config_path = self.default_config_file_path
+        path = Path(config_path) if config_path else self.default_config_file_path
+        file_data: dict[str, Any] = {}
+        if path.exists():
+            with open(path, "rb") as fh:
+                try:
+                    file_data = tomllib.load(fh)
+                except tomllib.TOMLDecodeError as exc:
+                    raise ValueError(f"Invalid TOML in {path}: {exc}") from exc
 
-        # --- 1. CREATE FILE (IF IT DOESN'T EXIST) ---
-        if not os.path.exists(config_path):
-            doc = tomlkit.document()
+        dotenv_path = path.parent / ".env"
+        dotenv = parse_dotenv(dotenv_path.read_text("utf-8")) if dotenv_path.exists() else {}
 
-            doc.add(
-                tomlkit.comment(
-                    "Configuration Automatically Generated by Ushka. Keys are case-insensitive."
-                )
-            )
-            doc.add(tomlkit.nl())
-
-            for section_name, section_data in self._defaults.items():
-                tbl = tomlkit.table()
-
-                # --- USHKA SECTION (IMMUTABLE) ---
-                if section_name == "ushka":
-                    # tomlkit rejects "\n" inside a comment, so every line is
-                    # added as its own comment entry.
-                    tbl.add(tomlkit.comment("SYSTEM INFORMATION (Read-only)."))
-                    tbl.add(
-                        tomlkit.comment(
-                            "Changes here are ignored; these are defined by the runtime."
-                        )
-                    )
-                    for k, v in section_data.items():
-                        tbl.add(k, v)
-                    doc.add(section_name, tbl)
-                    continue
-
-                # --- DATABASE SECTION (RICH COMMENTS) ---
-                if section_name == "database":
-                    for line in (
-                        "Database connection URL (SQLAlchemy format).",
-                        "Defaults to SQLite for local development.",
-                        "",
-                        "Examples for other drivers:",
-                        'url = "postgresql://user:pass@localhost:5432/my_database"',
-                        'url = "mysql://user:pass@localhost:3306/my_database"',
-                    ):
-                        tbl.add(tomlkit.comment(line))
-                    tbl.add("url", "sqlite:///ushka.db")
-                    doc.add(section_name, tbl)
-                    continue
-
-                # --- OTHER SECTIONS ---
-                for key, value in section_data.items():
-                    tbl.add(key, value)
-                doc.add(section_name, tbl)
-
-            with open(config_path, "w", encoding="utf-8") as f:
-                f.write(tomlkit.dumps(doc))
-            self.log.info("🔧 Ushka created a new ushka.toml")
-
-        # --- 2. READ AND ENFORCE ---
-        with open(config_path, "r", encoding="utf-8") as f:
-            doc = tomlkit.parse(f.read())
-
-        # FORCE OVERWRITE OF THE [ushka] SECTION
-        if "ushka" in doc:
-            doc["ushka"].update(self._defaults["ushka"])
-        else:
-            doc["ushka"] = self._defaults["ushka"]
-
-        # Merge new keys into other sections
-        modified = False
-        for section, keys in self._defaults.items():
-            if section == "ushka":
-                continue
-
-            if section not in doc:
-                doc[section] = keys
-                modified = True
-            else:
-                for key, value in keys.items():
-                    if key not in doc[section]:
-                        doc[section][key] = value
-                        modified = True
-
-        if modified:
-            with open(config_path, "w", encoding="utf-8") as f:
-                f.write(tomlkit.dumps(doc))
-            self.log.info("🔧 Ushka updated your ushka.toml")
-
-        self._map_config_to_attributes(doc)
+        self._apply(self._merged(file_data, dotenv, dict(os.environ)))
         return self
 
-    def _map_config_to_attributes(self, data: dict) -> None:
-        """Maps dictionary keys (sections and keys) to instance attributes.
+    def _merged(self, file_data: dict, dotenv: dict, environ: dict) -> dict[str, dict[str, Any]]:
+        merged: dict[str, dict[str, Any]] = {s: dict(v) for s, v in DEFAULTS.items()}
+        self.sources = {}
 
-        Attributes are created using the format: SECTION_KEY (uppercase).
-        Example: data['app']['debug'] becomes self.APP_DEBUG.
+        for section, content in file_data.items():
+            if section == "ushka" or not isinstance(content, dict):
+                continue  # [ushka] is runtime information, not settings
+            target = merged.setdefault(section, {})
+            for key, value in content.items():
+                target[key] = value
+                self.sources[f"{section}_{key}".upper()] = "ushka.toml"
 
-        Parameters
-        ----------
-        data : dict
-            The configuration data dictionary (parsed TOML document or defaults).
-        """
+        for section, content in merged.items():
+            for key, current in content.items():
+                name = f"USHKA_{section}_{key}".upper()
+                candidates = (name, *ENV_ALIASES.get(name, ()))
+                for layer_name, layer in (("environment", environ), (".env", dotenv)):
+                    raw = next((layer[c] for c in candidates if c in layer), None)
+                    if raw is not None:
+                        content[key] = _coerce(raw, current, name)
+                        self.sources[f"{section}_{key}".upper()] = layer_name
+                        break
+
+        app = merged["app"]
+        if not app.get("secret_key") and app.get("debug"):
+            # Per-process key: sessions work in development, but a key that
+            # is never written anywhere cannot leak or be reused in production.
+            app["secret_key"] = secrets.token_urlsafe(48)
+            self.sources["APP_SECRET_KEY"] = "generated (debug only)"
+
+        merged["ushka"] = {"version": _package_version(), "workdir": str(self.workdir)}
+        return merged
+
+    def _apply(self, data: dict[str, dict[str, Any]]) -> None:
+        names = set()
         for section, content in data.items():
-            if isinstance(content, dict):
-                for key, value in content.items():
-                    attr_name = f"{section.upper()}_{key.upper()}"
-                    setattr(self, attr_name, value)
+            for key, value in content.items():
+                name = f"{section.upper()}_{key.upper()}"
+                setattr(self, name, value)
+                names.add(name)
+        for stale in getattr(self, "_applied", set()) - names:
+            delattr(self, stale)
+        self._applied = names
+
+    # -- access ----------------------------------------------------------------
 
     def get(self, key: str, default: Any = None, required: bool = False) -> Any:
-        """Retrieves a configuration value by its attribute name.
-
-        Parameters
-        ----------
-        key : str
-            The config attribute name (e.g., 'APP_DEBUG', 'DATABASE_URL').
-            Case-insensitivity is handled internally by converting to uppercase.
-        default : Any, optional
-            Value to return if key is missing and `required` is False.
-            By default, None.
-        required : bool, optional
-            If True, raises a KeyError when the key is missing.
-            By default, False.
-
-        Returns
-        -------
-        Any
-            The configuration value.
+        """Returns the value of ``SECTION_KEY`` (case-insensitive).
 
         Raises
         ------
         KeyError
-            If `required` is True and the key is not found.
+            If the key is missing and `required` is true.
         """
-        # Tries to get the attribute, if it doesn't exist, returns the SENTINEL
         value = getattr(self, key.upper(), self._sentinel)
-
         if value is self._sentinel:
             if required:
-                raise KeyError(
-                    f"❌ Missing required configuration key: '{key.upper()}'"
-                )
+                raise KeyError(f"Missing required configuration key: '{key.upper()}'")
             return default
-
         return value
+
+    def source_of(self, key: str) -> str:
+        """Where the value of `key` came from: ``default``, ``ushka.toml``, ``.env``..."""
+        return self.sources.get(key.upper(), "default")
