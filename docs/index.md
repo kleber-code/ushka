@@ -1,12 +1,9 @@
 ---
-title: Ushka
-template: home.html
-hide:
-  - navigation
-  - toc
+title: Documentation
+description: Ushka is an async Python web framework where untrusted data is a type and dangerous sinks refuse it. Start here.
 ---
 
-# Ushka { .ushka-home-heading }
+# Ushka documentation
 
 ## Untrusted data is a type
 

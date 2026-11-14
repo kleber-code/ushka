@@ -34,7 +34,7 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: pdm install -d -G orm
+        run: pdm install -d -G orm -G docs
 
       - name: Run tests
         run: pdm run pytest
@@ -71,16 +71,11 @@ jobs:
           path: dist/
 
   docs:
-    name: Build documentation
+    name: Check documentation
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      # The `optimize` plugin in mkdocs.yml shells out to `pngquant`, which is
-      # not present on the runner image.
-      - name: Install pngquant
-        run: sudo apt-get update && sudo apt-get install -y pngquant
 
       - name: Set up PDM
         uses: pdm-project/setup-pdm@v4
@@ -89,7 +84,9 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: pdm install -d -G orm
+        run: pdm install -d -G orm -G docs
 
-      - name: Build the site
-        run: pdm run mkdocs build --strict
+      # Ushka Docs renders every page and fails on broken links, anchors or
+      # nav entries (the API reference is generated from the docstrings).
+      - name: Check every page, link and anchor
+        run: pdm run ushka docs check docs --api ushka

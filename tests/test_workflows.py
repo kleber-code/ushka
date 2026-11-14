@@ -71,18 +71,9 @@ def test_every_step_uses_only_known_keys(path):
             )
 
 
-def test_docs_workflow_installs_pngquant():
-    """`mkdocs-material`'s `optimize` plugin shells out to `pngquant`.
-
-    The binary is not on the GitHub runner image, so the deployment step fails
-    unless the workflow installs it explicitly.
-    """
-    workflow = _load(WORKFLOW_DIR / "docs-deploy.yml")
-    commands = " ".join(
-        step.get("run", "")
-        for job in workflow["jobs"].values()
-        for step in job["steps"]
-    )
-
-    assert "pngquant" in commands
-    assert "git config user.email" in commands
+def test_ci_checks_the_docs_with_ushka_docs():
+    """The docs are rendered by ushka.docs; CI must fail on broken links."""
+    workflow = _load(WORKFLOW_DIR / "ci.yml")
+    steps = workflow["jobs"]["docs"]["steps"]
+    assert any("ushka docs check" in str(step.get("run", "")) for step in steps)
+    assert not any("mkdocs" in str(step.get("run", "")) for step in steps)

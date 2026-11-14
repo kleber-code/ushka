@@ -3,11 +3,31 @@
 All notable changes to Ushka. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+
+- **Ushka Docs** (`ushka.docs`, extra `ushka[docs]`): a folder of Markdown becomes a documentation site served by your app.
+  - Rendering: pages are rendered at startup with Pygments highlighting on the server and served with ETags.
+  - Search runs on the server, and the query is untrusted and escaped.
+  - The API reference is generated from docstrings with griffe.
+  - SEO: canonical URLs, Open Graph, JSON-LD breadcrumbs and `sitemap.xml`.
+  - The theme can be overridden and its contrast meets WCAG AA, which is checked in tests.
+  - `ushka docs check` fails on broken links or anchors, and `ushka docs serve` previews the site.
+- **`app.mount_static(url, directory, html=..., cache_control=...)`**: serves any folder with `ETag`/`304`, `Last-Modified`, `nosniff` and an html mode. `[static] cache_control` sets the header for the `[static]` folder.
+- **The project website**, https://ushka.satela.com.br, built with Ushka in `site/`. It serves the docs, an `install.sh` with a published SHA-256, `llms.txt`, `robots.txt` and `sitemap.xml`.
+- **Ushka, the mascot**: a maned-wolf (lobo-guará) guardian with 12 stickers. The built-in pages show her inline.
+
+### Changed
+
+- **The docs no longer use MkDocs.** They are rendered by Ushka Docs at https://ushka.satela.com.br/docs/, and GitHub Pages now redirects there. The `UnsafeValueError` docs links point to the new site.
+- **The dev dependency group** drops MkDocs and its plugins.
+
 ## [0.5.0] - 2026-11-14
 
 Ushka now has one purpose: insecure code, whether a person or an AI wrote it,
 does not run silently. See
-[Why Ushka changed](https://kleber-code.github.io/ushka/why-ushka-changed/).
+[Why Ushka changed](https://ushka.satela.com.br/docs/why-ushka-changed/).
 
 ### Added
 

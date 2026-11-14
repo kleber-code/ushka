@@ -1,6 +1,6 @@
 # Ushka Guard
 
-![Ushka holding up her shield](../assets/stickers/shield.webp){ .ushka-sticker width="190" height="230" }
+![Ushka holding up her shield](../assets/stickers/shield.webp){ .ushka-sticker width="190" height="231" }
 
 Ushka Guard makes untrusted data a **type**. Everything that comes from outside
 your program arrives as an `Untrusted` string, and the places where such a
@@ -139,7 +139,7 @@ the code on the next try:
 {"error": "unsafe_value", "code": "USHKA-G003", "sink": "redirect()",
  "source": "query:next", "risk": "open redirect / phishing",
  "fix": "redirect(safe.url(value, allow=[\"/\"], default=\"/\"))",
- "docs": "https://kleber-code.github.io/ushka/guide/guard/#ushka-g003"}
+ "docs": "https://ushka.satela.com.br/docs/guide/guard/#ushka-g003"}
 ```
 
 In production the client only sees a generic 500. The details go to the log,
