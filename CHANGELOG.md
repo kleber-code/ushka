@@ -19,6 +19,11 @@ All notable changes to Ushka. The format follows
   - Invalid requests get **422** with every error and its location, never echoing the input.
   - Converted values (`int`, `UUID`, `Enum`, `Literal`...) are plain, so conversion also sanitises. `str` stays `Untrusted`.
 - **`Depends`**: sync, async and `yield` dependencies, once per request, nested, sharing the handler's `Response`, with `app.dependency_overrides` for tests.
+- **Supply-chain hardening** (see `.github/SECURITY.md`, "Verifying a Release"):
+  - Every GitHub Action is pinned to a full commit SHA and Dependabot keeps them current. A test fails the build if one is not pinned, if a script inlines attacker-controlled text, or if a workflow loses its `permissions`.
+  - Releases carry a CycloneDX **SBOM** (`ushka.cdx.json`), GitHub **build-provenance and SBOM attestations** (`gh attestation verify`) and PyPI **PEP 740 attestations**.
+  - Build, attest and publish are separate jobs with the least permissions each. A release is refused when its tag does not match the package version.
+  - CI installs from `pdm.lock` and fails on a stale lock. The dev group now includes the frameworks used by the integration tests.
 - **Ushka Guard for FastAPI, Starlette and Django** (guide: Ushka Guard on FastAPI, Starlette and Django): `ushka.guard.integrations.fastapi|starlette|django`, each with `install()` and `uninstall()` and no new dependency.
   - Client data becomes `Untrusted`: query, headers, cookies, path, JSON and forms. For FastAPI the values are marked after pydantic validation, because pydantic returns plain `str`. `int`, `Enum` and `Literal` stay as validated values.
   - `HTMLResponse`, redirects, `FileResponse` (Starlette) and `HttpResponse`, redirects and `mark_safe` (Django) refuse them.

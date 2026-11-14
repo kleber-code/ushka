@@ -24,10 +24,9 @@ lists what has shipped and what is next.
 - [x] Routes as agent tools over MCP, with declared capabilities and human approval.
 - [x] `ushka verify`.
 - [x] Ushka Guard for FastAPI, Starlette and Django.
+- [x] Supply-chain hardening: pinned actions, SBOM and attestations.
 
 ## Next
-
-- **Supply-chain hardening.** Pinned actions, SBOM and attestations.
 
 ## Get involved
 
