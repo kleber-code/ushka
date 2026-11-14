@@ -1,73 +1,65 @@
-"""
-This module provides the Command Line Interface (CLI) command for starting
-the Ushka production server.
+"""``ushka run`` (production) and the server logic shared with ``ushka dev``."""
 
-It uses Uvicorn to run the ASGI application in a production-ready setup,
-including support for multiple worker processes.
+from __future__ import annotations
 
-Commands
---------
-run: Starts the Uvicorn production server.
-"""
-
-import logging
-import sys
+import os
 from pathlib import Path
 
-import uvicorn
-
+from ushka.cli import ui
 from ushka.core.config import Config
-from ushka.core.log import setup_logging
-
-log = logging.getLogger("ushka")
+from ushka.core.log import get_log_config, setup_logging
 
 
-def run(app_path: str, host: str, port: int):
-    """Starts the Uvicorn server in production mode.
+def serve(app_path: str, host: str, port: int, *, dev: bool) -> None:
+    """Starts Uvicorn for `app_path` (``module:attribute``).
 
-    This command configures and runs the Uvicorn server for production
-    deployments. Host, port, and number of workers can be specified via
-    arguments or default to values from `ushka.toml`.
-
-    Parameters
-    ----------
-    app_path : str
-        The application entry point, typically in the format 'module:instance'
-        (e.g., 'app:app').
-    host : str
-        The host IP address to bind the server to (e.g., '0.0.0.0').
-        If empty, it defaults to the value in `ushka.toml` or '127.0.0.1'.
-    port : int
-        The port number to listen on. If 0, it defaults to the value
-        in `ushka.toml` or 8000.
-
-    Raises
-    ------
-    SystemExit
-        If an error occurs while starting the Uvicorn server.
+    In development, debug is forced on through ``USHKA_APP_DEBUG`` (inherited
+    by Uvicorn's reload worker) and the code is reloaded on change. In
+    production, debug comes from the configuration and several workers can
+    be used.
     """
+    import uvicorn
+
+    if ":" not in app_path:
+        ui.fail(f"Expected the app as 'module:attribute' (e.g. app:app), got {app_path!r}.")
+    if dev:
+        os.environ["USHKA_APP_DEBUG"] = "true"
+
     setup_logging()
-    config = Config(Path.cwd()).load_from_file()
+    try:
+        config = Config(Path.cwd()).load_from_file()
+    except ValueError as exc:
+        ui.fail(str(exc))
 
-    # Get server configurations from config file or use default values
-    host = host if host else config.get("server_host", "127.0.0.1")
-    port = port if port else config.get("server_port", 8000)
-    workers = config.get("server_workers", 1)
+    host = host or config.get("server_host", "127.0.0.1")
+    port = port or int(config.get("server_port", 8000))
+    workers = 1 if dev else int(config.get("server_workers", 1))
 
-    log.info(
-        f"Starting Ushka server in production mode on http://{host}:{port} with {workers} workers."
+    ui.title(f"Ushka {config.get('ushka_version')} · {'development' if dev else 'production'}")
+    ui.info(f"http://{host}:{port}")
+    if dev:
+        ui.info("debug on, reloading on change")
+    else:
+        if config.get("app_debug"):
+            ui.warn("debug is ON in production: tracebacks are shown to visitors.")
+            ui.hint("set [app] debug = false or USHKA_APP_DEBUG=false")
+        if not config.get("app_secret_key"):
+            ui.warn("no USHKA_APP_SECRET_KEY: sessions will fail.")
+        if workers > 1:
+            ui.info(f"{workers} workers")
+    ui.hint("press Ctrl+C to stop")
+
+    uvicorn.run(
+        app_path,
+        host=host,
+        port=port,
+        reload=dev,
+        workers=None if dev else workers,
+        lifespan="on",
+        log_config=get_log_config(),
     )
 
-    try:
-        uvicorn.run(
-            app_path,
-            host=host,
-            port=port,
-            workers=workers,
-            lifespan="on",
-            log_config=None,  # Disable Uvicorn's default logger to use Ushka's custom logger
-            use_colors=True,
-        )
-    except Exception as e:
-        log.error(f"❌ Error starting server: {e}")
-        sys.exit(1)
+
+def run(app_path: str, host: str, port: int) -> None:
+    """Production server."""
+    serve(app_path, host, port, dev=False)

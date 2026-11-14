@@ -57,11 +57,8 @@ from ushka.core.config import Config as UshkaConfig
 from ushka.orm import db
 
 ushka_cfg = UshkaConfig().load_from_file()
-db_url = ushka_cfg.DATABASE_URL
-
-# FORCE ASYNC DRIVER FOR ALEMBIC
-if "sqlite" in db_url and "aiosqlite" not in db_url:
-    db_url = db_url.replace("sqlite://", "sqlite+aiosqlite://")
+# Same URL (and async driver) the application uses at runtime.
+db_url = db.url
 
 # --- 3. MODEL DISCOVERY ---
 if ushka_cfg.APP_AUTO_DISCOVER:
