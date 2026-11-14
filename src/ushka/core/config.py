@@ -60,7 +60,24 @@ DEFAULTS: dict[str, dict[str, Any]] = {
     },
     # Ushka Guard: request data arrives as `Untrusted` and dangerous sinks
     # refuse it. Turning it off is a migration aid, not a mode.
-    "security": {"taint": True},
+    "security": {
+        "taint": True,
+        # Security middleware (ushka.security). Each part can be switched off.
+        "headers": True,
+        "csp": "",  # empty = the default policy; "off" = no CSP header
+        "frame_options": "DENY",
+        "referrer_policy": "strict-origin-when-cross-origin",
+        "hsts_seconds": 31536000,  # sent on https requests only
+        "csrf": True,
+        "csrf_trusted_origins": [],
+        "csrf_exempt_paths": [],
+        "allowed_hosts": [],  # empty = any Host; set it in production
+        "cors_origins": [],  # empty = no CORS headers
+        "cors_methods": ["GET", "POST", "PUT", "PATCH", "DELETE"],
+        "cors_headers": [],
+        "cors_credentials": False,
+        "cors_max_age": 600,
+    },
 }
 
 # Environment names honoured in addition to USHKA_<SECTION>_<KEY>.
@@ -114,6 +131,8 @@ def _coerce(raw: str, like: Any, name: str) -> Any:
             raise ValueError(f"{name}={raw!r} is not an integer") from None
     if isinstance(like, float):
         return float(raw)
+    if isinstance(like, list):
+        return [v.strip() for v in raw.split(",") if v.strip()]
     return raw
 
 

@@ -51,6 +51,7 @@ that names the file and the position of the error.
 | `[limits]` | `max_request_body_size_in_KB` | `2048` | Largest request body (2 MB). Bigger bodies get **413**. |
 | `[limits]` | `max_request_body_multipart_size_in_KB` | `51200` | Largest multipart upload (50 MB). |
 | `[security]` | `taint` | `true` | [Ushka Guard](guard.md). Turning it off is a migration aid, not a mode. |
+| `[security]` | `headers`, `csp`, `frame_options`, `referrer_policy`, `hsts_seconds`, `csrf`, `csrf_trusted_origins`, `csrf_exempt_paths`, `allowed_hosts`, `cors_*` | see page | The [security middleware](security.md). Lists are written `["a", "b"]` in TOML and `a,b` in environment variables. |
 
 You can add your own sections and keys too; they are read the same way:
 

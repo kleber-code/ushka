@@ -10,6 +10,7 @@ title = "Guide"
 pages = [
     "guide/index.md",
     "guide/guard.md",
+    "guide/security.md",
     "guide/configuration.md",
     "guide/routing.md",
     "guide/templates.md",
@@ -45,6 +46,7 @@ modules = [
     "ushka.core.exceptions",
     "ushka.core.log",
     "ushka.core.router",
+    "ushka.security.middleware",
     "ushka.guard.errors",
     "ushka.guard.rewrite",
     "ushka.guard.safe",

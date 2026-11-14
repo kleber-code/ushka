@@ -14,10 +14,14 @@ lists what has shipped and what is next.
 - [x] CLI: `ushka check`, a secure `ushka new` (with `.env`, `.gitignore` and `AGENTS.md`), and correct exit codes.
 - [x] Lifespan hooks, `(body, status)` returns, `HEAD`, and 400 for malformed JSON.
 
+## 0.7 (in progress)
+
+- [x] [Security middleware](guide/security.md), on by default: CSRF protection,
+      security headers (CSP, HSTS, `nosniff`), CORS and trusted hosts.
+- [x] `app.add_middleware` / `@app.middleware`.
+
 ## Next
 
-- **Security middleware on by default.** CSRF protection, security headers
-  (CSP, HSTS, `nosniff`), CORS and trusted hosts.
 - **Routes as agent tools.** Expose chosen routes over MCP, with declared
   capabilities (what each route reads, writes and calls) and human approval
   for sensitive actions.

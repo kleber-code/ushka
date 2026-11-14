@@ -17,6 +17,7 @@ from ushka.core.error_handler import ErrorHandler
 from ushka.core.log import LogLevelType, get_log_config, setup_logging
 from ushka.http.exceptions import HTTPMethodNotAllowed, HttpNotFound
 from ushka.http.request import Request
+from ushka.security import SecurityMiddleware
 from ushka.http.response import Response
 from ushka.http.redirect import redirect
 from ushka.static import DEFAULT_CACHE_CONTROL, file_response, resolve_in, server_static_files
@@ -70,11 +71,15 @@ class Ushka:
 
         self._startup: list = []
         self._shutdown: list = []
+        #: Your middleware, outermost first. See `add_middleware`.
+        self._middleware: list = []
 
         self.router = Router(self.log, self.workdir)
         if self.config.get("APP_AUTO_DISCOVER", True):
             self.router.autodiscover()
         self.error_handler = ErrorHandler(self.config, self.log, self.router)
+        #: Always outermost; configured in ``[security]``.
+        self.security = SecurityMiddleware(self.config)
 
         if self.config.get("STATIC_ENABLE"):
             static_url = self.config.get("STATIC_URL", "/static") + "/[path:filename]"
@@ -175,20 +180,51 @@ class Ushka:
         """
         request = Request(self, scope, receive)
         try:
-            response = await self._dispatch_request(request)
+            response = await self._run_chain(request)
         except Exception as e:
-            try:
-                response = await self.error_handler.handle_exception(e, request)
-            except Exception:
-                # The error page itself failed: never leave the client hanging.
-                self.log.exception("Error handler failed")
-                response = Response("Internal Server Error", 500)
+            response = await self._error_response(e, request)
         # Lets the response persist cookie/session changes, even on errors.
         response.request = request
 
         if request.method == "HEAD":
             response.head_only = True
         await response(send)
+
+    async def _error_response(self, exc: Exception, request: Request) -> Response:
+        try:
+            return await self.error_handler.handle_exception(exc, request)
+        except Exception:
+            # The error page itself failed: never leave the client hanging.
+            self.log.exception("Error handler failed")
+            return Response("Internal Server Error", 500)
+
+    async def _dispatch_safely(self, request: Request) -> Response:
+        """The route, with errors already turned into responses, so every
+        middleware (security headers included) sees a `Response` and nothing else."""
+        try:
+            return await self._dispatch_request(request)
+        except Exception as exc:
+            return await self._error_response(exc, request)
+
+    async def _run_chain(self, request: Request) -> Response:
+        call = self._dispatch_safely
+        for mw in reversed(self._middleware):
+            call = _bind(mw, call)
+        return await _bind(self.security, call)(request)
+
+    def add_middleware(self, func):
+        """Registers a middleware: ``async def mw(request, call_next) -> Response``.
+
+        Middleware runs in the order added (the first one is outermost) and
+        inside the built-in security middleware. ``await call_next(request)``
+        gives the downstream `Response`, which you may change or replace. Raise
+        nothing for expected errors: return a `Response` instead. Also usable as
+        a decorator (``@app.middleware``).
+        """
+        self._middleware.append(func)
+        return func
+
+    middleware = add_middleware
 
     async def _dispatch_request(self, request: Request) -> Response:
         """Finds the appropriate route handler and executes it.
@@ -451,6 +487,13 @@ class Ushka:
             The route registration decorator.
         """
         return self._add_route("DELETE", path)
+
+
+def _bind(mw, call_next):
+    async def run(request: Request) -> Response:
+        return _to_response(await _maybe_await(mw(request, call_next)))
+
+    return run
 
 
 async def _maybe_await(value):

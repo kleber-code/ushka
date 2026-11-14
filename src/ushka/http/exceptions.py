@@ -148,3 +148,15 @@ class HTTPMethodNotAllowed(HTTPError):
         """
         super().__init__(template, status_code, message)
         self.allowed = sorted(allowed or [])
+
+
+class HTTPForbidden(HTTPError):
+    """Exception raised for HTTP 403 Forbidden errors."""
+
+    def __init__(
+        self,
+        template: str = "error.html",
+        status_code: int = 403,
+        message: str = "Forbidden",
+    ) -> None:
+        super().__init__(template, status_code, message)

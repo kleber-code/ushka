@@ -5,6 +5,20 @@ All notable changes to Ushka. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **Security middleware, on by default** (`ushka.security`, guide: Security middleware):
+  - Headers on every response, error pages included: `nosniff`, `X-Frame-Options`, `Referrer-Policy`, a restrictive `Content-Security-Policy`, `Cross-Origin-Opener-Policy`, and HSTS on https.
+  - CSRF protection without tokens or a secret key, based on `Sec-Fetch-Site` and `Origin`.
+  - Trusted hosts (`allowed_hosts`) and CORS with preflight (`cors_*`). A wildcard origin with credentials is refused at startup.
+  - Configured in `[security]`; each part can be turned off.
+- **`app.add_middleware` / `@app.middleware`**: `async def mw(request, call_next)`. Errors reach middleware as ordinary responses.
+- `HTTPForbidden` (403), and list settings in environment variables (`a,b`).
+
+### Changed
+
+- **Behaviour change:** browser requests from another site that write (`POST`, `PUT`, `PATCH`, `DELETE`) now get 403, and responses carry a CSP that blocks inline scripts and third-party resources. Adjust with `csp`, `csrf_trusted_origins` or `csrf = false`.
+
 ### Fixed
 
 - Website: the CSS URLs carry a content hash, so browsers no longer show a cached old stylesheet (for example, the hero dots behind the text) after a deploy. On narrow screens the dots are hidden, since the illustration moves under the text.
