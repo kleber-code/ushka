@@ -24,6 +24,10 @@ async def test_site_routes(site_app, call):
     assert (await call(site_app, "GET", "/healthz"))["status"] == 200
     assert (await call(site_app, "GET", "/s/site.css"))["status"] == 200
 
+    # The stylesheet URL carries a content hash, so a deploy busts the browser cache.
+    digest = hashlib.sha256((SITE / "static" / "site.css").read_bytes()).hexdigest()[:10]
+    assert f'href="/s/site.css?v={digest}"' in home["body"]
+
     script = await call(site_app, "GET", "/install.sh")
     assert script["status"] == 200 and script["body"].startswith("#!/bin/sh")
     digest = hashlib.sha256((SITE / "install.sh").read_bytes()).hexdigest()

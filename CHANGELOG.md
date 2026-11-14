@@ -3,6 +3,12 @@
 All notable changes to Ushka. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Fixed
+
+- Website: the CSS URLs carry a content hash, so browsers no longer show a cached old stylesheet (for example, the hero dots behind the text) after a deploy. On narrow screens the dots are hidden, since the illustration moves under the text.
+
 ## [0.6.0] - 2026-11-14
 
 ### Added

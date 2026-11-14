@@ -131,6 +131,7 @@ footer.foot .peek { position: absolute; right: 0; bottom: 0; width: 5.5rem; }
   .cover .wrap, .band .wrap, .band.flip .wrap { grid-template-columns: 1fr; }
   .cover-text { padding-bottom: 0; }
   .kana { display: none; }
+  .cover::before { display: none; } /* one column: the dots would sit behind the text */
   .cover-art img { max-height: 20rem; margin: 0 auto; }
   .band.flip .sticker { order: 0; }
   .sticker { width: 9rem; }

@@ -20,12 +20,25 @@ from pathlib import Path
 from ushka import Response, Ushka, render
 from ushka.docs import Docs
 from ushka.static import file_response
+from ushka.templating.engine import engine
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent
 ORIGIN = "https://ushka.satela.com.br"
 INSTALLER = HERE / "install.sh"
 INSTALLER_SHA256 = hashlib.sha256(INSTALLER.read_bytes()).hexdigest()
+
+STATIC = HERE / "static"
+
+
+def asset(name: str) -> str:
+    """URL of a file in static/ with a content hash, so a new deploy is never
+    hidden behind the browser's cached copy of the old CSS."""
+    digest = hashlib.sha256((STATIC / name).read_bytes()).hexdigest()[:10]
+    return f"/s/{name}?v={digest}"
+
+
+engine.add_global("asset", asset)
 
 app = Ushka()
 app.mount_static("/s", HERE / "static", cache_control="public, max-age=86400, stale-while-revalidate=604800")
@@ -41,7 +54,7 @@ docs = Docs(
     og_image=f"{ORIGIN}/s/og.png",
     links=[("Ushka Guard", "/docs/guide/guard/"), ("GitHub", "https://github.com/kleber-code/ushka")],
     edit_url="https://github.com/kleber-code/ushka/edit/main/docs/",
-    extra_css=["/s/docs-brand.css"],
+    extra_css=[asset("docs-brand.css")],
 )
 docs.mount(app)
 
