@@ -1,26 +1,51 @@
-# Ushka ฅ^•ﻌ•^ฅ
+---
+title: Ushka
+template: home.html
+hide:
+  - navigation
+  - toc
+---
 
-**Ushka is the Python web framework where insecure code, whether you or an AI
-wrote it, does not run silently. It stops and tells you how to fix it.**
+# Ushka { .ushka-home-heading }
 
-It is an async framework with filesystem routing, built on three principles:
+## Untrusted data is a type
 
-- **Low dependency.** The core needs only `uvicorn`, `jinja2` and `python-multipart`. Config, `.env`, the CLI, terminal colours and the guard use the standard library.
-- **Batteries included.** Routing, templates, sessions, flash messages, uploads, an ORM with migrations (`ushka[orm]`), a project generator and a security checker.
-- **Lightweight in concept.** One idea per feature. A route is a file, a setting is a key, and an unsafe value is a type.
+Everything from outside your program arrives as `Untrusted`: query, form,
+JSON, headers, cookies, path parameters, and model output marked with
+`guard.llm()`. HTML responses, `|safe`, redirects, file paths and raw SQL
+refuse it, and the error tells you the fix.
 
 ```python
-# routes/hello.py
+# routes/login.py
+from ushka import redirect, safe
+
 async def get(request):
-    name = request.query.get("name", "friend")   # Untrusted
-    return t"<h1>Hello, {name}!</h1>"           # Python 3.14: escaped HTML
+    target = request.query.get("next", "/")
+    # redirect(target)  -> USHKA-G003 open redirect, with the fix
+    return redirect(safe.url(target, allow=["/"], default="/"))
 ```
 
-## Start here
+On Python 3.14, t-strings make HTML and SQL safe by construction:
 
-- [Why Ushka changed](why-ushka-changed.md): the purpose behind 0.5.
-- [Introduction](guide/index.md): install it and build your first app.
-- [Ushka Guard](guide/guard.md): untrusted data, sinks and sanitisers.
-- [CLI](guide/cli.md): `ushka new`, `dev`, `check` and friends.
+```python
+async def get(request):
+    return t"<h1>Hello, {request.query['name']}!</h1>"   # escaped
+```
 
-Coding agents can read [`llms.txt`](llms.txt) for a compact map of the docs.
+## Small core, full box
+
+- **Low dependency.** The core needs only `uvicorn`, `jinja2` and `python-multipart`.
+- **Batteries included.** Filesystem routing, templates, sessions, flash
+  messages, uploads, an ORM with migrations, a project generator and
+  `ushka check` for your CI.
+- **Lightweight in concept.** A route is a file, a setting is a key, and an
+  unsafe value is a type.
+
+## Where to go next
+
+- [Why Ushka changed](why-ushka-changed.md) explains the purpose behind 0.5.
+- [Introduction](guide/index.md) gets you from `pip install` to a running app.
+- [Ushka Guard](guide/guard.md) covers sources, sinks, sanitisers and error codes.
+- [CLI](guide/cli.md) documents `ushka new`, `dev`, `check` and the others.
+
+Coding agents can read [`llms.txt`](llms.txt), a compact map of these docs.

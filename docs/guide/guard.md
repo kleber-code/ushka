@@ -1,5 +1,7 @@
 # Ushka Guard
 
+![Ushka holding up her shield](../assets/stickers/shield.webp){ .ushka-sticker width="190" height="230" }
+
 Ushka Guard makes untrusted data a **type**. Everything that comes from outside
 your program arrives as an `Untrusted` string, and the places where such a
 string could do harm refuse it with an error that says what the risk is and how

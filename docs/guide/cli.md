@@ -109,7 +109,7 @@ Prints the main settings with the layer each one came from, then checks the
 project:
 
 ```text
-ฅ^•ﻌ•^ฅ Ushka 0.4.0 · checking /home/me/hello
+◆ Ushka 0.5.0 · checking /home/me/hello
 
   Settings
   · app_debug = False  [ushka.toml]
@@ -129,7 +129,7 @@ project:
   ✓ 1 route file(s) in routes/
   ✓ Python 3.14.0: t-strings available
 
-  ✓ all good ฅ^•ﻌ•^ฅ
+  ✓ all good
 ```
 
 It reports a problem when:
@@ -164,7 +164,7 @@ ushka routes rm /account                 # deletes routes/account.py
 prints each path with its methods:
 
 ```text
-ฅ^•ﻌ•^ฅ 2 route(s)
+◆ 2 route(s)
   · / - GET
   · /static/[path:filename] - GET
 ```

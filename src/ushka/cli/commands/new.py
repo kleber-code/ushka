@@ -81,7 +81,6 @@ INDEX_TEMPLATE = '''\
 </head>
 <body>
     <main>
-        <p class="mascot">ฅ^•ﻌ•^ฅ</p>
         <h1>Hello, {{ name }}!</h1>
         <p>Edit <code>routes/index.py</code> and <code>templates/index.html</code> to get started.</p>
     </main>
@@ -93,7 +92,7 @@ STYLE_CSS = '''\
 body { font-family: system-ui, sans-serif; background: #fff7fb; color: #3b2a35;
        display: grid; place-items: center; min-height: 100vh; margin: 0; }
 main { text-align: center; }
-.mascot { font-size: 2.5rem; color: #e87ab0; margin: 0; }
+h1 { color: #2b1e3a; }
 code { background: #fde4f0; padding: .1rem .35rem; border-radius: .3rem; }
 '''
 

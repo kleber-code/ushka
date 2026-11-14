@@ -7,9 +7,9 @@
 {% block main_content %}
   <main class="wrap stack">
     <header class="center">
-      <span class="mascot" role="img" aria-label="Ushka the cat, waving hello">ฅ^•ﻌ•^ฅ</span>
+      <span class="mascot">{% include "ushka_logo.html" %}</span>
       <h1 class="title-xl">Hello, Ushka!</h1>
-      <p class="lead">The cute and agile Python web framework <span class="blush" aria-hidden="true">✿</span></p>
+      <p class="lead">Your app is up, and Ushka Guard is watching the door.</p>
     </header>
 
     <section class="card" aria-labelledby="start-title">
@@ -34,7 +34,7 @@
           </ul>
         </nav>
       </div>
-      <div class="card-foot center small muted">Make Python cute again &middot; ฅ^•ﻌ•^ฅ</div>
+      <div class="card-foot center small muted">Make Python cute again</div>
     </section>
   </main>
 {% endblock %}
