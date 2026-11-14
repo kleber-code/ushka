@@ -3,11 +3,12 @@
 Routes
 ------
 /                 landing page (templates/home.html)
-/docs/...         the MkDocs documentation, built into public/docs at image build
+/docs/...         the documentation, rendered by ushka.docs from ../docs
 /install.sh       the installer script, and /install.sh.sha256 next to it
 /llms.txt         map of the docs for AI tools
+/robots.txt, /sitemap.xml
 /healthz          health check for the Satela deploy agent
-/s/...            site CSS and images
+/s/...            site CSS, fonts and images
 """
 
 from __future__ import annotations
@@ -17,20 +18,32 @@ from importlib.metadata import version
 from pathlib import Path
 
 from ushka import Response, Ushka, render
-from ushka.http import HttpNotFound
+from ushka.docs import Docs
 from ushka.static import file_response
 
 HERE = Path(__file__).resolve().parent
-PUBLIC = HERE / "public"
+REPO = HERE.parent
+ORIGIN = "https://ushka.satela.com.br"
 INSTALLER = HERE / "install.sh"
 INSTALLER_SHA256 = hashlib.sha256(INSTALLER.read_bytes()).hexdigest()
 
-ASSETS_CACHE = "public, max-age=86400, stale-while-revalidate=604800"
-DOCS_CACHE = "public, max-age=600, stale-while-revalidate=86400"
-
 app = Ushka()
-app.mount_static("/docs", PUBLIC / "docs", html=True, cache_control=DOCS_CACHE)
-app.mount_static("/s", HERE / "static", cache_control=ASSETS_CACHE)
+app.mount_static("/s", HERE / "static", cache_control="public, max-age=86400, stale-while-revalidate=604800")
+
+docs = Docs(
+    REPO / "docs",
+    url="/docs",
+    title="Ushka",
+    base_url=ORIGIN,
+    api_package="ushka",
+    api_path=REPO / "src",
+    logo="/docs/assets/logo.png",
+    og_image=f"{ORIGIN}/s/og.png",
+    links=[("Ushka Guard", "/docs/guide/guard/"), ("GitHub", "https://github.com/kleber-code/ushka")],
+    edit_url="https://github.com/kleber-code/ushka/edit/main/docs/",
+    extra_css=["/s/docs-brand.css"],
+)
+docs.mount(app)
 
 
 def _volume() -> str:
@@ -43,7 +56,7 @@ async def home(request):
     return await render(
         request,
         "home.html",
-        {"volume": _volume(), "version": version("ushka"), "installer_sha256": INSTALLER_SHA256},
+        {"volume": _volume(), "version": version("ushka"), "installer_sha256": INSTALLER_SHA256, "origin": ORIGIN},
     )
 
 
@@ -61,10 +74,20 @@ async def installer_checksum():
 
 @app.get("/llms.txt")
 async def llms(request):
-    path = PUBLIC / "docs" / "llms.txt"
-    if not path.is_file():
-        raise HttpNotFound()
-    return file_response(path, request, DOCS_CACHE)
+    return file_response(REPO / "docs" / "llms.txt", request, "public, max-age=600")
+
+
+@app.get("/robots.txt")
+async def robots():
+    return f"User-agent: *\nAllow: /\nDisallow: /docs/search\nSitemap: {ORIGIN}/sitemap.xml\n"
+
+
+@app.get("/sitemap.xml")
+async def sitemap():
+    urls = [f"{ORIGIN}/"] + [f"{ORIGIN}/docs/{u}" for u in docs.order]
+    body = "".join(f"<url><loc>{u}</loc></url>" for u in urls)
+    xml = f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{body}</urlset>'
+    return Response(xml, media_type="application/xml", headers={"Cache-Control": "public, max-age=3600"})
 
 
 @app.get("/healthz")

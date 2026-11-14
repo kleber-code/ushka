@@ -6,9 +6,19 @@
   <title>{% block title %}Ushka: the Python web framework where untrusted data cannot slip through{% endblock %}</title>
   <meta name="description" content="Ushka is an async Python web framework where insecure code, whether you or an AI wrote it, does not run silently: untrusted data is a type, and dangerous sinks refuse it.">
   <meta name="theme-color" content="#1B1720">
-  <meta property="og:title" content="Ushka">
-  <meta property="og:description" content="The Python web framework where insecure code does not run silently.">
-  <meta property="og:image" content="https://ushka.satela.com.br/docs/assets/hero.webp">
+  {%- set canonical = "https://ushka.satela.com.br" ~ request.path %}
+  <link rel="canonical" href="{{ canonical }}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Ushka">
+  <meta property="og:url" content="{{ canonical }}">
+  <meta property="og:title" content="{% block og_title %}Ushka: the Python web framework where insecure code does not run silently{% endblock %}">
+  <meta property="og:description" content="Untrusted data is a type, and dangerous sinks refuse it. Async, filesystem routing, low dependency, batteries included.">
+  <meta property="og:image" content="https://ushka.satela.com.br/s/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Ushka, the maned-wolf mascot, next to the project name">
+  <meta name="twitter:card" content="summary_large_image">
+  {% block jsonld %}{% endblock %}
   <link rel="icon" href="/docs/assets/favicon.png" type="image/png">
   <link rel="stylesheet" href="/s/site.css">
   <link rel="preload" href="/s/fonts/mplus-rounded-800-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -34,7 +44,7 @@
       <a href="/llms.txt">llms.txt</a>
       <a href="https://github.com/kleber-code/ushka/blob/main/SECURITY.md">Security policy</a>
     </div>
-    <img class="peek" src="/docs/assets/stickers/peeking.webp" alt="" width="222" height="420" loading="lazy">
+    <img class="peek" src="/docs/assets/stickers/peeking.webp" alt="" width="237" height="423" loading="lazy">
   </footer>
 </body>
 </html>
