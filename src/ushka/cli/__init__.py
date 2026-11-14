@@ -14,8 +14,9 @@ def _load_db_command():
     try:
         from ushka.cli.commands import db
     except ImportError as exc:
+        missing = getattr(exc, "name", None) or str(exc)
         raise SystemExit(
-            "The 'db' command requires the ORM extra. "
+            f"The 'db' command requires the ORM extra (missing: {missing}). "
             "Install it with: pip install 'ushka[orm]'"
         ) from exc
     return db
