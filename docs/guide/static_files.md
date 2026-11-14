@@ -1,16 +1,28 @@
-# Serving Static Files
+# Static Files
 
-Web applications aren't just about dynamic content. You also need to serve static files like CSS, JavaScript, images, and fonts. Ushka makes this easy.
+CSS, JavaScript, images and fonts are served by Ushka's built-in static file
+server. It is **off by default**; projects created with `ushka new` have it
+turned on.
 
-## The `static` Directory
+## Turning it on
 
-By default, Ushka will serve any files placed in a directory named `static` in your project's root.
+```toml
+# ushka.toml
+[static]
+enable = true      # default: false
+url = "/static"    # URL prefix (default)
+dir = "static"     # folder, relative to the app directory or absolute (default)
+```
 
-For example, if you have a file at `static/css/style.css`, you can access it in your browser at the URL `/static/css/style.css`.
+The same settings work as environment variables, e.g. `USHKA_STATIC_ENABLE=true`
+(see [Configuration](configuration.md)).
 
-## How to Link to Static Files in Templates
+With this in place, `static/css/style.css` is served at `/static/css/style.css`.
+A relative `dir` is resolved against the application directory.
 
-To link to your static files in your Jinja2 templates, you can use the `url_for` function. However, for simplicity and since the static path is fixed, you can also just write the path directly.
+## Linking to files
+
+Write the path directly; there is no `url_for` helper.
 
 ```html
 <!DOCTYPE html>
@@ -20,16 +32,42 @@ To link to your static files in your Jinja2 templates, you can use the `url_for`
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-    <h1>Welcome!</h1>
-    <img src="/static/images/logo.png" alt="My App Logo">
+    <img src="/static/images/logo.png" alt="Logo">
+    <script src="/static/js/app.js"></script>
 </body>
 </html>
 ```
 
-## Changing the Static Directory
+If you change `[static] url`, update the links too. To avoid repeating the
+prefix you can expose it as a template global:
 
-If you want to use a different directory for your static files, you can configure it in your application's settings. (See the [Configuration](./configuration.md) guide for more details).
+```python
+# app.py
+from ushka import Ushka
+from ushka.templating.engine import engine
 
-For example, to use a directory named `public` instead of `static`, you would set `STATIC_DIR` in your config file.
+app = Ushka()
+engine.add_global("static_url", app.config.STATIC_URL)
+```
 
-> **Ushka Tip:** It's a good practice to organize your static files into subdirectories, such as `css`, `js`, `images`, etc. This keeps your project tidy and makes it easier to manage your assets as your application grows.
+```html
+<link rel="stylesheet" href="{{ static_url }}/css/style.css">
+```
+
+## How files are served
+
+* The `content-type` is guessed from the extension
+  (`application/octet-stream` when unknown).
+* Responses carry `cache-control: public, max-age=3600`.
+* A missing file, or a directory, answers **404**.
+* Requests that try to leave the folder (`/static/../app.py`, encoded variants,
+  symlinks pointing outside) are refused with 404. The path is checked with
+  `safe.path()` from [Ushka Guard](guard.md).
+* `HEAD` requests get the headers without the body.
+
+The static route shows up in `ushka routes list` as
+`/static/[path:filename] - GET`.
+
+> **Ushka Tip:** Files are read from disk on every request. That is perfect
+> for development and small sites; for heavy traffic, put a CDN or a web
+> server such as nginx or Caddy in front of the app for `/static/`.

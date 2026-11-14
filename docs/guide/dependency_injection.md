@@ -1,56 +1,96 @@
 # Dependency Injection
 
-Dependency Injection (DI) might sound like a complex computer science topic, but in Ushka, it's a simple and powerful feature that helps you write cleaner, more organized, and more testable code.
+A handler declares what it needs in its signature, and Ushka passes it in.
+There is nothing to register and no container to configure.
 
-## The "Assistant" Analogy
+## What you can ask for
 
-We used this analogy in the [Routing](./routing.md) guide, but it's worth repeating:
+| Parameter | Matched by | You get |
+| --- | --- | --- |
+| `request` | name `request` or annotation `Request` | The current request. |
+| `response` | name `response` or annotation `Response` | A fresh, empty `Response` to fill and return. |
+| `config` | name `config` or annotation `Config` | The application [configuration](configuration.md). |
+| path parameters | the name in brackets, e.g. `item_id` for `[item_id]` | The value from the URL, as an `Untrusted` string. |
 
-Imagine you're a busy chef in a kitchen (your route handler). You need ingredients like the current `request` details, a `response` object to fill, or your application's `config`. Instead of running around the kitchen to get these things yourself, you have an assistant who brings them to you right when you need them.
-
-That's what dependency injection is in Ushka.
-
-## How It Works
-
-When a request comes in, Ushka looks at the signature of the route handler function that's about to be called. If it sees parameters with specific types that it recognizes, it will automatically "inject" an instance of that type into the function call.
-
-The main "injectable" types that Ushka provides out of the box are:
-
-*   `ushka.http.request.Request`: The incoming request object, containing headers, query parameters, body, etc.
-*   `ushka.http.response.Response`: A new, empty response object that you can customize.
-*   `ushka.core.config.Config`: The application's configuration object.
-
-Here's an example that uses all three:
+Parameters can come in any order, and you only list the ones you use. A
+handler with no parameters is fine too.
 
 ```python
-from ushka.http.request import Request
-from ushka.http.response import Response
-from ushka.core.config import Config
+# routes/hello.py
+from ushka import Config, Request, Response
 
-async def my_handler(request: Request, response: Response, config: Config):
-    # Get the user's name from the query parameters
-    user_name = request.query_params.get("name", "Guest")
 
-    # Get the app name from the configuration
-    app_name = config.get("APP_NAME", "My App")
+async def get(request: Request, response: Response, config: Config):
+    name = request.query.get("name", "guest")
 
-    # Set the content of the response
-    response.text = f"Hello, {user_name}! Welcome to {app_name}."
-
-    # Set a custom header
-    response.headers["X-Greeting"] = "Hello"
-
+    response.body = f"Hello, {name}! Welcome to {config.APP_NAME}."
+    response.headers["X-Greeting"] = "hello"
     return response
 ```
 
-Notice that we never had to create instances of `Request`, `Response`, or `Config`. Ushka's "assistant" saw that our function needed them and provided them for us.
+`GET /hello?name=Ada` answers `Hello, Ada! Welcome to Ushka App.` as
+`text/plain`. Untrusted text served as plain text is fine; the same string
+served as HTML would be refused ([USHKA-G001](guard.md#ushka-g001)).
 
-## Why Is This Useful?
+The annotations are optional. This is equivalent:
 
-1.  **Cleaner Code:** Your route handlers can focus on their specific job, without being cluttered with the boilerplate code of creating and managing these common objects.
+```python
+async def get(request, response, config):
+    ...
+```
 
-2.  **Decoupling:** Your handlers don't need to know *how* to get these objects. They just declare that they *need* them. This makes your code more modular.
+And since a matching *annotation* is enough, you can also use other names:
 
-3.  **Easier Testing:** When you write tests for your route handlers, you can easily create mock (fake) versions of these dependencies and pass them into your functions. This allows you to test your handlers in isolation, without needing a full application server.
+```python
+async def get(req: Request, cfg: Config):
+    return {"path": req.path, "debug": cfg.APP_DEBUG}
+```
 
-> **Ushka Tip:** While Ushka's built-in dependency injection is simple, it's a powerful pattern. As your applications grow, you can even build your own dependency injection system for your own services and objects. It's a great way to manage complexity and build maintainable software.
+## Path parameters
+
+Path parameters are matched by name, so the parameter must be spelled like the
+bracket in the file name:
+
+```python
+# routes/users/[user_id]/posts/[post_id].py
+from ushka.guard import safe
+
+
+async def get(request, user_id, post_id):
+    return {
+        "user": safe.integer(user_id, min=1),
+        "post": safe.integer(post_id, min=1),
+        "fields": request.query.get("fields", "all"),
+    }
+```
+
+Values are always strings; annotations such as `user_id: int` do **not**
+convert them. Use `safe.integer()` and the other
+[sanitisers](guard.md#sanitisers-the-way-out).
+
+!!! note
+    The names `request`, `response` and `config` are reserved for the injected
+    objects. Avoid them as path parameter names.
+
+## The injected `Response`
+
+The injected `response` is a new `Response()` (status 200, empty body). Only
+what you **return** is sent, so return it after filling it in:
+
+```python
+async def get(request, response):
+    response.status_code = 202
+    response.body = {"queued": True}     # dict and list bodies become JSON
+    response.headers["Retry-After"] = "30"
+    return response
+```
+
+Cookies and the session are saved automatically on whatever response you
+return; set them through the request:
+
+```python
+async def post(request):
+    request.cookies.set("theme", "dark", max_age=3600)
+    request.session["visits"] = request.session.get("visits", 0) + 1
+    return {"ok": True}
+```

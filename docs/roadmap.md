@@ -1,19 +1,34 @@
 # Roadmap
 
-Ushka is a young and growing framework, and we have big plans for the future! Here's a glimpse of what we're working on.
+Ushka's direction is in [Why Ushka changed](why-ushka-changed.md). This page
+lists what has shipped and what is next.
 
-## Future Features
+## 0.5 (in progress)
 
-*   **WebSockets Support:** We're working on adding first-class support for WebSockets, making it easy to build real-time, interactive applications.
-*   **Authentication & Authorization:** We plan to add a flexible and secure authentication and authorization system, with support for common patterns like JWT and OAuth.
-*   **Data Validation:** We're exploring integrations with libraries like Pydantic for easy and powerful data validation.
-*   **Plugin System:** We want to create a plugin system that will allow the community to extend Ushka's functionality with new features and integrations.
-*   **Improved Tooling:** We're always looking for ways to improve the developer experience. We're planning to add more features to our CLI, including database migrations and project scaffolding.
+- [x] Ushka Guard: `Untrusted` request data and model output, guarded sinks,
+      sanitisers, and errors written for humans and for agents.
+- [x] Compile-time rewrite so the mark survives f-strings in `routes/`, plus an opt-in import hook for your own packages.
+- [x] t-strings (Python 3.14) for HTML responses and SQL.
+- [x] Read-only configuration with `.env` and environment variables. No
+      `tomlkit` and no `rich`: fewer dependencies.
+- [x] CLI: `ushka check`, a secure `ushka new` (with `.env`, `.gitignore` and `AGENTS.md`), and correct exit codes.
+- [x] Lifespan hooks, `(body, status)` returns, `HEAD`, and 400 for malformed JSON.
 
-## Long-Term Vision
+## Next
 
-Our long-term vision is to make Ushka the most enjoyable and productive web framework for Python developers. We want to build a framework that is not only powerful and performant, but also has a thriving and welcoming community.
+- **Security middleware on by default.** CSRF protection, security headers
+  (CSP, HSTS, `nosniff`), CORS and trusted hosts.
+- **Routes as agent tools.** Expose chosen routes over MCP, with declared
+  capabilities (what each route reads, writes and calls) and human approval
+  for sensitive actions.
+- **`ushka verify`.** Send attack payloads to your own routes and report what
+  got through.
+- **Standalone `ushka.guard`.** The same protection for FastAPI, Starlette and Django.
+- **Typed path parameters, request validation and OpenAPI.**
+- **WebSockets and Server-Sent Events.**
+- **Supply-chain hardening.** Pinned actions, SBOM and attestations.
 
-## Get Involved
+## Get involved
 
-Have an idea for a feature? Want to contribute to the project? We'd love to hear from you! Information on how to contribute will be available soon.
+Ideas and pull requests are welcome. See the
+[contributing guidelines](https://github.com/kleber-code/ushka/blob/main/.github/CONTRIBUTING.md).

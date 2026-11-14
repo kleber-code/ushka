@@ -1,68 +1,68 @@
 # Features
 
-Ushka comes with a variety of features designed to make web development in Python a breeze. Here's a look at some of the highlights:
+## Ushka Guard
 
-## Filesystem-Based Routing
+Everything that comes from outside your program arrives as `Untrusted`: query,
+form, JSON, headers, cookies, path parameters, and model output marked with
+`guard.llm()`. Raw HTML responses, `|safe`, redirects, file paths and raw SQL
+refuse it with an error that names the risk and the fix. Explicit sanitisers
+(`safe.url`, `safe.path`, `safe.integer`, `safe.choice`, `safe.html`) are the way
+out. See [Ushka Guard](guide/guard.md).
 
-Forget complex route configuration files. With Ushka, your URL structure mirrors your filesystem. Create a file, define a function, and your route is live.
-
-*   `routes/index.py` → `/`
-*   `routes/users/profile.py` → `/users/profile`
-
-This intuitive approach makes it easy to organize your project and find your code.
-
-## Asynchronous from the Ground Up
-
-Built on modern Python `asyncio`, Ushka is fast and scalable. Handle thousands of concurrent connections with ease, perfect for real-time applications, APIs, and high-traffic websites.
-
-## Active Record ORM
-
-Our built-in Object-Relational Mapper (ORM) is based on the powerful SQLAlchemy library, but with a simplified, Active Record-style interface.
+## t-strings (Python 3.14+)
 
 ```python
-# Example of creating a new user
-user = await User.create(name="Alice", email="alice@example.com")
+return t"<p>{comment}</p>"                                  # escaped HTML
+rows = await db.execute(t"SELECT * FROM posts WHERE id = {post_id}")  # bound
 ```
 
-The ORM is fully asynchronous, so you can interact with your database without blocking the event loop.
+## Filesystem and decorator routing
 
-## Jinja2 Templating
+- `routes/index.py` → `/`
+- `routes/users/[user_id].py` → `/users/<user_id>`
+- `@app.get("/health")` for anything else
 
-Ushka uses the popular and powerful Jinja2 templating engine. We've extended it with asynchronous support and helpful features like context processors.
+Handlers return a `str`, `dict`, `list`, `None` (204), a `(body, status)`
+tuple, a t-string or a `Response`. `HEAD` and `405 Method Not Allowed` (with
+`Allow`) are handled for you. See [Routing](guide/routing.md).
+
+## Async Active Record ORM
 
 ```python
-# In your route handler
-return await render(request, "profile.html", {"user": user})
+from ushka.orm import db
+
+class User(db.Model):
+    name = db.String(length=100)
+
+user = await User.create(name="Alice")
 ```
 
-## Flashing Messages
+Built on SQLAlchemy, with migrations through `ushka db`. Install it with
+`pip install "ushka[orm]"`. See [ORM](guide/orm.md).
 
-Easily pass messages between requests. The "flash" system is perfect for showing notifications to users after they perform an action.
+## Templates, sessions and flash messages
+
+Jinja2 with autoescaping, project templates that override the built-in ones,
+signed cookie sessions and flash messages. See [Templates](guide/templates.md)
+and [Flashing](guide/flashing.md).
+
+## Configuration without extra packages
+
+Defaults, then `ushka.toml`, then `.env`, then `USHKA_<SECTION>_<KEY>`
+environment variables. `DATABASE_URL` from your host works as is. Ushka never
+rewrites your files. See [Configuration](guide/configuration.md).
+
+## CLI
+
+`ushka new` scaffolds a project that is secure from the first commit.
+`ushka dev` reloads the app on change. `ushka check --production` fails your
+CI if debug is on or the secret key is missing. `routes` and `db` cover the
+rest. See [CLI](guide/cli.md).
+
+## Lifespan hooks
 
 ```python
-# In your route handler
-flash(request, "Profile updated successfully!", "success")
-
-# In your template
-{% for category, message in messages %}
-  <div class="alert alert-{{ category }}">{{ message }}</div>
-{% endfor %}
+@app.on_startup
+async def connect():
+    ...
 ```
-
-## Simple Dependency Injection
-
-Keep your code clean and testable. Ushka's simple dependency injection system can automatically provide `Request`, `Response`, and `Config` objects to your route handlers.
-
-```python
-# The `request` object is automatically injected
-async def my_route(request: Request):
-    user_agent = request.headers.get("User-Agent")
-    return {"message": f"Your user agent is: {user_agent}"}
-```
-
-## And More...
-
-*   **Static File Serving:** Serve your CSS, JavaScript, and images with ease.
-*   **Easy Configuration:** Manage your application's settings with a simple and flexible configuration system.
-*   **Helpful Error Pages:** Debugging is easier with clear and informative error pages.
-*   **Command-Line Interface:** A handy CLI for running your development server and other tasks.

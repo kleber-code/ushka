@@ -1,16 +1,26 @@
-# Welcome to Ushka
+# Ushka ฅ^•ﻌ•^ฅ
 
-**Ushka** is a modern, asynchronous Python web framework designed for simplicity, performance, and fun. It's built to be easy to learn and use, whether you're a beginner or an experienced developer.
+**Ushka is the Python web framework where insecure code, whether you or an AI
+wrote it, does not run silently. It stops and tells you how to fix it.**
 
-Our philosophy is that building web applications should be an enjoyable and creative process. Ushka provides the tools you need to be productive, without getting in your way.
+It is an async framework with filesystem routing, built on three principles:
 
-## Key Principles
+- **Low dependency.** The core needs only `uvicorn`, `jinja2` and `python-multipart`. Config, `.env`, the CLI, terminal colours and the guard use the standard library.
+- **Batteries included.** Routing, templates, sessions, flash messages, uploads, an ORM with migrations (`ushka[orm]`), a project generator and a security checker.
+- **Lightweight in concept.** One idea per feature. A route is a file, a setting is a key, and an unsafe value is a type.
 
-*   **Simplicity:** Ushka's API is designed to be clean, intuitive, and easy to remember. We believe that you should be able to focus on your application's logic, not on fighting with the framework.
-*   **Performance:** Built on top of modern asynchronous libraries, Ushka is fast and efficient. It's ready to handle high-concurrency applications.
-*   **Developer Experience:** We care about your experience as a developer. Ushka provides features like filesystem-based routing, dependency injection, and helpful error messages to make your life easier.
-*   **Fun:** We believe that programming should be fun! Ushka's documentation and community are designed to be friendly, welcoming, and a little bit quirky.
+```python
+# routes/hello.py
+async def get(request):
+    name = request.query.get("name", "friend")   # Untrusted
+    return t"<h1>Hello, {name}!</h1>"           # Python 3.14: escaped HTML
+```
 
-## Get Started
+## Start here
 
-Ready to dive in? Check out our [features](./features.md) to see what Ushka can do, or head straight to the [guide](./guide/index.md) to start building your first application.
+- [Why Ushka changed](why-ushka-changed.md): the purpose behind 0.5.
+- [Introduction](guide/index.md): install it and build your first app.
+- [Ushka Guard](guide/guard.md): untrusted data, sinks and sanitisers.
+- [CLI](guide/cli.md): `ushka new`, `dev`, `check` and friends.
+
+Coding agents can read [`llms.txt`](llms.txt) for a compact map of the docs.
