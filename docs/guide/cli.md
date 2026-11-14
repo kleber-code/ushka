@@ -16,6 +16,7 @@ positional arguments:
     dev          development server (reload, debug on)
     run          production server
     check        validate configuration and security settings
+    verify       attack your own routes with hostile payloads
     routes       list and manage filesystem routes
     db           database migrations (needs ushka[orm])
 
@@ -97,6 +98,16 @@ workers = 4
 It warns when debug is on or when `USHKA_APP_SECRET_KEY` is missing. Run
 `ushka check --production` before deploying to turn those warnings into a
 failing check.
+
+## `ushka verify`
+
+```console
+ushka verify app:app
+ushka verify app:app --include-writes --param q --json --fail-on high
+```
+
+Sends hostile payloads to your own routes, in the process, and reports what got
+through. Exits 1 on findings, so it fits in CI. See [ushka verify](verify.md).
 
 ## `ushka check`
 

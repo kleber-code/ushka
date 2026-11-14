@@ -16,7 +16,8 @@ ROOT = SRC / "ushka"
 STDLIB = set(sys.stdlib_module_names)
 
 #: third-party modules the core may import at top level (jinja2 brings markupsafe)
-CORE_ALLOWED = {"uvicorn", "jinja2", "markupsafe", "python_multipart", "multipart", "tomli"}
+# tomllib is stdlib on 3.11+; sys.stdlib_module_names does not list it on 3.10
+CORE_ALLOWED = {"uvicorn", "jinja2", "markupsafe", "python_multipart", "multipart", "tomli", "tomllib"}
 #: parts that belong to an extra or to another framework, with what they may use
 OPTIONAL = {
     "ushka.docs": {"markdown_it", "mdit_py_plugins", "pygments", "griffe"},

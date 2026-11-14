@@ -42,7 +42,7 @@ def _mark(value: Any, source: str, depth: int = 0) -> Any:
         return {_mark(k, source, depth + 1): _mark(v, source, depth + 1) for k, v in value.items()}
     if type(value) in (list, tuple, set, frozenset):
         return type(value)(_mark(v, source, depth + 1) for v in value)
-    if hasattr(value, "model_fields") and hasattr(value, "__dict__"):  # a pydantic model
+    if hasattr(type(value), "model_fields") and hasattr(value, "__dict__"):  # a pydantic model
         for name, item in list(value.__dict__.items()):
             value.__dict__[name] = _mark(item, f"{source}.{name}", depth + 1)
         return value
