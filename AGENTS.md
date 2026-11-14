@@ -2,6 +2,9 @@
 
 ## Principles
 
+- **Secure by default is tested.** Workflows pin actions to SHAs, and `tests/test_supply_chain.py` and
+  `tests/test_architecture.py` fail the build when that erodes.
+
 - **Low dependency.** The core depends on `uvicorn`, `jinja2`, `python-multipart`
   (and `tomli` on 3.10). Do not add runtime dependencies; implement small things
   with the standard library. Security-critical parsers are the exception.
@@ -13,19 +16,25 @@
 ## Layout
 
 - `src/ushka/guard/` — taint core. Must not import anything else from `ushka`
-  (enforced by `tests/test_guard.py`), so it can ship standalone.
+  (enforced by `tests/test_guard.py` and `tests/test_architecture.py`), so it can ship standalone.
+  `guard/integrations/` adapts it to Starlette, FastAPI and Django (framework imported lazily).
 - `src/ushka/core/` — app, router, config (read-only layered config), error handler, logging.
-- `src/ushka/http/` — request, response, cookies, sessions, multipart, redirect.
+- `src/ushka/http/` — request, response, streaming/SSE, WebSocket, cookies, sessions, multipart,
+  redirect, `params.py` (typed parameters, `Depends`) and `validation.py` (stdlib-only validation).
+- `src/ushka/security/` — the security middleware (CSRF, headers, CORS, trusted hosts), on by default.
+- `src/ushka/openapi.py`, `mcp.py`, `verify.py` — OpenAPI from signatures, routes as MCP tools, `ushka verify`.
 - `src/ushka/cli/` — argparse CLI; output through `ushka.cli.ui`; errors exit 1.
-- `docs/` — mkdocs-material; `docs/guide/guard.md` documents error codes `USHKA-G00x`
-  (anchors are linked from `UnsafeValueError.docs`).
+- `docs/` — Ushka Docs sources; `docs/guide/guard.md` documents error codes `USHKA-G00x`
+  (anchors are linked from `UnsafeValueError.docs`). `docs/architecture.md` is the map of the code.
+- `benchmarks/` — reproducible load test against Starlette and FastAPI (see its README).
 
 ## Commands
 
 ```bash
-uv venv .venv && uv pip install -e ".[orm]" pytest pytest-asyncio pyyaml
+uv venv .venv && uv pip install -e ".[orm,docs]" pytest pytest-asyncio pyyaml starlette fastapi django httpx
 .venv/bin/python -m pytest            # whole suite; also run on 3.10 and 3.14
-.venv/bin/python -m mkdocs build --strict
+.venv/bin/ushka docs check docs --api ushka
+.venv/bin/ushka verify app:app        # in a project: attack your own routes
 ```
 
 Every behaviour change needs a test and a line in `CHANGELOG.md`.

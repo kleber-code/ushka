@@ -3,7 +3,7 @@
 
 [[section]]
 title = ""
-pages = ["index.md", "why-ushka-changed.md", "features.md"]
+pages = ["index.md", "why-ushka-changed.md", "features.md", "architecture.md"]
 
 [[section]]
 title = "Guide"

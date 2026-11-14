@@ -9,6 +9,27 @@ refuse it with an error that names the risk and the fix. Explicit sanitisers
 (`safe.url`, `safe.path`, `safe.integer`, `safe.choice`, `safe.html`) are the way
 out. See [Ushka Guard](guide/guard.md).
 
+## Security middleware
+
+On by default: CSRF protection (no tokens), CSP, HSTS, `nosniff`, CORS and trusted
+hosts. See [Security middleware](guide/security.md).
+
+## Typed parameters, validation and OpenAPI
+
+`item_id: int`, `Query(ge=1)`, dataclass bodies and `Depends(...)`, with 422 errors
+that list every problem. OpenAPI comes from the same signatures. See
+[Validation and typed parameters](guide/validation.md).
+
+## WebSockets, SSE and agents
+
+[WebSockets and Server-Sent Events](guide/realtime.md), and
+[routes as agent tools over MCP](guide/agents.md) with human approval.
+
+## ushka verify and Guard everywhere
+
+[`ushka verify`](guide/verify.md) attacks your own routes.
+[Ushka Guard](guide/guard-frameworks.md) also protects FastAPI, Starlette and Django.
+
 ## t-strings (Python 3.14+)
 
 ```python

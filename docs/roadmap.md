@@ -28,6 +28,10 @@ lists what has shipped and what is next.
 
 ## Next
 
+- **Publish `ushka.guard` as its own package**, declaring `markupsafe`, so non-Ushka apps install only the guard.
+- **Split `ushka.core`** into leaf modules and orchestration, so `core` and `http` stop importing each other.
+- **Cut the cost of the default middleware** on small requests, and more adapters (Flask, Litestar).
+
 ## Get involved
 
 Ideas and pull requests are welcome. See the

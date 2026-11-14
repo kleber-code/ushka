@@ -47,6 +47,12 @@ the framework, at runtime, on your real code. Read
   - **Untrusted by default.** Query, form, JSON, headers, cookies and path parameters are `Untrusted`, and so is model output once marked with `guard.llm()`.
   - **Guarded sinks.** HTML, redirects, file paths and raw SQL refuse those values.
   - **Sanitisers and errors.** The way out is through explicit sanitisers. Errors give the risk and the fix, as text and as JSON for coding agents.
+- **Security middleware, on by default.** CSRF protection without tokens, CSP, HSTS and `nosniff`, CORS and trusted hosts.
+- **Typed parameters and validation.** Annotations convert and validate path, query, header, cookie and JSON bodies (422 with every error), `Depends` as in FastAPI, and OpenAPI generated from the same signatures. No pydantic.
+- **Real time.** WebSockets (cross-site hijacking refused) and Server-Sent Events.
+- **Routes as agent tools.** Expose chosen routes over MCP with declared capabilities and human approval.
+- **`ushka verify`.** Sends attack payloads to your own routes and reports what got through.
+- **Guard for FastAPI, Starlette and Django.** The same `Untrusted` protection in an app you already have.
 - **Python 3.14 t-strings.** `t"<h1>{name}</h1>"` and `db.execute(t"... {id}")` are safe by construction.
 - **Routing.** Filesystem routing (`routes/users/[user_id].py`) plus decorators (`@app.get(...)`).
 - **Responses.** Return a `str`, a `dict`, a `(body, status)` tuple, `None` (204) or a `Response`. `HEAD` and `405 Allow` are handled for you.
@@ -56,7 +62,7 @@ the framework, at runtime, on your real code. Read
 - **Config.** Defaults, then `ushka.toml`, then `.env`, then environment variables, all without extra packages. `DATABASE_URL` works out of the box.
 - **Static files.** `app.mount_static("/assets", "public")` serves any folder, with `ETag`/`304` and your choice of `Cache-Control`.
 - **Ushka Docs.** A Markdown folder becomes a searchable docs site with an API reference, served by your app (`ushka[docs]`).
-- **CLI.** `new`, `dev`, `run`, `check` (CI-friendly security check), `docs`, `routes` and `db`.
+- **CLI.** `new`, `dev`, `run`, `check` and `verify` (CI-friendly security checks), `docs`, `routes` and `db`.
 - **Low dependency.** The core needs only `uvicorn`, `jinja2` and `python-multipart` (plus `tomli` on 3.10).
 
 ## Quick start
