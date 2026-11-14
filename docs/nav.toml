@@ -64,6 +64,7 @@ modules = [
     "ushka.http.params",
     "ushka.http.sessions",
     "ushka.http.validation",
+    "ushka.openapi",
     "ushka.orm.database",
     "ushka.static.files",
     "ushka.templating.engine",

@@ -406,6 +406,23 @@ class Ushka:
         if html:
             self.router.add_route("GET", prefix, serve)
 
+    def openapi(self, title: str | None = None, version: str = "0.1.0") -> dict:
+        """The OpenAPI 3.1 document describing this app's routes (a dict)."""
+        from ushka import openapi
+
+        skip = getattr(self, "_openapi_skip", set())
+        return openapi.build(self.router, title or self.config.get("app_name", "Ushka API"), version, skip)
+
+    def enable_openapi(self, path: str = "/openapi.json", title: str | None = None, version: str = "0.1.0") -> None:
+        """Serves `openapi()` as JSON at `path`. Opt-in: an API description is
+        a map of your routes, so you decide whether to publish it."""
+
+        async def openapi_json():
+            return self.openapi(title, version)
+
+        self._openapi_skip = {openapi_json}
+        self.router.add_route("GET", path, openapi_json)
+
     def on_startup(self, func):
         """Registers a function (sync or async) to run when the server starts.
 

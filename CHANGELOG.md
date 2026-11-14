@@ -19,6 +19,7 @@ All notable changes to Ushka. The format follows
   - Invalid requests get **422** with every error and its location, never echoing the input.
   - Converted values (`int`, `UUID`, `Enum`, `Literal`...) are plain, so conversion also sanitises. `str` stays `Untrusted`.
 - **`Depends`**: sync, async and `yield` dependencies, once per request, nested, sharing the handler's `Response`, with `app.dependency_overrides` for tests.
+- **OpenAPI 3.1** generated from the same signatures: `app.openapi()` and `app.enable_openapi()` (opt-in, `/openapi.json`).
 - `request.path_params`.
 - `HTTPForbidden` (403), and list settings in environment variables (`a,b`).
 
