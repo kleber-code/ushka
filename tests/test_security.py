@@ -108,7 +108,7 @@ async def test_wrong_method_returns_405_with_allow_header(app, call):
 
     res = await call(app, "POST", "/only-get")
     assert res["status"] == 405
-    assert res["headers"]["allow"] == "GET"
+    assert res["headers"]["allow"] == "GET, HEAD"
 
 
 async def test_unknown_path_is_still_404(app, call):
@@ -131,3 +131,20 @@ def test_session_encode_failure_does_not_log_contents(caplog):
 
     assert s._encode() == ""
     assert "hunter2" not in caplog.text
+
+
+def test_flash_with_pending_messages_marks_the_session_modified():
+    from types import SimpleNamespace
+
+    from ushka.http.sessions import Session
+    from ushka.utils.flash import flash
+
+    signed = Session("k" * 32)
+    signed["_flashes"] = [["info", "older"]]
+    cookie = signed._encode()
+
+    session = Session("k" * 32, raw_cookie_value=cookie)
+    assert not session.should_save
+    flash(SimpleNamespace(session=session), "newer")
+    assert session.should_save
+    assert [m for _, m in session["_flashes"]] == ["older", "newer"]

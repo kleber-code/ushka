@@ -7,6 +7,8 @@ manages changes to generate appropriate `Set-Cookie` headers for outgoing respon
 
 from typing import Any, Dict, List, Optional, Tuple
 
+from ushka.guard import Untrusted
+
 
 class Cookies(dict):
     """Full-Stack Cookie Manager.
@@ -35,6 +37,7 @@ class Cookies(dict):
         secure_default: bool = True,
         httponly_default: bool = True,
         samesite_default: str = "lax",
+        taint_values: bool = False,
     ):
         """Initializes the Cookies manager.
 
@@ -50,8 +53,12 @@ class Cookies(dict):
         samesite_default : str, optional
             The default `SameSite` attribute for new cookies ('lax', 'strict', 'none').
             Defaults to `'lax'`.
+        taint_values : bool, optional
+            If `True`, values parsed from the request header are wrapped in
+            `ushka.guard.Untrusted`. Defaults to `False`.
         """
         super().__init__()
+        self._taint_values = taint_values
 
         # Internal State: What needs to be sent to the client
         self._changes: Dict[str, dict] = {}
@@ -108,8 +115,11 @@ class Cookies(dict):
         for chunk in header.split(";"):
             if "=" in chunk:
                 key, val = chunk.split("=", 1)
+                key, val = key.strip(), val.strip()
+                if self._taint_values:
+                    val = Untrusted(val, f"cookie:{key}")
                 # Note: Populates only the memory (dict), without marking as a change
-                super().__setitem__(key.strip(), val.strip())
+                super().__setitem__(key, val)
 
     # --- Public Modification API ---
 

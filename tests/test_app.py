@@ -13,7 +13,7 @@ async def test_plain_text_route(app, call):
     result = await call(app, "GET", "/hello")
 
     assert result["status"] == 200
-    assert result["headers"]["content-type"] == "text/plain"
+    assert result["headers"]["content-type"] == "text/plain; charset=utf-8"
     assert result["body"] == "hi"
 
 
@@ -24,7 +24,7 @@ async def test_dict_return_becomes_json(app, call):
 
     result = await call(app, "GET", "/payload")
 
-    assert result["headers"]["content-type"] == "application/json"
+    assert result["headers"]["content-type"] == "application/json; charset=utf-8"
     assert json.loads(result["body"]) == {"framework": "ushka"}
 
 
@@ -109,7 +109,7 @@ async def test_empty_app_serves_the_startup_page(app, call):
     result = await call(app, "GET", "/")
 
     assert result["status"] == 200
-    assert result["headers"]["content-type"] == "text/html"
+    assert result["headers"]["content-type"] == "text/html; charset=utf-8"
 
 
 async def test_handler_exception_becomes_a_500(app, call):
@@ -151,4 +151,151 @@ async def test_unsupported_scope_type_is_rejected(app):
 
     await app({"type": "websocket"}, receive, send)
 
-    assert sent[0]["status"] == 501
+    # WebSockets are not supported yet: the handshake is refused politely.
+    assert sent == [{"type": "websocket.close", "code": 1000}]
+
+
+# --- return values, HEAD, lifespan, discovery ---------------------------------
+
+
+async def test_tuple_return_sets_status_and_headers(app, call):
+    @app.post("/items")
+    async def create():
+        return {"id": 1}, 201, {"X-Id": "1"}
+
+    res = await call(app, "POST", "/items")
+    assert res["status"] == 201 and res["headers"]["x-id"] == "1"
+    assert res["body"] == '{"id": 1}'
+
+
+async def test_none_return_is_204(app, call):
+    @app.delete("/items")
+    async def remove():
+        return None
+
+    res = await call(app, "DELETE", "/items")
+    assert res["status"] == 204 and res["body"] == ""
+
+
+async def test_unsupported_body_type_is_a_clear_error(app, call):
+    @app.get("/bad")
+    async def bad():
+        return object()
+
+    assert (await call(app, "GET", "/bad"))["status"] == 500
+
+
+async def test_head_uses_the_get_handler_without_body(app, call):
+    @app.get("/page")
+    async def page():
+        return "hello"
+
+    res = await call(app, "HEAD", "/page")
+    assert res["status"] == 200 and res["body"] == ""
+
+
+async def test_invalid_json_is_400(app, call):
+    @app.post("/json")
+    async def handler(request):
+        return await request.json()
+
+    res = await call(app, "POST", "/json", body=b"{not json")
+    assert res["status"] == 400
+
+
+async def test_config_is_injected_by_name(app, call):
+    @app.get("/name")
+    async def handler(config):
+        return config.get("app_name")
+
+    assert (await call(app, "GET", "/name"))["body"] == "Ushka App"
+
+
+async def test_lifespan_hooks_run_in_order(app):
+    events = []
+
+    @app.on_startup
+    async def start():
+        events.append("start")
+
+    @app.on_shutdown
+    def stop():
+        events.append("stop")
+
+    messages = iter([{"type": "lifespan.startup"}, {"type": "lifespan.shutdown"}])
+    sent = []
+
+    async def receive():
+        return next(messages)
+
+    async def send(message):
+        sent.append(message["type"])
+
+    await app({"type": "lifespan"}, receive, send)
+    assert events == ["start", "stop"]
+    assert sent == ["lifespan.startup.complete", "lifespan.shutdown.complete"]
+
+
+async def test_failing_startup_hook_is_reported(app):
+    @app.on_startup
+    def boom():
+        raise RuntimeError("db down")
+
+    sent = []
+
+    async def receive():
+        return {"type": "lifespan.startup"}
+
+    async def send(message):
+        sent.append(message)
+
+    await app({"type": "lifespan"}, receive, send)
+    assert sent[0]["type"] == "lifespan.startup.failed" and "db down" in sent[0]["message"]
+
+
+async def test_imported_functions_do_not_become_routes(make_app, workdir, call):
+    (workdir / "helpers.py").write_text("def get():\n    return 'leaked'\n")
+    (workdir / "routes").mkdir()
+    (workdir / "routes" / "page.py").write_text(
+        "from helpers import get  # noqa\n\n\ndef post():\n    return 'mine'\n"
+    )
+    import sys
+
+    sys.path.insert(0, str(workdir))
+    try:
+        app = make_app()
+        assert (await call(app, "POST", "/page"))["body"] == "mine"
+        assert (await call(app, "GET", "/page"))["status"] == 405
+    finally:
+        sys.path.remove(str(workdir))
+        sys.modules.pop("helpers", None)
+
+
+async def test_templates_are_loaded_from_the_app_directory(make_app, workdir, call, tmp_path_factory):
+    from ushka.templating import render
+
+    (workdir / "templates").mkdir()
+    (workdir / "templates" / "hi.html").write_text("<p>{{ who }}</p>")
+    app = make_app()
+
+    @app.get("/hi")
+    async def hi(request):
+        return await render(request, "hi.html", {"who": "app dir"})
+
+    import os
+
+    os.chdir(tmp_path_factory.mktemp("elsewhere"))  # cwd no longer matters
+    assert (await call(app, "GET", "/hi"))["body"] == "<p>app dir</p>"
+
+
+async def test_app_directory_wins_over_an_earlier_config(make_app, workdir, call, tmp_path_factory):
+    from ushka.core.config import Config
+
+    Config(tmp_path_factory.mktemp("cli_cwd")).load_from_file()  # what the CLI does first
+    (workdir / "static").mkdir()
+    (workdir / "static" / "a.css").write_text("body{}")
+    (workdir / "ushka.toml").write_text("[static]\nenable = true\n")
+    app = make_app()
+    res = await call(app, "GET", "/static/a.css")
+    assert res["status"] == 200
+    assert res["headers"]["content-type"].startswith("text/css")

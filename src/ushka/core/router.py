@@ -15,6 +15,8 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
 
 from ushka.core.config import Config
+from ushka.guard import Untrusted
+from ushka.guard import rewrite as guard_rewrite
 from ushka.http.request import Request
 from ushka.http.response import Response
 
@@ -130,7 +132,7 @@ class Router:
                 deps[name] = Request
             elif name == "response" or ann is Response:
                 deps[name] = Response
-            elif ann is Config:
+            elif name == "config" or ann is Config:
                 deps[name] = Config
 
         return deps
@@ -161,8 +163,7 @@ class Router:
             elif type_cls is Response:
                 injected[name] = Response()
             elif type_cls is Config:
-                # Note: Config() instantiation might need context in a real app
-                injected[name] = Config()
+                injected[name] = request.app.config
         return injected
 
     def add_route(self, method: str, path: str, func: RouteHandler) -> None:
@@ -284,6 +285,9 @@ class Router:
         """
         method = request.method
         path = self._normalize_path(request.path)
+        # HEAD is answered by the GET handler (the body is dropped on send).
+        if method == "HEAD" and not self._has_method(method, path):
+            method = "GET"
 
         # 1. Try Static (Fast)
         if method in self.static_routes and path in self.static_routes[method]:
@@ -297,11 +301,20 @@ class Router:
                 match = regex.match(path)
                 if match:
                     path_params = match.groupdict()
+                    if getattr(request, "taint_enabled", False):
+                        path_params = {
+                            k: Untrusted(v, f"path:{k}") for k, v in path_params.items()
+                        }
                     injected_args = self._resolve_dependencies(request, deps)
                     # Joins dependencies (request, config) with URL params (id, slug)
                     return func, {**injected_args, **path_params}
 
         return None, {}
+
+    def _has_method(self, method: str, path: str) -> bool:
+        if path in self.static_routes.get(method, {}):
+            return True
+        return any(r[0].match(path) for r in self.dynamic_routes.get(method, []))
 
     def allowed_methods(self, path: str) -> List[str]:
         """Returns the methods registered for `path` (used to answer 405)."""
@@ -310,6 +323,8 @@ class Router:
         for method, routes in self.dynamic_routes.items():
             if any(r[0].match(path) for r in routes):
                 found.add(method)
+        if "GET" in found:
+            found.add("HEAD")
         return sorted(found)
 
     def autodiscover(self, folder: str = "routes") -> None:
@@ -346,7 +361,12 @@ class Router:
 
             mod = importlib.util.module_from_spec(spec)
             try:
-                spec.loader.exec_module(mod)
+                if Config().get("security_taint", True) is not False:
+                    # Ushka Guard: compile with the rewrite that keeps the
+                    # Untrusted mark through f-strings, .format, % and .join.
+                    guard_rewrite.exec_file(mod, file_path)
+                else:
+                    spec.loader.exec_module(mod)
             except Exception as e:
                 self.log.error(f"Failed to load route module {file_path}: {e}")
                 continue
@@ -370,7 +390,9 @@ class Router:
             # Inspects functions within the file
             for name, func in inspect.getmembers(mod, inspect.isfunction):
                 method_name = name.upper()
-                if method_name in self.HTTP_METHODS:
+                # Only handlers defined in this file: `from helpers import get`
+                # must not silently become a route.
+                if method_name in self.HTTP_METHODS and func.__module__ == mod.__name__:
                     # If the file is users.py and the func is get(), the route is GET /users
                     full_path = f"/{route_base}"
                     self.add_route(method_name, full_path, func)

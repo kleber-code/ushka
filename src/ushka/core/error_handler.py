@@ -18,7 +18,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from ushka.core.config import Config
 from ushka.templating import render
-from ushka.http.exceptions import HTTPError
+from ushka.guard import RejectedValueError, UnsafeValueError
+from ushka.http.exceptions import HTTPBadRequest, HTTPError
 from ushka.http.request import Request
 from ushka.http.response import Response
 from .router import Router
@@ -215,6 +216,10 @@ class ErrorHandler:
             The HTTP response object containing the error page content.
         """
 
+        # A sanitiser refused client input: that is the client's fault (400).
+        if isinstance(exc, RejectedValueError):
+            exc = HTTPBadRequest(message=str(exc))
+
         if isinstance(exc, HTTPError):
             return await self._handle_http_error(exc, request)
 
@@ -276,6 +281,11 @@ class ErrorHandler:
         self.log.error(f"Internal Server Error: {exc}\n{traceback_text}")
 
         if self.config.get("APP_DEBUG"):
+            # Coding agents and API clients get the guard error as data.
+            if isinstance(exc, UnsafeValueError) and "application/json" in str(
+                request.headers.get("accept", "")
+            ):
+                return Response(exc.to_dict(), status_code=500)
             return await self._render_debug_page(exc, traceback_text, request)
 
         return await self._render_production_page(request)
@@ -339,7 +349,7 @@ class ErrorHandler:
         Returns
         -------
         List[Tuple[str, str]]
-            A list of (method, path) tuples representing registered routes,
+            A list of (path, methods) tuples, e.g. ("/users", "GET, POST"),
             or an empty list if the router is unavailable or an error occurs.
         """
         if not self.router:

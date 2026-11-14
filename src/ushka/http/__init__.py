@@ -8,6 +8,7 @@ application.
 from .exceptions import (
     HTTPBadRequest,
     HTTPError,
+    HTTPMethodNotAllowed,
     HTTPPayloadTooLarge,
     HttpNotFound,
 )
@@ -23,4 +24,5 @@ __all__ = [
     "HttpNotFound",
     "HTTPBadRequest",
     "HTTPPayloadTooLarge",
+    "HTTPMethodNotAllowed",
 ]

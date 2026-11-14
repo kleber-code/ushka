@@ -2,70 +2,39 @@
 
 {% block title %}Welcome to Ushka ✿{% endblock %}
 
-{% block body_classes %}justify-center items-center p-4 sm:p-6{% endblock %}
+{% block body_classes %}page-center{% endblock %}
 
 {% block main_content %}
-    <main class="w-full max-w-4xl mx-auto animate-fade-in relative z-10">
-        <div class="text-center mb-8 md:mb-12">
-            <div class="kaomoji mb-4 animate-bounce">/ᐠ ˵> ⩊ <˵マ</div>
-            <h1 class="text-4xl md:text-6xl font-extrabold text-[var(--text-main)] tracking-tight">
-                Hello, Ushka!
-            </h1>
-            <p class="text-lg md:text-xl text-[var(--text-sub)] mt-4 font-semibold">
-                The cute and agile Python web framework.
-            </p>
+  <main class="wrap stack">
+    <header class="center">
+      <span class="mascot" role="img" aria-label="Ushka the cat, waving hello">ฅ^•ﻌ•^ฅ</span>
+      <h1 class="title-xl">Hello, Ushka!</h1>
+      <p class="lead">The cute and agile Python web framework <span class="blush" aria-hidden="true">✿</span></p>
+    </header>
+
+    <section class="card" aria-labelledby="start-title">
+      <div class="card-head">
+        <h2 id="start-title">Getting started</h2>
+        <p class="muted small">Your app is running, it just has no routes yet.</p>
+      </div>
+      <div class="card-body grid-2">
+        <div>
+          <h3 class="small">Create your first route</h3>
+          <p class="muted small">Save this as <code>routes/index.py</code> then restart the app (<code>ushka dev</code> reloads for you):</p>
+          <pre class="code" aria-label="Example route"><code><span class="line"><span class="ln">1</span>async def get():
+</span><span class="line"><span class="ln">2</span>    return {"status": "Ready!"}
+</span></code></pre>
+          <p class="muted small">Or scaffold one from the terminal: <code>ushka routes add /hello</code></p>
         </div>
-
-        <div class="card-cute">
-            <div class="p-6 md:p-10 border-b border-[var(--card-border)] bg-[var(--bg-color)] bg-opacity-50">
-                <h2 class="text-xl md:text-2xl font-bold text-[var(--text-main)] flex items-center gap-3">
-                    <i class="fa-solid fa-feather"></i> 
-                    Getting Started
-                </h2>
-                <p class="text-[var(--text-sub)] mt-2 font-medium">Where backend coding is beautiful.</p>
-            </div>
-            
-            <div class="p-6 md:p-10 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-                <div>
-                    <h3 class="text-lg font-bold text-[var(--text-main)] mb-4">Create your first route</h3>
-                    <div class="bg-[var(--code-bg)] border border-[var(--code-border)] rounded-cute p-5 font-mono text-sm shadow-sm">
-                        <span class="font-bold">def</span> <span class="font-bold" style="color: var(--text-sub)">get</span>():<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="font-bold">return</span> {<br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span>"status"</span>: <span>"Ready!"</span><br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;}
-                    </div>
-                    <p class="text-sm text-[var(--text-sub)] mt-4">
-                        Add this to a file inside the <code>routes/</code> directory.
-                    </p>
-                </div>
-
-                <div class="flex flex-col justify-center space-y-4">
-                    <a href="https://kleber-code.github.io/ushka/" class="group flex items-center p-3 rounded-cute hover:bg-[var(--bg-color)] transition-colors">
-                        <div class="w-12 h-12 rounded-full flex items-center justify-center mr-4 group-hover:scale-105 transition-transform bg-[var(--text-main)] text-[var(--bg-color)] shadow-sm">
-                            <i class="fa-solid fa-book-open text-lg"></i>
-                        </div>
-                        <span class="font-bold text-lg text-[var(--text-main)]">Documentation</span>
-                    </a>
-                    
-                    <a href="https://pypi.org/project/ushka/" class="group flex items-center p-3 rounded-cute hover:bg-[var(--bg-color)] transition-colors">
-                        <div class="w-12 h-12 rounded-full flex items-center justify-center mr-4 group-hover:scale-105 transition-transform bg-[var(--text-main)] text-[var(--bg-color)] shadow-sm">
-                            <i class="fa-solid fa-cube text-lg"></i>
-                        </div>
-                        <span class="font-bold text-lg text-[var(--text-main)]">View on PyPI</span>
-                    </a>
-
-                    <a href="https://github.com/kleber-code/ushka" class="group flex items-center p-3 rounded-cute hover:bg-[var(--bg-color)] transition-colors">
-                        <div class="w-12 h-12 rounded-full flex items-center justify-center mr-4 group-hover:scale-105 transition-transform bg-[var(--text-main)] text-[var(--bg-color)] shadow-sm">
-                            <i class="fa-brands fa-github text-2xl"></i>
-                        </div>
-                        <span class="font-bold text-lg text-[var(--text-main)]">GitHub</span>
-                    </a>
-                </div>
-            </div>
-            
-            <div class="bg-[var(--bg-color)] p-5 text-center text-xs font-bold text-[var(--text-sub)] tracking-wider uppercase border-t border-[var(--card-border)]">
-                Ushka v0.2.1 • Make Python Cute Again
-            </div>
-        </div>
-    </main>
+        <nav aria-label="Ushka resources">
+          <ul class="links">
+            <li><a href="https://kleber-code.github.io/ushka/"><span class="bubble b-pink"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 5h7a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H2z"/><path d="M22 5h-7a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h8z"/></svg></span>Documentation</a></li>
+            <li><a href="https://pypi.org/project/ushka/"><span class="bubble b-mint"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg></span>View on PyPI</a></li>
+            <li><a href="https://github.com/kleber-code/ushka"><span class="bubble b-sky"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg></span>Source on GitHub</a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="card-foot center small muted">Make Python cute again &middot; ฅ^•ﻌ•^ฅ</div>
+    </section>
+  </main>
 {% endblock %}

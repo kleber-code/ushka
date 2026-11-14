@@ -69,12 +69,12 @@ def flash(request: "Request", message: str, category: Category | str = Category.
     -------
     None
     """
-    if "_flashes" not in request.session:
-        request.session["_flashes"] = []
-
     category_str = str(category).lower()
-
-    request.session["_flashes"].append((category_str, message))
+    # Assign a new list: appending in place would not mark the session as
+    # modified, and the message would be lost when older ones were pending.
+    pending = list(request.session.get("_flashes", []))
+    pending.append((category_str, message))
+    request.session["_flashes"] = pending
 
 
 def get_flashed_messages(
@@ -97,6 +97,12 @@ def get_flashed_messages(
         The list of flashed messages. The messages are removed from the session
         after retrieval.
     """
+    # Do not create a session just to look for messages: an app that never
+    # used sessions has no cookie, and may have no secret key either.
+    from ushka.http.sessions import Session
+
+    if "session" not in request._cached_data and Session.COOKIE_NAME not in request.cookies:
+        return []
     flashes = request.session.pop("_flashes", [])
     if not with_categories:
         return [msg for _, msg in flashes]

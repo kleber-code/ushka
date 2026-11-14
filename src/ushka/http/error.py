@@ -40,7 +40,7 @@ def raise_error(
         An instance of `HTTPError` with the given `status_code`, `message`,
         and `template`.
     """
-    error = HTTPError(status_code=404)
+    error = HTTPError(status_code=status_code)
     if template:
         error.template = template
     if message:

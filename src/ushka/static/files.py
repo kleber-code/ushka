@@ -10,12 +10,12 @@ from pathlib import Path
 
 from ushka.core.config import Config
 from ushka.core.exceptions import CantCompleteResponse
+from ushka.guard import safe
 from ushka.http import Response
 from ushka.http.exceptions import HTTPStaticServerNotFound
 
 
-@staticmethod
-async def get_static_absolute_path(workdir: Path, static_dir: Path) -> Path:
+def get_static_absolute_path(workdir: Path, static_dir: Path) -> Path:
     """Resolves the absolute path for a static directory.
 
     This function handles both relative and absolute paths for the static
@@ -34,9 +34,7 @@ async def get_static_absolute_path(workdir: Path, static_dir: Path) -> Path:
     Path
         The absolute path to the static directory.
     """
-    if not str(static_dir).startswith("/"):
-        return workdir.joinpath(static_dir)
-    return static_dir
+    return static_dir if static_dir.is_absolute() else workdir.joinpath(static_dir)
 
 
 async def server_static_files(
@@ -71,23 +69,13 @@ async def server_static_files(
     """
     static_dir = Path(config.get("STATIC_DIR"))
     workdir = Path(config.get("USHKA_WORKDIR"))
-    static_root = await get_static_absolute_path(workdir, static_dir)
+    static_root = get_static_absolute_path(workdir, static_dir)
 
-    # Resolve the root too, so symlinks and `..` are compared on equal terms.
-    static_root = static_root.resolve()
-
-    try:
-        # Null bytes make `resolve()` raise; reject them explicitly.
-        if "\x00" in filename:
-            raise ValueError("null byte in path")
-        file_path = (static_root / filename).resolve()
-    except Exception as exc:
-        raise HTTPStaticServerNotFound() from exc
-
-    # SECURITY CHECK (Anti-Path Traversal)
-    # `is_relative_to` compares path components, unlike a string prefix check
-    # which let `/static_private` pass as being inside `/static`.
-    if not file_path.is_relative_to(static_root):
+    # SECURITY CHECK (Anti-Path Traversal): `safe.path` resolves symlinks and
+    # `..` on both sides and compares path components, so a sibling such as
+    # `/static_private` is not mistaken for being inside `/static`.
+    file_path = safe.path(filename, static_root, default=None)
+    if file_path is None:
         raise HTTPStaticServerNotFound()
 
     # CHECK IF EXIST
