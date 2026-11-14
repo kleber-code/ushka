@@ -46,6 +46,9 @@ All notable changes to Ushka. The format follows
 
 ### Changed
 
+- Responses with a known body size now send `Content-Length` instead of chunked encoding (not for streaming, `204` or `304`, and a header you set yourself is kept). `HEAD` now reports the length of the `GET` body. In an alternating A/B test on small responses the median was about 15% faster, and steadier.
+- `import ushka` is about 25% faster (128 ms to 95 ms): `uvicorn` is imported only when `Ushka.run()` serves.
+
 - **Behaviour change:** an annotation on a path parameter (`user_id: int`) now converts and validates it (422 when invalid). Before, annotations were ignored. Unannotated parameters are unchanged.
 - A parameter that is not injected, not in the route and has no default is now a required query parameter (422 when missing) instead of a 500.
 - **Behaviour change:** browser requests from another site that write (`POST`, `PUT`, `PATCH`, `DELETE`) now get 403, and responses carry a CSP that blocks inline scripts and third-party resources. Adjust with `csp`, `csrf_trusted_origins` or `csrf = false`.

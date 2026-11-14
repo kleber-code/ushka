@@ -22,7 +22,8 @@ release changes it, ``install`` raises instead of quietly protecting nothing.
 from __future__ import annotations
 
 import dataclasses
-from typing import Any, Iterable
+from collections.abc import Iterable
+from typing import Any
 
 from ..untrusted import Untrusted
 from . import starlette as _starlette

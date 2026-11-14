@@ -33,7 +33,8 @@ import re
 import textwrap
 import typing
 import uuid
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 from urllib.parse import quote, unquote, urlencode, urlsplit
 
 from ushka.guard import RejectedValueError, UnsafeValueError
@@ -47,7 +48,7 @@ SEVERITY = {"high": 3, "medium": 2, "low": 1}
 _SQL_ERRORS = re.compile(
     r"syntax error|unrecognized token|unterminated quoted|SQLSTATE|sqlite3?\.\w*Error|"
     r"OperationalError|ProgrammingError|near \"'\"|you have an error in your sql|ORA-\d{5}|psycopg",
-    re.I,
+    re.IGNORECASE,
 )
 _MARKUP = ("text/html", "application/xhtml+xml", "image/svg+xml", "text/xml")
 
@@ -410,8 +411,8 @@ async def run(app, include_writes: bool = False, extra_params=(), max_probes_per
         log.level = previous_level
         try:
             await lifespan.stop()
-        except Exception:  # noqa: BLE001 - shutdown problems must not hide the report
-            pass
+        except Exception as exc:  # noqa: BLE001 - a failing shutdown hook is reported, not allowed to hide the rest
+            report.skipped.append(f"shutdown hook failed: {type(exc).__name__}: {str(exc)[:100]}")
     return report
 
 

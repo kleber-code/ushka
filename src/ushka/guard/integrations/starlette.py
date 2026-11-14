@@ -21,7 +21,7 @@ import so the mark survives f-strings, ``.format`` and ``%`` (without it,
 
 from __future__ import annotations
 
-from typing import Iterable
+from collections.abc import Iterable
 
 from .. import check_html, check_path, check_redirect, rewrite, taint, taint_deep
 from ..untrusted import Untrusted

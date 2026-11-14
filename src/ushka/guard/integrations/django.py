@@ -24,7 +24,7 @@ import so the mark survives f-strings (see `ushka.guard.rewrite`). Without it,
 from __future__ import annotations
 
 import json as _json
-from typing import Iterable
+from collections.abc import Iterable
 
 from .. import check_html, check_markup, check_redirect, rewrite, taint, taint_deep
 from ..untrusted import Untrusted

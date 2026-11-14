@@ -18,13 +18,20 @@ import contextlib
 import dataclasses
 import inspect
 import typing
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from ushka.core.config import Config
 from ushka.http.request import Request
 from ushka.http.response import Response
+from ushka.http.validation import (
+    _MISSING,
+    Field,
+    RequestValidationError,
+    coerce,
+    hints_of,
+)
 from ushka.http.websocket import WebSocket
-from ushka.http.validation import Field, RequestValidationError, _MISSING, coerce, hints_of
 
 _BODY_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
 _SCALARS = (str, int, float, bool)

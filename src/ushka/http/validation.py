@@ -106,7 +106,7 @@ def hints_of(obj: Any) -> dict[str, Any]:
     """Type hints of a class or function, tolerating hints that cannot be resolved."""
     try:
         return typing.get_type_hints(obj, include_extras=True)
-    except Exception:
+    except Exception:  # noqa: BLE001 - get_type_hints raises NameError, TypeError... for any unresolvable hint
         return {}
 
 
@@ -202,7 +202,7 @@ def coerce(value: Any, tp: Any, loc: list, errors: list) -> Any:
         try:
             if tp is uuid.UUID:
                 return uuid.UUID(str(value))
-            return getattr(tp, "fromisoformat")(str(value))
+            return tp.fromisoformat(str(value))
         except (ValueError, TypeError):
             return fail(f"{tp.__name__.lower()}_parsing", f"Input should be a valid {tp.__name__}")
 

@@ -314,3 +314,66 @@ async def test_unsendable_response_becomes_a_clean_500(make_app, workdir, call):
 
     res = await call(app, "GET", "/bad")
     assert res["status"] == 500 and "injected" not in res["headers"]
+
+
+# --- Content-Length -----------------------------------------------------------------
+
+
+async def test_responses_carry_content_length_in_bytes(app, call):
+    @app.get("/t")
+    async def t():
+        return "ação"  # 4 characters, 6 bytes in UTF-8
+
+    @app.get("/j")
+    async def j():
+        return {"ok": True}
+
+    @app.get("/b")
+    async def b():
+        return b"\x00\x01\x02"
+
+    assert (await call(app, "GET", "/t"))["headers"]["content-length"] == "6"
+    assert (await call(app, "GET", "/j"))["headers"]["content-length"] == str(len('{"ok": true}'))
+    assert (await call(app, "GET", "/b"))["headers"]["content-length"] == "3"
+    assert (await call(app, "GET", "/missing"))["headers"]["content-length"] == str(len((await call(app, "GET", "/missing"))["body"].encode()))
+
+
+async def test_no_content_length_where_the_protocol_forbids_it(app, call):
+    @app.get("/empty")
+    async def empty():
+        return None  # 204
+
+    @app.get("/nm")
+    async def nm():
+        return "", 304
+
+    assert "content-length" not in (await call(app, "GET", "/empty"))["headers"]
+    assert "content-length" not in (await call(app, "GET", "/nm"))["headers"]
+
+
+async def test_head_reports_the_length_of_the_get_body_without_sending_it(app, call):
+    @app.get("/h")
+    async def h():
+        return "hello world"
+
+    res = await call(app, "HEAD", "/h")
+    assert res["headers"]["content-length"] == "11" and res["body"] == ""
+
+
+async def test_a_handler_set_content_length_is_not_overridden_or_duplicated(app, call):
+    @app.get("/own")
+    async def own():
+        return "abc", 200, {"Content-Length": "3"}
+
+    res = await call(app, "GET", "/own")
+    assert res["headers"]["content-length"] == "3"
+
+
+async def test_streaming_responses_have_no_content_length(app, call):
+    from ushka import EventSourceResponse
+
+    @app.get("/s")
+    async def s():
+        return EventSourceResponse(iter(["a"]), ping=None)
+
+    assert "content-length" not in (await call(app, "GET", "/s"))["headers"]

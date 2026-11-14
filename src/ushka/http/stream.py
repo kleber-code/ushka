@@ -19,7 +19,8 @@ import contextlib
 import dataclasses
 import json
 import re
-from typing import Any, AsyncIterable, Callable, Iterable
+from collections.abc import AsyncIterable, Callable, Iterable
+from typing import Any
 
 from ushka.http.response import Response
 
@@ -45,6 +46,9 @@ class StreamingResponse(Response):
     ) -> None:
         super().__init__(b"", status_code, headers, media_type)
         self.content = content
+
+    def _content_length(self):
+        return None  # the size is not known until the iterator ends
 
     async def _chunks(self):
         if hasattr(self.content, "__aiter__"):

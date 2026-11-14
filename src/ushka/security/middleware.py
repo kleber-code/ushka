@@ -15,7 +15,7 @@ cannot be forged through a victim's browser and pass.
 
 from __future__ import annotations
 
-from typing import Awaitable, Callable
+from collections.abc import Awaitable, Callable
 from urllib.parse import urlsplit
 
 from ushka.http.exceptions import HTTPBadRequest, HTTPForbidden

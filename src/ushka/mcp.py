@@ -34,11 +34,12 @@ import logging
 import re
 import typing
 import uuid
-from typing import Any, Awaitable, Callable
+from collections.abc import Awaitable, Callable
+from typing import Any
 from urllib.parse import quote, urlencode
 
 from ushka.http.params import Param
-from ushka.openapi import _PATH_SEGMENT, _Schemas, _required, _specs
+from ushka.openapi import _PATH_SEGMENT, _required, _Schemas, _specs
 
 log = logging.getLogger("ushka.mcp")
 

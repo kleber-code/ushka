@@ -97,6 +97,18 @@ class Response:
             value_bytes = value.encode("latin-1")
             asgi_headers.append([key_bytes, value_bytes])
 
+        # A known size lets the server skip chunked encoding, and lets clients,
+        # proxies and HEAD requests know the length. Not for bodies that
+        # cannot have one (1xx, 204, 304) or that stream.
+        length = self._content_length()
+        if (
+            length is not None
+            and self.status_code >= 200
+            and self.status_code not in (204, 304)
+            and not any(k.lower() == "content-length" for k in self.headers)
+        ):
+            asgi_headers.append([b"content-length", str(length).encode()])
+
         # 3. Infrastructure Headers (Cookies & Session)
         # The Response asks the Request if something has changed and needs to be saved.
         # Only what the handler actually touched: reading `request.session`
@@ -121,6 +133,10 @@ class Response:
         )
 
         await self._send_body(send)
+
+    def _content_length(self) -> Optional[int]:
+        """Size of the body in bytes, or None when it is not known up front."""
+        return len(self._body_bytes if self._body_bytes else self._body.encode("utf-8"))
 
     async def _send_body(self, send: Callable) -> None:
         body_to_send = (

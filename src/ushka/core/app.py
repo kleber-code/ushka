@@ -10,8 +10,6 @@ import logging
 from pathlib import Path
 from types import FrameType
 
-import uvicorn
-
 from ushka.core.config import Config
 from ushka.core.error_handler import ErrorHandler
 from ushka.core.log import LogLevelType, get_log_config, setup_logging
@@ -336,6 +334,8 @@ class Ushka:
             The logging level for the server (e.g., "INFO", "DEBUG").
             (Default is "INFO").
         """
+        import uvicorn  # only needed to serve; importing it costs about half of `import ushka`
+
         setup_logging(log_level)
         host = host or self.config.get("SERVER_HOST", "127.0.0.1")
         port = port or int(self.config.get("SERVER_PORT", 8000))

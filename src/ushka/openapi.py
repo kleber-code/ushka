@@ -17,7 +17,7 @@ import uuid
 from decimal import Decimal
 from typing import Any
 
-from ushka.http.params import Depends, Param, build_plan
+from ushka.http.params import Param, build_plan
 from ushka.http.validation import Field, hints_of
 
 _PATH_SEGMENT = re.compile(r"\[(?:(?:path|int):)?([A-Za-z_][A-Za-z0-9_]*)\]")
