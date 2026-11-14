@@ -101,5 +101,5 @@ def check(production: bool = False) -> int:
     if problems:
         ui.error(f"{problems} problem(s) found")
     else:
-        ui.ok("all good " + ui.MASCOT)
+        ui.ok("all good")
     return problems

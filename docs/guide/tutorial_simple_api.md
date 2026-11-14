@@ -181,7 +181,7 @@ ushka routes list
 ```
 
 ```text
-ฅ^•ﻌ•^ฅ 3 route(s)
+◆ 3 route(s)
   · / - GET
   · /items - GET, POST
   · /items/[item_id] - DELETE, GET

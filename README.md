@@ -1,4 +1,6 @@
-# Ushka ฅ^•ﻌ•^ฅ
+<p align="center"><img src="https://raw.githubusercontent.com/kleber-code/ushka/main/docs/assets/logo.png" width="120" alt="Ushka, the maned wolf"></p>
+
+# Ushka
 
 [![PyPI Version](https://img.shields.io/pypi/v/ushka)](https://pypi.org/project/ushka/)
 [![Documentation](https://img.shields.io/badge/docs-kleber--code.github.io%2Fushka-pink)](https://kleber-code.github.io/ushka/)

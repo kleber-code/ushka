@@ -8,7 +8,7 @@
   {% set server_side = (status_code|int(0)) >= 500 %}
   <main class="wrap center stack">
     <div>
-      <span class="mascot" role="img" aria-label="Ushka the cat, looking {{ 'dizzy' if server_side else 'puzzled' }}">ฅ^{{ '×ﻌ×' if server_side else '•ﻌ•' }}^ฅ<span class="blush" aria-hidden="true">{{ '!' if server_side else '?' }}</span></span>
+      <span class="mascot">{% include "ushka_logo.html" %}</span>
     </div>
     <div>
       <h1 class="title-xl">{{ status_code }}</h1>

@@ -7,7 +7,8 @@ from typing import NoReturn
 
 from ushka.core.log import paint, supports_color
 
-MASCOT = "ฅ^•ﻌ•^ฅ"
+# The mint diamond from the Ushka emblem.
+MARK = "◆"
 
 
 def _out(text: str = "") -> None:
@@ -19,7 +20,7 @@ def _color() -> bool:
 
 
 def title(text: str) -> None:
-    _out(f"{paint(MASCOT, 'pink', enabled=_color())} {paint(text, 'bold', enabled=_color())}")
+    _out(f"{paint(MARK, 'pink', enabled=_color())} {paint(text, 'bold', enabled=_color())}")
 
 
 def ok(text: str) -> None:

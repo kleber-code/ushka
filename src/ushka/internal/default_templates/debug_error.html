@@ -5,7 +5,7 @@
 {% block main_content %}
   <main class="wrap wrap-wide stack">
     <header class="debug-head">
-      <span class="mascot mascot-sm" role="img" aria-label="Ushka the cat, flustered">ฅ^&gt;ﻌ&lt;^ฅ</span>
+      <span class="mascot mascot-sm">{% include "ushka_logo.html" %}</span>
       <div>
         <h1>Ushka tripped! <span class="tag">500</span></h1>
         <p class="muted small">Unhandled <code>{{ exception_type }}</code> &middot; debug mode is on, never enable it in production</p>
@@ -42,7 +42,7 @@
                 </tbody>
               </table>
               {% else %}
-              <p class="muted small">No variables here. ฅ^•ﻌ•^ฅ</p>
+              <p class="muted small">No variables here.</p>
               {% endif %}
             </details>
           </div>
@@ -55,5 +55,5 @@
       <div class="frame-body"><pre class="code raw"><code>{{ traceback_text }}</code></pre></div>
     </details>
   </main>
-  <footer class="site">Ushka{% if framework_version and framework_version != 'unknown' %} v{{ framework_version }}{% endif %} &middot; ฅ^•ﻌ•^ฅ &middot; this page is only shown when <code>debug = true</code></footer>
+  <footer class="site">Ushka{% if framework_version and framework_version != 'unknown' %} v{{ framework_version }}{% endif %} &middot; this page is only shown when <code>debug = true</code></footer>
 {% endblock %}

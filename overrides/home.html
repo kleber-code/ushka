@@ -1,0 +1,31 @@
+{% extends "main.html" %}
+
+{#- Home page: composed like a light-novel cover. -#}
+{% block tabs %}
+  {{ super() }}
+  <section class="ln-cover" aria-labelledby="ln-title">
+    <div class="ln-cover__inner">
+      <div class="ln-cover__text">
+        <p class="ln-cover__kana" lang="ja" aria-hidden="true">ウシュカ</p>
+        <p class="ln-cover__volume">Vol. {{ config.extra.ushka_volume }}</p>
+        <h1 id="ln-title" class="ln-cover__title">Ushka</h1>
+        <p class="ln-cover__lede">
+          The Python web framework where insecure code, whether you or an AI wrote it,
+          does not run silently. It stops and tells you how to fix it.
+        </p>
+        <div class="ln-cover__actions">
+          <a class="md-button md-button--primary" href="{{ 'guide/' | url }}">Get started</a>
+          <a class="md-button" href="{{ 'guide/guard/' | url }}">Meet Ushka Guard</a>
+        </div>
+        <pre class="ln-cover__install"><code>pip install ushka</code></pre>
+      </div>
+      <figure class="ln-cover__art">
+        <img src="{{ 'assets/hero.webp' | url }}" alt="Ushka, a cheerful girl with maned-wolf ears and tail in a black hoodie, giving a thumbs up" width="640" height="782">
+      </figure>
+    </div>
+  </section>
+{% endblock %}
+
+{% block content %}
+  {{ page.content }}
+{% endblock %}
