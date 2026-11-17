@@ -10,10 +10,18 @@ from ushka.cli import ui
 from ushka.cli.commands.routes import load_app
 
 
-def verify(app_path: str, include_writes: bool = False, params: list[str] | None = None, as_json: bool = False, fail_on: str = "medium") -> int:
+def verify(app_path: str, include_writes: bool = False, params: list[str] | None = None, as_json: bool = False, fail_on: str = "medium", headers: list[str] | None = None, cookie: str | None = None) -> int:
     """Runs the probes and prints a report. Returns 1 when findings reach `fail_on`."""
     app = load_app(app_path)
-    report = asyncio.run(engine.run(app, include_writes=include_writes, extra_params=params or ()))
+    sent: dict[str, str] = {}
+    for item in headers or []:
+        name, sep, value = item.partition(":")
+        if not sep or not name.strip():
+            ui.fail(f"--header expects 'Name: value', got {name.strip() or item!r}")
+        sent[name.strip()] = value.strip()
+    if cookie:
+        sent["Cookie"] = cookie
+    report = asyncio.run(engine.run(app, include_writes=include_writes, extra_params=params or (), headers=sent))
     failing = report.failing(fail_on)
 
     if as_json:

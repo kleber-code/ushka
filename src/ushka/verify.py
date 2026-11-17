@@ -203,8 +203,10 @@ def discover_slots(method: str, raw_path: str, func: Callable, extra_params=()) 
 
 
 class _Client:
-    def __init__(self, app, host: str) -> None:
+    def __init__(self, app, host: str, headers: dict | None = None) -> None:
         self.app, self.host = app, host
+        #: Sent with every request (a session cookie, an Authorization header).
+        self.base_headers = {k.lower(): v for k, v in (headers or {}).items()}
         self.last_exc: BaseException | None = None
         original = app.error_handler.handle_exception
 
@@ -221,7 +223,7 @@ class _Client:
     async def send(self, method: str, path: str, query: dict | None = None, body: Any = None, headers: dict | None = None, raw_body: bytes | None = None) -> dict:
         self.last_exc = None
         payload = raw_body if raw_body is not None else (json.dumps(body).encode() if body is not None else b"")
-        hdrs = {"host": self.host, **(headers or {})}
+        hdrs = {"host": self.host, **self.base_headers, **(headers or {})}
         if body is not None or raw_body is not None:
             hdrs.setdefault("content-type", "application/json")
         hdrs["content-length"] = str(len(payload))
@@ -358,7 +360,8 @@ class _Lifespan:
             self.task.cancel()
 
 
-async def run(app, include_writes: bool = False, extra_params=(), max_probes_per_route: int = 200) -> Report:
+async def run(app, include_writes: bool = False, extra_params=(), max_probes_per_route: int = 200, headers: dict | None = None) -> Report:
+    """Probes `app`. `headers` go with every request, to attack the routes as a logged-in user."""
     report = Report()
     config = app.config
     if config.get("app_debug"):
@@ -369,7 +372,7 @@ async def run(app, include_writes: bool = False, extra_params=(), max_probes_per
         report.add(Finding("medium", "config", "headers", "-", "-", "security headers are turned off ([security] headers = false)", "Remove that setting, or set a CSP of your own."))
 
     hosts = [h for h in app.security.allowed_hosts if "*" not in h]
-    client = _Client(app, hosts[0] if hosts else "localhost")
+    client = _Client(app, hosts[0] if hosts else "localhost", headers)
     skip = getattr(app, "_openapi_skip", set())
     mcp_path = getattr(getattr(app, "mcp", None), "path", None)
     lifespan = _Lifespan(app)

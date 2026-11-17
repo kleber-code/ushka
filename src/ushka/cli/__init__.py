@@ -63,6 +63,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("app", help="the app as module:attribute, e.g. app:app")
     p.add_argument("--include-writes", action="store_true", help="also probe POST/PUT/PATCH/DELETE routes (runs their handlers: use a test database)")
     p.add_argument("--param", action="append", default=[], metavar="NAME", help="also probe this query parameter (repeatable)")
+    p.add_argument("--header", action="append", default=[], metavar="'NAME: VALUE'", help="send this header with every request, e.g. 'Authorization: Bearer ...' (repeatable)")
+    p.add_argument("--cookie", metavar="NAME=VALUE", help="send this Cookie header, to probe the routes as a logged-in user")
     p.add_argument("--json", action="store_true", help="print the report as JSON")
     p.add_argument("--fail-on", choices=["high", "medium", "none"], default="medium", help="lowest severity that makes the exit status 1 (default: medium)")
 
@@ -137,7 +139,7 @@ def main(argv: list[str] | None = None) -> None:
     elif args.command == "verify":
         from ushka.cli.commands.verify import verify
 
-        if verify(args.app, args.include_writes, args.param, args.json, args.fail_on):
+        if verify(args.app, args.include_writes, args.param, args.json, args.fail_on, args.header, args.cookie):
             raise SystemExit(1)
 
     elif args.command == "docs":

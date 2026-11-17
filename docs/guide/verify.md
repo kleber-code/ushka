@@ -65,6 +65,8 @@ $ USHKA_DATABASE_URL=sqlite:///test.db ushka verify app:app --include-writes
 | --- | --- |
 | `--include-writes` | Also probe `POST`, `PUT`, `PATCH` and `DELETE` routes. |
 | `--param NAME` | Also probe this query parameter (repeatable). |
+| `--header 'NAME: VALUE'` | Send this header with every request (repeatable), for example `Authorization: Bearer ...`. `Host: ...` picks a host in [per-host routes](routing.md). |
+| `--cookie NAME=VALUE` | Send this `Cookie`, to attack the routes behind a login as a signed-in user. Use a test account and a test database. |
 | `--json` | Print the report as JSON. |
 | `--fail-on high\|medium\|none` | Lowest severity that makes the exit status 1. Default `medium`: vulnerabilities and crashes fail, guard refusals do not. |
 

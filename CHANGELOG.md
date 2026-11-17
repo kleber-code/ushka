@@ -7,6 +7,7 @@ All notable changes to Ushka. The format follows
 
 ### Added
 
+- **`ushka verify --header` and `--cookie`**: send a header or cookie with every probe, to attack the routes behind a login as a signed-in user (`verify.run(headers=...)` from code). Values are never printed.
 - **`db.DateTime(tz=True)`**: a timezone-aware column (`TIMESTAMP WITH TIME ZONE` on PostgreSQL), for aware `datetime` values and existing `timestamptz` columns. The default stays naive. (`db.UUID` was already the native `uuid` type on PostgreSQL; only SQLite and MySQL store it as `CHAR(32)`.)
 - **Routing by host.** `[routes] hosts = { "dashboard.example.com" = "routes_dashboard", "api.*" = "routes_api" }` maps a host (or glob) to a folder of route files, and `@app.host("api.*").get("/x")` does the same from code. A request for that host is answered by its routes alone; every other host by `routes/`. Without `[routes] hosts` nothing changes.
 - **`Depends` can stop the request with a response.** `raise HTTPResponse(response)` or `raise HTTPRedirect(url)` from a dependency (or the handler) answers with that response, so a `login_required` that redirects to the login page is possible. A response a dependency merely returns is still injected as a value, as before.
