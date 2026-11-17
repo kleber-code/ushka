@@ -168,13 +168,12 @@ container to end TLS. Two things follow:
 ## Serving the docs of your own project
 
 If you use [Ushka Docs](docs.md), rendering the pages and the API reference costs
-about a second of CPU, and every worker would do it at startup. Give `Docs` a cache
-file and build it **once, in the image**:
+about a second of CPU, and every worker would do it at startup. `Docs` keeps the
+rendered site in a cache file (`.cache/` by default), so build it **once, in the image**:
 
 ```python
 # app.py
-docs = Docs("docs", url="/docs", cache="docs.cache.json")
-docs.mount(app)
+app.use(Docs("docs", cache="docs.cache.json"))   # or leave `cache` out for .cache/
 ```
 
 ```dockerfile

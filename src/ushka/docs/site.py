@@ -40,6 +40,38 @@ ASSET_SUFFIXES = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".avif", ".svg", ".i
                   ".woff2", ".woff", ".css", ".js", ".json", ".xml", ".mp4", ".webm"}
 
 
+# The options of `Docs(...)` besides path, url, title and api: name -> default.
+_OPTIONS: dict[str, Any] = {
+    "logo": None, "og_image": None, "links": None, "edit_url": None, "home_url": "/", "extra_css": None,
+    "cache_control": "public, max-age=300, stale-while-revalidate=86400", "cache": None, "base_url": None,
+    "nav": "nav.toml", "api_package": None, "api_path": None,
+}
+# What `docs/docs.toml` may set (the constructor wins).
+_BRAND = ("title", "logo", "og_image", "links", "edit_url", "base_url", "extra_css")
+
+
+def _links(value: Any) -> list[tuple[str, str]] | None:
+    """``[["GitHub", "https://..."]]`` or ``[{label = "GitHub", url = "https://..."}]``."""
+    if not isinstance(value, list):
+        return None
+    out = []
+    for item in value:
+        if isinstance(item, dict) and isinstance(item.get("label"), str) and isinstance(item.get("url"), str):
+            out.append((item["label"], item["url"]))
+        elif isinstance(item, list) and len(item) == 2 and all(isinstance(x, str) for x in item):
+            out.append((item[0], item[1]))
+        else:
+            return None
+    return out
+
+
+def _rel(file: Path, root: Path, here: Path) -> str:
+    for base in (root, here):
+        with contextlib.suppress(ValueError):
+            return file.relative_to(base).as_posix()
+    return file.name
+
+
 @dataclass
 class DocsProblem:
     """Something `Docs.build` could not resolve: a broken link, anchor or file."""
@@ -64,9 +96,27 @@ class DocsPage:
     group: str = ""          # API pages: the title of the group the module belongs to
 
 
-def page_url(source: str) -> str:
-    """``index.md`` → ``""``; ``guide/index.md`` → ``guide/``; ``guide/cli.md`` → ``guide/cli/``."""
+_ORDER_PREFIX = re.compile(r"^(\d{1,3})[-_]+")
+
+
+def _unprefix(name: str) -> str:
+    """``01-install`` → ``install`` (the number only orders the menu)."""
+    return _ORDER_PREFIX.sub("", name) or name
+
+
+def _humanize(name: str) -> str:
+    """``getting-started`` → ``Getting Started``."""
+    return " ".join(w[:1].upper() + w[1:] for w in _unprefix(name).replace("-", " ").replace("_", " ").split())
+
+
+def page_url(source: str, strip: bool = False) -> str:
+    """``index.md`` → ``""``; ``guide/index.md`` → ``guide/``; ``guide/cli.md`` → ``guide/cli/``.
+
+    With `strip`, numeric order prefixes are dropped: ``02-guide/01-cli.md`` → ``guide/cli/``.
+    """
     stem = source[:-3]
+    if strip:
+        stem = "/".join(_unprefix(part) for part in stem.split("/"))
     if stem == "index":
         return ""
     if stem.endswith("/index"):
@@ -75,89 +125,142 @@ def page_url(source: str) -> str:
 
 
 class Docs:
-    """A documentation site built from a folder of Markdown files.
+    """A documentation site built from a folder of Markdown files: ``app.use(Docs("docs"))``.
+
+    The menu comes from the folders (see the guide); ``nav.toml`` overrides it. An optional
+    ``docs.toml`` in the folder sets the brand (`title`, `logo`, `og_image`, `links`,
+    `edit_url`, `base_url`, `extra_css`); what you pass here wins over the file.
 
     Parameters
     ----------
-    directory : str or Path
+    path : str or Path
         The Markdown folder. Relative paths resolve against the app directory.
     url : str
         Where the docs are mounted, e.g. ``"/docs"``.
-    title : str
+    title : str, optional
         Site name, used in titles and breadcrumbs.
-    base_url : str, optional
-        Public origin, e.g. ``"https://example.com"``. Enables canonical URLs,
-        absolute Open Graph URLs and ``sitemap.xml``.
-    nav : str
-        Navigation file inside `directory` (TOML). Without it, pages are listed
-        alphabetically.
-    api_package : str, optional
-        Package to document from docstrings (the modules listed under
-        ``[api] modules`` in the nav file).
-    api_path : str or Path
-        Where `api_package` lives, relative to the app directory (``"src"``).
-    logo, og_image : str, optional
-        URLs of the header logo and of the social preview image (PNG/JPEG).
-    links : list of (label, url), optional
-        Extra header links, e.g. ``[("GitHub", "https://github.com/...")]``.
-    edit_url : str, optional
-        Prefix of a "edit this page" link, e.g.
-        ``"https://github.com/me/project/edit/main/docs/"``.
-    home_url : str
-        Where the header logo links to.
-    extra_css : list of str, optional
-        Stylesheets loaded after the theme (fonts, brand colours).
-    cache_control : str
-        ``Cache-Control`` for pages.
-    cache : str or Path, optional
-        A JSON file where the rendered site is kept. Rendering the pages and the
-        API reference costs about a second of CPU, and every server worker does
-        it at startup. With a cache, the first start (for example while building
-        a container image) renders once and later starts read the file. It is
-        keyed by a hash of the Markdown, the documented sources and the renderer,
-        so a stale cache is never used. Relative paths resolve against the app
-        directory; an unwritable location is ignored.
+    api : str, optional
+        A package to document from docstrings, e.g. ``"myproject"``. Found in ``src/``, the
+        project folder or the import path; grouped by sub-package.
+    **options
+        ``logo``, ``og_image`` (URLs), ``links`` (list of (label, url)), ``edit_url`` (prefix of
+        an "edit this page" link), ``base_url`` (public origin: canonical URLs, ``sitemap.xml``),
+        ``extra_css`` (stylesheets after the theme), ``home_url``, ``cache_control``, ``cache``
+        (a JSON file for the rendered site; the default is ``.cache/`` in the app directory,
+        ``False`` turns it off; keyed by a hash of the sources, so it is never stale and an
+        unwritable location is ignored), ``nav`` (the navigation file name, default
+        ``"nav.toml"``), and the older ``api_package`` and ``api_path``.
     """
 
     def __init__(
         self,
-        directory: str | Path,
+        path: str | Path = "docs",
         *,
         url: str = "/docs",
-        title: str = "Documentation",
-        base_url: str | None = None,
-        nav: str = "nav.toml",
-        api_package: str | None = None,
-        api_path: str | Path = "src",
-        logo: str | None = None,
-        og_image: str | None = None,
-        links: list[tuple[str, str]] | None = None,
-        edit_url: str | None = None,
-        home_url: str = "/",
-        extra_css: list[str] | None = None,
-        cache_control: str = "public, max-age=300, stale-while-revalidate=86400",
-        cache: str | Path | None = None,
+        title: str | None = None,
+        api: str | None = None,
+        **options: Any,
     ):
-        self.directory = Path(directory)
+        if "directory" in options:  # the old name of `path`
+            path = options.pop("directory")
+        unknown = [k for k in options if k not in _OPTIONS]
+        if unknown:
+            import difflib
+
+            hint = difflib.get_close_matches(unknown[0], _OPTIONS, n=1)
+            raise TypeError(
+                f"Docs() got an unexpected option {unknown[0]!r}"
+                + (f"; did you mean {hint[0]!r}?" if hint else f"; options: {', '.join(_OPTIONS)}")
+            )
+        o = {**_OPTIONS, **options}
+        self._explicit = {k for k in options if k in _BRAND} | ({"title"} if title is not None else set())
+        self.directory = Path(path)
         self.prefix = "/" + url.strip("/")
-        self.title = title
-        self.base_url = base_url.rstrip("/") if base_url else None
-        self.nav_file = nav
-        self.api_package = api_package
-        self.api_path = Path(api_path)
-        self.logo = logo
-        self.og_image = og_image
-        self.links = links or []
-        self.edit_url = edit_url
-        self.home_url = home_url
-        self.extra_css = extra_css or []
-        self.cache_control = cache_control
-        self.cache = Path(cache) if cache else None
+        self.title = title or "Documentation"
+        self.base_url = o["base_url"].rstrip("/") if o["base_url"] else None
+        self.nav_file = o["nav"]
+        self.api_package = o["api_package"] or api
+        self._api_wanted = api is not None and not o["api_package"]  # `api=` must be found; the old way is lenient
+        self._api_path_set = o["api_path"] is not None
+        self.api_path = Path(o["api_path"] or "src")
+        self.logo = o["logo"]
+        self.og_image = o["og_image"]
+        self.links = o["links"] or []
+        self.edit_url = o["edit_url"]
+        self.home_url = o["home_url"]
+        self.extra_css = o["extra_css"] or []
+        self.cache_control = o["cache_control"]
+        self._cache_auto = o["cache"] is None
+        self.cache = Path(o["cache"]) if o["cache"] else None
+        self._strip = False
+        self._auto = True
         self.pages: dict[str, DocsPage] = {}
         self.sections: list[dict[str, Any]] = []
         self.order: list[str] = []
         self.problems: list[DocsProblem] = []
         self.api_groups: list[dict[str, Any]] = []
+
+    # -- brand (docs.toml) and the API package ------------------------------------
+
+    def _load_brand(self, root: Path) -> list[DocsProblem]:
+        """Reads the optional ``docs.toml``; what you passed to the constructor wins."""
+        file = root / "docs.toml"
+        if not file.is_file():
+            return []
+        problems: list[DocsProblem] = []
+        try:
+            data = tomllib.loads(file.read_text("utf-8"))
+        except (OSError, ValueError) as exc:
+            return [DocsProblem("docs.toml", f"cannot read it ({exc})")]
+        for key, value in data.items():
+            if key not in _BRAND:
+                problems.append(DocsProblem("docs.toml", f"unknown key {key!r}; keys: {', '.join(_BRAND)}"))
+                continue
+            if key in self._explicit:
+                continue
+            if key == "links":
+                links = _links(value)
+                if links is None:
+                    problems.append(DocsProblem("docs.toml", "links must be a list of [label, url] pairs"))
+                    continue
+                value = links
+            elif key == "extra_css":
+                if not isinstance(value, list) or not all(isinstance(v, str) for v in value):
+                    problems.append(DocsProblem("docs.toml", "extra_css must be a list of URLs"))
+                    continue
+            elif not isinstance(value, str):
+                problems.append(DocsProblem("docs.toml", f"{key} must be a string"))
+                continue
+            setattr(self, key, value.rstrip("/") if key == "base_url" else value)
+        return problems
+
+    def _find_api(self, *bases: Path) -> None:
+        """Finds where the package of ``api=`` lives: ``src/``, the project folder, then the import path."""
+        if self._api_path_set or not self.api_package:
+            return
+        import importlib.util
+
+        top = self.api_package.split(".")[0]
+        for base in bases:
+            for folder in (base / "src", base):
+                if (folder / top / "__init__.py").is_file() or (folder / f"{top}.py").is_file():
+                    self.api_path, self._api_path_set = folder, True
+                    return
+        try:
+            spec = importlib.util.find_spec(top)
+        except (ImportError, ValueError):
+            spec = None
+        if spec is not None and spec.origin:
+            origin = Path(spec.origin).resolve()
+            self.api_path = origin.parent.parent if origin.name == "__init__.py" else origin.parent
+            self._api_path_set = True
+            return
+        if self._api_wanted:
+            looked = ", ".join(str(f) for b in bases for f in (b / "src", b))
+            raise ValueError(
+                f"Docs(api={self.api_package!r}): cannot find the package {top!r} in {looked} or on the "
+                "import path; pass api_path= with the folder that contains it"
+            )
 
     # -- building ----------------------------------------------------------------
 
@@ -166,31 +269,42 @@ class Docs:
         target = posixpath.normpath(posixpath.join(posixpath.dirname(source), path))
         suffix = f"#{frag}" if frag else ""
         if target.endswith(".md"):
-            return f"{self.prefix}/{page_url(target)}{suffix}", f"{target}#{frag}"
+            return f"{self.prefix}/{page_url(target, self._strip)}{suffix}", f"{target}#{frag}"
         return f"{self.prefix}/{target}{suffix}", target
 
     def build(self, root: Path | None = None) -> list[DocsProblem]:
         """Renders every page and returns the problems found (empty means all good)."""
         root = (root or self.directory).resolve()
         self.directory = root
+        self._auto = not (root / self.nav_file).is_file()
+        self._strip = self._auto
+        self._find_api(root.parent, Path.cwd())
         renderer = MarkdownRenderer(self._resolve)
         prose = MarkdownRenderer(self._resolve)
         pages: dict[str, DocsPage] = {}
         anchors: dict[str, set[str]] = {}
         links: list[tuple[str, str, str]] = []
-        problems: list[DocsProblem] = []
+        problems: list[DocsProblem] = self._load_brand(root)
+        meta: dict[str, dict] = {}
 
         for file in sorted(root.rglob("*.md")):
             rel = file.relative_to(root).as_posix()
             if any(part.startswith(("_", ".")) for part in rel.split("/")):
                 continue
             out = renderer.render(rel, file.read_text("utf-8"))
-            pages[rel] = DocsPage(page_url(rel), rel, out.title, out.html, out.description,
+            title = out.title
+            if self._auto and not out.meta.get("title") and not any(h.level == 1 for h in out.headings):
+                title = _humanize(posixpath.basename(rel)[:-3])
+            url = page_url(rel, self._strip)
+            if any(p.url == url for p in pages.values()):
+                problems.append(DocsProblem(rel, f"same URL as another page ({url or '/'})"))
+            pages[rel] = DocsPage(url, rel, title, out.html, out.description,
                                   [(h.level, h.text, h.id) for h in out.headings], out.text)
+            meta[rel] = out.meta
             anchors[rel] = {h.id for h in out.headings}
             links += [(rel, target, frag) for target, frag in out.links]
 
-        nav = self._load_nav(root, pages, problems)
+        nav = self._load_nav(root, pages, meta, problems)
 
         groups = self.api_groups if self.api_package else []
         if groups:
@@ -256,13 +370,38 @@ class Docs:
         return DocsPage("api/", "api:index", title, "".join(html), cfg.get("description", ""), headings,
                         " ".join(t for t in text if t), title)
 
-    def _load_nav(self, root: Path, pages: dict[str, DocsPage], problems: list[DocsProblem]) -> dict:
+    def _load_nav(self, root: Path, pages: dict[str, DocsPage], meta: dict[str, dict],
+                  problems: list[DocsProblem]) -> dict:
         nav_path = root / self.nav_file
         data: dict = {}
+        self.sections, self.order = [], []
         if nav_path.is_file():
             data = tomllib.loads(nav_path.read_text("utf-8"))
+            self._nav_from_file(data, pages, problems)
+        else:
+            self._nav_from_folders(pages, meta, problems)
+        api = data.get("api") or {}
+        self.api_groups = []
+        if self.api_package:
+            if api:
+                self.api_groups = _api_groups(api, problems, self.api_package, self.nav_file)
+            else:
+                self.api_groups = self._auto_api_groups()
+        if self.api_groups:
+            groups = [{"title": g["title"], "slug": slugify(g["title"]),
+                       "items": [{"url": f"api/{m}/", "module": m, "label": label}
+                                 for m, label in _labels(g["modules"])]} for g in self.api_groups]
+            self.sections.append({"title": api.get("title", "API reference"), "urls": ["api/"], "groups": groups})
+            self.order += ["api/"] + [i["url"] for g in groups for i in g["items"]]
+        if not self._auto:
+            listed = set(self.order)
+            for page in pages.values():
+                if page.url not in listed and not page.source.startswith("api:"):
+                    problems.append(DocsProblem(page.source, f"not listed in {self.nav_file}"))
+        return {**data, "api": api}
+
+    def _nav_from_file(self, data: dict, pages: dict[str, DocsPage], problems: list[DocsProblem]) -> None:
         sections = data.get("section") or [{"title": "", "pages": sorted(pages)}]
-        self.sections, self.order = [], []
         for section in sections:
             items = []
             for source in section.get("pages", []):
@@ -274,35 +413,91 @@ class Docs:
                 items.append(page.url)
                 self.order.append(page.url)
             self.sections.append({"title": section.get("title", ""), "urls": items})
-        self.api_groups = []
-        if data.get("api") and self.api_package:
-            self.api_groups = _api_groups(data["api"], problems, self.api_package, self.nav_file)
-        if self.api_groups:
-            api = data["api"]
-            groups = [{"title": g["title"], "slug": slugify(g["title"]),
-                       "items": [{"url": f"api/{m}/", "module": m, "label": label}
-                                 for m, label in _labels(g["modules"])]} for g in self.api_groups]
-            self.sections.append({"title": api.get("title", "API reference"), "urls": ["api/"], "groups": groups})
-            self.order += ["api/"] + [i["url"] for g in groups for i in g["items"]]
-        listed = set(self.order)
-        for page in pages.values():
-            if page.url not in listed and not page.source.startswith("api:"):
-                problems.append(DocsProblem(page.source, f"not listed in {self.nav_file}"))
-        return data
+
+    def _nav_from_folders(self, pages: dict[str, DocsPage], meta: dict[str, dict],
+                          problems: list[DocsProblem]) -> None:
+        """The menu from the structure: a folder is a section, ``index.md`` opens it, and the order
+        comes from ``order:`` in the front matter, a numeric prefix in the name, or the alphabet."""
+
+        def number(source: str, name: str) -> float:
+            raw = meta.get(source, {}).get("order")
+            if raw not in (None, "", []):
+                try:
+                    return float(str(raw))
+                except ValueError:
+                    problems.append(DocsProblem(source, f"order must be a number, got {raw!r}"))
+            m = _ORDER_PREFIX.match(name)
+            return float(m.group(1)) if m else float("inf")
+
+        folders: dict[str, list[str]] = {}
+        for source in pages:
+            folders.setdefault(posixpath.dirname(source), []).append(source)
+
+        def page_key(source: str):
+            name = posixpath.basename(source)[:-3]
+            return (name != "index", number(source, name), _unprefix(name).lower())
+
+        def folder_key(folder: str):
+            if not folder:
+                return ((0, 0.0, ""),)
+            parts, key = folder.split("/"), []
+            for i, part in enumerate(parts):
+                key.append((1, number("/".join(parts[: i + 1] + ["index.md"]), part), _unprefix(part).lower()))
+            return tuple(key)
+
+        for folder in sorted(folders, key=folder_key):
+            sources = sorted(folders[folder], key=page_key)
+            if not folder:
+                title = ""
+            else:
+                index = pages.get(f"{folder}/index.md")
+                title = index.title if index else _humanize(posixpath.basename(folder))
+            for source in sources:
+                pages[source].section = title
+            self.sections.append({"title": title, "urls": [pages[s].url for s in sources]})
+            self.order += [pages[s].url for s in sources]
+
+    def _auto_api_groups(self) -> list[dict[str, Any]]:
+        """One group per sub-package of ``api=``; its public modules (no ``_name``) are the pages."""
+        top = self.api_package.split(".")[0]  # type: ignore[union-attr]
+        base = self.api_path / top
+        if not base.is_dir():
+            return []
+        groups: dict[str, list[str]] = {}
+
+        def visible(path: Path) -> bool:
+            return not any(part.startswith("_") or part in ("tests", "test") for part in path.parts)
+
+        for file in sorted(base.rglob("*.py")):
+            rel = file.relative_to(base)
+            if file.name == "__init__.py" or not visible(rel):
+                continue
+            parts = [top, *rel.with_suffix("").parts]
+            groups.setdefault(parts[1] if len(parts) > 2 else "general", []).append(".".join(parts))
+        for pkg in sorted(p for p in base.iterdir() if (p / "__init__.py").is_file() and visible(p.relative_to(base))):
+            if pkg.name not in groups:  # a package with no modules of its own is one page
+                groups[pkg.name] = [f"{top}.{pkg.name}"]
+        scope = self.api_package
+        result = []
+        for name, mods in sorted(groups.items(), key=lambda kv: (kv[0] == "general", kv[0])):
+            mods = [m for m in mods if m == scope or m.startswith(scope + ".")]  # type: ignore[operator]
+            if mods:
+                result.append({"title": _humanize(name), "description": "", "modules": mods})
+        return result
 
     # -- cache --------------------------------------------------------------------
 
     def _fingerprint(self, root: Path) -> str:
         """A hash of everything the rendered pages depend on."""
-        digest = hashlib.sha256(f"v1|{self.api_package}|{self.nav_file}".encode())
+        digest = hashlib.sha256(f"v2|{self.api_package}|{self.nav_file}".encode())
         here = Path(__file__).resolve().parent
         sources = sorted(root.rglob("*.md")) + sorted(here.glob("*.py"))
-        if (root / self.nav_file).is_file():
-            sources.append(root / self.nav_file)
+        sources += [f for f in (root / self.nav_file, root / "docs.toml") if f.is_file()]
         if self.api_package:
-            sources += sorted((self.api_path / self.api_package.split(".")[0]).rglob("*.py"))
+            package = self.api_path / self.api_package.split(".")[0]
+            sources += sorted(package.rglob("*.py")) + [package.with_suffix(".py")] * package.with_suffix(".py").is_file()
         for file in sources:
-            digest.update(file.name.encode())
+            digest.update(_rel(file, root, here).encode())
             digest.update(file.read_bytes())
         return digest.hexdigest()
 
@@ -342,10 +537,14 @@ class Docs:
         if self.cache is None:
             return self.build(root)
         root = (root or self.directory).resolve()
+        self._auto = not (root / self.nav_file).is_file()
+        self._strip = self._auto
+        self._find_api(root.parent, Path.cwd())
         key = self._fingerprint(root)
         cached = self._load_cache(key)
         if cached is not None:
             self.directory = root
+            self._load_brand(root)
             return cached
         problems = self.build(root)
         self._save_cache(key)
@@ -432,11 +631,22 @@ class Docs:
             return Response(b"", status_code=304, headers=headers)
         return Response(html, status_code=status, headers=headers, media_type="text/html")
 
+    def install(self, app: Ushka) -> None:
+        """``app.use(Docs("docs"))``: the same as `mount`."""
+        self.mount(app)
+
     def mount(self, app: Ushka) -> list[DocsProblem]:
         """Builds the site and registers its routes on `app`. Returns the problems found."""
         root = self.directory if self.directory.is_absolute() else app.workdir / self.directory
-        if not self.api_path.is_absolute():
+        if self._api_path_set and not self.api_path.is_absolute():
             self.api_path = app.workdir / self.api_path
+        elif self.api_package and not self._api_path_set:
+            self._find_api(app.workdir)
+            if not self._api_path_set:  # the old way: nothing found, `src/` as before
+                self.api_path = app.workdir / self.api_path
+        if self.cache is None and self._cache_auto:
+            digest = hashlib.sha256(str(root.resolve()).encode()).hexdigest()[:10]
+            self.cache = app.workdir / ".cache" / f"ushka-docs-{digest}.json"
         problems = self.build_cached(root)
         for problem in problems:
             log.warning("docs: %s", problem)
@@ -458,7 +668,8 @@ class Docs:
                 if not request.path.endswith("/"):
                     return redirect(request.path + "/", status_code=301)
                 return await self._respond(request, "docs/page.html", self._context(page, request))
-            target = safe.path(slug, self.directory, default=None)
+            hidden = any(part.startswith(("_", ".")) for part in slug.split("/"))
+            target = None if hidden else safe.path(slug, self.directory, default=None)
             if target is not None and target.is_file() and target.suffix.lower() in ASSET_SUFFIXES:
                 return file_response(target, request, "public, max-age=86400, stale-while-revalidate=604800")
             raise HttpNotFound()

@@ -37,7 +37,7 @@ field; feedback shapes it. *Experimental*: the API may still change.
 | [Test client](guide/testing.md) | In-process client with lifespan and cookies. | New |
 | OpenAPI | An API description from your signatures, so it cannot drift. | Established |
 | [Agents (MCP)](guide/agents.md) | Routes as tools for AI agents, with a token and approvals. | Experimental |
-| [Ushka Docs](guide/docs.md) | A Markdown folder becomes a docs site (this one). | Established |
+| [Ushka Docs](guide/docs.md) | `app.use(Docs("docs"))`: a Markdown folder becomes a docs site (this one), the menu from its folders. | Established |
 
 If you only learn five things, learn the ones at the top: Guard, the middleware,
 typed parameters, forms and sessions. Everything else can wait until you need it,
@@ -182,7 +182,7 @@ the processes. See [Deploy](guide/deploy.md).
 
 ## Ushka Docs
 
-A folder of Markdown becomes a searchable documentation site with an API reference,
+`app.use(Docs("docs"))` turns a folder of Markdown into a searchable documentation site, the menu from the folders, with an API reference,
 served by your app, with a cache you can build into your Docker image. The page you
 are reading is made with it. See [Ushka Docs](guide/docs.md).
 
