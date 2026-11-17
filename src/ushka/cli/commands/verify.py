@@ -5,15 +5,35 @@ from __future__ import annotations
 import asyncio
 import json
 
-from ushka import verify as engine
 from ushka.cli import ui
 from ushka.cli.commands.routes import load_app
+from ushka.security import verify as engine
+from ushka.sessions.forge import parse_session_pairs
 
 
-def verify(app_path: str, include_writes: bool = False, params: list[str] | None = None, as_json: bool = False, fail_on: str = "medium") -> int:
+def verify(
+    app_path: str,
+    include_writes: bool = False,
+    params: list[str] | None = None,
+    as_json: bool = False,
+    fail_on: str = "medium",
+    skip_exempt: bool = False,
+    as_session: list[str] | None = None,
+    cookie: str = "",
+) -> int:
     """Runs the probes and prints a report. Returns 1 when findings reach `fail_on`."""
+    session_data = None
+    if as_session:
+        try:
+            session_data = parse_session_pairs(as_session)
+        except ValueError as exc:
+            ui.fail(f"--as-session: {exc}")
     app = load_app(app_path)
-    report = asyncio.run(engine.run(app, include_writes=include_writes, extra_params=params or ()))
+    if session_data and not app.config.get("app_debug") and not as_json:
+        ui.warn("--as-session signs a session with this app's secret key while debug is off: use a development key and a test database.")
+    report = asyncio.run(
+        engine.run(app, include_writes=include_writes, extra_params=params or (), skip_exempt=skip_exempt, cookie=cookie, session_data=session_data)
+    )
     failing = report.failing(fail_on)
 
     if as_json:
@@ -26,6 +46,10 @@ def verify(app_path: str, include_writes: bool = False, params: list[str] | None
         f"\n  {o['blocked']} blocked · {o['guard']} stopped by the guard · {o['handled']} handled safely · "
         f"{o['vulnerable']} vulnerable · {o['crash']} crashed"
     )
+    if report.session_keys:
+        ui.info("probed as a logged-in user (forged session with: " + ", ".join(report.session_keys) + ")")
+    if report.exempt:
+        ui.info(f"{len(report.exempt)} route(s) exempt from CSRF were probed too: " + ", ".join(report.exempt))
     for note in report.skipped:
         ui.info(f"skipped: {note}")
 
@@ -37,7 +61,7 @@ def verify(app_path: str, include_writes: bool = False, params: list[str] | None
     if vulnerable:
         ui.line("\n  Got through")
         for f in vulnerable:
-            ui.error(f"{f.route}  {f.slot}  [{f.category}]")
+            ui.error(f"{f.route}  {f.slot}  [{f.category}]" + ("  (exempt from CSRF)" if f.exempt else ""))
             ui.line(f"      {f.detail}")
             if f.fix:
                 ui.hint(f.fix)

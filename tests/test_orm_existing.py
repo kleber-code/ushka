@@ -130,7 +130,7 @@ def test_server_defaults_become_python_defaults(legacy_db, tmp_path):
     source = generated(legacy_db, tmp_path)
     assert "status = db.String(length=20, default='new')" in source
     assert "hot = db.Bool(default=True)" in source
-    assert "seen_at = db.DateTime(auto_now=True)" in source
+    assert "seen_at = db.DateTime(auto_now_add=True, timezone=False)" in source
 
 
 def test_python_side_defaults_are_warned_about_not_applied(legacy_db, tmp_path, capsys):
@@ -145,9 +145,9 @@ def test_python_side_defaults_are_warned_about_not_applied(legacy_db, tmp_path, 
     assert "customers.ativo" in out
     assert "customers.credits" in out
     # timestamps
-    assert "customers.created_at" in out and "auto_now=True" in source
+    assert "customers.created_at" in out and "auto_now_add=True" in out
     assert "customers.updated_at" in out
-    assert "does not refresh it on UPDATE" in out
+    assert "does not refresh it on UPDATE" in out and "auto_now=True" in out
 
 
 def test_foreign_keys_without_on_delete_are_listed(legacy_db, tmp_path, capsys):
@@ -205,8 +205,8 @@ async def test_create_and_delete_work_after_review(legacy_db, legacy_source):
     source = source.replace("ativo = db.Bool(default=None)", "ativo = db.Bool(default=True)")
     source = source.replace("credits = db.Int()", "credits = db.Int(default=0)")
     source = source.replace(
-        "created_at = db.DateTime()", "created_at = db.DateTime(auto_now=True)"
-    ).replace("updated_at = db.DateTime()", "updated_at = db.DateTime(auto_now=True)")
+        "created_at = db.DateTime()", "created_at = db.DateTime(auto_now_add=True, timezone=False)"
+    ).replace("updated_at = db.DateTime()", "updated_at = db.DateTime(auto_now=True, timezone=False)")
     ns = load(source)
     Customer, Lead, Document = ns["Customer"], ns["Lead"], ns["Document"]
 
@@ -232,10 +232,9 @@ async def test_create_and_delete_work_after_review(legacy_db, legacy_source):
     with pytest.raises(IntegrityError):
         await customer.delete()
     # The advice in the warning: children first, in one transaction.
-    async with db.Session() as session:
-        await session.delete(await session.get(Lead, lead_id))
-        await session.delete(await session.get(Customer, customer_id))
-        await session.commit()
+    async with db.transaction():
+        await (await Lead.get(lead_id)).delete()
+        await (await Customer.get(customer_id)).delete()
     assert await Customer.all() == []
     await db.engine.dispose()
 

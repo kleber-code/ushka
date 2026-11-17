@@ -6,13 +6,16 @@ deploy (``ushka check --production``).
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from ushka.cli import ui
 from ushka.core.config import Config
 from ushka.guard import TEMPLATES_SUPPORTED
-from ushka.pwa import icons as pwa_icons
+from ushka.sessions.stores import no_database_reason
+from ushka.web.pwa import icons as pwa_icons
 
 SETTINGS = (
     "app_debug",
@@ -29,6 +32,58 @@ def _display(key: str, value: object) -> str:
     if key == "app_secret_key":
         return "(set)" if value else "(not set)"
     return repr(value)
+
+
+_SCRIPT = re.compile(r"<script\b([^>]*)>", re.IGNORECASE | re.DOTALL)
+_LINK = re.compile(r"<link\b([^>]*)>", re.IGNORECASE | re.DOTALL)
+_TEMPLATE_SUFFIXES = {".html", ".htm", ".jinja", ".jinja2", ".j2"}
+_MAX_CSP_FINDINGS = 12
+
+
+def _attr(tag: str, name: str) -> str | None:
+    found = re.search(rf"""\b{name}\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))""", tag, re.IGNORECASE)
+    return next((g for g in found.groups() if g is not None), "") if found else None
+
+
+def _line(text: str, match: re.Match) -> int:
+    return text.count("\n", 0, match.start()) + 1
+
+
+def csp_findings(workdir: Path, csp: str) -> list[tuple[str, int, str]]:
+    """What the browser will block in ``templates/`` under this CSP, as
+    ``(file, line, what)``. ``csp`` is the configured policy ("" = Ushka's default)."""
+    templates = workdir / "templates"
+    if not templates.is_dir():
+        return []
+    custom = csp.lower()
+    inline_ok = "'unsafe-inline'" in custom or "nonce-" in custom
+    found: list[tuple[str, int, str]] = []
+    for path in sorted(p for p in templates.rglob("*") if p.suffix.lower() in _TEMPLATE_SUFFIXES):
+        text = path.read_text("utf-8", errors="replace")
+        name = str(path.relative_to(workdir))
+
+        def external(url: str | None) -> str | None:
+            """The host of an absolute URL the policy does not already name."""
+            if not url or not re.match(r"(https?:)?//", url.strip()):
+                return None
+            host = urlsplit(url.strip() if not url.strip().startswith("//") else "https:" + url.strip()).hostname or ""
+            return None if host and custom and host.lower() in custom else host or url
+
+        for m in _SCRIPT.finditer(text):
+            src = _attr(m.group(1), "src")
+            if src is not None:
+                host = external(src)
+                if host:
+                    found.append((name, _line(text, m), f"<script src> from {host} is blocked"))
+            elif not inline_ok and "json" not in (_attr(m.group(1), "type") or "").lower() and "template" not in (_attr(m.group(1), "type") or "").lower():
+                found.append((name, _line(text, m), "inline <script> is blocked"))
+        for m in _LINK.finditer(text):
+            rel = (_attr(m.group(1), "rel") or "").lower()
+            if any(k in rel for k in ("stylesheet", "preload", "modulepreload")):
+                host = external(_attr(m.group(1), "href"))
+                if host:
+                    found.append((name, _line(text, m), f"<link> to {host} is blocked"))
+    return found
 
 
 def check(production: bool = False) -> int:
@@ -68,6 +123,8 @@ def check(production: bool = False) -> int:
 
     secret_source = config.source_of("app_secret_key")
     if production:
+        if not config.get("security_allowed_hosts"):
+            ui.warn("[security] allowed_hosts is empty: any Host header is accepted (set your domains)")
         if config.get("app_debug"):
             problems += 1
             ui.error("debug is on: visitors would see tracebacks and local variables")
@@ -93,6 +150,16 @@ def check(production: bool = False) -> int:
             problems += 1
             ui.error(".env exists but is not in .gitignore")
 
+    if str(config.get("session_store", "cookie")).lower() == "database":
+        reason = no_database_reason(config)
+        if not reason:
+            ui.ok("sessions: revocable, kept in the database")
+        elif production:
+            problems += 1
+            ui.error(f"[session] store = \"database\" has no database, so sessions stay signed cookies: {reason}")
+        else:
+            ui.warn(f"[session] store = \"database\" has no database, so sessions stay signed cookies: {reason}")
+
     if config.get("seo_enable", True):
         if config.get("seo_url"):
             ui.ok(f"SEO: public URL is {config.get('seo_url')}")
@@ -109,6 +176,19 @@ def check(production: bool = False) -> int:
         else:
             problems += 1
             ui.error("[pwa] needs icons of 192x192 and 512x512 (PNG) to be installable")
+
+    csp = str(config.get("security_csp") or "")
+    if csp.lower() != "off":
+        findings = csp_findings(workdir, csp)
+        for name, number, what in findings[:_MAX_CSP_FINDINGS]:
+            ui.warn(f"{name}:{number}: {what} by the Content-Security-Policy, silently")
+        if len(findings) > _MAX_CSP_FINDINGS:
+            ui.warn(f"... and {len(findings) - _MAX_CSP_FINDINGS} more")
+        if findings:
+            ui.info(
+                "fix: host the file under static/, or allow it in [security] csp "
+                "(see docs/guide/security.md#csp), or move inline code to a .js file"
+            )
 
     routes = workdir / "routes"
     if routes.is_dir():

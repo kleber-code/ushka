@@ -28,7 +28,6 @@ import importlib
 import os
 import sys
 from datetime import datetime
-from typing import Optional
 
 from alembic import command
 from alembic.config import Config as AlembicConfig

@@ -17,6 +17,17 @@ Every probe ends in one of these:
 Only ``GET`` routes are probed by default, because probing runs your real
 handlers. ``include_writes`` also probes ``POST``/``PUT``/``PATCH``/``DELETE``:
 point it at a test database.
+
+Routes listed in ``[security] csrf_exempt_paths`` (webhooks, machine APIs) are
+probed with the same rules and marked as exempt in the report: they are the most
+exposed routes, so they most need the hostile input. ``skip_exempt`` leaves them
+out. The only thing not sent to them is the cross-site CSRF probe, because a
+route that is exempt on purpose answers it with a 200 and that would be a false
+alarm. The payload probes carry no cross-site headers, so the CSRF check can
+neither mask nor fake their result.
+
+``cookie`` and ``session_data`` probe as a logged-in visitor (a forged, correctly
+signed session cookie), which is how routes behind a login redirect are reached.
 """
 
 from __future__ import annotations
@@ -35,13 +46,13 @@ import typing
 import uuid
 from collections.abc import Callable
 from typing import Any
-from urllib.parse import quote, unquote, urlencode, urlsplit
+from urllib.parse import parse_qsl, quote, unquote, urlencode, urlsplit
 
+from ushka.api.openapi import _PATH_SEGMENT
 from ushka.guard import RejectedValueError, UnsafeValueError
 from ushka.http.exceptions import HTTPError
 from ushka.http.params import build_plan
 from ushka.http.validation import RequestValidationError, hints_of
-from ushka.openapi import _PATH_SEGMENT
 
 SAFE = {"GET", "HEAD"}
 SEVERITY = {"high": 3, "medium": 2, "low": 1}
@@ -82,6 +93,7 @@ class Finding:
     slot: str
     detail: str
     fix: str = ""
+    exempt: bool = False  # the route is exempt from CSRF ([security] csrf_exempt_paths)
 
     def to_dict(self) -> dict:
         return dataclasses.asdict(self)
@@ -94,9 +106,12 @@ class Report:
     findings: list[Finding] = dataclasses.field(default_factory=list)
     routes: int = 0
     skipped: list[str] = dataclasses.field(default_factory=list)
+    exempt: list[str] = dataclasses.field(default_factory=list)  # probed routes that are exempt from CSRF
+    session_keys: list[str] = dataclasses.field(default_factory=list)  # keys of the forged session, never its values
 
     def add(self, finding: Finding) -> None:
         """Adds a finding unless the same problem on the same input is already there."""
+        finding.exempt = finding.route in self.exempt
         key = (finding.kind, finding.category, finding.route, finding.slot)
         if not any((f.kind, f.category, f.route, f.slot) == key for f in self.findings):
             self.findings.append(finding)
@@ -108,7 +123,7 @@ class Report:
         return [f for f in self.findings if SEVERITY[f.severity] >= floor]
 
     def to_dict(self) -> dict:
-        return {"routes": self.routes, "probes": self.probes, "outcomes": self.outcomes, "skipped": self.skipped, "findings": [f.to_dict() for f in self.findings]}
+        return {"routes": self.routes, "probes": self.probes, "outcomes": self.outcomes, "skipped": self.skipped, "exempt": self.exempt, "session_keys": self.session_keys, "findings": [f.to_dict() for f in self.findings]}
 
 
 # -- discovering what a route reads ---------------------------------------------------
@@ -206,6 +221,7 @@ class _Client:
     def __init__(self, app, host: str) -> None:
         self.app, self.host = app, host
         self.last_exc: BaseException | None = None
+        self.cookie = ""  # sent with every request: probing as a logged-in visitor
         original = app.error_handler.handle_exception
 
         async def recording(exc, request):
@@ -222,6 +238,8 @@ class _Client:
         self.last_exc = None
         payload = raw_body if raw_body is not None else (json.dumps(body).encode() if body is not None else b"")
         hdrs = {"host": self.host, **(headers or {})}
+        if self.cookie:
+            hdrs.setdefault("cookie", self.cookie)
         if body is not None or raw_body is not None:
             hdrs.setdefault("content-type", "application/json")
         hdrs["content-length"] = str(len(payload))
@@ -253,21 +271,51 @@ class _Client:
         return {"status": start["status"], "headers": headers_out, "body": raw.decode("utf-8", "replace"), "exc": raised or self.last_exc}
 
 
+_ATTACKER_HOST = "evil.example"
+
+
+def _redirect_evidence(location: str) -> tuple[str, str] | None:
+    """``(severity, evidence)`` when a redirect's Location carries the probe, else None.
+
+    A redirect alone is never a finding: a protected route sends you to the login
+    page. It is one when the **destination** is the attacker's site (high), or
+    when the probe sits at the start of a parameter such as ``next`` or ``url``,
+    where the login page follows it unless it checks it (medium). The probe
+    buried inside a longer value (``next=/dashboard?q=//evil.example``) is the
+    visitor's own URL coming back, and is not reported.
+    """
+    parts = urlsplit(location.replace("\\", "/"))
+    if (parts.hostname or "").lower() == _ATTACKER_HOST:
+        return "high", f"redirected to an attacker-chosen site (Location: {location})"
+    for name, value in parse_qsl(parts.query, keep_blank_values=True):
+        target = urlsplit(value.strip().replace("\\", "/"))
+        if (target.hostname or "").lower() == _ATTACKER_HOST:
+            return "medium", (
+                f"the probe came back as the destination in the '{name}' parameter of the redirect "
+                f"(Location: {location}): an open redirect unless the page that follows it checks the target"
+            )
+    return None
+
+
 def _inspect(payload: Payload, res: dict) -> str | None:
-    """Evidence that `payload` worked, or None."""
+    """Evidence that `payload` worked, or None. May set ``res["severity"]``."""
     body, headers = res["body"], res["headers"]
     ctype = headers.get("content-type", "").split(";")[0].strip().lower()
     marker = payload.value[:40]
+    redirected = 300 <= res["status"] < 400
+    if payload.category == "redirect":
+        found = _redirect_evidence(headers.get("location", "")) if redirected else None
+        if found:
+            res["severity"] = found[0]
+        return found[1] if found else None
+    if redirected:  # a browser does not render the body of a redirect: only its headers count
+        return "an injected header appeared in the response" if payload.category == "crlf" and "x-injected" in headers else None
     if payload.category == "xss" and ctype in _MARKUP and payload.value in body:
         return "the payload came back as live markup in an HTML response"
     if payload.category == "ssti" and "4011" in body and marker not in body:
         return "the template expression was evaluated (1337*3 became 4011)"
     if payload.category == "traversal" and re.search(r"root:.*:0:0:", body):
         return "the response contains the contents of /etc/passwd"
-    if payload.category == "redirect" and 300 <= res["status"] < 400:
-        host = urlsplit(headers.get("location", "")).netloc
-        if host == "evil.example":
-            return f"redirected to an attacker-chosen site (Location: {headers['location']})"
     if payload.category == "crlf" and "x-injected" in headers:
         return "an injected header appeared in the response"
     if payload.category == "sqli" and _SQL_ERRORS.search(body):
@@ -311,7 +359,7 @@ async def _classify(report: Report, res: dict, route: str, slot: Slot, payload: 
         report.outcomes["blocked"] += 1  # the framework refused to build a response with a forged header
     elif (evidence := _inspect(payload, res)) is not None:
         report.outcomes["vulnerable"] += 1
-        report.add(Finding("high", "VULNERABLE", payload.category, route, f"{slot.where}:{slot.name}", f"{payload.risk}: {evidence}",
+        report.add(Finding(res.get("severity", "high"), "VULNERABLE", payload.category, route, f"{slot.where}:{slot.name}", f"{payload.risk}: {evidence}",
             "Pass the value through ushka.guard.safe, or turn Ushka Guard back on ([security] taint = true)."))
     else:
         report.outcomes["handled"] += 1
@@ -358,7 +406,27 @@ class _Lifespan:
             self.task.cancel()
 
 
-async def run(app, include_writes: bool = False, extra_params=(), max_probes_per_route: int = 200) -> Report:
+def _is_exempt(app, raw_path: str) -> bool:
+    """True when ``[security] csrf_exempt_paths`` covers the route (CSRF is on and the path matches)."""
+    sec = app.security
+    return bool(sec.csrf) and any(raw_path == p or raw_path.startswith(p.rstrip("/") + "/") for p in sec.csrf_exempt)
+
+
+async def run(
+    app,
+    include_writes: bool = False,
+    extra_params=(),
+    max_probes_per_route: int = 200,
+    skip_exempt: bool = False,
+    cookie: str = "",
+    session_data: dict[str, Any] | None = None,
+) -> Report:
+    """Probes every route of `app` and returns the `Report`.
+
+    `skip_exempt` leaves out the routes exempt from CSRF. `cookie` (``name=value``)
+    and `session_data` (forged into a signed session cookie) probe as a visitor
+    who is logged in; only the keys of `session_data` are ever reported.
+    """
     report = Report()
     config = app.config
     if config.get("app_debug"):
@@ -375,13 +443,27 @@ async def run(app, include_writes: bool = False, extra_params=(), max_probes_per
     lifespan = _Lifespan(app)
     log = logging.getLogger("ushka")
     previous_level, log.level = log.level, logging.CRITICAL + 1  # every hostile probe would log a traceback
+    forged_sid = ""
     try:
         await lifespan.start()
+        client.cookie = cookie
+        if session_data:
+            from ushka.sessions.forge import aforge_session_cookie
+
+            forged = await aforge_session_cookie(app, session_data)
+            client.cookie = "; ".join(c for c in (cookie, forged) if c)
+            forged_sid = forged.partition("=")[2].partition(".")[0]
+            report.session_keys = sorted(session_data)
         routes = [(m, p, f) for m, p, f in app.router.iter_routes() if m != "WEBSOCKET" and f not in skip and p != mcp_path]
         report.routes = len(routes)
         for method, raw_path, func in sorted(routes, key=lambda r: (r[1], r[0])):
             label = f"{method} {raw_path}"
             unsafe = method not in SAFE
+            if _is_exempt(app, raw_path):
+                if skip_exempt:
+                    report.skipped.append(f"{label} (exempt from CSRF; left out by --skip-exempt)")
+                    continue
+                report.exempt.append(label)
             if unsafe:
                 await _cross_site_probe(report, client, app, method, raw_path, func, label, include_writes)
                 if not include_writes:
@@ -409,6 +491,16 @@ async def run(app, include_writes: bool = False, extra_params=(), max_probes_per
     finally:
         client.close()
         log.level = previous_level
+        if forged_sid:
+            try:  # the forged server-side session record must not outlive the run
+                from ushka.sessions.session import ServerSession
+                from ushka.sessions.stores import get_store
+
+                store = get_store(app)
+                if store is not None:
+                    await store.delete(ServerSession._key(forged_sid))
+            except Exception as exc:  # noqa: BLE001 - cleanup is best effort
+                report.skipped.append(f"could not remove the forged session: {type(exc).__name__}")
         try:
             await lifespan.stop()
         except Exception as exc:  # noqa: BLE001 - a failing shutdown hook is reported, not allowed to hide the rest
@@ -422,9 +514,8 @@ async def _cross_site_probe(report: Report, client: _Client, app, method: str, r
     if not sec.csrf:
         report.add(Finding("high", "config", "csrf", label, "-", "CSRF protection is off ([security] csrf = false), so any website can make a visitor's browser call this route", "Remove that setting, or list trusted origins in csrf_trusted_origins."))
         return
-    if any(raw_path == p or raw_path.startswith(p.rstrip("/") + "/") for p in sec.csrf_exempt):
-        report.skipped.append(f"{label} (exempt from CSRF by csrf_exempt_paths: not probed)")
-        return
+    if _is_exempt(app, raw_path):
+        return  # exempt on purpose: a cross-site request is meant to get through, so it is no finding
     slots = discover_slots(method, raw_path, func)
     path, query, body = _build(method, raw_path, slots, None, None)
     res = await client.send(method, path, query, body, {"sec-fetch-site": "cross-site", "origin": "https://evil.example"})

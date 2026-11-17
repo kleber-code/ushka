@@ -6,6 +6,10 @@ to the client.
 """
 
 
+class ContentToJsonParserFailed(Exception):
+    """Raised when a response body cannot be converted to JSON."""
+
+
 class HTTPError(Exception):
     """Base class for all HTTP-related exceptions in Ushka."""
 

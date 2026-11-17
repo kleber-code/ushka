@@ -7,7 +7,7 @@ Rules for generating Ushka code:
 - Routes: `routes/index.py` is `/`; `routes/users/[user_id].py` is `/users/<user_id>`. Export functions named after the verb: `async def get(request): ...` (also `post`, `put`, `patch`, `delete`, `websocket`). Or use decorators on `app = Ushka()`: `@app.get("/path")`.
 - Run it with `ushka dev` (reload, debug on) or `ushka run` (production). The app object is `app` in `app.py`; serve it as `app:app`.
 - Return a `str`, `dict`/`list` (JSON), `(body, status)` or `(body, status, headers)`, `None` (204), a t-string (3.14, escaped HTML) or `Response`. Raise `HttpNotFound`, `HTTPForbidden`, `HTTPBadRequest` (from `ushka.http.exceptions`) with `message=` as a keyword.
-- Type the parameters: `async def get(item_id: int, page: Annotated[int, Query(ge=1)] = 1)`. Bodies are dataclasses or TypedDicts, and `Depends(fn)` injects dependencies. Invalid input answers 422 with every error. An `int`, `UUID`, `Enum` or `Literal` parameter is validated and plain; a `str` stays `Untrusted`. Imports: `from ushka import Query, Header, Cookie, Path, Body, Form, Field, Depends`.
+- Type the parameters: `async def get(item_id: int, page: Annotated[int, Query(ge=1)] = 1)`. Bodies are dataclasses or TypedDicts, and `Depends(fn)` injects dependencies. Invalid input answers 422 with every error; for an HTML form use `Annotated[MyDataclass, Form()]` and `@app.post(path, on_invalid=fn)` to draw the form again with `errors.fields` and `errors.values`. An `int`, `UUID`, `Enum` or `Literal` parameter is validated and plain; a `str` stays `Untrusted`. Imports: `from ushka import Query, Header, Cookie, Path, Body, Form, Field, Depends`.
 - Never put request values straight into `redirect()`, HTML strings, `|safe`, file paths or raw SQL. Use `from ushka import safe`: `safe.url(v, allow=["/"], default="/")`, `safe.path(v, root)`, `safe.integer(v, min=, max=)`, `safe.choice(v, options)`, `safe.html(v)`. A rejected value answers 400.
 - Render HTML with `await render(request, "page.html", {...})` (`from ushka import render`); Jinja2 autoescapes. On 3.14 return `t"<h1>{name}</h1>"`.
 - SQL: ORM methods (`await User.filter(name=name)`), `db.text("... :id", id=value)`, or `await db.execute(t"... {value}")`. Not `sqlalchemy.text()` and not f-strings.
@@ -15,7 +15,7 @@ Rules for generating Ushka code:
 - Config: `ushka.toml` (no secrets) < `.env` < env vars `USHKA_<SECTION>_<KEY>` (lists as `a,b`). Secret: `USHKA_APP_SECRET_KEY`. Production: `debug = false`, set `[security] allowed_hosts`, run `ushka check --production`.
 - Browser writes (`POST`, `PUT`, `PATCH`, `DELETE`) from another site get 403 (CSRF, no tokens). Allow origins with `[security] csrf_trusted_origins`.
 - WebSocket: `async def websocket(ws)` in `routes/`, or `@app.websocket("/ws")`. SSE: return `EventSourceResponse(async_generator)`.
-- Expose a route to agents with `@tool(reads=[...], writes=[...])` from `ushka.mcp` and `app.enable_mcp()`; sensitive tools need an approver and a token (`USHKA_MCP_TOKEN`).
+- Expose a route to agents with `@tool(reads=[...], writes=[...])` from `ushka.api.mcp` and `app.enable_mcp()`; sensitive tools need an approver and a token (`USHKA_MCP_TOKEN`).
 - Run `ushka verify app:app` to attack your own routes and see what got through.
 - If you hit `UnsafeValueError USHKA-G00x`, apply the `fix` it gives. Do not disable the guard (`[security] taint = false`) and do not use `safe.trust()` without a reason.
 
@@ -32,10 +32,12 @@ Rules for generating Ushka code:
 - [Routing](https://ushka.satela.com.br/docs/guide/routing/): file and decorator routes, dynamic segments, hooks
 - [Requests and responses](https://ushka.satela.com.br/docs/guide/requests-responses/): the request object, return values, Response, redirect
 - [Validation and typed parameters](https://ushka.satela.com.br/docs/guide/validation/): types, Query/Header/Body, Depends, 422 errors, OpenAPI
+- [Testing](https://ushka.satela.com.br/docs/guide/testing/): `ushka.testing.TestClient` runs startup/shutdown, keeps cookies, sends json/forms/files, simulates a browser for CSRF
 - [Dependency Injection](https://ushka.satela.com.br/docs/guide/dependency_injection/): request, response and config in a handler
 - [Templates](https://ushka.satela.com.br/docs/guide/templates/): Jinja2, filters, globals, context processors
 - [Static files](https://ushka.satela.com.br/docs/guide/static_files/): the static folder, caching, `app.mount_static`
 - [Sessions, cookies and uploads](https://ushka.satela.com.br/docs/guide/sessions/): signed sessions, cookies, multipart files
+- [Internationalisation](https://ushka.satela.com.br/docs/guide/i18n/): gettext catalogs, `_()` and `{% trans %}`, the language per request from query, cookie or Accept-Language, `ushka i18n extract/compile`
 - [SEO](https://ushka.satela.com.br/docs/guide/seo/): `{{ seo() }}` tags, robots.txt and sitemap.xml ready from `[seo]` in ushka.toml, per-page overrides
 - [Progressive Web App](https://ushka.satela.com.br/docs/guide/pwa/): `[pwa]` in ushka.toml serves the manifest, a conservative service worker and an offline page
 - [Flash messages](https://ushka.satela.com.br/docs/guide/flashing/): one-time messages between requests

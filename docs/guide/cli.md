@@ -18,6 +18,8 @@ positional arguments:
     check        validate configuration and security settings
     verify       attack your own routes with hostile payloads and report what
                  got through
+    session      print a forged session cookie (name=value) to test as a
+                 logged-in user
     docs         check or preview Markdown docs (needs ushka[docs])
     routes       list and manage filesystem routes
     db           database migrations (needs ushka[orm])
@@ -114,7 +116,40 @@ ushka verify app:app --include-writes --param q --json --fail-on high
 ```
 
 Sends hostile payloads to your own routes, in the process, and reports what got
-through. Exits 1 on findings, so it fits in CI. See [ushka verify](verify.md).
+through. Exits 1 on findings, so it fits in CI. Routes exempt from CSRF are
+probed too (`--skip-exempt` leaves them out), and `--as-session uid=1` probes as
+a logged-in user. See [ushka verify](verify.md).
+
+## `ushka session`
+
+```console
+$ ushka session --set uid=1 --set admin=true
+_ushka_session=eyJ1aWQiOjEsImFkbWluIjp0cnVlfQ.1763300000.4f0c...
+$ curl -H "Cookie: $(ushka session --set uid=1)" http://localhost:8000/account
+```
+
+Prints `name=value`, a session cookie signed with the app's own secret key, to
+paste into `curl --cookie` or a test client. `--set KEY=VALUE` is repeatable and
+`1` and `true` become an integer and a boolean (everything else is text);
+`--app module:attribute` names the app (default `app:app`). With
+`[session] store = "database"` it also writes the session to the store, so use a
+test database. In code, the same thing is `ushka.sessions.forge_session_cookie`
+(see [Sessions](sessions.md#forging-a-session-for-tests)).
+
+This is a **testing tool**: whoever runs it holds the key to every account. So it
+only signs with a key that comes from the environment or `.env` (there is no way
+to type the key on the command line), refuses when `debug` is off unless you pass
+`--allow-non-debug`, and prints nothing but the cookie.
+
+## `ushka i18n`
+
+```console
+ushka i18n extract     # write locale/messages.pot from _() calls and {% trans %}
+ushka i18n compile     # compile every locale/*/LC_MESSAGES/*.po to .mo
+```
+
+Both read `[i18n] catalog_dir` and `domain`; `compile` exits 1 when a `.po` is
+invalid. See [Internationalisation](i18n.md).
 
 ## `ushka check`
 

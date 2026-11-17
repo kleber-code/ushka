@@ -208,6 +208,8 @@ def table_from_model(table: sa.Table) -> TableInfo:
 
 def kind_of(t: Any) -> str:
     """The family of a SQLAlchemy type: what the Ushka helper for it would be."""
+    if isinstance(t, sqltypes.TypeDecorator):
+        t = t.impl_instance
     if isinstance(t, sqltypes.Boolean):
         return "bool"
     if isinstance(t, sqltypes.Enum):
@@ -556,7 +558,7 @@ class Generator:
             f"{fk.ref_table} row that still has {table} rows fails with an IntegrityError "
             f"(or leaves orphans on a database that does not enforce foreign keys), and the old "
             f"ORM may have been deleting the children in Python.",
-            "Delete the children first inside one db.Session() transaction, or change the "
+            "Delete the children first inside one `async with db.transaction():`, or change the "
             "constraint with a migration and set on_delete=db.CASCADE (or db.SET_NULL on a "
             "nullable column) here. Changing it here only does not alter the database.",
         )
@@ -596,7 +598,7 @@ class Generator:
                 "Check it is what you want; the database keeps applying it either way.",
             ))
         elif has_default:
-            shown = {"now": "auto_now=True", "today": "auto_now=True", "uuid": "default=uuid.uuid4"}.get(mode, f"default={code}")
+            shown = {"now": "auto_now_add=True", "today": "auto_now=True", "uuid": "default=uuid.uuid4"}.get(mode, f"default={code}")
             findings.append(Finding(
                 "mapped-default", t.name, col.name,
                 f"server default {col.default!r} was mapped to {shown}.",
@@ -624,17 +626,15 @@ class Generator:
             findings.append(Finding(
                 "timestamp", t.name, col.name,
                 "this looks like an 'updated' timestamp. The database does not refresh it on UPDATE: "
-                "the old ORM probably set it in Python on every save, and Ushka's auto_now only fills "
-                "the value on insert.",
-                "Set it yourself before save() (e.g. datetime.now(timezone.utc)), or declare "
-                "Column(DateTime, onupdate=func.now()); use auto_now=True for the insert value.",
+                "the old ORM probably set it in Python on every save.",
+                "Use auto_now=True: the ORM then sets it on insert and on every update.",
             ))
         elif temporal and name in _CREATED and not has_default:
             findings.append(Finding(
                 "timestamp", t.name, col.name,
                 "this looks like a 'created' timestamp with no server default: the old ORM probably "
                 "filled it in Python.",
-                "Use auto_now=True so every insert gets the current time.",
+                "Use auto_now_add=True so every insert gets the current time.",
             ))
         elif (
             not col.nullable and not has_default and not is_pk and fk is None
@@ -750,12 +750,19 @@ class Generator:
             return call("JSON", f"default={code}", *nullable)
         if kind == "binary" and mode == "none" and not unique:
             return call("Binary", f"length={length!r}", *nullable)
-        if kind in ("datetime", "date") and mode in ("none", "now", "today") and not tz:
+        if kind == "datetime" and mode in ("none", "now"):
             if unique:
                 self.imports.add("sqlalchemy", "UniqueConstraint")
                 table_args.append(f"UniqueConstraint({col.name!r})")
-            auto = ["auto_now=True"] if mode in ("now", "today") else []
-            return call("DateTime" if kind == "datetime" else "Date", *auto, *nullable)
+            # The automatic columns are timezone-aware unless told otherwise.
+            auto = ["auto_now_add=True"] if mode == "now" else []
+            zone = ["timezone=True"] if tz else (["timezone=False"] if auto else [])
+            return call("DateTime", *auto, *zone, *nullable)
+        if kind == "date" and mode in ("none", "today"):
+            if unique:
+                self.imports.add("sqlalchemy", "UniqueConstraint")
+                table_args.append(f"UniqueConstraint({col.name!r})")
+            return call("Date", *(["auto_now=True"] if mode == "today" else []), *nullable)
         if kind == "time" and mode == "none" and not unique and not tz:
             return call("Time", *nullable)
         return None

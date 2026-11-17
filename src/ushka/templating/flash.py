@@ -7,7 +7,7 @@ It includes a `Category` enum for message types and functions to store (`flash`)
 and retrieve (`get_flashed_messages`) these messages.
 """
 import sys
-from typing import TYPE_CHECKING, List, Tuple, Union
+from typing import TYPE_CHECKING
 
 if sys.version_info >= (3, 11):
     from enum import StrEnum
@@ -79,7 +79,7 @@ def flash(request: "Request", message: str, category: Category | str = Category.
 
 def get_flashed_messages(
     request: "Request", with_categories: bool = False
-) -> Union[List[str], List[Tuple[str, str]]]:
+) -> list[str] | list[tuple[str, str]]:
     """
     Pops and retrieves all flashed messages from the session.
 
@@ -99,7 +99,7 @@ def get_flashed_messages(
     """
     # Do not create a session just to look for messages: an app that never
     # used sessions has no cookie, and may have no secret key either.
-    from ushka.http.sessions import Session
+    from ushka.sessions.session import Session
 
     if "session" not in request._cached_data and Session.COOKIE_NAME not in request.cookies:
         return []

@@ -10,23 +10,28 @@ import logging
 from pathlib import Path
 from types import FrameType
 
+import ushka.web.pwa as pwa_module
+import ushka.web.seo as seo_module
 from ushka.core.config import Config
 from ushka.core.error_handler import ErrorHandler
 from ushka.core.log import LogLevelType, get_log_config, setup_logging
-from ushka.http.exceptions import HTTPMethodNotAllowed, HttpNotFound
-from ushka.http.exceptions import HTTPError
+from ushka.http.exceptions import HTTPError, HTTPMethodNotAllowed, HttpNotFound
 from ushka.http.params import Resolver
+from ushka.http.redirect import redirect
+from ushka.http.request import Request
+from ushka.http.response import Response
 from ushka.http.validation import RequestValidationError
 from ushka.http.websocket import WebSocket, WebSocketDisconnect
-from ushka.http.request import Request
-import ushka.pwa as pwa_module
-import ushka.seo as seo_module
 from ushka.security import SecurityMiddleware
-from ushka.http.response import Response
-from ushka.http.redirect import redirect
-from ushka.static import DEFAULT_CACHE_CONTROL, file_response, resolve_in, server_static_files
+from ushka.static import (
+    DEFAULT_CACHE_CONTROL,
+    file_response,
+    resolve_in,
+    server_static_files,
+)
 from ushka.templating import render
 from ushka.templating.engine import engine as template_engine
+from ushka.web.i18n import I18n
 
 from .router import Router
 
@@ -72,6 +77,9 @@ class Ushka:
         # Templates are looked up next to the app, not in whatever directory
         # the process happened to start in.
         template_engine.set_project_dir(self.workdir / "templates")
+        template_engine.configure(self.config)
+        #: Translation settings and language choice, from ``[i18n]``.
+        self.i18n = I18n(self.config, self.workdir)
 
         self._startup: list = []
         self._shutdown: list = []
@@ -86,6 +94,9 @@ class Ushka:
         self.error_handler = ErrorHandler(self.config, self.log, self.router)
         #: Always outermost; configured in ``[security]``.
         self.security = SecurityMiddleware(self.config)
+        #: A `ushka.sessions.stores.SessionStore` of your own (Redis, ...);
+        #: when None, ``[session] store`` decides.
+        self.session_store = None
         #: ``{path: handler}`` for GET pages Ushka ships (robots.txt, the PWA files...).
         #: They answer only when no route of yours matches, so yours always win.
         self._builtin_routes: dict = {}
@@ -220,7 +231,16 @@ class Ushka:
             The ASGI send channel callable.
         """
         request = Request(self, scope, receive)
+        token = self.i18n.activate(request)
         try:
+            await self._serve_http(request, send)
+        finally:
+            self.i18n.deactivate(token)
+
+    async def _serve_http(self, request, send):
+        """`_handle_http` with the request's language already set."""
+        try:
+            await request.load_session()
             response = await self._run_chain(request)
         except Exception as e:
             response = await self._error_response(e, request)
@@ -320,7 +340,15 @@ class Ushka:
 
         resolver = Resolver(request)
         try:
-            kwargs = await resolver.call(handler, params)
+            try:
+                kwargs = await resolver.call(handler, params)
+            except RequestValidationError as exc:
+                on_invalid = getattr(handler, "__ushka_on_invalid__", None)
+                if on_invalid is None:
+                    raise
+                # the route's own answer (usually the form again, with the errors)
+                resolver.errors, handler = exc, on_invalid
+                kwargs = await resolver.call(on_invalid, params)
             result = handler(**kwargs)
             if inspect.isawaitable(result):
                 result = await result
@@ -384,7 +412,7 @@ class Ushka:
 
     # --- Public API Decorators ---
 
-    def _add_route(self, method: str, path: str):
+    def _add_route(self, method: str, path: str, on_invalid=None):
         """Helper to avoid code repetition in HTTP method decorators.
 
         Parameters
@@ -414,6 +442,8 @@ class Ushka:
             callable
                 The original function (for chaining decorators).
             """
+            if on_invalid is not None:
+                func.__ushka_on_invalid__ = on_invalid
             self.router.add_route(method, path, func)
             return func
 
@@ -475,7 +505,7 @@ class Ushka:
 
     def openapi(self, title: str | None = None, version: str = "0.1.0") -> dict:
         """The OpenAPI 3.1 document describing this app's routes (a dict)."""
-        from ushka import openapi
+        from ushka.api import openapi
 
         skip = getattr(self, "_openapi_skip", set())
         return openapi.build(self.router, title or self.config.get("app_name", "Ushka API"), version, skip)
@@ -491,18 +521,18 @@ class Ushka:
         self.router.add_route("GET", path, openapi_json)
 
     def enable_mcp(self, path: str = "/mcp", token=None, approve=None, name: str | None = None, instructions: str | None = None, internal_headers=None) -> None:
-        """Serves the routes marked with `ushka.mcp.tool` to AI agents over MCP.
+        """Serves the routes marked with `ushka.api.mcp.tool` to AI agents over MCP.
 
         Call it after your routes are registered. `token` (or ``USHKA_MCP_TOKEN``)
         is the bearer token agents must send; without one it refuses to start
         unless debug is on. `approve` is an async callable (or
-        `ushka.mcp.ApprovalQueue`) that a human answers for sensitive tools.
+        `ushka.api.mcp.ApprovalQueue`) that a human answers for sensitive tools.
         `internal_headers` (a dict, or a function of the request) adds headers to
         the internal request, e.g. a service credential your routes check.
         With ``token=False`` the endpoint has no shared secret: the caller's
         ``Authorization`` is passed to the routes, which authenticate it.
         """
-        from ushka.mcp import MCPServer
+        from ushka.api.mcp import MCPServer
 
         server = MCPServer(self, path, token, approve, name, instructions, internal_headers)
         self.mcp = server
@@ -529,7 +559,7 @@ class Ushka:
         self._shutdown.append(func)
         return func
 
-    def get(self, path: str):
+    def get(self, path: str, *, on_invalid=None):
         """Decorator to register a function as a GET route handler.
 
         Parameters
@@ -542,9 +572,9 @@ class Ushka:
         callable
             The route registration decorator.
         """
-        return self._add_route("GET", path)
+        return self._add_route("GET", path, on_invalid)
 
-    def post(self, path: str):
+    def post(self, path: str, *, on_invalid=None):
         """Decorator to register a function as a POST route handler.
 
         Parameters
@@ -557,9 +587,9 @@ class Ushka:
         callable
             The route registration decorator.
         """
-        return self._add_route("POST", path)
+        return self._add_route("POST", path, on_invalid)
 
-    def put(self, path: str):
+    def put(self, path: str, *, on_invalid=None):
         """Decorator to register a function as a PUT route handler.
 
         Parameters
@@ -572,9 +602,9 @@ class Ushka:
         callable
             The route registration decorator.
         """
-        return self._add_route("PUT", path)
+        return self._add_route("PUT", path, on_invalid)
 
-    def patch(self, path: str):
+    def patch(self, path: str, *, on_invalid=None):
         """Decorator to register a function as a PATCH route handler.
 
         Parameters
@@ -587,9 +617,9 @@ class Ushka:
         callable
             The route registration decorator.
         """
-        return self._add_route("PATCH", path)
+        return self._add_route("PATCH", path, on_invalid)
 
-    def delete(self, path: str):
+    def delete(self, path: str, *, on_invalid=None):
         """Decorator to register a function as a DELETE route handler.
 
         Parameters
@@ -602,7 +632,7 @@ class Ushka:
         callable
             The route registration decorator.
         """
-        return self._add_route("DELETE", path)
+        return self._add_route("DELETE", path, on_invalid)
 
 
 def _bind(mw, call_next):

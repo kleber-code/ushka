@@ -14,4 +14,4 @@ Router
 from .app import Ushka
 from .router import Router
 
-__all__ = ["Ushka", "Router"]
+__all__ = ["Router", "Ushka"]

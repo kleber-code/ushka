@@ -32,7 +32,7 @@ def get_static_absolute_path(workdir: Path, static_dir: Path) -> Path:
 
 def file_response(
     path: Path,
-    request: "Request | None" = None,
+    request: Request | None = None,
     cache_control: str = DEFAULT_CACHE_CONTROL,
 ) -> Response:
     """Builds the response for one file, answering ``304`` when it is unchanged.
@@ -83,7 +83,7 @@ def resolve_in(root: Path, filename: str, *, html: bool = False) -> Path | None:
     return target if target.is_file() else None
 
 
-async def server_static_files(filename: str, config: Config, request: "Request") -> Response:
+async def server_static_files(filename: str, config: Config, request: Request) -> Response:
     """Serves a file from the ``[static]`` directory (registered when enabled)."""
     workdir = Path(config.get("USHKA_WORKDIR"))
     root = get_static_absolute_path(workdir, Path(config.get("STATIC_DIR")))

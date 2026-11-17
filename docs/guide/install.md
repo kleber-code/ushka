@@ -7,6 +7,7 @@ macOS and Windows.
 
 ```bash
 pip install ushka        # or: uv add ushka
+pip install --pre ushka  # the 0.8 beta
 ushka --version
 ```
 

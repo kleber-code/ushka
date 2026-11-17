@@ -9,8 +9,8 @@ from __future__ import annotations
 import posixpath
 import re
 import unicodedata
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Callable
 
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
@@ -137,7 +137,7 @@ class MarkdownRenderer:
                     if child.type in ("link_open", "image"):
                         attr = "href" if child.type == "link_open" else "src"
                         href = str(child.attrs.get(attr, ""))
-                        if self.resolve and href and not re.match(r"^([a-z][a-z0-9+.-]*:|//|#|/)", href, re.I):
+                        if self.resolve and href and not re.match(r"^([a-z][a-z0-9+.-]*:|//|#|/)", href, re.IGNORECASE):
                             url, target = self.resolve(source, href)
                             child.attrSet(attr, url)
                             if target is not None:
@@ -162,4 +162,4 @@ class MarkdownRenderer:
         return Rendered(html, title, meta, headings, " ".join(plain), links, desc)
 
 
-__all__ = ["MarkdownRenderer", "Rendered", "Heading", "slugify", "highlight_code", "shorten"]
+__all__ = ["Heading", "MarkdownRenderer", "Rendered", "highlight_code", "shorten", "slugify"]
