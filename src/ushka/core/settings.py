@@ -34,6 +34,7 @@ SECTIONS: dict[str, str] = {
     "app": "Your application.",
     "database": "The database used by the async ORM.",
     "server": "How `ushka dev`, `ushka run` and `app.run()` serve the app.",
+    "routes": "Which routes answer on which host name.",
     "static": "Serving static files.",
     "limits": "Size limits that protect the server from huge requests.",
     "security": "Ushka Guard and the security middleware, all on by default.",
@@ -46,6 +47,7 @@ SECTIONS: dict[str, str] = {
 SECTION_DOCS: dict[str, str] = {
     "database": "orm.md",
     "server": "deploy.md",
+    "routes": "routing.md",
     "static": "static_files.md",
     "security": "security.md",
     "seo": "seo.md",
@@ -67,6 +69,9 @@ SCHEMA: dict[str, dict[str, Setting]] = {
         "host": _s("127.0.0.1", 'Address to bind. Use "0.0.0.0" in a container.'),
         "port": _s(8000, "Port to listen on."),
         "workers": _s(1, "Worker processes for `ushka run` (`ushka dev` always uses one)."),
+    },
+    "routes": {
+        "hosts": _s({}, 'Routes per host: `{ "dashboard.example.com" = "routes_dashboard", "api.*" = "routes_api" }`. A host (or glob) maps to a folder of route files, or a list of folders. A request for that host is answered by those routes alone; every other host by `routes/`. Environment: `host=folder,host=folder`.'),
     },
     "static": {
         "enable": _s(False, "Serve the static folder under `url`."),
@@ -170,7 +175,7 @@ def env_name(section: str, key: str) -> str:
 
 
 def _type_name(value: Any) -> str:
-    return {bool: "true/false", int: "a number", float: "a number", str: "a string", list: "a list"}.get(type(value), type(value).__name__)
+    return {bool: "true/false", int: "a number", float: "a number", str: "a string", list: "a list", dict: "a table"}.get(type(value), type(value).__name__)
 
 
 def _fits(default: Any, value: Any) -> bool:
@@ -184,6 +189,8 @@ def _fits(default: Any, value: Any) -> bool:
         return isinstance(value, str)
     if isinstance(default, list):
         return isinstance(value, list)
+    if isinstance(default, dict):
+        return isinstance(value, dict)
     return True
 
 
@@ -221,6 +228,8 @@ def toml_value(value: Any) -> str:
     if isinstance(value, list):
         return "[" + ", ".join(toml_value(v) for v in value) + "]"
     if isinstance(value, dict):
+        if not value:
+            return "{}"
         return "{ " + ", ".join(f"{k} = {toml_value(v)}" for k, v in value.items()) + " }"
     escaped = str(value).replace("\\", "\\\\").replace('"', '\\"')
     return f'"{escaped}"'

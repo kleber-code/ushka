@@ -94,6 +94,14 @@ How `ushka dev`, `ushka run` and `app.run()` serve the app. See [deploy](deploy.
 | `port` | `8000` | Port to listen on. |
 | `workers` | `1` | Worker processes for `ushka run` (`ushka dev` always uses one). |
 
+### `[routes]`
+
+Which routes answer on which host name. See [routing](routing.md).
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `hosts` | `{}` | Routes per host: `{ "dashboard.example.com" = "routes_dashboard", "api.*" = "routes_api" }`. A host (or glob) maps to a folder of route files, or a list of folders. A request for that host is answered by those routes alone; every other host by `routes/`. Environment: `host=folder,host=folder`. |
+
 ### `[static]`
 
 Serving static files. See [static files](static_files.md).

@@ -7,6 +7,7 @@ All notable changes to Ushka. The format follows
 
 ### Added
 
+- **Routing by host.** `[routes] hosts = { "dashboard.example.com" = "routes_dashboard", "api.*" = "routes_api" }` maps a host (or glob) to a folder of route files, and `@app.host("api.*").get("/x")` does the same from code. A request for that host is answered by its routes alone; every other host by `routes/`. Without `[routes] hosts` nothing changes.
 - **`Depends` can stop the request with a response.** `raise HTTPResponse(response)` or `raise HTTPRedirect(url)` from a dependency (or the handler) answers with that response, so a `login_required` that redirects to the login page is possible. A response a dependency merely returns is still injected as a value, as before.
 
 ### Fixed

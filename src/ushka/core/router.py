@@ -7,6 +7,7 @@ Python handler functions, managing both static and dynamic routes, and
 handling dependency injection for route handlers.
 """
 
+import fnmatch
 import importlib.util
 import inspect
 import logging
@@ -89,6 +90,80 @@ class Router:
         self.dynamic_routes: Dict[
             str, List[Tuple[re.Pattern, List[str], RouteHandler, DependencyMap, str]]
         ] = {}
+
+        # Host routing: ``(host pattern, Router)``. A request whose Host matches
+        # is answered by that router alone; any other host by this one.
+        self.hosts: List[Tuple[str, "Router"]] = []
+        self._host_dirs: List[Path] = []
+
+    # --- Host routing ---
+
+    def add_host(self, pattern: str, folder: Union[str, List[str], None] = None) -> "Router":
+        """Registers a set of routes for the hosts matching `pattern`.
+
+        Parameters
+        ----------
+        pattern : str
+            A host name, or a glob: ``"api.example.com"``, ``"api.*"``,
+            ``"*.example.com"``. Case-insensitive; a port in the request is ignored.
+        folder : str or list of str, optional
+            Folder(s) of route files (relative to the app directory), loaded
+            like ``routes/``. They stop being part of the default routes.
+
+        Returns
+        -------
+        Router
+            The router for that host: add routes with ``.route()``/``.get()`` or
+            `add_route`. Calling again with the same pattern returns the same router.
+        """
+        pattern = pattern.strip().lower()
+        sub = next((r for p, r in self.hosts if p == pattern), None)
+        if sub is None:
+            sub = Router(self.log, self.workdir, self.host)
+            self.hosts.append((pattern, sub))
+        for name in ([folder] if isinstance(folder, str) else folder or []):
+            self._host_dirs.append((self.workdir / name).resolve())
+            sub.autodiscover(name)
+        return sub
+
+    def _for_host(self, host: str) -> Optional["Router"]:
+        if not self.hosts:
+            return None
+        host = str.lower(host or "")
+        bare = host.rsplit(":", 1)[0] if ":" in host and not host.endswith("]") else host
+        for pattern, sub in self.hosts:
+            if fnmatch.fnmatchcase(bare, pattern) or fnmatch.fnmatchcase(host, pattern):
+                return sub
+        return None
+
+    def route(self, method: str, path: str):
+        """Decorator: ``@router.route("GET", "/x")`` registers the function on this router."""
+
+        def wrapper(func):
+            self.add_route(method, path, func)
+            return func
+
+        return wrapper
+
+    def get(self, path: str):
+        """``@router.get(path)``: a GET route on this router."""
+        return self.route("GET", path)
+
+    def post(self, path: str):
+        """``@router.post(path)``: a POST route on this router."""
+        return self.route("POST", path)
+
+    def put(self, path: str):
+        """``@router.put(path)``: a PUT route on this router."""
+        return self.route("PUT", path)
+
+    def patch(self, path: str):
+        """``@router.patch(path)``: a PATCH route on this router."""
+        return self.route("PATCH", path)
+
+    def delete(self, path: str):
+        """``@router.delete(path)``: a DELETE route on this router."""
+        return self.route("DELETE", path)
 
     def _normalize_path(self, path: str) -> str:
         """Ensures the path always starts with / and has no double slashes.
@@ -284,6 +359,10 @@ class Router:
             2. A dictionary of keyword arguments, including injected dependencies
                and path parameters.
         """
+        sub = self._for_host(request.headers.get("host", "")) if self.hosts else None
+        if sub is not None:
+            return sub.get_route(request)
+
         method = request.method
         path = self._normalize_path(request.path)
         # HEAD is answered by the GET handler (the body is dropped on send).
@@ -318,8 +397,13 @@ class Router:
             return True
         return any(r[0].match(path) for r in self.dynamic_routes.get(method, []))
 
-    def allowed_methods(self, path: str) -> List[str]:
-        """Returns the methods registered for `path` (used to answer 405)."""
+    def allowed_methods(self, path: str, host: str = "") -> List[str]:
+        """Returns the methods registered for `path` (used to answer 405).
+
+        `host` picks the router of that host, when host routing is used."""
+        sub = self._for_host(host)
+        if sub is not None:
+            return sub.allowed_methods(path)
         path = self._normalize_path(path)
         found = {m for m, routes in self.static_routes.items() if path in routes}
         for method, routes in self.dynamic_routes.items():
@@ -353,6 +437,9 @@ class Router:
 
         for file_path in routes_root.rglob("*.py"):
             if file_path.name.startswith("__"):
+                continue
+            # Belongs to a host (``[routes] hosts``): not part of these routes.
+            if any(d in file_path.resolve().parents for d in self._host_dirs):
                 continue
 
             # Dynamic module import
@@ -409,6 +496,8 @@ class Router:
         for method, routes in self.dynamic_routes.items():
             for _, _, func, _, raw in routes:
                 yield method, raw, func
+        for _, sub in self.hosts:
+            yield from sub.iter_routes()
 
     def get_urls(
         self, host: str = "127.0.0.1", port: int = 8000, with_host: bool = True
@@ -448,5 +537,9 @@ class Router:
         for path, methods in sorted(url_map.items()):
             methods_str = ", ".join(sorted(methods))
             output.append(f"{base}{path} - {methods_str}")
+
+        for pattern, sub in self.hosts:
+            prefix = f"http://{pattern}:{port}" if with_host else f"[{pattern}] "
+            output += [prefix + line for line in sub.get_urls(with_host=False)]
 
         return output

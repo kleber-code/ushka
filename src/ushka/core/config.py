@@ -95,6 +95,9 @@ def _coerce(raw: str, like: Any, name: str) -> Any:
         return float(raw)
     if isinstance(like, list):
         return [v.strip() for v in raw.split(",") if v.strip()]
+    if isinstance(like, dict):
+        pairs = (item.partition("=") for item in raw.split(",") if item.strip())
+        return {k.strip(): v.strip() for k, _, v in pairs if k.strip()}
     return raw
 
 

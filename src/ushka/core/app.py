@@ -81,7 +81,12 @@ class Ushka:
         self._middleware: list = []
 
         self.router = Router(self.log, self.workdir)
+        #: Routes every host serves (static files); see `_add_shared_route`.
+        self._shared_routes: list = []
         if self.config.get("APP_AUTO_DISCOVER", True):
+            # Hosts first: their folders are left out of the default routes.
+            for pattern, folder in (self.config.get("ROUTES_HOSTS") or {}).items():
+                self.router.add_host(pattern, folder)
             self.router.autodiscover()
         self.error_handler = ErrorHandler(self.config, self.log, self.router)
         #: Always outermost; configured in ``[security]``.
@@ -94,7 +99,29 @@ class Ushka:
 
         if self.config.get("STATIC_ENABLE"):
             static_url = self.config.get("STATIC_URL", "/static") + "/[path:filename]"
-            self.router.add_route("GET", static_url, server_static_files)
+            self._add_shared_route("GET", static_url, server_static_files)
+
+    def _add_shared_route(self, method: str, path: str, func) -> None:
+        """A route every host serves (static files), not only the default one."""
+        self._shared_routes.append((method, path, func))
+        self.router.add_route(method, path, func)
+        for _, sub in self.router.hosts:
+            sub.add_route(method, path, func)
+
+    def host(self, pattern: str):
+        """The routes of a host: ``@app.host("api.*").get("/status")``.
+
+        `pattern` is a host name or glob (``"api.example.com"``, ``"*.example.com"``).
+        A request for a matching host is answered only by the routes of that host,
+        so the routes of ``routes/`` do not leak onto it. The same can be set in
+        ``[routes] hosts`` (a folder of route files per host). Returns a `Router`.
+        """
+        known = {p for p, _ in self.router.hosts}
+        sub = self.router.add_host(pattern)
+        if sub is not None and pattern.strip().lower() not in known:
+            for method, path, func in self._shared_routes:
+                sub.add_route(method, path, func)
+        return sub
 
     def _setup_workdir(self):
         """Discovers the application's root directory safely.
@@ -310,10 +337,10 @@ class Ushka:
             handler = self._builtin_routes.get(self.router._normalize_path(request.path))
 
         if not handler:
-            is_empty = not self.router.static_routes and not self.router.dynamic_routes
+            is_empty = not (self.router.static_routes or self.router.dynamic_routes or self.router.hosts)
             if is_empty:
                 return Response(await render(request, "startup.html", {}))
-            allowed = self.router.allowed_methods(request.path)
+            allowed = self.router.allowed_methods(request.path, request.headers.get("host", ""))
             if allowed:
                 raise HTTPMethodNotAllowed(allowed)
             raise HttpNotFound()
@@ -469,9 +496,9 @@ class Ushka:
                     return redirect(request.path + "/", status_code=301)
             return file_response(target, request, cache_control)
 
-        self.router.add_route("GET", prefix + "/[path:filename]", serve)
+        self._add_shared_route("GET", prefix + "/[path:filename]", serve)
         if html:
-            self.router.add_route("GET", prefix, serve)
+            self._add_shared_route("GET", prefix, serve)
 
     def openapi(self, title: str | None = None, version: str = "0.1.0") -> dict:
         """The OpenAPI 3.1 document describing this app's routes (a dict)."""
