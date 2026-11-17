@@ -67,3 +67,18 @@ async def test_explicit_media_type_wins():
     result = await _send_response(Response("a,b", media_type="text/csv"))
 
     assert result["headers"]["content-type"] == "text/csv; charset=utf-8"
+
+
+def test_json_response_serializes_datetime_decimal_uuid():
+    import datetime
+    import json
+    import uuid
+    from decimal import Decimal
+
+    uid = uuid.UUID("12345678-1234-5678-1234-567812345678")
+    when = datetime.datetime(2026, 11, 17, 10, 0, tzinfo=datetime.timezone.utc)
+    res = Response({"at": when, "d": Decimal("1.50"), "id": uid, "day": when.date(), "n": [Decimal(2)]})
+    assert res.media_type == "application/json"
+    assert json.loads(res.body) == {
+        "at": "2026-11-17T10:00:00+00:00", "d": "1.50", "id": str(uid), "day": "2026-11-17", "n": ["2"],
+    }

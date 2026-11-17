@@ -65,7 +65,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--fail-on", choices=["high", "medium", "none"], default="medium", help="lowest severity that makes the exit status 1 (default: medium)")
     p.add_argument("--skip-exempt", action="store_true", help="leave out the routes exempt from CSRF ([security] csrf_exempt_paths); they are probed by default")
     p.add_argument("--as-session", action="append", default=[], metavar="KEY=VALUE", help="probe as a logged-in user: forge a session with this item (repeatable; 1 and true become int and bool). Test tool")
-    p.add_argument("--cookie", default="", metavar="NAME=VALUE", help="send this cookie with every probe (a real session cookie)")
+    p.add_argument("--cookie", action="append", default=[], metavar="NAME=VALUE", help="send this cookie with every probe, e.g. a real session cookie (repeatable)")
+    p.add_argument("--header", action="append", default=[], metavar="'NAME: VALUE'", help="send this header with every probe, e.g. 'Authorization: Bearer ...' (repeatable)")
 
     p = sub.add_parser("session", help="print a forged session cookie (name=value) to test as a logged-in user")
     p.add_argument("--set", action="append", default=[], metavar="KEY=VALUE", dest="items", help="a session item, e.g. uid=1 (repeatable)")
@@ -159,7 +160,7 @@ def main(argv: list[str] | None = None) -> None:
     elif args.command == "verify":
         from ushka.cli.commands.verify import verify
 
-        if verify(args.app, args.include_writes, args.param, args.json, args.fail_on, args.skip_exempt, args.as_session, args.cookie):
+        if verify(args.app, args.include_writes, args.param, args.json, args.fail_on, args.skip_exempt, args.as_session, args.cookie, args.header):
             raise SystemExit(1)
 
     elif args.command == "session":

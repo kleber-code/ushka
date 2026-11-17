@@ -42,6 +42,21 @@ changed them**; an unexpected exception (500) saves nothing, so a crash never
 half-applies what the handler had done. The URL is checked like `redirect()`:
 an `Untrusted` one raises `UnsafeValueError` (use `safe.url()` first).
 
+## Answering from anywhere
+
+`raise HTTPResponse(response)` stops the request with any response, as it is and
+without an error page, for example a JSON 401 from a dependency:
+
+```python
+from ushka import HTTPResponse, Response
+
+async def api_key(request):
+    if request.headers.get("x-api-key") != KEY:
+        raise HTTPResponse(Response({"error": "no key"}, status_code=401))
+```
+
+To redirect, prefer `HTTPRedirect`: it also saves the session and flash messages.
+
 ## Debug mode
 
 With `[app] debug = true` (which `ushka dev` turns on for you):

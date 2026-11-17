@@ -98,7 +98,7 @@ Columns are `NOT NULL` unless you pass `nullable=True`.
 | `db.Float` | `(nullable=False, default=0.0)` |
 | `db.Decimal` | `(precision=10, scale=2, nullable=False, default=0)` |
 | `db.Bool` | `(default=False, nullable=False)` |
-| `db.DateTime` | `(auto_now=False, nullable=False, auto_now_add=False, timezone=None)`. See [Automatic timestamps](#automatic-timestamps). |
+| `db.DateTime` | `(auto_now=False, nullable=False, auto_now_add=False, timezone=None)`; `tz=` is an alias of `timezone=`. See [Automatic timestamps](#automatic-timestamps). |
 | `db.Date` | `(auto_now=False, nullable=False)` |
 | `db.Time` | `(nullable=False)` |
 | `db.JSON` | `(nullable=False, default=None)`. Defaults to a fresh `{}` per row; a `dict`/`list` default is copied per row. |
@@ -328,7 +328,8 @@ internally and the guard would lose track of where it came from.
 
 ## Transactions
 
-Each `save()`, `create()` or `delete()` opens its own session and commits.
+Each `save()`, `create()` or `delete()` opens its own session and commits, and so
+does `db.execute()` (an `UPDATE` or `DELETE` made through it is kept).
 To make several operations succeed or fail together, wrap them in
 `db.transaction()` (alias `db.atomic()`):
 
@@ -389,7 +390,7 @@ The ORM fills them with the current time in UTC, as a timezone-aware
 `timestamptz` on PostgreSQL; SQLite and MySQL cannot store the offset, so the
 value is kept as UTC and read back with `tzinfo=UTC`, giving the same result
 everywhere. Pass `timezone=False` for a naive (UTC) column instead.
-`ushka.orm.utcnow()` returns the same value. A plain
+`tz=` is an alias of `timezone=`. `ushka.orm.utcnow()` returns the same value. A plain
 `Column(DateTime, onupdate=...)` from SQLAlchemy works too.
 
 !!! note

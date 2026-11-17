@@ -19,7 +19,8 @@ def verify(
     fail_on: str = "medium",
     skip_exempt: bool = False,
     as_session: list[str] | None = None,
-    cookie: str = "",
+    cookies: list[str] | None = None,
+    headers: list[str] | None = None,
 ) -> int:
     """Runs the probes and prints a report. Returns 1 when findings reach `fail_on`."""
     session_data = None
@@ -28,11 +29,21 @@ def verify(
             session_data = parse_session_pairs(as_session)
         except ValueError as exc:
             ui.fail(f"--as-session: {exc}")
+    sent: dict[str, str] = {}
+    for item in headers or []:
+        name, sep, value = item.partition(":")
+        if not sep or not name.strip():
+            ui.fail("--header expects 'Name: value'")
+        sent[name.strip()] = value.strip()
+    for item in cookies or []:
+        if "=" not in item or not item.split("=", 1)[0].strip():
+            ui.fail("--cookie expects NAME=VALUE")
+    cookie = "; ".join(c.strip() for c in cookies or [])
     app = load_app(app_path)
     if session_data and not app.config.get("app_debug") and not as_json:
         ui.warn("--as-session signs a session with this app's secret key while debug is off: use a development key and a test database.")
     report = asyncio.run(
-        engine.run(app, include_writes=include_writes, extra_params=params or (), skip_exempt=skip_exempt, cookie=cookie, session_data=session_data)
+        engine.run(app, include_writes=include_writes, extra_params=params or (), skip_exempt=skip_exempt, cookie=cookie, session_data=session_data, headers=sent)
     )
     failing = report.failing(fail_on)
 
