@@ -372,7 +372,8 @@ class UshkaDB:
 
     async def execute(self, stmt):
         """
-        Executes a raw SQL statement or SQLAlchemy construct using a session.
+        Executes a raw SQL statement or SQLAlchemy construct using a session
+        and commits it, so writes (``UPDATE``, ``INSERT``, ``DELETE``) persist.
 
         Parameters
         ----------
@@ -398,7 +399,9 @@ class UshkaDB:
         elif isinstance(stmt, str):
             stmt = self.text(stmt)
         async with self.Session() as session:
-            return await session.execute(stmt)
+            result = await session.execute(stmt)
+            await session.commit()
+            return result
 
     # --- TYPE HELPERS ---
 
