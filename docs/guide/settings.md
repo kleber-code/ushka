@@ -139,6 +139,8 @@ Ushka Guard and the security middleware, all on by default. See [security](secur
 
 Sign in with Google or GitHub (OAuth 2.0 / OpenID Connect). A provider is on when it has a client id and a client secret. See [auth](auth.md).
 
+**Common**
+
 | Key | Default | Meaning |
 | --- | --- | --- |
 | `google_client_id` | `""` | Client ID of your Google OAuth credentials. Empty turns the Google login off. |
@@ -147,10 +149,15 @@ Sign in with Google or GitHub (OAuth 2.0 / OpenID Connect). A provider is on whe
 | `github_client_secret` | *(set it in the environment)* | Client secret of the GitHub OAuth app. Use USHKA_OAUTH_GITHUB_CLIENT_SECRET, never this file. |
 | `redirect_base` | `""` | Public origin used to build the redirect URI, such as "https://example.com". Empty uses [seo] url. The Host header is never trusted (debug mode may use it). |
 | `allowed_email_domains` | `[]` | Only e-mail addresses at these domains may sign in, such as ["example.com"]. Empty allows any verified address. |
+| `login_prefix` | `"/auth"` | URL prefix of the login routes: `<prefix>/<provider>/login` and `<prefix>/<provider>/callback`. |
+
+**Advanced**
+
+| Key | Default | Meaning |
+| --- | --- | --- |
 | `session_key` | `"user"` | Session key that holds the logged-in user's profile (provider, sub, email, name, picture). |
 | `after_login` | `"/"` | Where a visitor lands after signing in when no valid next page was asked for. |
 | `login_error_path` | `"/"` | Where a failed login sends the visitor, with `?login_error=<code>` (denied, state, network, token, profile, unverified, domain, provider, config). |
-| `login_prefix` | `"/auth"` | URL prefix of the login routes: `<prefix>/<provider>/login` and `<prefix>/<provider>/callback`. |
 
 ### `[i18n]`
 

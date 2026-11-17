@@ -134,9 +134,9 @@ SCHEMA: dict[str, dict[str, Setting]] = {
         "github_client_secret": _s("", "Client secret of the GitHub OAuth app. Use USHKA_OAUTH_GITHUB_CLIENT_SECRET, never this file.", secret=True),
         "redirect_base": _s("", 'Public origin used to build the redirect URI, such as "https://example.com". Empty uses [seo] url. The Host header is never trusted (debug mode may use it).'),
         "allowed_email_domains": _s([], 'Only e-mail addresses at these domains may sign in, such as ["example.com"]. Empty allows any verified address.'),
-        "session_key": _s("user", "Session key that holds the logged-in user's profile (provider, sub, email, name, picture)."),
-        "after_login": _s("/", "Where a visitor lands after signing in when no valid next page was asked for."),
-        "login_error_path": _s("/", "Where a failed login sends the visitor, with `?login_error=<code>` (denied, state, network, token, profile, unverified, domain, provider, config)."),
+        "session_key": _s("user", "Session key that holds the logged-in user's profile (provider, sub, email, name, picture).", advanced=True),
+        "after_login": _s("/", "Where a visitor lands after signing in when no valid next page was asked for.", advanced=True),
+        "login_error_path": _s("/", "Where a failed login sends the visitor, with `?login_error=<code>` (denied, state, network, token, profile, unverified, domain, provider, config).", advanced=True),
         "login_prefix": _s("/auth", "URL prefix of the login routes: `<prefix>/<provider>/login` and `<prefix>/<provider>/callback`."),
     },
     "i18n": {

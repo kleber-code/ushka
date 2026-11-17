@@ -139,10 +139,12 @@ def test_check_counts_those_problems(workdir):
 
 def test_ushka_config_lists_the_common_settings_and_all_lists_everything(workdir):
     out = _cli(workdir, "config").stdout
+    parts = re.split(r"\n  \[(\w+)\]", out)  # [head, name, body, name, body, ...]
+    body = dict(zip(parts[1::2], parts[2::2]))
     for section, keys in SCHEMA.items():
         assert f"[{section}]" in out
         for key, setting in keys.items():
-            assert (f" {key} = " in out) == (not setting.advanced), f"{section}.{key}"
+            assert (f" {key} = " in body[section]) == (not setting.advanced), f"{section}.{key}"
     assert "+17 advanced (ushka config --all)" in out  # pwa
     out = _cli(workdir, "config", "--all").stdout
     for section, keys in SCHEMA.items():
