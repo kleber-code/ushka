@@ -34,6 +34,7 @@ from jinja2 import pass_context
 from markupsafe import Markup, escape
 
 from ushka.http.exceptions import HttpNotFound
+from ushka.i18n import get_locale
 from ushka.http.response import Response
 from ushka.templating.engine import engine
 
@@ -122,6 +123,22 @@ def page_title(config: Any, title: str = "") -> str:
     return template.replace("{title}", title).replace("{site_name}", site)
 
 
+def _active_og_locale(config: Any) -> str:
+    """``[seo] locale``, unless i18n is on and the request has its own language.
+
+    Open Graph wants ``language_TERRITORY``: ``pt-BR`` becomes ``pt_BR``. A bare
+    language (``en``) keeps ``[seo] locale`` when that is a variant of it.
+    """
+    configured = _s(config.get("seo_locale"))
+    current = get_locale() if config.get("i18n_enable") else None
+    if not current:
+        return configured
+    name = current.replace("-", "_")
+    if "_" not in name and configured.lower().startswith(name.lower() + "_"):
+        return configured
+    return name
+
+
 def tags(request: Request | None, config: Any, page: dict[str, Any]) -> Markup:
     """The ``<head>`` tags for one page. `page` holds the per-page overrides."""
     if not config.get("seo_enable", True):
@@ -139,7 +156,7 @@ def tags(request: Request | None, config: Any, page: dict[str, Any]) -> Markup:
     robots = _s(page.get("robots") or config.get("seo_robots"))
     if page.get("noindex"):
         robots = "noindex, nofollow"
-    locale = _s(page.get("locale") or config.get("seo_locale"))
+    locale = _s(page.get("locale") or _active_og_locale(config))
     author = _s(page.get("author") or config.get("seo_author"))
     card = _s(config.get("seo_twitter_card"))
     twitter_site = _s(config.get("seo_twitter_site"))

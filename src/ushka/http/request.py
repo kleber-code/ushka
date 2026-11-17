@@ -46,6 +46,8 @@ class Request:
         self.scope = scope
         self.method = str(scope["method"]).upper()
         self.path = str(scope["path"])
+        #: Language chosen for this request (``[i18n]``), e.g. ``"pt-BR"``.
+        self.locale: str = ""
 
         self._receive = receive
         #: Values captured from the URL (``[item_id]``); set by the router.

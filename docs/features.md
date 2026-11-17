@@ -82,6 +82,13 @@ app gets a web manifest, a conservative service worker and an offline page. Both
 are configured in the file, with no extra packages. See [SEO](guide/seo.md) and
 [Progressive Web App](guide/pwa.md).
 
+## Translations, from standard gettext catalogs
+
+`{{ _("Welcome") }}`, `{% trans %}` and `gettext` in Python follow the language of
+each request (`?lang=`, cookie or `Accept-Language`, checked against your list),
+read `.mo` files from Django or `msgfmt`, and `ushka i18n` extracts and compiles
+catalogs with no extra packages. See [Internationalisation](guide/i18n.md).
+
 ## Configuration without extra packages, with nothing hidden
 
 Defaults, then `ushka.toml`, then `.env`, then environment variables, all without

@@ -24,6 +24,7 @@ pages = [
     "guide/templates.md",
     "guide/static_files.md",
     "guide/sessions.md",
+    "guide/i18n.md",
     "guide/seo.md",
     "guide/pwa.md",
     "guide/flashing.md",

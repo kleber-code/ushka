@@ -5,6 +5,11 @@ All notable changes to Ushka. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **Internationalisation, from standard gettext catalogs** (`ushka.i18n`, guide: Internationalisation), with no new dependency. `[i18n]` in `ushka.toml` turns it on; `{{ _("x") }}`, `gettext`, `ngettext`, `pgettext`, `{% trans %}` (with plurals and escaped variables) and the `lang`/`locale` template variables work in templates, and `from ushka import gettext, lazy_gettext, translate` in Python, bound to the language of the request being served (a contextvar, so concurrent requests never mix). The language comes from `?lang=`, a cookie and `Accept-Language` (parsed with `q` values), in the order of `[i18n] order`, and is only ever matched against `[i18n] locales`, never used as a path. `.mo` files from Django or `msgfmt` work as they are, are cached in memory (reloaded in debug), and a missing catalog or message returns the original text. `og:locale` follows the active language. `ushka i18n extract` writes the `.pot` (Python and templates) and `ushka i18n compile` turns `.po` into `.mo` with a small built-in compiler.
+- **Strict templates.** In debug a variable missing from a template raises `UndefinedError` instead of rendering empty, and the debug page names the template file and line. `[app] strict_templates = true` does the same outside debug. Production keeps Jinja's tolerant default, and the mode is set again by every app, so it never leaks between apps or tests.
+
 ## [0.7.0] - 2026-11-16
 
 ### Added

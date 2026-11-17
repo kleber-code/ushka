@@ -126,6 +126,24 @@ the context of every `render()` call *after* your own context, so a key
 with the same name replaces the value you passed. Pick names that do not
 clash (the built-in processor uses `messages`).
 
+## Missing variables and strict templates
+
+Jinja renders a variable that does not exist as an empty string, which hides
+typos. With `debug = true` (and `ushka dev`) Ushka turns that into an error
+instead: the page shows `UndefinedError`, the template file and the line, and
+what to do about it. Production keeps the tolerant behaviour.
+
+Set `[app] strict_templates = true` to get the strict behaviour outside debug as
+well (a missing variable is then a 500 in production, so test first). In strict
+mode `{% if user %}` on a variable that was never passed is an error too; use
+`{% if user is defined and user %}` or `{{ name|default("") }}` for optional
+values.
+
+## Translations
+
+`{{ _("text") }}`, `{% trans %}` and `lang` are available in every template; see
+[Internationalisation](i18n.md).
+
 ## Overriding built-in pages
 
 When a template is not found in your `templates/` folder, Ushka falls back to

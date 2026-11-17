@@ -116,6 +116,16 @@ ushka verify app:app --include-writes --param q --json --fail-on high
 Sends hostile payloads to your own routes, in the process, and reports what got
 through. Exits 1 on findings, so it fits in CI. See [ushka verify](verify.md).
 
+## `ushka i18n`
+
+```console
+ushka i18n extract     # write locale/messages.pot from _() calls and {% trans %}
+ushka i18n compile     # compile every locale/*/LC_MESSAGES/*.po to .mo
+```
+
+Both read `[i18n] catalog_dir` and `domain`; `compile` exits 1 when a `.po` is
+invalid. See [Internationalisation](i18n.md).
+
 ## `ushka check`
 
 ```bash

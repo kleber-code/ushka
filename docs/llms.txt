@@ -36,6 +36,7 @@ Rules for generating Ushka code:
 - [Templates](https://ushka.satela.com.br/docs/guide/templates/): Jinja2, filters, globals, context processors
 - [Static files](https://ushka.satela.com.br/docs/guide/static_files/): the static folder, caching, `app.mount_static`
 - [Sessions, cookies and uploads](https://ushka.satela.com.br/docs/guide/sessions/): signed sessions, cookies, multipart files
+- [Internationalisation](https://ushka.satela.com.br/docs/guide/i18n/): gettext catalogs, `_()` and `{% trans %}`, the language per request from query, cookie or Accept-Language, `ushka i18n extract/compile`
 - [SEO](https://ushka.satela.com.br/docs/guide/seo/): `{{ seo() }}` tags, robots.txt and sitemap.xml ready from `[seo]` in ushka.toml, per-page overrides
 - [Progressive Web App](https://ushka.satela.com.br/docs/guide/pwa/): `[pwa]` in ushka.toml serves the manifest, a conservative service worker and an offline page
 - [Flash messages](https://ushka.satela.com.br/docs/guide/flashing/): one-time messages between requests

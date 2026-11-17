@@ -78,6 +78,12 @@ def build_parser() -> argparse.ArgumentParser:
             p.add_argument("--host", default="127.0.0.1")
             p.add_argument("--port", type=int, default=8001)
 
+    i18n = sub.add_parser("i18n", help="translations: find messages and compile catalogs")
+    isub = i18n.add_subparsers(dest="i18n_command", metavar="<action>")
+    p = isub.add_parser("extract", help="find _() and {% trans %} messages and write the .pot template")
+    p.add_argument("-o", "--output", default="", help="where to write it (default: <catalog_dir>/<domain>.pot)")
+    isub.add_parser("compile", help="compile every .po in the catalog folder to .mo")
+
     routes = sub.add_parser("routes", help="list and manage filesystem routes")
     rsub = routes.add_subparsers(dest="routes_command", metavar="<action>")
     p = rsub.add_parser("list", help="list registered routes")
@@ -101,7 +107,7 @@ def build_parser() -> argparse.ArgumentParser:
     dsub.add_parser("history", help="show migration history")
     dsub.add_parser("status", help="show the current revision")
 
-    parser.set_defaults(_routes=routes, _db=db, _docs=docs)
+    parser.set_defaults(_i18n=i18n, _routes=routes, _db=db, _docs=docs)
     return parser
 
 
@@ -150,6 +156,17 @@ def main(argv: list[str] | None = None) -> None:
             docs_command.serve(args.directory, args.api, args.api_path, args.host, args.port)
         else:
             args._docs.print_help()
+
+    elif args.command == "i18n":
+        from ushka.cli.commands import i18n as i18n_command
+
+        if args.i18n_command == "extract":
+            i18n_command.extract(args.output)
+        elif args.i18n_command == "compile":
+            if i18n_command.compile_catalogs():
+                raise SystemExit(1)
+        else:
+            args._i18n.print_help()
 
     elif args.command == "routes":
         from ushka.cli.commands import routes

@@ -22,6 +22,7 @@ from . import guard
 from .core import Router, Ushka
 from .core.config import Config
 from .guard import safe
+from .i18n import _, gettext, lazy_gettext, ngettext, ntranslate, pgettext, translate
 from .http import Request, Response, redirect
 from .http.params import Body, Cookie, Depends, Form, Header, Path, Query
 from .http.stream import EventSourceResponse, ServerSentEvent, StreamingResponse
@@ -37,6 +38,13 @@ __all__ = [
     "Router",
     "redirect",
     "render",
+    "_",
+    "gettext",
+    "ngettext",
+    "pgettext",
+    "lazy_gettext",
+    "translate",
+    "ntranslate",
     "guard",
     "safe",
     "Depends",
