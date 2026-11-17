@@ -16,7 +16,9 @@ positional arguments:
     dev          development server (reload, debug on)
     run          production server
     check        validate configuration and security settings
-    verify       attack your own routes with hostile payloads
+    verify       attack your own routes with hostile payloads and report what
+                 got through
+    docs         check or preview Markdown docs (needs ushka[docs])
     routes       list and manage filesystem routes
     db           database migrations (needs ushka[orm])
 
@@ -99,6 +101,11 @@ It warns when debug is on or when `USHKA_APP_SECRET_KEY` is missing. Run
 `ushka check --production` before deploying to turn those warnings into a
 failing check.
 
+`ushka run` uses Ushka's own server loop on top of Uvicorn (`uvloop` and
+`httptools` included), which stays asleep when idle and does not kill workers
+that are slow to start. See [Performance](performance.md#idle-cost) and
+[Deploy](deploy.md).
+
 ## `ushka verify`
 
 ```console
@@ -120,7 +127,7 @@ Prints the main settings with the layer each one came from, then checks the
 project:
 
 ```text
-◆ Ushka 0.5.0 · checking /home/me/hello
+◆ Ushka 0.7.0 · checking /home/me/hello
 
   Settings
   · app_debug = False  [ushka.toml]
@@ -134,8 +141,6 @@ project:
   Checks
   ✓ ushka.toml found
   ✓ Ushka Guard is on
-  ✓ debug is off
-  ✓ secret key is set
   ✓ .env is git-ignored
   ✓ 1 route file(s) in routes/
   ✓ Python 3.14.0: t-strings available
@@ -160,6 +165,20 @@ step or a pre-deploy gate:
   env:
     USHKA_APP_SECRET_KEY: ${{ secrets.USHKA_APP_SECRET_KEY }}
 ```
+
+## `ushka docs`
+
+Needs `pip install "ushka[docs]"`. Works on any folder of Markdown, not only
+Ushka's:
+
+```bash
+ushka docs check docs --api myproject    # exit 1 on broken links, anchors or nav
+ushka docs serve docs                    # preview at http://127.0.0.1:8001/docs/
+```
+
+`--api PACKAGE` also builds the API reference from that package's docstrings
+(`--api-path`, default `src`), and `serve` takes `--host` and `--port`. See
+[Ushka Docs](docs.md).
 
 ## `ushka routes`
 

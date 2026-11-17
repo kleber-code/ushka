@@ -13,7 +13,7 @@ src/ushka/
 ├── guard/            taint core: Untrusted, sinks, sanitisers, rewrite      1,063 lines
 │   └── integrations/ FastAPI, Starlette, Django adapters (framework imported lazily)
 ├── core/             app (ASGI entry, middleware chain), router, config,    1,525
-│                     error handler, logging
+│                     error handler, logging, server (`ushka run`)
 ├── http/             request, response, streaming/SSE, WebSocket,           2,134
 │                     params (Depends), validation, cookies, sessions, multipart
 ├── security/         security middleware: CSRF, headers, CORS, hosts          155
@@ -33,18 +33,33 @@ benchmarks/           reproducible load test
 
 | Part | Third-party packages |
 | --- | --- |
-| Core (`pip install ushka`) | `uvicorn`, `jinja2` (brings `markupsafe`), `python-multipart`, `tomli` on 3.10 |
+| Core (`pip install ushka`) | `uvicorn`, `uvloop` (not on Windows or PyPy), `httptools`, `jinja2` (brings `markupsafe`), `python-multipart`, `tomli` on 3.10 |
 | `ushka[orm]` | `sqlalchemy`, `alembic`, `aiosqlite` |
 | `ushka[docs]` | `markdown-it-py`, `mdit-py-plugins`, `pygments`, `griffe` |
 | `ushka.guard.integrations` | the framework you already use, imported only when you call `install()` |
 
-A core install is 7 packages and 3 MB (FastAPI with uvicorn: 14 packages and
+A core install is 9 packages and 20 MB: the two compiled accelerators, `uvloop` and `httptools`, are most
+of the size and about 2.3x the requests per second (FastAPI with uvicorn and no accelerators: 14 packages and
 12 MB). `import ushka` takes about 95 ms. Rules enforced by tests:
 
 - No import cycles between modules at runtime.
 - The guard core imports nothing else from Ushka, so it can ship alone.
 - The core uses only the packages in the first row.
 - Importing `ushka` does not import `uvicorn` (it is about half the import time).
+
+## The production server
+
+`ushka run` does not call `uvicorn.run`. It starts `ushka.core.server`, which is
+Uvicorn with two changes, so an idle app costs close to nothing:
+
+- `QuietServer` wakes a worker once a second instead of ten times;
+- `Supervisor` (for `workers > 1`) sleeps until a worker dies, a signal arrives or
+  the next health check, every 10 seconds, instead of pinging twice a second. A new
+  worker is exempt from pings for 90 seconds, so a slow import is not mistaken for a hang.
+
+Only `ushka run` imports this module, so `import ushka` stays free of Uvicorn.
+`ushka dev` keeps stock Uvicorn for reload. See [Performance](guide/performance.md)
+and [Deploy](guide/deploy.md).
 
 ## How a request runs
 
@@ -67,22 +82,10 @@ validated type produced the value.
 
 ## Benchmark
 
-Single uvicorn worker, one laptop (12th Gen i5-1235U), Python 3.13, 128
-keep-alive connections, median of 3 rounds, zero errors. Requests per second:
-
-| | hello | typed route | POST + body validation | memory |
-| --- | ---: | ---: | ---: | ---: |
-| Starlette (no validation) | 9,207 | 8,970 | 6,775 | 31 MB |
-| Ushka, security off | 8,335 | 7,376 | 6,305 | 33 MB |
-| **Ushka, defaults** | **7,902** | **6,531** | **5,258** | **33 MB** |
-| FastAPI | 6,165 | 5,085 | 4,921 | 47 MB |
-
-With every protection on, Ushka does 28% more than FastAPI on the hello route,
-28% on the typed route and 7% on the validated POST, and the whole default
-security middleware costs about 5% on the hello route and up to 17% on the validated POST. It is behind bare Starlette, which
-validates and protects nothing. Variation between rounds was up to 35%
-(Ushka POST ranged 3,982 to 5,364), so treat differences under 10% as noise.
-See `benchmarks/` to reproduce.
+On one laptop with a single worker, Ushka with every protection on does 28% more
+requests per second than FastAPI on the hello route and the typed route, and is
+behind bare Starlette, which validates and protects nothing. The table, the method
+and how to reproduce it are in [Performance](guide/performance.md#benchmark).
 
 ## Verification done on this code
 

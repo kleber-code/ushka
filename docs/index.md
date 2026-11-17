@@ -5,12 +5,20 @@ description: Ushka is an async Python web framework where untrusted data is a ty
 
 # Ushka documentation
 
+![Ushka waving](assets/stickers/waving.webp){ .ushka-sticker width="150" height="182" }
+
+Ushka is an async (ASGI) Python web framework with filesystem routing. Its main
+feature is **Ushka Guard**: everything that comes from outside your program is
+`Untrusted`, and the places where it could do harm refuse it. Insecure code,
+whether you or an AI wrote it, does not run silently. It stops and tells you how
+to fix it.
+
 ## Untrusted data is a type
 
-Everything from outside your program arrives as `Untrusted`: query, form,
-JSON, headers, cookies, path parameters, and model output marked with
-`guard.llm()`. HTML responses, `|safe`, redirects, file paths and raw SQL
-refuse it, and the error tells you the fix.
+Everything from outside arrives as `Untrusted`: query, form, JSON, headers,
+cookies, path parameters, and model output marked with `guard.llm()`. HTML
+responses, `|safe`, redirects, file paths and raw SQL refuse it, and the error
+tells you the fix.
 
 ```python
 # routes/login.py
@@ -31,18 +39,23 @@ async def get(request):
 
 ## Small core, full box
 
-- **Low dependency.** The core needs only `uvicorn`, `jinja2` and `python-multipart`.
-- **Batteries included.** Filesystem routing, templates, sessions, flash
-  messages, uploads, an ORM with migrations, a project generator and
-  `ushka check` for your CI.
+- **Low dependency.** The core is nine packages and 20 MB: `uvicorn`, `jinja2`,
+  `python-multipart`, and the `uvloop` and `httptools` accelerators.
+- **Fast without tuning.** About 2.3x the requests per second of a plain
+  asyncio stack, and a server that costs close to nothing when idle.
+  See [Performance](guide/performance.md).
+- **Batteries included.** Filesystem routing, typed parameters and validation,
+  templates, sessions, uploads, WebSockets, an ORM with migrations, a security
+  middleware, `ushka verify` and a CLI for your CI.
 - **Lightweight in concept.** A route is a file, a setting is a key, and an
   unsafe value is a type.
 
 ## Where to go next
 
+- **New here?** [Install](guide/install.md), then the [Quickstart](guide/quickstart.md).
 - [Why Ushka changed](why-ushka-changed.md) explains the purpose behind 0.5.
-- [Introduction](guide/index.md) gets you from `pip install` to a running app.
 - [Ushka Guard](guide/guard.md) covers sources, sinks, sanitisers and error codes.
-- [CLI](guide/cli.md) documents `ushka new`, `dev`, `check` and the others.
+- [Deploy](guide/deploy.md) takes your app to production.
+- [Features](features.md) is the short tour, and the [guide](guide/index.md) the full one.
 
 Coding agents can read [`llms.txt`](llms.txt), a compact map of these docs.

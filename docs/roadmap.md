@@ -1,9 +1,10 @@
 # Roadmap
 
 Ushka's direction is in [Why Ushka changed](why-ushka-changed.md). This page
-lists what has shipped and what is next.
+lists what has shipped and what is next. The full detail is in the
+[changelog](https://github.com/kleber-code/ushka/blob/main/CHANGELOG.md).
 
-## 0.5 (in progress)
+## 0.5 and 0.6 (released)
 
 - [x] Ushka Guard: `Untrusted` request data and model output, guarded sinks,
       sanitisers, and errors written for humans and for agents.
@@ -13,8 +14,11 @@ lists what has shipped and what is next.
       `tomlkit` and no `rich`: fewer dependencies.
 - [x] CLI: `ushka check`, a secure `ushka new` (with `.env`, `.gitignore` and `AGENTS.md`), and correct exit codes.
 - [x] Lifespan hooks, `(body, status)` returns, `HEAD`, and 400 for malformed JSON.
+- [x] Ushka Docs, `app.mount_static` and the project website (0.6).
 
-## 0.7 (in progress)
+## Next release (unreleased)
+
+Merged on `main`, waiting for a version number.
 
 - [x] [Security middleware](guide/security.md), on by default: CSRF protection,
       security headers (CSP, HSTS, `nosniff`), CORS and trusted hosts.
@@ -25,6 +29,12 @@ lists what has shipped and what is next.
 - [x] `ushka verify`.
 - [x] Ushka Guard for FastAPI, Starlette and Django.
 - [x] Supply-chain hardening: pinned actions, SBOM and attestations.
+- [x] `ushka run` serves with `ushka.core.server`: idle CPU close to zero, and
+      workers that are slow to start are no longer killed in a loop.
+- [x] `uvloop` and `httptools` installed by default: about 2.3x the requests per
+      second, with a core install of nine packages and 20 MB.
+- [x] `Docs(cache=...)`: render the docs once, in the Docker build.
+- [x] Typed path parameters: an annotation converts and validates (422).
 
 ## Next
 

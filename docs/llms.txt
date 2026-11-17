@@ -1,42 +1,70 @@
 # Ushka
 
-> Ushka is an async (ASGI) Python web framework with filesystem routing whose main feature is Ushka Guard: request data and LLM output are `Untrusted` strings, and dangerous sinks (raw HTML, |safe, redirect, file paths, raw SQL) refuse them with an error that states the risk and the fix. Low dependency (uvicorn, jinja2, python-multipart), batteries included. Security middleware (CSRF, CSP, HSTS, CORS, trusted hosts) is on by default.
+> Ushka is an async (ASGI) Python web framework with filesystem routing, built so that insecure code does not run silently. Its main feature, Ushka Guard, makes everything that comes from outside the program (query, form, JSON, headers, cookies, path parameters, and LLM output marked with `guard.llm()`) an `Untrusted` string, and the dangerous sinks (raw HTML responses, the `|safe` filter, `redirect()`, file paths, raw SQL) refuse it with an error that states the risk and the fix. It has a security middleware on by default (CSRF, CSP, HSTS, CORS, trusted hosts), typed parameters and validation without pydantic, `Depends`, WebSockets, SSE, OpenAPI, routes as MCP tools, an async ORM, and `ushka verify`, which attacks your own routes. The core needs only uvicorn, uvloop, httptools, jinja2 and python-multipart. Python 3.10+; t-strings on 3.14.
 
 Rules for generating Ushka code:
 
-- Routes: `routes/index.py` → `/`; `routes/users/[user_id].py` → `/users/<user_id>`; export `async def get(request): ...` (also post/put/patch/delete). Or `@app.get("/path")` on `app = Ushka()`.
-- Return str, dict/list (JSON), `(body, status)`, None (204), a t-string (3.14, escaped HTML) or `Response`.
-- Never pass request values straight to `redirect()`, raw HTML strings, `|safe` or SQL. Use `from ushka.guard import safe`: `safe.url(v, allow=["/"], default="/")`, `safe.path(v, root)`, `safe.integer(v, min=, max=)`, `safe.choice(v, options)`, `safe.html(v)`.
-- Render HTML with `await render(request, "page.html", {...})` (`from ushka import render`).
-- Mark model output with `guard.llm(text)` (`from ushka import guard`).
-- Config: `ushka.toml` (no secrets) < `.env` < env vars `USHKA_<SECTION>_<KEY>`. Secret: `USHKA_APP_SECRET_KEY`.
-- Type the parameters: `async def get(item_id: int, page: Annotated[int, Query(ge=1)] = 1)`, dataclass bodies, `Depends(fn)`. Invalid input is a 422 with every error. An `int`, `UUID`, `Enum` or `Literal` parameter is validated and plain; a `str` stays `Untrusted`.
-- Browser POSTs from another site get 403 (CSRF). Allow origins with `[security] csrf_trusted_origins`, and set `allowed_hosts` in production.
-- WebSocket: `async def websocket(ws)` in `routes/`. SSE: return `EventSourceResponse(async_generator)`.
-- Expose a route to agents with `@tool(reads=[...], writes=[...])` from `ushka.mcp` and `app.enable_mcp()`; sensitive tools need an approver.
+- Routes: `routes/index.py` is `/`; `routes/users/[user_id].py` is `/users/<user_id>`. Export functions named after the verb: `async def get(request): ...` (also `post`, `put`, `patch`, `delete`, `websocket`). Or use decorators on `app = Ushka()`: `@app.get("/path")`.
+- Run it with `ushka dev` (reload, debug on) or `ushka run` (production). The app object is `app` in `app.py`; serve it as `app:app`.
+- Return a `str`, `dict`/`list` (JSON), `(body, status)` or `(body, status, headers)`, `None` (204), a t-string (3.14, escaped HTML) or `Response`. Raise `HttpNotFound`, `HTTPForbidden`, `HTTPBadRequest` (from `ushka.http.exceptions`) with `message=` as a keyword.
+- Type the parameters: `async def get(item_id: int, page: Annotated[int, Query(ge=1)] = 1)`. Bodies are dataclasses or TypedDicts, and `Depends(fn)` injects dependencies. Invalid input answers 422 with every error. An `int`, `UUID`, `Enum` or `Literal` parameter is validated and plain; a `str` stays `Untrusted`. Imports: `from ushka import Query, Header, Cookie, Path, Body, Form, Field, Depends`.
+- Never put request values straight into `redirect()`, HTML strings, `|safe`, file paths or raw SQL. Use `from ushka import safe`: `safe.url(v, allow=["/"], default="/")`, `safe.path(v, root)`, `safe.integer(v, min=, max=)`, `safe.choice(v, options)`, `safe.html(v)`. A rejected value answers 400.
+- Render HTML with `await render(request, "page.html", {...})` (`from ushka import render`); Jinja2 autoescapes. On 3.14 return `t"<h1>{name}</h1>"`.
+- SQL: ORM methods (`await User.filter(name=name)`), `db.text("... :id", id=value)`, or `await db.execute(t"... {value}")`. Not `sqlalchemy.text()` and not f-strings.
+- Mark model output with `guard.llm(text)` (`from ushka import guard`) so it is `Untrusted` too.
+- Config: `ushka.toml` (no secrets) < `.env` < env vars `USHKA_<SECTION>_<KEY>` (lists as `a,b`). Secret: `USHKA_APP_SECRET_KEY`. Production: `debug = false`, set `[security] allowed_hosts`, run `ushka check --production`.
+- Browser writes (`POST`, `PUT`, `PATCH`, `DELETE`) from another site get 403 (CSRF, no tokens). Allow origins with `[security] csrf_trusted_origins`.
+- WebSocket: `async def websocket(ws)` in `routes/`, or `@app.websocket("/ws")`. SSE: return `EventSourceResponse(async_generator)`.
+- Expose a route to agents with `@tool(reads=[...], writes=[...])` from `ushka.mcp` and `app.enable_mcp()`; sensitive tools need an approver and a token (`USHKA_MCP_TOKEN`).
 - Run `ushka verify app:app` to attack your own routes and see what got through.
-- If you hit `UnsafeValueError USHKA-G00x`, apply the `fix` it gives; do not disable the guard.
+- If you hit `UnsafeValueError USHKA-G00x`, apply the `fix` it gives. Do not disable the guard (`[security] taint = false`) and do not use `safe.trust()` without a reason.
 
-## Docs
+## Start
 
+- [Installation](https://ushka.satela.com.br/docs/guide/install/): pip, extras (orm, postgres, mysql, docs, full), the install script
+- [Quickstart](https://ushka.satela.com.br/docs/guide/quickstart/): a running app in five minutes
+- [Project structure](https://ushka.satela.com.br/docs/guide/project-structure/): what `ushka new` creates
 - [Why Ushka changed](https://ushka.satela.com.br/docs/why-ushka-changed/): purpose and direction
-- [Ushka Guard](https://ushka.satela.com.br/docs/guide/guard/): sources, sinks, sanitisers, error codes G001–G005, limits
-- [Security middleware](https://ushka.satela.com.br/docs/guide/security/): CSRF, headers, CORS, trusted hosts, your own middleware
-- [Validation and typed parameters](https://ushka.satela.com.br/docs/guide/validation/): types, Depends, 422 errors, OpenAPI
+- [Features](https://ushka.satela.com.br/docs/features/): the short tour
+
+## Guide
+
+- [Routing](https://ushka.satela.com.br/docs/guide/routing/): file and decorator routes, dynamic segments, hooks
+- [Requests and responses](https://ushka.satela.com.br/docs/guide/requests-responses/): the request object, return values, Response, redirect
+- [Validation and typed parameters](https://ushka.satela.com.br/docs/guide/validation/): types, Query/Header/Body, Depends, 422 errors, OpenAPI
+- [Dependency Injection](https://ushka.satela.com.br/docs/guide/dependency_injection/): request, response and config in a handler
+- [Templates](https://ushka.satela.com.br/docs/guide/templates/): Jinja2, filters, globals, context processors
+- [Static files](https://ushka.satela.com.br/docs/guide/static_files/): the static folder, caching, `app.mount_static`
+- [Sessions, cookies and uploads](https://ushka.satela.com.br/docs/guide/sessions/): signed sessions, cookies, multipart files
+- [Flash messages](https://ushka.satela.com.br/docs/guide/flashing/): one-time messages between requests
+- [Error handling](https://ushka.satela.com.br/docs/guide/error_handling/): HTTP errors, custom pages, debug mode
+- [ORM](https://ushka.satela.com.br/docs/guide/orm/): models, queries, raw SQL, migrations
 - [WebSockets and SSE](https://ushka.satela.com.br/docs/guide/realtime/): sockets, events, streaming
 - [Routes as agent tools](https://ushka.satela.com.br/docs/guide/agents/): MCP, capabilities, human approval
+- [Ushka Docs](https://ushka.satela.com.br/docs/guide/docs/): documentation sites from Markdown, with a cache
+
+## Security
+
+- [Ushka Guard](https://ushka.satela.com.br/docs/guide/guard/): sources, sinks, sanitisers, error codes USHKA-G001 to G005, limits
+- [Security middleware](https://ushka.satela.com.br/docs/guide/security/): CSRF, headers, CORS, trusted hosts, your own middleware
 - [ushka verify](https://ushka.satela.com.br/docs/guide/verify/): attack your own routes
 - [Guard on FastAPI, Starlette, Django](https://ushka.satela.com.br/docs/guide/guard-frameworks/): the same protection in other frameworks
-- [Architecture](https://ushka.satela.com.br/docs/architecture/): code map, dependencies, request flow, benchmark
-- [Routing](https://ushka.satela.com.br/docs/guide/routing/): file and decorator routes, parameters, return values
-- [Configuration](https://ushka.satela.com.br/docs/guide/configuration/): all keys, .env, environment variables
-- [Templates](https://ushka.satela.com.br/docs/guide/templates/): Jinja2, filters, context processors
-- [ORM](https://ushka.satela.com.br/docs/guide/orm/): models, queries, migrations
-- [CLI](https://ushka.satela.com.br/docs/guide/cli/): new, dev, run, check, verify, routes, db
-- [Ushka Docs](https://ushka.satela.com.br/docs/guide/docs/): documentation sites from Markdown, built in
-- [Error handling](https://ushka.satela.com.br/docs/guide/error_handling/): HTTP errors, custom pages
+
+## Run it
+
+- [Configuration](https://ushka.satela.com.br/docs/guide/configuration/): every setting, .env, environment variables
+- [Deploy](https://ushka.satela.com.br/docs/guide/deploy/): checklist, Docker, workers, health check, proxies
+- [Performance](https://ushka.satela.com.br/docs/guide/performance/): uvloop and httptools, idle CPU, benchmarks, how to measure
+- [CLI](https://ushka.satela.com.br/docs/guide/cli/): new, dev, run, check, verify, docs, routes, db
+
+## Learn
+
+- [Tutorials](https://ushka.satela.com.br/docs/tutorials/): walkthroughs
+- [Building a simple API](https://ushka.satela.com.br/docs/guide/tutorial_simple_api/): a JSON API step by step
 
 ## Optional
 
+- [Architecture](https://ushka.satela.com.br/docs/architecture/): code map, dependencies, request flow, production server
+- [Roadmap](https://ushka.satela.com.br/docs/roadmap/): what shipped and what is next
 - [Changelog](https://github.com/kleber-code/ushka/blob/main/CHANGELOG.md)
-- [Roadmap](https://ushka.satela.com.br/docs/roadmap/)
+- [Source code](https://github.com/kleber-code/ushka)

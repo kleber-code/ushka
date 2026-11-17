@@ -6,26 +6,48 @@ title = ""
 pages = ["index.md", "why-ushka-changed.md", "features.md", "architecture.md"]
 
 [[section]]
-title = "Guide"
+title = "Get started"
 pages = [
     "guide/index.md",
+    "guide/install.md",
+    "guide/quickstart.md",
+    "guide/project-structure.md",
+]
+
+[[section]]
+title = "Build"
+pages = [
+    "guide/routing.md",
+    "guide/requests-responses.md",
+    "guide/validation.md",
+    "guide/dependency_injection.md",
+    "guide/templates.md",
+    "guide/static_files.md",
+    "guide/sessions.md",
+    "guide/flashing.md",
+    "guide/error_handling.md",
+    "guide/orm.md",
+    "guide/realtime.md",
+    "guide/agents.md",
+    "guide/docs.md",
+]
+
+[[section]]
+title = "Security"
+pages = [
     "guide/guard.md",
     "guide/guard-frameworks.md",
     "guide/security.md",
-    "guide/configuration.md",
-    "guide/routing.md",
-    "guide/templates.md",
-    "guide/static_files.md",
-    "guide/orm.md",
-    "guide/cli.md",
-    "guide/dependency_injection.md",
-    "guide/validation.md",
-    "guide/realtime.md",
-    "guide/agents.md",
     "guide/verify.md",
-    "guide/flashing.md",
-    "guide/error_handling.md",
-    "guide/docs.md",
+]
+
+[[section]]
+title = "Run"
+pages = [
+    "guide/configuration.md",
+    "guide/deploy.md",
+    "guide/performance.md",
+    "guide/cli.md",
 ]
 
 [[section]]
@@ -38,46 +60,87 @@ pages = ["roadmap.md"]
 
 [api]
 title = "API reference"
+description = "Generated from the docstrings. Every module has an index of its classes and functions at the top."
+
+[[api.group]]
+title = "Core"
+description = "The application object, routing, configuration and error handling."
 modules = [
-    "ushka.cli.commands.check",
-    "ushka.cli.commands.db",
-    "ushka.cli.commands.dev",
-    "ushka.cli.commands.new",
-    "ushka.cli.commands.routes",
-    "ushka.cli.commands.run",
     "ushka.core.app",
+    "ushka.core.router",
     "ushka.core.config",
     "ushka.core.error_handler",
     "ushka.core.exceptions",
     "ushka.core.log",
-    "ushka.core.router",
-    "ushka.security.middleware",
-    "ushka.guard.integrations.django",
-    "ushka.guard.integrations.fastapi",
-    "ushka.guard.integrations.starlette",
-    "ushka.guard.errors",
-    "ushka.guard.rewrite",
-    "ushka.guard.safe",
-    "ushka.guard.sinks",
-    "ushka.guard.templates",
-    "ushka.guard.untrusted",
-    "ushka.http.cookies",
-    "ushka.http.error",
-    "ushka.http.exceptions",
-    "ushka.http.multipart",
-    "ushka.http.redirect",
+]
+
+[[api.group]]
+title = "HTTP"
+description = "Requests, responses, typed parameters, validation, sessions, streaming and WebSockets."
+modules = [
     "ushka.http.request",
     "ushka.http.response",
     "ushka.http.params",
+    "ushka.http.validation",
+    "ushka.http.cookies",
     "ushka.http.sessions",
+    "ushka.http.redirect",
     "ushka.http.stream",
     "ushka.http.websocket",
-    "ushka.http.validation",
-    "ushka.mcp",
-    "ushka.openapi",
-    "ushka.verify",
+    "ushka.http.multipart",
+    "ushka.http.error",
+    "ushka.http.exceptions",
+]
+
+[[api.group]]
+title = "Security"
+description = "The security middleware that is on by default: CSRF, headers, CORS and trusted hosts."
+modules = ["ushka.security.middleware"]
+
+[[api.group]]
+title = "Guard"
+description = "Ushka Guard: taint tracking for untrusted input, checked sinks and the safe helpers."
+modules = [
+    "ushka.guard.untrusted",
+    "ushka.guard.safe",
+    "ushka.guard.sinks",
+    "ushka.guard.templates",
+    "ushka.guard.rewrite",
+    "ushka.guard.errors",
+]
+
+[[api.group]]
+title = "Guard integrations"
+description = "Ushka Guard for Starlette, FastAPI and Django."
+modules = [
+    "ushka.guard.integrations.starlette",
+    "ushka.guard.integrations.fastapi",
+    "ushka.guard.integrations.django",
+]
+
+[[api.group]]
+title = "Data, templates and files"
+description = "The ORM, the Jinja engine, static files and flash messages."
+modules = [
     "ushka.orm.database",
-    "ushka.static.files",
     "ushka.templating.engine",
+    "ushka.static.files",
     "ushka.utils.flash",
+]
+
+[[api.group]]
+title = "Agents and tooling"
+description = "Routes as MCP tools, OpenAPI from signatures, and `ushka verify`."
+modules = ["ushka.mcp", "ushka.openapi", "ushka.verify"]
+
+[[api.group]]
+title = "CLI commands"
+description = "The commands behind the `ushka` program."
+modules = [
+    "ushka.cli.commands.new",
+    "ushka.cli.commands.dev",
+    "ushka.cli.commands.run",
+    "ushka.cli.commands.routes",
+    "ushka.cli.commands.check",
+    "ushka.cli.commands.db",
 ]

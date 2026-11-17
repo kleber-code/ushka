@@ -12,11 +12,14 @@ exceptions become a 500 that shows details only in debug mode.
 | The path exists, but not for this method | 405 Method Not Allowed, with an `Allow` header |
 | Invalid JSON, UTF-8, query string or form data | 400 Bad Request |
 | A sanitiser rejects a value (`RejectedValueError`) | 400 Bad Request |
+| A typed parameter or body does not [validate](validation.md) | 422 Unprocessable Entity, with every problem in JSON |
+| A cross-site write, or a wrong `Origin` ([security middleware](security.md)) | 403 Forbidden |
+| `Host` not in `allowed_hosts` | 400 Bad Request |
 | Body larger than the [`[limits]`](configuration.md#all-settings) | 413 Payload Too Large |
 | Missing static file | 404 Not Found |
 | Any other exception, including `UnsafeValueError` from [Ushka Guard](guard.md) | 500 Internal Server Error |
 
-Every error response is rendered with the `error.html` template.
+Error pages are rendered with the `error.html` template (validation errors are JSON).
 
 ## Debug mode
 
@@ -46,15 +49,14 @@ with an error page:
 
 ```python
 # routes/posts/[post_id].py
-from ushka.guard import safe
+from ushka import render
 from ushka.http.exceptions import HttpNotFound
-from ushka.templating import render
 
 from models import Post
 
 
-async def get(request, post_id):
-    post = await Post.get(safe.integer(post_id, min=1))
+async def get(request, post_id: int):
+    post = await Post.get(post_id)
     if post is None:
         raise HttpNotFound(message="Sorry, we couldn't find that post.")
     return await render(request, "post.html", {"post": post})
@@ -67,6 +69,7 @@ async def get(request, post_id):
 | `HTTPBadRequest` | 400, "Bad Request" |
 | `HTTPPayloadTooLarge` | 413, "Payload Too Large" |
 | `HTTPMethodNotAllowed` | 405, "Method Not Allowed"; takes `allowed=[...]` for the `Allow` header. |
+| `HTTPForbidden` | 403, "Forbidden" |
 | `HTTPStaticServerNotFound` | 404, "Static File Not Found" |
 
 They all accept `template`, `status_code` and `message`. **Pass them as
@@ -74,16 +77,14 @@ keywords**: the first positional argument is the template name, so
 `HttpNotFound("Post not found")` would look for a template called
 "Post not found".
 
-For a status without its own class, use `HTTPError`:
+For a status without its own class (410 Gone, say), use `HTTPError`:
 
 ```python
 from ushka.http.exceptions import HTTPError
 
 
-async def delete(request):
-    if not request.session.get("is_admin"):
-        raise HTTPError(status_code=403, message="Admins only.")
-    ...
+async def get(request):
+    raise HTTPError(status_code=410, message="This page is gone.")
 ```
 
 To answer with an error *without* an HTML page (in a JSON API, for example),

@@ -42,17 +42,34 @@ that names the file and the position of the error.
 | `[app]` | `auto_discover` | `true` | Load route files from `routes/`. |
 | `[app]` | `secret_key` | `""` | Signs the session cookie. **Do not put it in `ushka.toml`**; use `USHKA_APP_SECRET_KEY`. |
 | `[database]` | `url` | `"sqlite:///ushka.db"` | SQLAlchemy URL for the [ORM](orm.md). |
-| `[server]` | `host` | `"127.0.0.1"` | Bind address for `ushka dev`, `ushka run` and `app.run()`. |
+| `[mcp]` | `token` | `""` | Bearer token for [agent tools](agents.md). Use `USHKA_MCP_TOKEN`, not `ushka.toml`. |
+| `[server]` | `host` | `"127.0.0.1"` | Bind address for `ushka dev`, `ushka run` and `app.run()`. Use `"0.0.0.0"` in a container. |
 | `[server]` | `port` | `8000` | Port. |
-| `[server]` | `workers` | `1` | Worker processes for `ushka run`. |
+| `[server]` | `workers` | `1` | Worker processes for `ushka run` (`ushka dev` always uses one). See [Deploy](deploy.md#workers). |
 | `[static]` | `enable` | `false` | Serve [static files](static_files.md). |
 | `[static]` | `url` | `"/static"` | URL prefix for static files. |
 | `[static]` | `dir` | `"static"` | Folder with the files, relative to the app directory or absolute. |
+| `[static]` | `cache_control` | `"public, max-age=3600"` | `Cache-Control` of those files. See [caching](static_files.md#caching). |
 | `[limits]` | `max_request_body_size_in_KB` | `2048` | Largest request body (2 MB). Bigger bodies get **413**. |
 | `[limits]` | `max_request_body_multipart_size_in_KB` | `51200` | Largest multipart upload (50 MB). |
 | `[limits]` | `websocket_max_message_in_KB` | `1024` | Largest [WebSocket](realtime.md) message (1 MB). Bigger ones close the socket with 1009. |
 | `[security]` | `taint` | `true` | [Ushka Guard](guard.md). Turning it off is a migration aid, not a mode. |
-| `[security]` | `headers`, `csp`, `frame_options`, `referrer_policy`, `hsts_seconds`, `csrf`, `csrf_trusted_origins`, `csrf_exempt_paths`, `allowed_hosts`, `cors_*` | see page | The [security middleware](security.md). Lists are written `["a", "b"]` in TOML and `a,b` in environment variables. |
+| `[security]` | `headers` | `true` | [Security headers](security.md#security-headers) on every response. |
+| `[security]` | `csp` | `""` | Content-Security-Policy. Empty is the strict default, `"off"` sends none. |
+| `[security]` | `frame_options` | `"DENY"` | `X-Frame-Options`. |
+| `[security]` | `referrer_policy` | `"strict-origin-when-cross-origin"` | `Referrer-Policy`. |
+| `[security]` | `hsts_seconds` | `31536000` | HSTS `max-age`, sent on https requests only. `0` turns it off. |
+| `[security]` | `csrf` | `true` | [CSRF protection](security.md#csrf) without tokens. |
+| `[security]` | `csrf_trusted_origins` | `[]` | Other origins allowed to send writes. |
+| `[security]` | `csrf_exempt_paths` | `[]` | Paths that skip the CSRF check (webhooks). |
+| `[security]` | `allowed_hosts` | `[]` | [Trusted hosts](security.md#trusted-hosts). Empty means any `Host`: **set it in production**. |
+| `[security]` | `cors_origins` | `[]` | [CORS](security.md#cors) origins. Empty means no CORS headers. |
+| `[security]` | `cors_methods` | `["GET", "POST", "PUT", "PATCH", "DELETE"]` | Methods CORS allows. |
+| `[security]` | `cors_headers` | `[]` | Request headers CORS allows. Empty echoes what the preflight asks for. |
+| `[security]` | `cors_credentials` | `false` | Let other origins send cookies. Refused with `["*"]`. |
+| `[security]` | `cors_max_age` | `600` | Seconds a browser may cache the preflight answer. |
+
+Lists are written `["a", "b"]` in TOML and `a,b` in environment variables.
 
 You can add your own sections and keys too; they are read the same way:
 

@@ -1,42 +1,25 @@
-# Ushka Guide
+# Introduction
 
 Ushka is the web framework where insecure code, whether you or an AI wrote it,
 does not run silently. It is small in concept (a file in `routes/` is a URL,
-a function named `get` answers GET), light on dependencies (the core needs only
-`uvicorn`, `jinja2`, `python-multipart`, plus `tomli` on Python 3.10) and comes
-with the batteries a web app needs: templates, sessions, flash messages, static
-files, an async ORM and a CLI.
+a function named `get` answers GET), light on dependencies, and comes with the
+batteries a web app needs: validation, templates, sessions, static files, an
+async ORM, real-time, a security middleware and a CLI.
 
-## Your first app in a minute
+## The idea in one example
 
-```bash
-pip install ushka
-ushka new hello
-cd hello
-ushka dev
+Everything that comes from the client arrives as an `Untrusted` string. It
+behaves like a normal `str`, but the places where it could do harm refuse it:
+
+```python
+# routes/login.py
+from ushka import redirect, safe
+
+async def get(request):
+    target = request.query.get("next", "/")      # Untrusted
+    # return redirect(target)                    # refused: USHKA-G003, with the fix
+    return redirect(safe.url(target, allow=["/"], default="/"))
 ```
-
-Open <http://127.0.0.1:8000>. `ushka new` creates a project that is secure and
-runnable from the start:
-
-```text
-hello/
-├── app.py              # app = Ushka()
-├── ushka.toml          # settings (no secrets)
-├── .env                # USHKA_APP_SECRET_KEY, git-ignored
-├── .env.example
-├── .gitignore
-├── AGENTS.md           # rules for AI coding agents
-├── routes/index.py     # GET /
-├── templates/index.html
-└── static/style.css
-```
-
-## Ushka Guard is on
-
-Everything that comes from the client (query string, form fields, JSON,
-headers, cookies, path parameters, text body) arrives as an `Untrusted` string.
-It behaves like a normal `str`, but the places where it could do harm refuse it:
 
 | Sink | Error |
 | --- | --- |
@@ -46,22 +29,44 @@ It behaves like a normal `str`, but the places where it could do harm refuse it:
 | File-system path | [USHKA-G004](guard.md#ushka-g004) |
 | Raw SQL string | [USHKA-G005](guard.md#ushka-g005) |
 
-The way out is a sanitiser from `ushka.guard.safe` (`safe.url`, `safe.path`,
-`safe.integer`, `safe.choice`, `safe.html`, `safe.trust`). When a sanitiser
-rejects a value the client gets **400 Bad Request**. Every example in this guide
-follows these rules; read [Ushka Guard](guard.md) for the full story.
+The way out is a sanitiser from `ushka.guard.safe`, or a type annotation that
+validates. Read [Ushka Guard](guard.md) for the full story.
 
-## Contents
+## Start here
 
-* **[Configuration](configuration.md):** `ushka.toml`, `.env`, environment variables and every setting.
-* **[Routing](routing.md):** filesystem routes, decorators, path parameters and return values.
-* **[Templates](templates.md):** Jinja2 rendering, filters, globals and context processors.
-* **[Static Files](static_files.md):** serving CSS, JavaScript and images.
-* **[ORM](orm.md):** async models, queries and migrations.
-* **[CLI](cli.md):** `ushka new`, `dev`, `run`, `check`, `routes` and `db`.
-* **[Dependency Injection](dependency_injection.md):** what a handler can ask for.
-* **[Flashing](flashing.md):** one-time messages between requests.
-* **[Error Handling](error_handling.md):** HTTP errors, custom error pages and debug mode.
-* **[Ushka Guard](guard.md):** untrusted data, sinks and sanitisers.
+1. [Installation](install.md): `pip install ushka`, extras and the install script.
+2. [Quickstart](quickstart.md): a running app in five minutes.
+3. [Project structure](project-structure.md): what `ushka new` creates and why.
+
+## Build your app
+
+- **Routes and data in:** [Routing](routing.md), [Requests and responses](requests-responses.md),
+  [Validation and typed parameters](validation.md) and [Dependency Injection](dependency_injection.md).
+- **Pages and files:** [Templates](templates.md), [Static files](static_files.md),
+  [Sessions, cookies and uploads](sessions.md) and [Flash messages](flashing.md).
+- **Data:** the async [ORM](orm.md) and migrations.
+- **Real time and agents:** [WebSockets and Server-Sent Events](realtime.md) and
+  [Routes as agent tools (MCP)](agents.md).
+- **Errors:** [Error handling](error_handling.md).
+
+## Keep it secure
+
+- [Ushka Guard](guard.md): sources, sinks, sanitisers and the error codes.
+- [Security middleware](security.md): CSRF, headers, CORS and trusted hosts, on by default.
+- [`ushka verify`](verify.md): attack your own routes and see what got through.
+- [Guard on FastAPI, Starlette and Django](guard-frameworks.md): the same protection in an app you already have.
+
+## Ship it
+
+- [Configuration](configuration.md): `ushka.toml`, `.env`, environment variables.
+- [Deploy](deploy.md): checklist, Docker, workers, health checks, proxies.
+- [Performance](performance.md): what is fast by default, and how to measure.
+- [Ushka Docs](docs.md): turn a folder of Markdown into a docs site, like this one.
+
+## Reference
+
+- [CLI](cli.md): `new`, `dev`, `run`, `check`, `verify`, `docs`, `routes`, `db`.
+- [Configuration settings](configuration.md#all-settings) and [error codes](guard.md#sinks-what-refuses-untrusted-data).
+- The API reference, generated from the docstrings, is in the navigation.
 
 Prefer to learn by building? Try the [Simple API tutorial](tutorial_simple_api.md).

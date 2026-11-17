@@ -8,7 +8,7 @@ step, bringing together the concepts from the [guide](../guide/index.md).
 * **[Building a Simple API](../guide/tutorial_simple_api.md)**
     * Filesystem routes and JSON responses.
     * Reading JSON bodies and returning status codes with `(body, status)`.
-    * Path parameters, `safe.integer()` and 404 errors.
+    * Typed path parameters (`item_id: int`), 404 and 422 errors.
     * The development server with `ushka dev`.
 
 ## Coming soon

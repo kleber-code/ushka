@@ -41,13 +41,16 @@ Filesystem routing, decorators, the Active Record ORM, Jinja2, sessions, the
 CLI and `ushka.toml` all keep working. Ushka will also keep a friendly
 personality.
 
-## What is coming next
+## What came next
 
-- Security middleware on by default (CSRF, security headers, CORS, trusted
-  hosts).
-- Routes that can be exposed as tools for AI agents (MCP), each with declared
+The plan from 0.5 is now in the code:
+
+- [Security middleware](guide/security.md) on by default (CSRF, security headers,
+  CORS, trusted hosts).
+- [Routes as tools for AI agents (MCP)](guide/agents.md), each with declared
   capabilities and approval for sensitive actions.
-- `ushka verify`, which sends attack payloads to your own routes.
-- `ushka.guard` as a standalone package for FastAPI, Starlette and Django.
+- [`ushka verify`](guide/verify.md), which sends attack payloads to your own routes.
+- [`ushka.guard` for FastAPI, Starlette and Django](guide/guard-frameworks.md).
+  Publishing it as a standalone package is still ahead.
 
 See the [roadmap](roadmap.md) and the [changelog](https://github.com/kleber-code/ushka/blob/main/CHANGELOG.md).

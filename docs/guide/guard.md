@@ -23,7 +23,9 @@ async def get(request):
 ```
 
 The guard is **on by default**. It is defence in depth, not a proof: read
-[What it does not cover](#what-it-does-not-cover).
+[What it does not cover](#what-it-does-not-cover). To find the places where it would
+refuse your code before a visitor does, run [`ushka verify`](verify.md). To use it in
+FastAPI, Starlette or Django, see [Ushka Guard on other frameworks](guard-frameworks.md).
 
 ## Sources: what is untrusted
 

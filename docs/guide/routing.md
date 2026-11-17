@@ -14,8 +14,9 @@ In Ushka your folder structure *is* the URL map. Drop a Python file into
 | `routes/users/[username].py` | `/users/<username>` |
 
 Inside a route file, functions named `get`, `post`, `put`, `patch`, `delete`,
-`head` or `options` become handlers for that verb. Handlers can be `async def`
-or plain `def`.
+`head` or `options` become handlers for that verb, and a function named
+`websocket` handles [WebSockets](realtime.md). Handlers can be `async def` or
+plain `def`.
 
 ```python
 # routes/index.py
@@ -63,22 +64,24 @@ async def get(username):
 Folders can be dynamic too: `routes/users/[user_id]/posts.py` serves
 `/users/42/posts`.
 
-### Path parameters are strings, and untrusted
+### Typed path parameters
 
-Ushka does **not** convert path parameters based on type annotations. Even
-`[int:item_id]` hands you the string `"42"`, and like every value from the
-client it is an `Untrusted` string ([Ushka Guard](guard.md)). Convert and
-validate it with a sanitiser:
+Annotate the parameter and Ushka converts and validates it. A value that does not
+fit answers **422** and your handler never runs:
 
 ```python
-# routes/items/[int:item_id].py
-from ushka.guard import safe
+# routes/items/[item_id].py
+from typing import Annotated
+from ushka import Path
 
-
-async def get(item_id):
-    item_id = safe.integer(item_id, min=1)  # int; a rejected value answers 400
-    return {"id": item_id, "next": item_id + 1}
+async def get(item_id: Annotated[int, Path(ge=1)]):
+    return {"id": item_id, "next": item_id + 1}     # item_id is a real int
 ```
+
+Without an annotation the value is a `str`, and, like everything from the client,
+an [`Untrusted`](guard.md) one. Convert it with an annotation, or with a sanitiser
+such as `safe.integer(item_id, min=1)` (a rejected value answers 400). More in
+[Validation and typed parameters](validation.md).
 
 ### Priority
 
@@ -103,7 +106,7 @@ async def home():
 
 
 @app.get("/users/[user_id]")
-async def user(user_id):
+async def user(user_id: int):
     return {"user_id": user_id}
 
 
@@ -112,16 +115,22 @@ async def echo(request):
     return await request.json()
 
 
+@app.websocket("/ws")
+async def socket(ws):
+    await ws.accept()
+
+
 if __name__ == "__main__":
     app.run()
 ```
 
-Available decorators: `@app.get`, `@app.post`, `@app.put`, `@app.patch` and
-`@app.delete`. For any other verb call the router directly:
+Available decorators: `@app.get`, `@app.post`, `@app.put`, `@app.patch`,
+`@app.delete` and `@app.websocket`. For any other verb call the router directly:
 `app.router.add_route("OPTIONS", "/echo", handler)`.
 
 Decorator routes and filesystem routes can live in the same app. Registering
 the same method and path twice keeps the last one and logs a warning.
+`app.router.iter_routes()` lists everything registered.
 
 !!! note
     Route files are compiled with a rewrite that keeps the `Untrusted` mark
@@ -129,101 +138,14 @@ the same method and path twice keeps the last one and logs a warning.
     own modules (like `app.py` above) are not rewritten unless you opt in; see
     [What it does not cover](guard.md#what-it-does-not-cover).
 
-## What a handler can receive
+## What goes in a handler
 
-Handlers declare what they need and Ushka passes it in:
-
-* `request`: the current [`Request`](#the-request).
-* `response`: a fresh `Response` you can fill and return.
-* `config`: the application [configuration](configuration.md).
-* Path parameters, by name.
-
-Details in [Dependency Injection](dependency_injection.md).
-
-## The request
-
-| Attribute | What it is |
-| --- | --- |
-| `request.method`, `request.path` | `"GET"`, `"/users/42"`. |
-| `request.query` | Query string as a `dict`. A repeated key (`?tag=a&tag=b`) gives a list. |
-| `request.headers` | Headers as a `dict` with **lower-case** names: `request.headers["user-agent"]`. |
-| `request.cookies` | Cookies; also used to set them (`request.cookies.set(...)`). |
-| `request.session` | Signed cookie session (`dict`). Needs a [secret key](configuration.md#the-secret-key). |
-| `await request.body()` | Raw body (`bytes`). |
-| `await request.text()` | Body decoded as UTF-8. |
-| `await request.json()` | Parsed JSON. |
-| `await request.form()` | URL-encoded or multipart form fields. |
-| `await request.files()` | Uploaded files: `{"field": {"filename", "content_type", "file"}}`. |
-| `request.stream()` | Async iterator over body chunks, for large uploads. |
-
-Invalid JSON, invalid UTF-8 or a malformed form answers **400 Bad Request**; a
-body larger than the [`[limits]`](configuration.md#all-settings) answers
-**413 Payload Too Large**. You do not need to catch those yourself.
-
-## Return values
-
-Return whatever is most natural; Ushka turns it into a response.
-
-| You return | Response |
-| --- | --- |
-| `dict`, `list`, `bool`, `float` | JSON (`application/json`). |
-| `str` | `text/plain`, or `text/html` when it contains `<html` or `<!DOCTYPE html>`. |
-| `bytes` | The bytes as they are. |
-| `int` | The number as text. |
-| `None` | `204 No Content`. |
-| A t-string (Python 3.14+) | HTML with every value escaped. |
-| `(body, status)` or `(body, status, headers)` | That body with that status code (and headers). |
-| `Response(...)` | Used as is. |
-
-Anything else raises a `TypeError` explaining what is allowed. Text and JSON
-get `; charset=utf-8` in their `content-type`.
-
-```python
-# routes/items/index.py
-async def post(request):
-    data = await request.json()
-    if not data.get("name"):
-        return {"error": "name is required"}, 400
-    return {"created": data["name"]}, 201, {"Location": "/items/1"}
-```
-
-!!! warning "HTML built from request data is refused"
-    A string served as HTML that contains an `Untrusted` value raises
-    [USHKA-G001](guard.md#ushka-g001). Render a [template](templates.md), return
-    a t-string on Python 3.14+, or escape the value with `safe.html()`. As
-    `text/plain` or JSON the same value is fine.
-
-### Building a `Response` yourself
-
-```python
-from ushka.http import Response
-
-
-async def get():
-    return Response(
-        "id,name\n1,Ada\n",
-        status_code=200,
-        headers={"Content-Disposition": "attachment; filename=users.csv"},
-        media_type="text/csv",
-    )
-```
-
-For redirects use `redirect()`, and validate any target that came from the
-client ([USHKA-G003](guard.md#ushka-g003)):
-
-```python
-# routes/login.py
-from ushka.guard import safe
-from ushka.http import redirect
-
-
-async def post(request):
-    form = await request.form()
-    # ... check the credentials ...
-    return redirect(safe.url(form.get("next"), allow=["/"], default="/"))
-```
-
-`redirect(to, status_code=302)` also accepts 301, 303, 307 and 308.
+A handler asks for what it needs by name and type: `request`, `response`,
+`config`, path, query, header, cookie and body parameters, and `Depends(...)`.
+It returns a `dict`, a `str`, a `(body, status)` tuple or a `Response`. Both sides
+have their own page: [Requests and responses](requests-responses.md),
+[Validation and typed parameters](validation.md) and
+[Dependency Injection](dependency_injection.md).
 
 ## HEAD, 405 and WebSockets
 
@@ -231,7 +153,12 @@ async def post(request):
 * A path that exists but not for the requested method answers
   **405 Method Not Allowed** with an `Allow` header (it lists `HEAD` whenever
   `GET` exists).
-* WebSockets are not supported yet; the handshake is closed.
+* WebSocket handlers are routed like any other: see
+  [WebSockets and Server-Sent Events](realtime.md).
+
+## Middleware
+
+`@app.middleware` wraps every request, inside the [security middleware](security.md#your-own-middleware).
 
 ## Startup and shutdown hooks
 
@@ -254,12 +181,13 @@ def close_pools():
 
 Hooks can be sync or async. If a startup hook raises, the server refuses to
 start and logs the error. Shutdown hooks run in reverse order, and a failing
-one does not stop the others.
+one does not stop the others. With several [workers](deploy.md#workers), each
+worker runs its own hooks.
 
 ## Running the app
 
 * `ushka dev`: development server with reload and debug on. See [CLI](cli.md).
-* `ushka run`: production server.
+* `ushka run`: production server. See [Deploy](deploy.md).
 * `python app.py` with `app.run()`: uses `[server] host` and `port`, or the
   arguments you pass: `app.run(host="0.0.0.0", port=5000)`.
 

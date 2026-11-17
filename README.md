@@ -61,18 +61,23 @@ the framework, at runtime, on your real code. Read
   - Jinja2 templates, signed sessions, cookies, flash messages, file uploads and request size limits.
 - **Config.** Defaults, then `ushka.toml`, then `.env`, then environment variables, all without extra packages. `DATABASE_URL` works out of the box.
 - **Static files.** `app.mount_static("/assets", "public")` serves any folder, with `ETag`/`304` and your choice of `Cache-Control`.
-- **Ushka Docs.** A Markdown folder becomes a searchable docs site with an API reference, served by your app (`ushka[docs]`).
+- **Ushka Docs.** A Markdown folder becomes a searchable docs site with an API reference, served by your app (`ushka[docs]`), with a cache you can build into your Docker image.
 - **CLI.** `new`, `dev`, `run`, `check` and `verify` (CI-friendly security checks), `docs`, `routes` and `db`.
-- **Low dependency.** The core needs only `uvicorn`, `jinja2` and `python-multipart` (plus `tomli` on 3.10).
+- **Fast without tuning.** `uvloop` and `httptools` are installed by default (not on Windows or PyPy) and Uvicorn uses them on its own: about **2.3x the requests per second** of the pure-Python stack (the hello route on one worker went from about 3,200 to 7,600), and ahead of FastAPI on the same loop and parser. `ushka run` also stays asleep when idle: about 0.04 s of CPU per minute for two workers.
+- **Low dependency.** The core is 9 packages and 20 MB: `uvicorn`, `jinja2`, `python-multipart` and the two accelerators (plus `tomli` on 3.10). The ORM, the docs engine and the database drivers are extras.
+- **Ready to deploy.** `ushka check --production` for your CI, settings from environment variables, `[server] workers`, and a [deploy guide](https://ushka.satela.com.br/docs/guide/deploy/) with a Dockerfile.
 
 ## Quick start
 
 ```bash
-pip install ushka        # or: uv add ushka
+pip install ushka        # or: uv add ushka   (Python 3.10+)
 ushka new hello
 cd hello
-ushka dev
+ushka dev                # http://127.0.0.1:8000, reloads on change
 ```
+
+Extras are opt-in: `pip install "ushka[orm]"` (SQLAlchemy and migrations),
+`"ushka[postgres]"`, `"ushka[mysql]"` and `"ushka[docs]"`.
 
 Prefer a script? It installs the `ushka` command for your user, with no sudo.
 Read it first and check it against the published SHA-256:
@@ -114,14 +119,23 @@ Before deploying:
 
 ```bash
 ushka check --production   # fails (exit 1) on debug on, missing secret, guard off...
+ushka verify app:app       # attacks your own routes and reports what got through
+ushka run                  # the production server (see "workers" in ushka.toml)
 ```
 
 ## Documentation
 
-Guides, the Ushka Guard reference and the API reference are at
-**https://ushka.satela.com.br/docs/**. The site is built with Ushka itself and
-its docs are rendered by Ushka Docs. For AI tools there is
-[`llms.txt`](https://ushka.satela.com.br/llms.txt).
+Everything is at **https://ushka.satela.com.br/docs/**. The site is built with
+Ushka itself, and its docs are rendered by Ushka Docs.
+
+- [Installation](https://ushka.satela.com.br/docs/guide/install/) and the [Quickstart](https://ushka.satela.com.br/docs/guide/quickstart/)
+- [Ushka Guard](https://ushka.satela.com.br/docs/guide/guard/), with the error codes `USHKA-G001` to `G005`
+- [Validation and typed parameters](https://ushka.satela.com.br/docs/guide/validation/) and the [Security middleware](https://ushka.satela.com.br/docs/guide/security/)
+- [Deploy](https://ushka.satela.com.br/docs/guide/deploy/) and [Performance](https://ushka.satela.com.br/docs/guide/performance/)
+- [CLI](https://ushka.satela.com.br/docs/guide/cli/), [Configuration](https://ushka.satela.com.br/docs/guide/configuration/) and the API reference
+
+For AI tools there is [`llms.txt`](https://ushka.satela.com.br/llms.txt). The
+[changelog](https://github.com/kleber-code/ushka/blob/main/CHANGELOG.md) lists every change.
 
 ## Meet Ushka
 

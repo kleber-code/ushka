@@ -103,7 +103,7 @@ async def post(request: Request):
     if not name:
         return {"error": "Item name is required"}, 400
 
-    item_id = str(next(NEXT_ID))
+    item_id = next(NEXT_ID)
     ITEMS[item_id] = {"id": item_id, "name": name}
     return ITEMS[item_id], 201
 ```
@@ -116,7 +116,7 @@ curl -X POST -H "Content-Type: application/json" \
 ```
 
 ```json
-{"id": "1", "name": "My New Widget"}
+{"id": 1, "name": "My New Widget"}
 ```
 
 Forget the name and you get a `400` with `{"error": "Item name is required"}`.
@@ -130,23 +130,27 @@ name capture that part of the URL, so create `routes/items/[item_id].py`:
 
 ```python
 # routes/items/[item_id].py
-from ushka.guard import safe
+from typing import Annotated
+
+from ushka import Path
 from ushka.http.exceptions import HttpNotFound
 
 from store import ITEMS
 
 
-def get(item_id: str):
-    item_id = str(safe.integer(item_id, min=1))  # "abc" or "0" -> 400 Bad Request
+def get(item_id: Annotated[int, Path(ge=1)]):
     if item_id not in ITEMS:
         raise HttpNotFound(message=f"No item {item_id}")
     return ITEMS[item_id]
 
 
-def delete(item_id: str):
-    ITEMS.pop(str(safe.integer(item_id, min=1)), None)
+def delete(item_id: Annotated[int, Path(ge=1)]):
+    ITEMS.pop(item_id, None)
     return None  # 204 No Content
 ```
+
+The annotation does the work: `item_id` arrives as a real `int`, and anything that
+does not fit never reaches your code.
 
 Now try it:
 
@@ -157,22 +161,23 @@ curl http://127.0.0.1:8000/items/1
 ```
 
 ```json
-{"id": "1", "name": "Fancy Sword of Doom"}
+{"id": 1, "name": "Fancy Sword of Doom"}
 ```
 
-`/items/42` answers `404`, `/items/abc` answers `400`, and
-`curl -X DELETE http://127.0.0.1:8000/items/1` answers `204 No Content`
-(returning `None` does that).
+`/items/42` answers `404`, `/items/abc` and `/items/0` answer `422` with every
+problem listed, and `curl -X DELETE http://127.0.0.1:8000/items/1` answers
+`204 No Content` (returning `None` does that).
 
 A few things worth knowing:
 
-* `item_id` is always a **string**: the `: str` annotation is just
-  documentation, and `item_id: int` would not convert anything. That is why we
-  call `safe.integer()`.
-* It is also `Untrusted`, like everything that comes from the client. Returning
-  it inside JSON is perfectly fine. Pasting it into HTML, a redirect, a file path
-  or raw SQL is not, and I will stop you with an error that explains the fix.
-  Read [Ushka Guard](guard.md) when you get there.
+* Without the annotation, `item_id` would be a `str`, and an `Untrusted` one, like
+  everything that comes from the client. Returning it inside JSON is perfectly
+  fine. Pasting it into HTML, a redirect, a file path or raw SQL is not, and I will
+  stop you with an error that explains the fix. Converting it to an `int` makes it
+  a plain number, so it can no longer carry markup or SQL.
+* The JSON body in step 3 is checked by hand. Declare it as a dataclass and I
+  answer `422` for you: see [Validation](validation.md). And read
+  [Ushka Guard](guard.md) when you start putting client data in HTML, redirects or SQL.
 
 ## 5. Check your work
 
@@ -195,7 +200,9 @@ it? Next steps:
 * store the items for real with the [ORM](orm.md) (right now they vanish
   whenever the server reloads);
 * add HTML pages with [templates](templates.md);
-* learn all the [return values and request helpers](routing.md#return-values).
+* learn all the [return values and request helpers](requests-responses.md#return-values);
+* type the body with a dataclass and get `422` for free: [Validation](validation.md);
+* put it online: [Deploy](deploy.md).
 
 Now go forth and build amazing things. And remember who made it all possible.
 (UwU)

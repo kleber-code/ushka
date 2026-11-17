@@ -1,8 +1,9 @@
 # Dependency Injection
 
 A handler declares what it needs in its signature, and Ushka passes it in.
-There is nothing to register and no container to configure. For typed
-parameters, request bodies and `Depends`, see [Validation and typed parameters](validation.md).
+There is nothing to register and no container to configure. This page covers the
+injected objects; typed parameters, request bodies and `Depends` are in
+[Validation and typed parameters](validation.md).
 
 ## What you can ask for
 
@@ -11,7 +12,7 @@ parameters, request bodies and `Depends`, see [Validation and typed parameters](
 | `request` | name `request` or annotation `Request` | The current request. |
 | `response` | name `response` or annotation `Response` | A fresh, empty `Response` to fill and return. |
 | `config` | name `config` or annotation `Config` | The application [configuration](configuration.md). |
-| path parameters | the name in brackets, e.g. `item_id` for `[item_id]` | The value from the URL, as an `Untrusted` string. |
+| path parameters | the name in brackets, e.g. `item_id` for `[item_id]` | The value from the URL: an `Untrusted` string, or converted by its annotation. |
 
 Parameters can come in any order, and you only list the ones you use. A
 handler with no parameters is fine too.

@@ -58,7 +58,10 @@ engine.add_global("static_url", app.config.STATIC_URL)
 
 * The `content-type` is guessed from the extension
   (`application/octet-stream` when unknown).
-* Responses carry `cache-control: public, max-age=3600`.
+* Every file has an `ETag` and a `Last-Modified`. A browser that asks again with
+  `If-None-Match` gets **304 Not Modified** and no body.
+* `cache-control` is `public, max-age=3600` unless you change `[static] cache_control`.
+* `X-Content-Type-Options: nosniff` is sent with every file.
 * A missing file, or a directory, answers **404**.
 * Requests that try to leave the folder (`/static/../app.py`, encoded variants,
   symlinks pointing outside) are refused with 404. The path is checked with
@@ -67,6 +70,44 @@ engine.add_global("static_url", app.config.STATIC_URL)
 
 The static route shows up in `ushka routes list` as
 `/static/[path:filename] - GET`.
+
+## Caching
+
+The default hour is a safe middle. For files whose name changes when their
+content does (`app.3f9a1c.css`), cache them for a year:
+
+```toml
+[static]
+enable = true
+cache_control = "public, max-age=31536000, immutable"
+```
+
+Without fingerprinted names, keep it short, or add a version to the link
+(`/static/style.css?v=3`). The Ushka website hashes the file in a template global
+so a deploy is never hidden behind a cached stylesheet.
+
+## Serving any folder
+
+`app.mount_static(url, directory)` serves a folder anywhere, independently of
+`[static]`. Use it for uploads, a built front end or a static site:
+
+```python
+# app.py
+app.mount_static("/assets", "public")
+app.mount_static(
+    "/site", "dist",
+    html=True,                                   # /site/guide/ serves dist/guide/index.html
+    cache_control="public, max-age=31536000, immutable",
+)
+```
+
+`html=True` serves `index.html` for directories and redirects `/site/guide` to
+`/site/guide/`, so relative links in static-site output work. Files get the same
+`ETag`/`304` handling, and every path is checked with `safe.path()`.
+
+For a single file from a route, `ushka.static.file_response(path, request, cache_control)`
+returns a response with the same headers. Validate the path with
+[`safe.path()`](guard.md#sanitisers-the-way-out) first.
 
 > **Ushka Tip:** Files are read from disk on every request. That is perfect
 > for development and small sites; for heavy traffic, put a CDN or a web

@@ -204,19 +204,18 @@ return data
 ## Request data and the ORM
 
 Values from the request are `Untrusted` strings. The ORM methods and SQLAlchemy
-expressions always send them as bound parameters, so they need no special care,
-but convert types yourself:
+expressions always send them as bound parameters, so they need no special care.
+Declare the type and Ushka converts it, answering 422 when it does not fit:
 
 ```python
 # routes/users/[user_id].py
-from ushka.guard import safe
 from ushka.http.exceptions import HttpNotFound
 
 from models import User
 
 
-async def get(user_id):
-    user = await User.get(safe.integer(user_id, min=1))
+async def get(user_id: int):
+    user = await User.get(user_id)
     if user is None:
         raise HttpNotFound(message="No such user")
     return {"id": user.id, "name": user.name}
