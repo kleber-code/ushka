@@ -8,7 +8,7 @@ from ushka.guard import Untrusted, taint_deep
 from ushka.http.cookies import Cookies
 from ushka.http.exceptions import HTTPBadRequest, HTTPPayloadTooLarge
 from ushka.http.multipart import parse_multipart_asgi
-from ushka.http.sessions import ServerSession, Session
+from ushka.sessions.session import ServerSession, Session
 
 if TYPE_CHECKING:
     from ushka.core.app import Ushka
@@ -170,7 +170,7 @@ class Request:
         """Reads a server-side session from its store. The app calls this
         before the route runs, because stores are asynchronous. It does
         nothing for signed-cookie sessions."""
-        from ushka.http.session_store import get_store
+        from ushka.sessions.stores import get_store
 
         store = get_store(self.app)
         if store is None or "session" in self._cached_data:
@@ -186,7 +186,7 @@ class Request:
     def session(self) -> Session:
         """Session is a property as it depends on the Cookie (Header), not the Body."""
         if "session" not in self._cached_data:
-            from ushka.http.session_store import get_store
+            from ushka.sessions.stores import get_store
 
             secret = self._session_secret()
             name = self.app.config.get("session_cookie_name", Session.COOKIE_NAME)

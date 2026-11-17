@@ -17,10 +17,10 @@ from jinja2 import (
     select_autoescape,
 )
 
-import ushka.i18n as i18n
+import ushka.web.i18n as i18n
 
 from ushka.guard import check_markup
-from ushka.utils.flash import get_flashed_messages
+from ushka.templating.flash import get_flashed_messages
 
 if typing.TYPE_CHECKING:
     from ushka.http.request import Request

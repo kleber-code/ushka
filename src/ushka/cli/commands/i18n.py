@@ -6,7 +6,7 @@ from pathlib import Path
 
 from ushka.cli import ui
 from ushka.core.config import Config
-from ushka.i18n import tools
+from ushka.web.i18n import tools
 
 
 def _settings(root: Path) -> tuple[Path, str]:

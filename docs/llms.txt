@@ -15,7 +15,7 @@ Rules for generating Ushka code:
 - Config: `ushka.toml` (no secrets) < `.env` < env vars `USHKA_<SECTION>_<KEY>` (lists as `a,b`). Secret: `USHKA_APP_SECRET_KEY`. Production: `debug = false`, set `[security] allowed_hosts`, run `ushka check --production`.
 - Browser writes (`POST`, `PUT`, `PATCH`, `DELETE`) from another site get 403 (CSRF, no tokens). Allow origins with `[security] csrf_trusted_origins`.
 - WebSocket: `async def websocket(ws)` in `routes/`, or `@app.websocket("/ws")`. SSE: return `EventSourceResponse(async_generator)`.
-- Expose a route to agents with `@tool(reads=[...], writes=[...])` from `ushka.mcp` and `app.enable_mcp()`; sensitive tools need an approver and a token (`USHKA_MCP_TOKEN`).
+- Expose a route to agents with `@tool(reads=[...], writes=[...])` from `ushka.api.mcp` and `app.enable_mcp()`; sensitive tools need an approver and a token (`USHKA_MCP_TOKEN`).
 - Run `ushka verify app:app` to attack your own routes and see what got through.
 - If you hit `UnsafeValueError USHKA-G00x`, apply the `fix` it gives. Do not disable the guard (`[security] taint = false`) and do not use `safe.trust()` without a reason.
 

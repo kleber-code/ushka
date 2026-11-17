@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 
-from ushka import verify as engine
+from ushka.security import verify as engine
 from ushka.cli import ui
 from ushka.cli.commands.routes import load_app
 

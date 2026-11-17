@@ -7,7 +7,7 @@ import time
 
 import pytest
 
-from ushka.http.session_store import SessionRecord, SessionStore, revoke_user_sessions
+from ushka.sessions.stores import SessionRecord, SessionStore, revoke_user_sessions
 
 KEY = "k" * 48
 
@@ -144,7 +144,7 @@ async def test_store_keeps_a_hash_not_the_id(setup, call):
     app = setup()
     cookie = await login(call, app)
     sid = cookie.split("=", 1)[1].split(".")[0]
-    from ushka.http.session_store import get_store
+    from ushka.sessions.stores import get_store
 
     keys = list(get_store(app)._records)
     assert len(keys) == 1 and sid not in keys[0]
@@ -162,7 +162,7 @@ async def test_tampered_or_forged_cookie_is_rejected(setup, call):
 async def test_a_cookie_signed_with_another_key_is_rejected(setup, call, monkeypatch):
     app = setup()
     cookie = await login(call, app)
-    from ushka.http.sessions import ServerSession
+    from ushka.sessions.session import ServerSession
 
     sid = cookie.split("=", 1)[1].split(".")[0]
     forged = ServerSession(None, "z" * 48)
@@ -199,7 +199,7 @@ async def test_logging_in_on_an_existing_id_rotates_it(setup, call):
 async def test_absolute_expiry(setup, call):
     app = setup(extra="max_age = 100\n")
     cookie = await login(call, app)
-    from ushka.http.session_store import get_store
+    from ushka.sessions.stores import get_store
 
     store = get_store(app)
     rec = next(iter(store._records.values()))
@@ -211,7 +211,7 @@ async def test_absolute_expiry(setup, call):
 async def test_idle_expiry_and_touch(setup, call):
     app = setup(extra="idle_timeout = 100\n")
     cookie = await login(call, app)
-    from ushka.http.session_store import get_store
+    from ushka.sessions.stores import get_store
 
     store = get_store(app)
     rec = next(iter(store._records.values()))
@@ -225,7 +225,7 @@ async def test_idle_expiry_and_touch(setup, call):
 async def test_idle_timeout_off_by_default(setup, call):
     app = setup()
     cookie = await login(call, app)
-    from ushka.http.session_store import get_store
+    from ushka.sessions.stores import get_store
 
     next(iter(get_store(app)._records.values())).last_seen -= 10**6
     assert (await me(call, app, cookie))["user"] == 7
@@ -314,7 +314,7 @@ async def test_custom_store_can_be_plugged_in(setup, call):
 
 
 async def test_unknown_store_is_an_error(setup):
-    from ushka.http.session_store import get_store
+    from ushka.sessions.stores import get_store
 
     app = setup(store="redis")
     with pytest.raises(ValueError, match="redis"):
@@ -339,7 +339,7 @@ async def test_database_store_end_to_end(setup, call, workdir):
     assert await revoke_user_sessions(app, 7) == 1  # `second` was still alive
     assert (await me(call, app, second))["user"] is None
 
-    from ushka.http.session_store import get_store
+    from ushka.sessions.stores import get_store
 
     store = get_store(app)
     assert await store.purge(None, None) == 0
@@ -348,7 +348,7 @@ async def test_database_store_end_to_end(setup, call, workdir):
 
 
 async def test_database_store_expiry_and_purge(workdir):
-    from ushka.http.session_store import DatabaseStore, SessionRecord
+    from ushka.sessions.stores import DatabaseStore, SessionRecord
 
     store = DatabaseStore(f"sqlite:///{workdir}/p.db")
     now = time.time()
@@ -365,7 +365,7 @@ async def test_database_store_expiry_and_purge(workdir):
 
 
 def test_database_table_name_is_validated(workdir):
-    from ushka.http.session_store import DatabaseStore
+    from ushka.sessions.stores import DatabaseStore
 
     with pytest.raises(ValueError):
         DatabaseStore("sqlite:///x.db", "sessions; DROP TABLE users")
@@ -386,8 +386,8 @@ async def test_default_is_still_the_signed_cookie(workdir, make_app, call, monke
     monkeypatch.setenv("USHKA_APP_SECRET_KEY", KEY)
     app = make_app()
     add_routes(app)
-    from ushka.http.session_store import get_store
-    from ushka.http.sessions import ServerSession, Session
+    from ushka.sessions.stores import get_store
+    from ushka.sessions.session import ServerSession, Session
 
     assert get_store(app) is None
     res = await call(app, "POST", "/login")
@@ -431,7 +431,7 @@ def test_missing_secret_still_explains(workdir, make_app, monkeypatch):
 async def test_database_store_without_a_database_falls_back_to_cookies(workdir, make_app, call, monkeypatch, caplog):
     import logging
 
-    from ushka.http.session_store import get_store
+    from ushka.sessions.stores import get_store
 
     monkeypatch.setenv("USHKA_APP_SECRET_KEY", KEY)
     monkeypatch.delenv("DATABASE_URL", raising=False)
@@ -451,7 +451,7 @@ async def test_database_store_without_a_database_falls_back_to_cookies(workdir, 
 
 
 async def test_a_configured_database_turns_server_sessions_on(workdir, make_app, call, monkeypatch):
-    from ushka.http.session_store import DatabaseStore, get_store
+    from ushka.sessions.stores import DatabaseStore, get_store
 
     monkeypatch.setenv("USHKA_APP_SECRET_KEY", KEY)
     monkeypatch.setenv("DATABASE_URL", f"sqlite:///{workdir}/env.db")  # the environment counts too
@@ -461,7 +461,7 @@ async def test_a_configured_database_turns_server_sessions_on(workdir, make_app,
 
 
 def test_the_memory_store_is_gone_from_the_settings(workdir, make_app, monkeypatch):
-    from ushka.http.session_store import get_store
+    from ushka.sessions.stores import get_store
 
     monkeypatch.setenv("USHKA_APP_SECRET_KEY", KEY)
     (workdir / "ushka.toml").write_text('[session]\nstore = "memory"\n')

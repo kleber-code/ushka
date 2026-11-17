@@ -9,10 +9,10 @@ import subprocess
 import pytest
 
 from ushka import render
-from ushka.i18n import LazyString, get_locale, lazy_gettext, parse_accept_language
-from ushka.i18n import gettext as _t
-from ushka.i18n import ngettext as _n
-from ushka.i18n import tools
+from ushka.web.i18n import LazyString, get_locale, lazy_gettext, parse_accept_language
+from ushka.web.i18n import gettext as _t
+from ushka.web.i18n import ngettext as _n
+from ushka.web.i18n import tools
 
 PO = r'''# Portuguese
 msgid ""
@@ -309,7 +309,7 @@ def test_our_mo_matches_msgfmt_and_django_style_files_load(tmp_path, workdir):
     folder.mkdir(parents=True)
     (folder / "django.mo").write_bytes(reference.read_bytes())
     from ushka.core.config import Config
-    from ushka.i18n import I18n
+    from ushka.web.i18n import I18n
 
     (workdir / "ushka.toml").write_text('[i18n]\nenable = true\ndomain = "django"\nlocales = ["pt-BR"]\n')
     i18n = I18n(Config(workdir).load_from_file(), workdir)

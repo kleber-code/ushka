@@ -7,7 +7,7 @@ automatically handles Cookie and Session persistence if a Request object is prov
 import json
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
 
-from ushka.core.exceptions import ContentToJsonParserFailed
+from ushka.http.exceptions import ContentToJsonParserFailed
 from ushka.guard import check_html, is_template
 from ushka.guard.templates import html as render_template_html
 

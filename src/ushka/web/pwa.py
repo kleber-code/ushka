@@ -36,7 +36,7 @@ from jinja2 import pass_context
 from markupsafe import Markup, escape
 
 from ushka.http.response import Response
-from ushka.seo import _list, _s, safe_url
+from ushka.web.seo import _list, _s, safe_url
 from ushka.templating.engine import engine
 
 if TYPE_CHECKING:

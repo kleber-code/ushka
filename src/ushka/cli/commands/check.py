@@ -14,8 +14,8 @@ from urllib.parse import urlsplit
 from ushka.cli import ui
 from ushka.core.config import Config
 from ushka.guard import TEMPLATES_SUPPORTED
-from ushka.http.session_store import no_database_reason
-from ushka.pwa import icons as pwa_icons
+from ushka.sessions.stores import no_database_reason
+from ushka.web.pwa import icons as pwa_icons
 
 SETTINGS = (
     "app_debug",

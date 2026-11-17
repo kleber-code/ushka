@@ -59,7 +59,7 @@ async def logout(request):
     request.session.revoke()               # same as clear(): the record is deleted
     return {"ok": True}
 
-from ushka.http.session_store import revoke_user_sessions
+from ushka.sessions.stores import revoke_user_sessions
 
 async def change_password(request):
     ...

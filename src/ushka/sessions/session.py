@@ -511,7 +511,7 @@ class ServerSession(Session):
                         now - self._idle if self._idle > 0 else None,
                     )
             self._last_seen = now
-            from ushka.http.session_store import SessionRecord
+            from ushka.sessions.stores import SessionRecord
 
             await store.save(SessionRecord(self._key(self._sid), data, user, self._created, now))
             self._loaded_user = user

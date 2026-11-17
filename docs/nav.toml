@@ -74,7 +74,6 @@ modules = [
     "ushka.core.router",
     "ushka.core.config",
     "ushka.core.error_handler",
-    "ushka.core.exceptions",
     "ushka.core.log",
 ]
 
@@ -87,8 +86,8 @@ modules = [
     "ushka.http.params",
     "ushka.http.validation",
     "ushka.http.cookies",
-    "ushka.http.sessions",
-    "ushka.http.session_store",
+    "ushka.sessions.session",
+    "ushka.sessions.stores",
     "ushka.http.redirect",
     "ushka.http.stream",
     "ushka.http.websocket",
@@ -130,13 +129,13 @@ modules = [
     "ushka.orm.database",
     "ushka.templating.engine",
     "ushka.static.files",
-    "ushka.utils.flash",
+    "ushka.templating.flash",
 ]
 
 [[api.group]]
 title = "Agents and tooling"
 description = "Routes as MCP tools, OpenAPI from signatures, and `ushka verify`."
-modules = ["ushka.mcp", "ushka.openapi", "ushka.verify", "ushka.testing"]
+modules = ["ushka.api.mcp", "ushka.api.openapi", "ushka.security.verify", "ushka.testing"]
 
 [[api.group]]
 title = "CLI commands"

@@ -99,7 +99,7 @@ def get_flashed_messages(
     """
     # Do not create a session just to look for messages: an app that never
     # used sessions has no cookie, and may have no secret key either.
-    from ushka.http.sessions import Session
+    from ushka.sessions.session import Session
 
     if "session" not in request._cached_data and Session.COOKIE_NAME not in request.cookies:
         return []

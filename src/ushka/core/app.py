@@ -19,9 +19,9 @@ from ushka.http.params import Resolver
 from ushka.http.validation import RequestValidationError
 from ushka.http.websocket import WebSocket, WebSocketDisconnect
 from ushka.http.request import Request
-from ushka.i18n import I18n
-import ushka.pwa as pwa_module
-import ushka.seo as seo_module
+from ushka.web.i18n import I18n
+import ushka.web.pwa as pwa_module
+import ushka.web.seo as seo_module
 from ushka.security import SecurityMiddleware
 from ushka.http.response import Response
 from ushka.http.redirect import redirect
@@ -90,7 +90,7 @@ class Ushka:
         self.error_handler = ErrorHandler(self.config, self.log, self.router)
         #: Always outermost; configured in ``[security]``.
         self.security = SecurityMiddleware(self.config)
-        #: A `ushka.http.session_store.SessionStore` of your own (Redis, ...);
+        #: A `ushka.sessions.stores.SessionStore` of your own (Redis, ...);
         #: when None, ``[session] store`` decides.
         self.session_store = None
         #: ``{path: handler}`` for GET pages Ushka ships (robots.txt, the PWA files...).
@@ -501,7 +501,7 @@ class Ushka:
 
     def openapi(self, title: str | None = None, version: str = "0.1.0") -> dict:
         """The OpenAPI 3.1 document describing this app's routes (a dict)."""
-        from ushka import openapi
+        from ushka.api import openapi
 
         skip = getattr(self, "_openapi_skip", set())
         return openapi.build(self.router, title or self.config.get("app_name", "Ushka API"), version, skip)
@@ -517,18 +517,18 @@ class Ushka:
         self.router.add_route("GET", path, openapi_json)
 
     def enable_mcp(self, path: str = "/mcp", token=None, approve=None, name: str | None = None, instructions: str | None = None, internal_headers=None) -> None:
-        """Serves the routes marked with `ushka.mcp.tool` to AI agents over MCP.
+        """Serves the routes marked with `ushka.api.mcp.tool` to AI agents over MCP.
 
         Call it after your routes are registered. `token` (or ``USHKA_MCP_TOKEN``)
         is the bearer token agents must send; without one it refuses to start
         unless debug is on. `approve` is an async callable (or
-        `ushka.mcp.ApprovalQueue`) that a human answers for sensitive tools.
+        `ushka.api.mcp.ApprovalQueue`) that a human answers for sensitive tools.
         `internal_headers` (a dict, or a function of the request) adds headers to
         the internal request, e.g. a service credential your routes check.
         With ``token=False`` the endpoint has no shared secret: the caller's
         ``Authorization`` is passed to the routes, which authenticate it.
         """
-        from ushka.mcp import MCPServer
+        from ushka.api.mcp import MCPServer
 
         server = MCPServer(self, path, token, approve, name, instructions, internal_headers)
         self.mcp = server

@@ -41,7 +41,7 @@ from ushka.guard import RejectedValueError, UnsafeValueError
 from ushka.http.exceptions import HTTPError
 from ushka.http.params import build_plan
 from ushka.http.validation import RequestValidationError, hints_of
-from ushka.openapi import _PATH_SEGMENT
+from ushka.api.openapi import _PATH_SEGMENT
 
 SAFE = {"GET", "HEAD"}
 SEVERITY = {"high": 3, "medium": 2, "low": 1}

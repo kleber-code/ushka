@@ -34,7 +34,7 @@ from jinja2 import pass_context
 from markupsafe import Markup, escape
 
 from ushka.http.exceptions import HttpNotFound
-from ushka.i18n import get_locale
+from ushka.web.i18n import get_locale
 from ushka.http.response import Response
 from ushka.templating.engine import engine
 
