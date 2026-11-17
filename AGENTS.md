@@ -10,6 +10,12 @@
   with the standard library. Security-critical parsers are the exception.
 - **Batteries included.** Features a typical web app needs belong in the box.
 - **Lightweight in concept.** One clear idea per feature; no hidden magic.
+- **Personality: easy, fast, hackable, modular.** Ushka works with one line and the right defaults, and every part can
+  be swapped or extended. Before adding an API ask: does it turn on in one line, and can the user replace it? Prefer
+  one verb (`app.use(piece)`) over a new ritual per feature; prefer a short argument over a config section; derive from
+  folders and names (as routes do) instead of listing things by hand; keep `ushka.toml` for what changes per
+  environment (database, port, keys, domain). More than about five parameters, or a section with a dozen keys, is a
+  sign the default is wrong. Be brief in code, messages and docs: the answer first, no ceremony.
 - **Flask and Mako, not Django.** Syntax stays explicit and Pythonic: decorators, plain functions, Jinja2 in
   templates, SQLAlchemy-style attributes (`__tablename__`). Avoid Django idioms (nested `class Meta`, managers, tag
   libraries, one big settings module) in new APIs.
