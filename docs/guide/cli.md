@@ -242,6 +242,8 @@ pip install "ushka[orm]"
 | `ushka db revert [revision]` | Reverts one step (default `-1`), to `base` (everything) or to a revision id. |
 | `ushka db history` | Lists all migrations. |
 | `ushka db status` | Shows the revision the database is at. |
+| `ushka db inspect [--url URL] [--table NAME ...] [--schema NAME] [--write FILE [--force]]` | Reads an existing database and writes Ushka models for it, with `TODO` comments and warnings for what the database does not say (Python-side defaults, timestamps, `ON DELETE`). Code goes to stdout (warnings to stderr) or to `FILE`. |
+| `ushka db check-models [--url URL] [--schema NAME] [--models MODULE ...]` | Compares the app's models with the database; exit status 1 when they differ. |
 
 A typical session:
 
@@ -254,3 +256,5 @@ ushka db migrate
 The migrations use the same database URL as the app (`[database] url`,
 `USHKA_DATABASE_URL` or `DATABASE_URL`) and find your models by importing
 `app.models`, `app` or `main`. See [ORM](orm.md#creating-the-tables-migrations).
+For a database another ORM created, start with `ushka db inspect`: see
+[Existing databases](orm.md#existing-databases).

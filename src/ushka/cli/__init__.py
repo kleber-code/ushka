@@ -100,6 +100,16 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("revision", nargs="?", default="-1", help="target ('-1' one step, 'base' all)")
     dsub.add_parser("history", help="show migration history")
     dsub.add_parser("status", help="show the current revision")
+    p = dsub.add_parser("inspect", help="write Ushka models for an existing database")
+    p.add_argument("--url", default=None, help="database URL (default: [database] url)")
+    p.add_argument("--table", action="append", default=[], metavar="NAME", help="only this table (repeatable)")
+    p.add_argument("--schema", default=None, help="database schema to read (default: the connection's)")
+    p.add_argument("--write", default=None, metavar="FILE", help="write the models to FILE instead of stdout")
+    p.add_argument("--force", action="store_true", help="overwrite FILE if it exists")
+    p = dsub.add_parser("check-models", help="compare the app's models with the database (exit 1 on differences)")
+    p.add_argument("--url", default=None, help="database URL (default: [database] url)")
+    p.add_argument("--schema", default=None, help="database schema to read (default: the connection's)")
+    p.add_argument("--models", action="append", default=[], metavar="MODULE", help="module that defines the models (default: app.models, models, app, main)")
 
     parser.set_defaults(_routes=routes, _db=db, _docs=docs)
     return parser
@@ -176,6 +186,11 @@ def main(argv: list[str] | None = None) -> None:
             db.make(args.message)
         elif action == "revert":
             db.revert(args.revision)
+        elif action == "inspect":
+            db.inspect(args.url, args.table, args.schema, args.write, args.force)
+        elif action == "check-models":
+            if db.check_models(args.url, args.schema, args.models):
+                raise SystemExit(1)
         else:
             getattr(db, action)()
 

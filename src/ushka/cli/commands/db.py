@@ -15,9 +15,16 @@ migrate: Applies pending migrations to the database.
 revert: Reverts database migrations.
 status: Shows the current database revision.
 history: Shows the full migration history.
+inspect: Writes Ushka models for an existing database.
+check_models: Compares the app's models with the database.
 """
 
 # ushka/commands/db.py
+from __future__ import annotations
+
+import asyncio
+import contextlib
+import importlib
 import os
 import sys
 from datetime import datetime
@@ -26,6 +33,7 @@ from typing import Optional
 from alembic import command
 from alembic.config import Config as AlembicConfig
 
+from ushka.cli import ui
 from ushka.core.config import Config as UshkaConfig
 
 # =============================================================================
@@ -220,7 +228,7 @@ def init():
         print(f"Error during initialization: {e}")
 
 
-def make(message: Optional[str] = None):
+def make(message: str | None = None):
     """Generates a new migration script based on model changes.
 
     If no message is provided, an auto-generated timestamped message is used.
@@ -290,3 +298,112 @@ def history():
     """
     print("📜 Migration History:")
     command.history(_get_alembic_config(), verbose=True)
+
+
+# =============================================================================
+# EXISTING DATABASES
+# =============================================================================
+
+
+def _database_url(url: str | None) -> str:
+    """The async URL to read: `--url`, else the app's configured database."""
+    from ushka.orm import db
+
+    if not url:
+        url = UshkaConfig().load_from_file().get("database_url") or "sqlite:///ushka.db"
+    return db.to_async_url(url)
+
+
+def _reflect(url: str | None, tables, schema):
+    from ushka.orm.reflect import reflect
+
+    try:
+        return asyncio.run(reflect(_database_url(url), schema, list(tables) or None))
+    except LookupError as exc:
+        ui.fail(str(exc))
+    except Exception as exc:  # driver and connection errors are many and varied
+        ui.fail(f"could not read the database: {exc}")
+
+
+def inspect(
+    url: str | None = None,
+    tables=(),
+    schema: str | None = None,
+    write: str | None = None,
+    force: bool = False,
+) -> int:
+    """Reflects the database and writes Ushka models for it.
+
+    The code goes to stdout (warnings to stderr, so ``> models.py`` stays
+    clean) or to the file `write`. Returns the number of review items.
+    """
+    from ushka.orm.reflect import generate
+
+    reflected = _reflect(url, tables, schema)
+    if not reflected:
+        ui.fail("the database has no tables to reflect.")
+    if write and os.path.exists(write) and not force:
+        ui.fail(f"{write} already exists; pass --force to overwrite it.")
+
+    source, findings = generate(reflected)
+
+    if write:
+        with open(write, "w", encoding="utf-8") as fh:
+            fh.write(source)
+        ui.ok(f"{len(reflected)} table(s) written to {write}")
+        sink = contextlib.nullcontext()
+    else:
+        print(source, end="")
+        sink = contextlib.redirect_stdout(sys.stderr)
+
+    review = [f for f in findings if f.kind != "mapped-default"]
+    mapped = [f for f in findings if f.kind == "mapped-default"]
+    with sink:
+        if mapped:
+            ui.info(f"{len(mapped)} server default(s) mapped to Python defaults (marked NOTE in the code).")
+        if review:
+            ui.warn(
+                f"{len(review)} thing(s) to review. The database does not say them, and an old ORM "
+                "may have applied them in Python (see the TODO comments):"
+            )
+            for f in review:
+                ui.warn(f"{f.where()}: {f.message}")
+                if f.suggestion:
+                    ui.hint(f"suggestion: {f.suggestion}")
+        else:
+            ui.ok("nothing to review.")
+    return len(review)
+
+
+def _load_models(modules) -> None:
+    """Imports the app's models the way the migrations do."""
+    candidates = list(modules) or ["app.models", "models", "app", "main"]
+    for name in candidates:
+        try:
+            importlib.import_module(name)
+            return
+        except ImportError as exc:
+            if modules or getattr(exc, "name", None) not in (name, name.split(".")[0]):
+                raise
+    ui.fail("could not find the models: pass --models module (tried app.models, models, app, main).")
+
+
+def check_models(url: str | None = None, schema: str | None = None, models=()) -> int:
+    """Compares the app's models with the database. Returns the number of divergences."""
+    from ushka.orm import db
+    from ushka.orm.reflect import compare, table_from_model
+
+    _load_models(models)
+    mapped = [table_from_model(t) for t in db.metadata.tables.values() if (t.schema or None) == schema]
+    if not mapped:
+        ui.fail("no models are registered (is the module that defines them imported?).")
+    reflected = _reflect(url, (), schema)
+
+    divergences = compare(reflected, mapped)
+    if not divergences:
+        ui.ok(f"{len(mapped)} model(s) match the database.")
+        return 0
+    ui.warn(f"{len(divergences)} divergence(s) between the models and the database:")
+    for d in divergences:
+        ui.warn(f"{d.where()}: {d.message}")
+    return len(divergences)

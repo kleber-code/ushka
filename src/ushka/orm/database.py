@@ -69,7 +69,10 @@ class UshkaDB:
     metadata : sqlalchemy.MetaData
         The metadata object used by the declarative base.
     Model : Type[_Base]
-        The dynamic BaseModel class with CRUD methods.
+        The base class of your models: CRUD methods and an ``id`` primary key.
+    BaseModel : Type[_Base]
+        The same without the ``id`` column, for tables that already exist with
+        another primary key (a UUID, a text code, a composite key).
     """
 
     CASCADE = "CASCADE"
@@ -98,7 +101,7 @@ class UshkaDB:
         self._engine = None
         self._session_factory = None
         self.metadata = _Base.metadata
-        self.Model = self._create_model_base()
+        self.BaseModel, self.Model = self._create_model_base()
 
     @classmethod
     def to_async_url(cls, url: str) -> str:
@@ -154,8 +157,9 @@ class UshkaDB:
 
         Returns
         -------
-        Type[_Base]
-            The dynamically created BaseModel class.
+        tuple
+            ``(BaseModel, Model)``: the CRUD base without any column, and the
+            same base with the default ``id`` primary key.
         """
         db = self
 
@@ -168,14 +172,6 @@ class UshkaDB:
             """
 
             __abstract__ = True
-            # SQLite only auto-increments an `INTEGER PRIMARY KEY`; a BIGINT
-            # key stays NULL and every insert fails. 64-bit elsewhere.
-            id = Column(
-                sqltypes.BigInteger().with_variant(sqltypes.Integer(), "sqlite"),
-                primary_key=True,
-                index=True,
-                autoincrement=True,
-            )
 
             # --- INSTANCE METHODS ---
 
@@ -344,10 +340,32 @@ class UshkaDB:
                 """
                 Returns a string representation of the model instance.
                 """
-                pk = getattr(self, "id", "No-ID")
+                try:
+                    identity = inspect(self).identity
+                except Exception:
+                    identity = None
+                if not identity:
+                    pk = "No-ID"
+                elif len(identity) == 1:
+                    pk = identity[0]
+                else:
+                    pk = identity
                 return f"<{self.__class__.__name__} {pk}>"
 
-        return BaseModel
+        class Model(BaseModel):
+            """`BaseModel` plus an auto-incrementing integer primary key ``id``."""
+
+            __abstract__ = True
+            # SQLite only auto-increments an `INTEGER PRIMARY KEY`; a BIGINT
+            # key stays NULL and every insert fails. 64-bit elsewhere.
+            id = Column(
+                sqltypes.BigInteger().with_variant(sqltypes.Integer(), "sqlite"),
+                primary_key=True,
+                index=True,
+                autoincrement=True,
+            )
+
+        return BaseModel, Model
 
     # --- EXECUTION HELPERS ---
 
@@ -728,8 +746,9 @@ class UshkaDB:
         self,
         target: str,
         dtype: Any = None,
-        on_delete: str = CASCADE,
+        on_delete: Optional[str] = CASCADE,
         nullable: bool = False,
+        on_update: Optional[str] = None,
     ) -> Column:
         """
         Defines a SQLAlchemy Column that acts as a Foreign Key.
@@ -745,10 +764,14 @@ class UshkaDB:
             By default None.
         on_delete : str, optional
             The ON DELETE SQL action (e.g., 'CASCADE', 'SET NULL', 'RESTRICT').
+            ``None`` writes no clause (the database default, NO ACTION), which
+            is what a table created by another ORM usually has.
             By default CASCADE.
         nullable : bool, optional
             If True, allows NULL values. Overridden if on_delete='SET NULL'.
             By default False.
+        on_update : str, optional
+            The ON UPDATE SQL action. By default None (no clause).
 
         Returns
         -------
@@ -761,7 +784,9 @@ class UshkaDB:
         if isinstance(column_type, Column):
             column_type = column_type.type
         return Column(
-            column_type, ForeignKey(target, ondelete=on_delete), nullable=nullable
+            column_type,
+            ForeignKey(target, ondelete=on_delete, onupdate=on_update),
+            nullable=nullable,
         )
 
     def Relationship(self, model: str, back_populates: str = None) -> Any:

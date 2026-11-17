@@ -125,6 +125,7 @@ title = "Data, templates and files"
 description = "The ORM, the Jinja engine, static files and flash messages."
 modules = [
     "ushka.orm.database",
+    "ushka.orm.reflect",
     "ushka.templating.engine",
     "ushka.static.files",
     "ushka.utils.flash",

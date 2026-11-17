@@ -5,6 +5,15 @@ All notable changes to Ushka. The format follows
 
 ## [Unreleased]
 
+## [0.8.0b1]
+
+### Added
+
+- **`ushka db inspect`: adopt a database another ORM created** (guide: ORM, Existing databases). It reflects the configured database (`--url`, `--table` repeatable, `--schema`, `--write FILE [--force]`) with SQLAlchemy's generic inspector (SQLite, PostgreSQL, MySQL) and writes Ushka models: `db.String/Int/BigInt/UUID/Bool/DateTime/JSON/...`, `nullable`, `unique`, indexes, foreign keys with their `ON DELETE`/`ON UPDATE`, UUID, text and composite primary keys. Server defaults are mapped to Python defaults when possible (`true`, numbers, strings, `now()` becomes `auto_now=True`). What the database does not say is never applied silently: `NOT NULL` columns without a default, `created_at`/`updated_at`-style timestamps and foreign keys without `ON DELETE` (with the effect of deleting a parent and the two ways out) are reported as warnings and as `TODO(ushka db inspect)` comments.
+- **`ushka db check-models`** compares the app's models with the database (missing or extra columns, nullability, types, `ON DELETE`) and exits 1 on differences.
+- **`db.BaseModel`**: the model base without the `id` column, for tables with a UUID, text or composite primary key. `db.Model` is `db.BaseModel` plus `id`.
+- **`db.ForeignKey(on_update=...)`**, and `on_delete=None` for no clause (a schema made by another ORM usually has none). The model repr now shows composite keys.
+
 ## [0.7.0] - 2026-11-16
 
 ### Added
