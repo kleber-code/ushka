@@ -317,7 +317,7 @@ class UshkaDB:
             This class provides Active Record pattern methods for persistence
             and querying using asynchronous SQLAlchemy 2.0 style.
 
-            ``class Meta: extend_existing = True`` lets a model describe a table
+            ``__extend_existing__ = True`` lets a model describe a table
             that is already in the metadata (a mirrored or reflected schema).
             """
 
@@ -325,10 +325,8 @@ class UshkaDB:
 
             def __init_subclass__(cls, **kw):
                 super().__init_subclass__(**kw)
-                meta = getattr(cls, "Meta", None)
-                if (
-                    cls.__dict__.get("__abstract__")
-                    or not getattr(meta, "extend_existing", False)
+                if cls.__dict__.get("__abstract__") or not getattr(
+                    cls, "__extend_existing__", False
                 ):
                     return
                 args = getattr(cls, "__table_args__", None)
@@ -928,9 +926,10 @@ class UshkaDB:
         self,
         target: str,
         dtype: Any = None,
-        on_delete: str = CASCADE,
+        on_delete: str | None = CASCADE,
         nullable: bool = False,
         use_alter: bool = False,
+        on_update: str | None = None,
     ) -> Column:
         """
         Defines a SQLAlchemy Column that acts as a Foreign Key.
@@ -946,7 +945,8 @@ class UshkaDB:
             By default None.
         on_delete : str, optional
             The ON DELETE SQL action (e.g., 'CASCADE', 'SET NULL', 'RESTRICT').
-            By default CASCADE.
+            ``None`` writes no clause (NO ACTION), as a schema made by another
+            ORM usually has. By default CASCADE.
         nullable : bool, optional
             If True, allows NULL values. Overridden if on_delete='SET NULL'.
             By default False.
@@ -955,6 +955,8 @@ class UshkaDB:
             Set it on one side of a cycle of foreign keys (``app`` -> ``release``
             -> ``app``) so the tables can be sorted without an ``SAWarning``.
             By default False.
+        on_update : str, optional
+            The ON UPDATE SQL action. By default None (no clause).
 
         Returns
         -------
@@ -968,7 +970,7 @@ class UshkaDB:
             column_type = column_type.type
         return Column(
             column_type,
-            ForeignKey(target, ondelete=on_delete, use_alter=use_alter),
+            ForeignKey(target, ondelete=on_delete, onupdate=on_update, use_alter=use_alter),
             nullable=nullable,
         )
 
