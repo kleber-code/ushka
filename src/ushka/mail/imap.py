@@ -536,7 +536,7 @@ def _verified(context: ssl.SSLContext) -> ssl.SSLContext:
 class ImapClient:
     """An asynchronous IMAP client with one connection, used as ``async with``.
 
-    >>> async with ImapClient.from_config() as mail:      # doctest: +SKIP
+    >>> async with ImapClient() as mail:      # doctest: +SKIP
     ...     async for msg in mail.unseen():
     ...         ...
     ...         await mail.mark_seen(msg.uid)
@@ -545,50 +545,51 @@ class ImapClient:
     worker thread, and use UIDs, never sequence numbers. After a dropped
     connection the next command reconnects and selects the same folder again.
 
+    Whatever you do not pass comes from ``[imap]`` (and ``USHKA_IMAP_PASSWORD``), so
+    ``ImapClient()`` is the client of ``ushka.toml``. A misspelt option raises `TypeError`.
+
     Parameters
     ----------
-    host, user, password : str
+    host, user, password : str, optional
         The password is kept out of ``repr`` and error messages.
-    port : int
-        993 by default (TLS from the start).
-    ssl : bool
-        TLS from the first byte, with certificate and host name verified.
-    starttls : bool
-        With ``ssl=False``: connect in plain text and upgrade to verified TLS before logging in.
-    allow_insecure : bool
-        Required for ``ssl=False`` without `starttls`; logs a warning. Default False.
-    folder : str
-        Selected on connect.
-    timeout : float
-        Seconds to connect and for each read from the server.
-    max_message_kb, max_parts, max_depth : int
-        Limits on a message; a bigger one raises `MessageRefused`.
-    ssl_context : ssl.SSLContext, optional
-        For a private CA. It must verify certificate and host name.
-    taint : bool
-        Mark text from the e-mail `Untrusted` (default; ``[security] taint`` in `from_config`).
+    **options
+        The other keys of ``[imap]``: ``port`` (993), ``ssl`` (TLS from the first byte,
+        certificate and host name verified), ``starttls`` (with ``ssl=False``: upgrade a plain
+        connection to verified TLS before logging in), ``allow_insecure`` (needed for plain text;
+        logs a warning), ``folder``, ``timeout``, ``max_message_kb``, ``max_parts``. And three
+        that are code: ``ssl_context`` (a private CA; it must verify certificate and host
+        name), ``taint`` (text from the e-mail is `Untrusted`; follows ``[security] taint``)
+        and ``max_depth`` (nesting of MIME parts). ``config`` is the `Config` to read
+        (the app's by default).
     """
 
-    def __init__(
-        self,
-        host: str,
-        user: str,
-        password: str,
-        *,
-        port: int = 993,
-        ssl: bool = True,
-        starttls: bool = False,
-        allow_insecure: bool = False,
-        folder: str = "INBOX",
-        timeout: float = 30,
-        max_message_kb: int = 10240,
-        max_parts: int = 100,
-        max_depth: int = MAX_DEPTH,
-        ssl_context: ssl.SSLContext | None = None,
-        taint: bool = True,
-    ) -> None:
+    #: Keys of ``[imap]`` taken as options, then the ones that exist only in code.
+    _OPTIONS = ("port", "ssl", "starttls", "allow_insecure", "folder", "timeout", "max_message_kb", "max_parts")
+    _CODE_OPTIONS = ("ssl_context", "taint", "max_depth", "config")
+
+    def __init__(self, host: str | None = None, user: str | None = None, password: str | None = None, **options: Any) -> None:
+        from ushka.core.settings import reject_options
+
+        reject_options("ImapClient()", options, (*self._OPTIONS, *self._CODE_OPTIONS))
+        config = options.pop("config", None)
+        if config is None:
+            from ushka.core.config import Config
+
+            config = Config()
+            config.load_from_file(config._path)  # a script reads ushka.toml too; the app's is read again, unchanged
+        host = config.get("imap_host") if host is None else host
+        user = config.get("imap_user") if user is None else user
+        password = config.get("imap_password") if password is None else password
+        values = {key: config.get(f"imap_{key}") for key in self._OPTIONS}
+        values.update(options)
+        port, ssl, starttls, allow_insecure = values["port"], values["ssl"], values["starttls"], values["allow_insecure"]
+        folder, timeout = values["folder"], values["timeout"]
+        max_message_kb, max_parts = values["max_message_kb"], values["max_parts"]
+        max_depth = values.get("max_depth", MAX_DEPTH)
+        ssl_context = values.get("ssl_context")
+        taint = values["taint"] if "taint" in values else config.get("security_taint", True) is not False
         if not host:
-            raise ImapError("no IMAP host: set [imap] host")
+            raise ImapError("no IMAP host: set [imap] host or pass host=")
         for what, value in (("host", host), ("user", user), ("password", password)):
             if not isinstance(value, str) or _CONTROL.search(value):
                 raise ImapSecurityError(f"the IMAP {what} must be a str without control characters")
@@ -622,29 +623,8 @@ class ImapClient:
 
     @classmethod
     def from_config(cls, config: Any = None, **overrides: Any) -> ImapClient:
-        """A client from ``[imap]`` (and ``USHKA_IMAP_PASSWORD``). Keyword arguments override single settings."""
-        if config is None:
-            from ushka.core.config import Config
-
-            config = Config()
-        values: dict[str, Any] = {
-            "host": config.get("imap_host"),
-            "user": config.get("imap_user"),
-            "password": config.get("imap_password"),
-            "port": config.get("imap_port"),
-            "ssl": config.get("imap_ssl"),
-            "starttls": config.get("imap_starttls"),
-            "allow_insecure": config.get("imap_allow_insecure"),
-            "folder": config.get("imap_folder"),
-            "timeout": config.get("imap_timeout"),
-            "max_message_kb": config.get("imap_max_message_kb"),
-            "max_parts": config.get("imap_max_parts"),
-            "taint": config.get("security_taint", True) is not False,
-        }
-        values.update(overrides)
-        if not values["host"]:
-            raise ImapError("[imap] host is not set")
-        return cls(**values)
+        """``ImapClient(config=config, **overrides)``: a client from ``[imap]``; keywords override single settings."""
+        return cls(config=config, **overrides)
 
     def __repr__(self) -> str:
         return f"ImapClient(host={self.host!r}, user={self.user!r}, port={self.port}, ssl={self.ssl})"

@@ -125,9 +125,16 @@ class Ushka:
 
             install_auth(self)
 
+        self._static_path: str | None = None
         if self.config.get("STATIC_ENABLE"):
-            static_url = self.config.get("STATIC_URL", "/static") + "/[path:filename]"
-            self._add_shared_route("GET", static_url, server_static_files)
+            self._serve_static_folder()
+
+    def _serve_static_folder(self) -> None:
+        """Serves the ``[static]`` folder under ``[static] url`` (once per url)."""
+        path = self.config.get("STATIC_URL", "/static") + "/[path:filename]"
+        if path != self._static_path:
+            self._static_path = path
+            self._add_shared_route("GET", path, server_static_files)
 
     def _add_shared_route(self, method: str, path: str, func) -> None:
         """A route every host serves (static files), not only the default one."""
@@ -609,39 +616,19 @@ class Ushka:
         return openapi.build(self.router, title or self.config.get("app_name", "Ushka API"), version, skip)
 
     def enable_openapi(self, path: str = "/openapi.json", title: str | None = None, version: str = "0.1.0") -> None:
-        """Serves `openapi()` as JSON at `path`. Opt-in: an API description is
-        a map of your routes, so you decide whether to publish it."""
+        """Shortcut for ``app.use(OpenAPI(path, title, version))``: serves `openapi()` as JSON.
 
-        async def openapi_json():
-            return self.openapi(title, version)
+        Opt-in: an API description is a map of your routes, so you decide whether to publish it."""
+        from ushka.api.openapi import OpenAPI
 
-        self._openapi_skip = getattr(self, "_openapi_skip", set()) | {openapi_json}
-        self.router.add_route("GET", path, openapi_json)
+        self.use(OpenAPI(path, title=title, version=version))
 
     def enable_mcp(self, path: str = "/mcp", token=None, approve=None, name: str | None = None, instructions: str | None = None, internal_headers=None) -> None:
-        """Serves the routes marked with `ushka.api.mcp.tool` to AI agents over MCP.
+        """Shortcut for ``app.use(MCP(token=..., approve=...))``: serves the routes marked
+        with `ushka.api.mcp.tool` to AI agents over MCP. See `ushka.api.mcp.MCP`."""
+        from ushka.api.mcp import MCP
 
-        Call it after your routes are registered. `token` (or ``USHKA_MCP_TOKEN``)
-        is the bearer token agents must send; without one it refuses to start
-        unless debug is on. `approve` is an async callable (or
-        `ushka.api.mcp.ApprovalQueue`) that a human answers for sensitive tools.
-        `internal_headers` (a dict, or a function of the request) adds headers to
-        the internal request, e.g. a service credential your routes check.
-        With ``token=False`` the endpoint has no shared secret: the caller's
-        ``Authorization`` is passed to the routes, which authenticate it.
-        """
-        from ushka.api.mcp import MCPServer
-
-        server = MCPServer(self, path, token, approve, name, instructions, internal_headers)
-        self.mcp = server
-
-        async def mcp_endpoint(request):
-            status, payload = await server.handle(request)
-            return (payload, status) if payload is not None else Response(b"", status_code=status)
-
-        server_endpoint = mcp_endpoint
-        self._openapi_skip = getattr(self, "_openapi_skip", set()) | {server_endpoint}
-        self.router.add_route("POST", path, server_endpoint)
+        self.use(MCP(token=token, approve=approve, path=path, name=name, instructions=instructions, internal_headers=internal_headers))
 
     def on_startup(self, func):
         """Registers a function (sync or async) to run when the server starts.

@@ -262,6 +262,7 @@ def get_store(app: Any) -> SessionStore | None:
                         "(not revocable on the server): %s.", reason)
         return None
     store = DatabaseStore(app.config.get("database_url"), app.config.get("session_table", "ushka_sessions"))
+    store._from_config = True  # so `Sessions(...)` can drop it when the setting changes
     app.session_store = store
     return store
 

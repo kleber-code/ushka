@@ -197,12 +197,13 @@ The same signatures describe your API. It is off until you ask, because the
 document is a map of your routes:
 
 ```python
-app.enable_openapi()                    # GET /openapi.json
+app.use(OpenAPI())                      # GET /openapi.json
 doc = app.openapi(title="Shop", version="1.0")   # or get the dict
 ```
 
 Paths, parameters (including those of `Depends`), request bodies, enums and
 limits come from the annotations, so the document matches what the app
-really validates. Paste `/openapi.json` into any OpenAPI viewer or client
+really validates. `OpenAPI(path="/openapi.json", title=..., version=...)` takes all three as options
+(`from ushka.api.openapi import OpenAPI`); `app.enable_openapi()` is the same thing. Paste `/openapi.json` into any OpenAPI viewer or client
 generator. Ushka does not bundle a browser UI: that would mean shipping
 third-party scripts that the default [CSP](security.md) blocks.
