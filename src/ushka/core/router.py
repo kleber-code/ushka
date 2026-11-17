@@ -12,6 +12,7 @@ import importlib.util
 import inspect
 import logging
 import re
+import sys
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
 
@@ -443,13 +444,18 @@ class Router:
                 continue
 
             # Dynamic module import
-            module_name = f"{folder}.{file_path.stem}"  # For reference only
+            # The name the file has when imported (``routes.auth.login``), so
+            # ``from routes.auth.login import x`` gets this very module (L7).
+            rel_parts = file_path.relative_to(routes_root).with_suffix("").parts
+            module_name = ".".join([folder.replace("/", "."), *rel_parts])
             spec = importlib.util.spec_from_file_location(module_name, str(file_path))
 
             if not spec or not spec.loader:
                 continue
 
             mod = importlib.util.module_from_spec(spec)
+            previous = sys.modules.get(module_name)
+            sys.modules[module_name] = mod
             try:
                 if Config().get("security_taint", True) is not False:
                     # Ushka Guard: compile with the rewrite that keeps the
@@ -459,6 +465,10 @@ class Router:
                     spec.loader.exec_module(mod)
             except Exception as e:
                 self.log.error(f"Failed to load route module {file_path}: {e}")
+                if previous is None:
+                    sys.modules.pop(module_name, None)
+                else:
+                    sys.modules[module_name] = previous
                 continue
 
             # Calculates the route based on the file path

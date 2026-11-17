@@ -55,3 +55,21 @@ async def test_405_uses_the_routes_of_the_host(app, call):
 
     res = await call(app, "GET", "/x", headers={"host": "api.example.com"})
     assert res["status"] == 405 and "POST" in _headers(res)["allow"]
+
+
+async def test_route_modules_are_registered_under_their_import_name(workdir, monkeypatch, call):
+    import importlib
+    import sys
+
+    (workdir / "routes" / "pkg").mkdir(parents=True)
+    (workdir / "routes" / "pkg" / "mod.py").write_text("CLIENT = 'real'\n\ndef get():\n    return CLIENT\n")
+    monkeypatch.syspath_prepend(str(workdir))
+    monkeypatch.setattr(Ushka, "_setup_workdir", lambda self: setattr(self, "workdir", workdir))
+    app = Ushka()
+    imported = importlib.import_module("routes.pkg.mod")
+    try:
+        imported.CLIENT = "fake"  # what a test does with monkeypatch
+        assert (await call(app, "GET", "/pkg/mod"))["body"] == "fake"
+    finally:
+        for name in [n for n in sys.modules if n == "routes" or n.startswith("routes.")]:
+            sys.modules.pop(name, None)

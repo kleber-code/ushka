@@ -13,6 +13,7 @@ All notable changes to Ushka. The format follows
 
 ### Fixed
 
+- **Route files are registered in `sys.modules` under their import name** (`routes.auth.login`). `from routes.auth.login import x` in a test used to load a second copy, so `monkeypatch` and module variables did not reach the route that answers requests.
 - **JSON responses serialize `datetime`, `date`, `time`, `Decimal` and `UUID`** (ISO 8601 text; `Decimal` and `UUID` as strings, like Django's `JsonResponse`). They used to answer 500 (`TypeError`). Also applies to `send_json` and SSE data.
 - **`db.execute()` now commits.** Writes made through it (`UPDATE`, `INSERT`, `DELETE`) used to be rolled back when the session closed, without any error.
 

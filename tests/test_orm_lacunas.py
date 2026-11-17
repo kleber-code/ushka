@@ -54,12 +54,12 @@ async def test_datetime_tz_accepts_aware_values(tmp_path):
 
     db = await _db(tmp_path, "tz")
 
-    class Audit(db.Model):
+    class AuditRT(db.Model):
         __tablename__ = "l2_audit_rt"
         when = db.DateTime(tz=True)
 
     async with db.engine.begin() as conn:
-        await conn.run_sync(db.metadata.create_all, tables=[Audit.__table__])
-    row = await Audit.create(when=datetime(2026, 11, 17, 10, 0, tzinfo=timezone.utc))
-    assert (await Audit.get(row.id)).when.replace(tzinfo=None) == datetime(2026, 11, 17, 10, 0)
+        await conn.run_sync(db.metadata.create_all, tables=[AuditRT.__table__])
+    row = await AuditRT.create(when=datetime(2026, 11, 17, 10, 0, tzinfo=timezone.utc))
+    assert (await AuditRT.get(row.id)).when.replace(tzinfo=None) == datetime(2026, 11, 17, 10, 0)
     await db.engine.dispose()
