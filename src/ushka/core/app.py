@@ -14,7 +14,7 @@ from ushka.core.config import Config
 from ushka.core.error_handler import ErrorHandler
 from ushka.core.log import LogLevelType, get_log_config, setup_logging
 from ushka.http.exceptions import HTTPMethodNotAllowed, HttpNotFound
-from ushka.http.exceptions import HTTPError
+from ushka.http.exceptions import HTTPError, HTTPResponse
 from ushka.http.params import Resolver
 from ushka.http.validation import RequestValidationError
 from ushka.http.websocket import WebSocket, WebSocketDisconnect
@@ -157,7 +157,7 @@ class Ushka:
                 await result
         except WebSocketDisconnect:
             pass
-        except HTTPError:
+        except (HTTPError, HTTPResponse):
             await ws.close(1008, "refused")
         except RequestValidationError:
             await ws.close(1008, "invalid request")

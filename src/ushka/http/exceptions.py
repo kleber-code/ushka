@@ -160,3 +160,34 @@ class HTTPForbidden(HTTPError):
         message: str = "Forbidden",
     ) -> None:
         super().__init__(template, status_code, message)
+
+
+class HTTPResponse(Exception):
+    """Interrupts the request and answers with `response`, as it is.
+
+    Raise it from a `Depends` function (or the handler) to stop early with any
+    response, for example a redirect to the login page::
+
+        async def login_required(request: Request):
+            if not request.session.get("user"):
+                raise HTTPRedirect("/login")
+
+    Unlike `HTTPError`, no error page is rendered.
+    """
+
+    def __init__(self, response) -> None:
+        super().__init__(f"HTTP {getattr(response, 'status_code', '?')} response")
+        self.response = response
+
+
+class HTTPRedirect(HTTPResponse):
+    """`HTTPResponse` that redirects to `to` (302 by default).
+
+    `to` goes through the same guard as `redirect()`: a value built from request
+    data is refused unless it was validated with ``safe.url``.
+    """
+
+    def __init__(self, to: str, status_code: int = 302) -> None:
+        from ushka.http.redirect import redirect
+
+        super().__init__(redirect(to, status_code))

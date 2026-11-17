@@ -5,6 +5,10 @@ All notable changes to Ushka. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **`Depends` can stop the request with a response.** `raise HTTPResponse(response)` or `raise HTTPRedirect(url)` from a dependency (or the handler) answers with that response, so a `login_required` that redirects to the login page is possible. A response a dependency merely returns is still injected as a value, as before.
+
 ### Fixed
 
 - **`db.execute()` now commits.** Writes made through it (`UPDATE`, `INSERT`, `DELETE`) used to be rolled back when the session closed, without any error.
