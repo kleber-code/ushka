@@ -39,6 +39,24 @@ url = "sqlite:///{name}.db"
 enable = true
 url = "/static"
 dir = "static"
+
+# SEO is ready: `{{{{ seo() }}}}` in templates/index.html writes the title, description,
+# canonical link, Open Graph and Twitter tags. Fill these in, and set `url` to
+# your public address before going live (`ushka check` reminds you). A page can
+# override any of it: `{{{{ seo(title="About", description="...") }}}}`.
+# Also served: /robots.txt and /sitemap.xml.
+[seo]
+# url = "https://example.com"
+description = "{name}, built with Ushka."
+# image = "/static/social.png"   # preview image for links shared on social networks
+# twitter_site = "@handle"
+
+# Make it installable (Progressive Web App): turn it on, add 192x192 and 512x512
+# PNG icons to static/, and put `{{{{ pwa() }}}}` in the <head>.
+# [pwa]
+# enable = true
+# icons = ["/static/icon-192.png", "/static/icon-512.png"]
+# theme_color = "#2b1e3a"
 '''
 
 DOTENV = '''\
@@ -76,7 +94,7 @@ INDEX_TEMPLATE = '''\
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>{{ request.app.config.APP_NAME }}</title>
+    {{ seo() }}
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>

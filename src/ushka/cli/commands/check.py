@@ -12,6 +12,7 @@ from pathlib import Path
 from ushka.cli import ui
 from ushka.core.config import Config
 from ushka.guard import TEMPLATES_SUPPORTED
+from ushka.pwa import icons as pwa_icons
 
 SETTINGS = (
     "app_debug",
@@ -87,6 +88,23 @@ def check(production: bool = False) -> int:
         else:
             problems += 1
             ui.error(".env exists but is not in .gitignore")
+
+    if config.get("seo_enable", True):
+        if config.get("seo_url"):
+            ui.ok(f"SEO: public URL is {config.get('seo_url')}")
+        else:
+            ui.warn("[seo] url is not set: set it before going live (canonical links and sitemap.xml need it)")
+        if not config.get("seo_description"):
+            ui.warn("[seo] description is empty: pages without their own have no meta description")
+        if "noindex" in str(config.get("seo_robots")).lower() and production:
+            ui.warn('[seo] robots says "noindex": search engines will skip this site')
+    if config.get("pwa_enable"):
+        sizes = {i.get("sizes") for i in pwa_icons(config)}
+        if {"192x192", "512x512"} <= sizes:
+            ui.ok("PWA: manifest and 192/512 icons configured")
+        else:
+            problems += 1
+            ui.error("[pwa] needs icons of 192x192 and 512x512 (PNG) to be installable")
 
     routes = workdir / "routes"
     if routes.is_dir():

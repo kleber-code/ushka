@@ -19,6 +19,8 @@ from ushka.http.params import Resolver
 from ushka.http.validation import RequestValidationError
 from ushka.http.websocket import WebSocket, WebSocketDisconnect
 from ushka.http.request import Request
+import ushka.pwa as pwa_module
+import ushka.seo as seo_module
 from ushka.security import SecurityMiddleware
 from ushka.http.response import Response
 from ushka.http.redirect import redirect
@@ -84,6 +86,11 @@ class Ushka:
         self.error_handler = ErrorHandler(self.config, self.log, self.router)
         #: Always outermost; configured in ``[security]``.
         self.security = SecurityMiddleware(self.config)
+        #: ``{path: handler}`` for GET pages Ushka ships (robots.txt, the PWA files...).
+        #: They answer only when no route of yours matches, so yours always win.
+        self._builtin_routes: dict = {}
+        seo_module.install(self)
+        pwa_module.install(self)
 
         if self.config.get("STATIC_ENABLE"):
             static_url = self.config.get("STATIC_URL", "/static") + "/[path:filename]"
@@ -299,6 +306,9 @@ class Ushka:
         """
         handler, params = self.router.get_route(request)
 
+        if not handler and request.method in ("GET", "HEAD"):
+            handler = self._builtin_routes.get(self.router._normalize_path(request.path))
+
         if not handler:
             is_empty = not self.router.static_routes and not self.router.dynamic_routes
             if is_empty:
@@ -408,6 +418,14 @@ class Ushka:
             return func
 
         return wrapper
+
+    def add_builtin_route(self, path: str, handler) -> None:
+        """Registers a page Ushka itself ships (``/robots.txt``, ``/sw.js``...).
+
+        Unlike `Router.add_route` it never overwrites yours: a route you define
+        for the same path is used instead, with no warning.
+        """
+        self._builtin_routes[self.router._normalize_path(path)] = handler
 
     def mount_static(
         self,

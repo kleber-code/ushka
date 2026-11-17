@@ -59,6 +59,7 @@ the framework, at runtime, on your real code. Read
 - **Data, sessions and templates:**
   - Async Active Record ORM on SQLAlchemy, with migrations in `ushka db` (extra `ushka[orm]`).
   - Jinja2 templates, signed sessions, cookies, flash messages, file uploads and request size limits.
+- **SEO and PWA, from `ushka.toml`.** `{{ seo() }}` writes the meta, Open Graph and structured-data tags (a page can override them), `robots.txt` and `sitemap.xml` are served for you, and `[pwa] enable = true` adds a manifest, a service worker and an offline page.
 - **Config.** Defaults, then `ushka.toml`, then `.env`, then environment variables, all without extra packages. `DATABASE_URL` works out of the box.
 - **Static files.** `app.mount_static("/assets", "public")` serves any folder, with `ETag`/`304` and your choice of `Cache-Control`.
 - **Ushka Docs.** A Markdown folder becomes a searchable docs site with an API reference, served by your app (`ushka[docs]`), with a cache you can build into your Docker image.

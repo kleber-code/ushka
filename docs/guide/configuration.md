@@ -68,6 +68,10 @@ that names the file and the position of the error.
 | `[security]` | `cors_headers` | `[]` | Request headers CORS allows. Empty echoes what the preflight asks for. |
 | `[security]` | `cors_credentials` | `false` | Let other origins send cookies. Refused with `["*"]`. |
 | `[security]` | `cors_max_age` | `600` | Seconds a browser may cache the preflight answer. |
+| `[seo]` | `url` | `""` | Public origin, for canonical links and the sitemap. See [SEO](seo.md). |
+| `[seo]` | `description`, `image`, `site_name`, `robots`... | | Defaults for every page's SEO tags; the full list is in [SEO](seo.md#all-the-settings). |
+| `[pwa]` | `enable` | `false` | Serve the manifest, service worker and offline page. See [PWA](pwa.md). |
+| `[pwa]` | `name`, `icons`, `theme_color`... | | The manifest; the full list is in [PWA](pwa.md#all-the-settings). |
 
 Lists are written `["a", "b"]` in TOML and `a,b` in environment variables.
 

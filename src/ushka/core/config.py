@@ -56,6 +56,59 @@ DEFAULTS: dict[str, dict[str, Any]] = {
         "dir": "static",
         "cache_control": "public, max-age=3600",
     },
+    # SEO, ready out of the box (ushka.seo): edit the values, then put
+    # `{{ seo() }}` in your layout's <head>. Pages override per call.
+    "seo": {
+        "enable": True,  # {{ seo() }}, /robots.txt and /sitemap.xml
+        "url": "",  # public origin, e.g. "https://example.com"; needed for absolute URLs
+        "site_name": "",  # empty = [app] name
+        "title": "",  # title of pages that set none (the home page, usually)
+        "title_template": "{title} \u00b7 {site_name}",
+        "description": "",
+        "image": "",  # default social preview image: a path or a URL
+        "image_alt": "",
+        "locale": "en_US",
+        "type": "website",
+        "robots": "index, follow",  # "noindex, nofollow" keeps a staging site out of search
+        "author": "",
+        "twitter_site": "",  # "@handle"
+        "twitter_card": "summary_large_image",
+        "jsonld": True,  # structured data: WebSite on "/", Article for type = "article"
+        "robots_txt": True,
+        "robots_disallow": [],
+        "sitemap": True,
+        "sitemap_paths": [],  # extra paths to list (dynamic pages, or app.sitemap_source)
+        "sitemap_exclude": ["/api/*", "/admin/*", "/_*"],  # patterns; plain GET pages are listed otherwise
+    },
+    # Progressive Web App (ushka.pwa): off by default. See the guide "PWA".
+    "pwa": {
+        "enable": False,
+        "name": "",  # empty = [seo] site_name, then [app] name
+        "short_name": "",
+        "description": "",  # empty = [seo] description
+        "start_url": "/",
+        "scope": "/",
+        "display": "standalone",  # standalone | fullscreen | minimal-ui | browser
+        "orientation": "",
+        "theme_color": "#1b1720",
+        "background_color": "#ffffff",
+        "lang": "",
+        "id": "",
+        "categories": [],
+        # Paths or [[pwa.icons]] tables with src, sizes, type and purpose. Chrome wants 192x192 and 512x512 PNGs.
+        "icons": [],
+        "shortcuts": [],  # [[pwa.shortcuts]] tables with name and url
+        "offline": True,  # an offline page for navigations that fail
+        "offline_title": "You are offline",
+        "offline_message": "Check your connection and try again.",
+        "precache": [],  # extra URLs fetched when the worker installs
+        "cache_paths": [],  # extra prefixes cached at runtime ([static] is always included)
+        "cache_version": "1",  # change it to drop every cache
+        "manifest_path": "/manifest.webmanifest",
+        "sw_path": "/sw.js",
+        "script_path": "/pwa.js",
+        "offline_path": "/offline",
+    },
     "limits": {
         "max_request_body_size_in_KB": 2048,
         "max_request_body_multipart_size_in_KB": 51200,

@@ -44,6 +44,8 @@ validates. Read [Ushka Guard](guard.md) for the full story.
   [Validation and typed parameters](validation.md) and [Dependency Injection](dependency_injection.md).
 - **Pages and files:** [Templates](templates.md), [Static files](static_files.md),
   [Sessions, cookies and uploads](sessions.md) and [Flash messages](flashing.md).
+- **Be found, be installable:** [SEO](seo.md) (meta tags, `robots.txt`, `sitemap.xml`) and
+  [Progressive Web App](pwa.md) (manifest, service worker, offline page).
 - **Data:** the async [ORM](orm.md) and migrations.
 - **Real time and agents:** [WebSockets and Server-Sent Events](realtime.md) and
   [Routes as agent tools (MCP)](agents.md).

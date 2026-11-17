@@ -73,6 +73,15 @@ Jinja2 with autoescaping, project templates that override the built-in ones,
 multipart uploads with size limits, and [static files](guide/static_files.md) with
 `ETag`/`304` and any folder you mount. See [Templates](guide/templates.md).
 
+## SEO and PWA, from `ushka.toml`
+
+`{{ seo() }}` writes the title, description, canonical link, Open Graph, Twitter
+tags and structured data for every page; `/robots.txt` and `/sitemap.xml` are
+served for you, and a page overrides anything it needs. Switch on `[pwa]` and the
+app gets a web manifest, a conservative service worker and an offline page. Both
+are configured in the file, with no extra packages. See [SEO](guide/seo.md) and
+[Progressive Web App](guide/pwa.md).
+
 ## Configuration without extra packages
 
 Defaults, then `ushka.toml`, then `.env`, then `USHKA_<SECTION>_<KEY>`
