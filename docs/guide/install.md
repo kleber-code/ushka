@@ -7,7 +7,7 @@ macOS and Windows.
 
 ```bash
 pip install ushka        # or: uv add ushka
-pip install --pre ushka  # the 0.8 beta
+pip install "ushka==0.8.0b3"  # the 0.8 beta (see the note below)
 ushka --version
 ```
 
@@ -68,3 +68,11 @@ Ushka.
 ## Next
 
 [Build your first app](quickstart.md) in five minutes.
+
+### Installing the beta
+
+Pin the beta version, as above, instead of using `pip install --pre ushka`. An exact
+pre-release version installs only that pre-release, while `--pre` lets pip pick
+pre-releases of **every** package it installs, which can pull in an unfinished
+dependency (for example `httpx` 1.0 development builds). If you must use `--pre`, pin
+what you depend on (`httpx<1`).

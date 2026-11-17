@@ -5,6 +5,22 @@ All notable changes to Ushka. The format follows
 
 ## [Unreleased]
 
+## [0.8.0b3] - 2026-11-17
+
+Third beta of 0.8: findings from the Satela cut-over.
+
+### Added
+
+- **`redirect("/projects/{id}/", id=value, query={...})`** and `HTTPRedirect(...)` with the same arguments: request data goes into a redirect as percent-encoded parts of a URL template you wrote, so it cannot change the host or the path and needs no `safe.url()`. `redirect(f"/projects/{pid}/")` is still refused (`USHKA-G003`: the f-string keeps the mark of `pid`), and the error now says how to build the URL from parts instead of only suggesting `safe.url`.
+
+### Fixed
+
+- `DatabaseStore` (server-side sessions) opens one engine per event loop. It used to keep the first loop's engine, and a pooled connection belongs to the loop that opened it, so a second loop (tests, `asyncio.run`, a driver such as asyncpg) failed.
+
+### Changed
+
+- Docs: install the beta with `pip install "ushka==0.8.0b3"`, not `--pre`, which makes pip accept unfinished versions of every other dependency too (`httpx` 1.0 development builds, for one). The cookie session is explained as signed and not encrypted, and why. A NUL byte in query data nothing reads is not rejected (it is ignored).
+
 ## [0.8.0b2] - 2026-11-17
 
 Second beta of 0.8: fixes and small features found while porting a real application.

@@ -19,7 +19,11 @@ It is saved on whatever response you return. Things to know:
   Debug mode makes a throwaway key; production without one raises a `RuntimeError`
   that says how to create it. See [the secret key](configuration.md#the-secret-key).
 - **Signed, not encrypted.** The client can read the contents, but cannot change
-  them. Never store a secret in the session.
+  them. Never store a secret (a token, a password, personal data) in a cookie session.
+  Ushka does not encrypt it on purpose: encryption needs a cryptography library and the
+  core carries none. When the contents must stay private, or the session must be
+  revocable, use [server-side sessions](#server-side-sessions): the cookie then holds
+  only a random id.
 - **About 4 KB.** It lives in a cookie. Store an id and keep the data in a database.
 - **Lifetime.** Fourteen days by default, `HttpOnly` and `SameSite=Lax`, and
   `Secure` whenever debug is off, so browsers send it over **HTTPS** only.

@@ -80,7 +80,11 @@ Fix: drop `|safe`, or sanitise the value before passing it to the template.
 
 **Untrusted redirect target** (open redirect, phishing).
 
-Fix: `redirect(safe.url(value, allow=["/"], default="/"))`.
+Fix: put the client data in the URL as **parts**, `redirect("/projects/{id}/", id=value)`
+(each part is percent-encoded, so it cannot change the host or the path; see
+[Redirects](requests-responses.md#redirects)), or validate the whole target with
+`redirect(safe.url(value, allow=["/"], default="/"))`. An f-string such as
+`redirect(f"/projects/{pid}/")` keeps the mark of `pid`, so it is refused too.
 
 ### USHKA-G004
 

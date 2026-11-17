@@ -497,3 +497,27 @@ async def test_database_store_releases_its_connections_at_shutdown(workdir, make
 
     await app(scope, receive, send)
     assert closed == [True] and sent[-1] == "lifespan.shutdown.complete"
+
+
+def test_database_store_opens_one_engine_per_event_loop(workdir):
+    """A pooled connection belongs to the loop that opened it (asyncpg fails on another one).
+
+    So the store must not keep the first loop's engine: each loop gets its own.
+    """
+    from ushka.sessions.stores import DatabaseStore, SessionRecord
+
+    store = DatabaseStore(f"sqlite:///{workdir}/loops.db")
+    engines = []
+
+    async def use(key):
+        await store.save(SessionRecord(key, "{}", "7", 1.0, 1.0))
+        engines.append(store._engine)
+        assert store._engine is engines[-1]  # the same loop keeps its engine
+        assert (await store.load(key)).user_id == "7"
+        return await store.delete_user("7")
+
+    for key in ("a", "b", "c"):
+        assert asyncio.run(use(key)) == 1
+    assert len({id(e) for e in engines}) == 3, "every event loop must get its own engine"
+    asyncio.run(store.close())
+    assert not store._handles

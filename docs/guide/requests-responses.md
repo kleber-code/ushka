@@ -107,7 +107,22 @@ async def post(request):
 
 `redirect(to, status_code=302)` also accepts 301, 303, 307 and 308. The target is
 a guarded sink: a value from the request is refused with
-[USHKA-G003](guard.md#ushka-g003) until `safe.url()` has checked it.
+[USHKA-G003](guard.md#ushka-g003) until it has been checked.
+
+**Request data inside a URL.** When only a piece of the URL comes from the request
+(a path parameter, a query value), give the URL as a template of your own and pass
+the pieces. They are percent-encoded, so `//evil.example` or `../../admin` stay inside
+their segment, and no `safe.url()` is needed:
+
+```python
+async def get(request, project_id):                       # routes/projects/[project_id]/open.py
+    return redirect("/projects/{id}/", id=project_id, query={"tab": request.query.get("tab", "")})
+```
+
+`raise HTTPRedirect("/projects/{id}/", id=project_id)` takes the same arguments.
+Use `safe.url()` instead when the *whole* target is client data (a `next` field).
+A plain f-string, `redirect(f"/projects/{project_id}/")`, is refused: the mark of
+`project_id` survives it, and the guard cannot tell a harmless piece from a whole URL.
 
 ## Errors
 

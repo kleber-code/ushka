@@ -109,5 +109,7 @@ A NUL byte (`\x00`) in a query string, form, JSON document, text body or path
 parameter is refused with **400**, before your handler runs. Nothing legitimate sends
 one, and it breaks things later: PostgreSQL refuses it in text (a 500 in your logs
 otherwise) and file APIs written in C stop reading at it. The check looks inside nested
-JSON and form lists, and it stays on even if `[security] taint = false`. Uploaded file
+JSON and form lists, and it stays on even if `[security] taint = false`. It runs when the
+data is first read, so a query string that no handler reads is not rejected (it is
+ignored and harmless). Uploaded file
 contents are not text and are not checked.

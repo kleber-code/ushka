@@ -23,6 +23,7 @@ import asyncio
 import importlib.util
 import logging
 import re
+import weakref
 from dataclasses import dataclass
 from typing import Any
 
@@ -101,6 +102,16 @@ class SessionStore:
 _IDENT = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{0,62}$")
 
 
+class _LoopHandle:
+    """The engine, lock and "table created" flag of one event loop."""
+
+    def __init__(self, loop: asyncio.AbstractEventLoop, engine: Any) -> None:
+        self.loop = weakref.ref(loop)
+        self.engine = engine
+        self.lock = asyncio.Lock()
+        self.ready = False
+
+
 class DatabaseStore(SessionStore):
     """Sessions in a table of the `[database]` database (SQLAlchemy, async).
 
@@ -119,7 +130,11 @@ class DatabaseStore(SessionStore):
         from ushka.orm.database import UshkaDB
 
         self._sa = sa
-        self._engine = create_async_engine(UshkaDB.to_async_url(url), echo=False)
+        self._create_engine = lambda: create_async_engine(UshkaDB.to_async_url(url), echo=False)
+        #: One engine (with its lock and "table exists" flag) per running event loop:
+        #: a pooled connection is tied to the loop that opened it, so a store that
+        #: kept one engine broke as soon as a second loop used it (tests, `asyncio.run`).
+        self._handles: dict[int, _LoopHandle] = {}
         meta = sa.MetaData()
         self._table = sa.Table(
             table,
@@ -131,17 +146,30 @@ class DatabaseStore(SessionStore):
             sa.Column("last_seen", sa.Float, nullable=False),
         )
         self._meta = meta
-        self._ready = False
-        self._lock = asyncio.Lock()
+
+    def _handle(self) -> _LoopHandle:
+        loop = asyncio.get_running_loop()
+        handle = self._handles.get(id(loop))
+        if handle is None or handle.loop() is not loop:
+            for key in [k for k, h in self._handles.items() if h.loop() is None or h.loop().is_closed()]:
+                del self._handles[key]  # their loops are gone; the connections go with them
+            handle = _LoopHandle(loop, self._create_engine())
+            self._handles[id(loop)] = handle
+        return handle
+
+    @property
+    def _engine(self):
+        return self._handle().engine
 
     async def _setup(self) -> None:
-        if self._ready:
+        handle = self._handle()
+        if handle.ready:
             return
-        async with self._lock:
-            if not self._ready:
-                async with self._engine.begin() as conn:
+        async with handle.lock:
+            if not handle.ready:
+                async with handle.engine.begin() as conn:
                     await conn.run_sync(self._meta.create_all)
-                self._ready = True
+                handle.ready = True
 
     async def load(self, key: str) -> SessionRecord | None:
         await self._setup()
@@ -192,7 +220,10 @@ class DatabaseStore(SessionStore):
         return result.rowcount or 0
 
     async def close(self) -> None:
-        await self._engine.dispose()
+        handle = self._handles.pop(id(asyncio.get_running_loop()), None)
+        if handle is not None:
+            await handle.engine.dispose()
+        self._handles.clear()  # other loops' engines cannot be awaited from here; drop them
 
     async def purge(self, created_before: float | None, seen_before: float | None) -> int:
         await self._setup()

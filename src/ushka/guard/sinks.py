@@ -55,7 +55,11 @@ def check_redirect(value: Any) -> None:
             code="USHKA-G003",
             sink="redirect()",
             risk="open redirect / phishing",
-            fix='redirect(safe.url(value, allow=["/"], default="/"))',
+            fix=(
+                'put the client data in the URL as parts, redirect("/projects/{id}/", id=value) '
+                '(parts are percent-encoded), or validate the whole target: '
+                'redirect(safe.url(value, allow=["/"], default="/"))'
+            ),
         )
 
 

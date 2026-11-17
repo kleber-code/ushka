@@ -179,9 +179,12 @@ class HTTPRedirect(HTTPError):
     it first with ``safe.url(url, allow=["/"], default="/")``).
     """
 
-    def __init__(self, url: str, status_code: int = 302) -> None:
+    def __init__(self, url: str, status_code: int = 302, *, query: dict | None = None, **params) -> None:
         from ushka.guard import check_redirect
+        from ushka.http.urls import build_url
 
+        if params or query:  # `{name}` slots and a query string, percent-encoded (see `redirect`)
+            url = build_url(url, params, query)
         check_redirect(url)
         super().__init__("error.html", status_code, f"Redirect to {url}")
         self.url = url
