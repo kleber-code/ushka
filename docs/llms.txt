@@ -54,7 +54,7 @@ Rules for generating Ushka code:
 
 ## Run it
 
-- [Configuration](https://ushka.satela.com.br/docs/guide/configuration/): every setting, .env, environment variables
+- [Configuration](https://ushka.satela.com.br/docs/guide/configuration/): all 76 settings with defaults and meaning (nothing hidden), `ushka config` to inspect them, `ushka new` writes them all, .env and environment variables
 - [Deploy](https://ushka.satela.com.br/docs/guide/deploy/): checklist, Docker, workers, health check, proxies
 - [Performance](https://ushka.satela.com.br/docs/guide/performance/): uvloop and httptools, idle CPU, benchmarks, how to measure
 - [CLI](https://ushka.satela.com.br/docs/guide/cli/): new, dev, run, check, verify, docs, routes, db

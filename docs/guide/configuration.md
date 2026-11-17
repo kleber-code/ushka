@@ -13,69 +13,202 @@ rewrites the file.
 
 ## `ushka.toml`
 
-Settings are grouped in sections. This is the file `ushka new` writes:
+Settings are grouped in sections. `ushka new` writes a file with **every setting
+listed**, its default value and a comment saying what it does, so you can see all
+the features and control them in one place. An excerpt:
 
 ```toml
-[app]
-name = "hello"
-# `ushka dev` turns debug on by itself; keep it off here so production is safe.
-debug = false
+# ----------------------------------------------------------------------
+# Ushka Guard and the security middleware, all on by default.
+# Environment: USHKA_SECURITY_<KEY>
+[security]
+# Ushka Guard: request data arrives as `Untrusted` and dangerous sinks
+# refuse it. Turning it off is a migration aid, not a mode.
+taint = true
 
-[database]
-url = "sqlite:///hello.db"
+# CSRF protection for writes from browsers, without tokens.
+csrf = true
 
-[static]
-enable = true
-url = "/static"
-dir = "static"
+# Accepted Host headers. Empty means any host: set it in production.
+allowed_hosts = []
 ```
+
+A project that predates this can get the same file with `ushka config --template`.
+Keys you leave out use their defaults, so a short `ushka.toml` works too.
 
 If the file is not valid TOML, the app refuses to start with a `ValueError`
 that names the file and the position of the error.
 
 ## All settings
 
-| Section | Key | Default | Meaning |
-| --- | --- | --- | --- |
-| `[app]` | `name` | `"Ushka App"` | Display name. |
-| `[app]` | `debug` | `false` | Debug pages with tracebacks. Never on in production. |
-| `[app]` | `auto_discover` | `true` | Load route files from `routes/`. |
-| `[app]` | `secret_key` | `""` | Signs the session cookie. **Do not put it in `ushka.toml`**; use `USHKA_APP_SECRET_KEY`. |
-| `[database]` | `url` | `"sqlite:///ushka.db"` | SQLAlchemy URL for the [ORM](orm.md). |
-| `[mcp]` | `token` | `""` | Bearer token for [agent tools](agents.md). Use `USHKA_MCP_TOKEN`, not `ushka.toml`. |
-| `[server]` | `host` | `"127.0.0.1"` | Bind address for `ushka dev`, `ushka run` and `app.run()`. Use `"0.0.0.0"` in a container. |
-| `[server]` | `port` | `8000` | Port. |
-| `[server]` | `workers` | `1` | Worker processes for `ushka run` (`ushka dev` always uses one). See [Deploy](deploy.md#workers). |
-| `[static]` | `enable` | `false` | Serve [static files](static_files.md). |
-| `[static]` | `url` | `"/static"` | URL prefix for static files. |
-| `[static]` | `dir` | `"static"` | Folder with the files, relative to the app directory or absolute. |
-| `[static]` | `cache_control` | `"public, max-age=3600"` | `Cache-Control` of those files. See [caching](static_files.md#caching). |
-| `[limits]` | `max_request_body_size_in_KB` | `2048` | Largest request body (2 MB). Bigger bodies get **413**. |
-| `[limits]` | `max_request_body_multipart_size_in_KB` | `51200` | Largest multipart upload (50 MB). |
-| `[limits]` | `websocket_max_message_in_KB` | `1024` | Largest [WebSocket](realtime.md) message (1 MB). Bigger ones close the socket with 1009. |
-| `[security]` | `taint` | `true` | [Ushka Guard](guard.md). Turning it off is a migration aid, not a mode. |
-| `[security]` | `headers` | `true` | [Security headers](security.md#security-headers) on every response. |
-| `[security]` | `csp` | `""` | Content-Security-Policy. Empty is the strict default, `"off"` sends none. |
-| `[security]` | `frame_options` | `"DENY"` | `X-Frame-Options`. |
-| `[security]` | `referrer_policy` | `"strict-origin-when-cross-origin"` | `Referrer-Policy`. |
-| `[security]` | `hsts_seconds` | `31536000` | HSTS `max-age`, sent on https requests only. `0` turns it off. |
-| `[security]` | `csrf` | `true` | [CSRF protection](security.md#csrf) without tokens. |
-| `[security]` | `csrf_trusted_origins` | `[]` | Other origins allowed to send writes. |
-| `[security]` | `csrf_exempt_paths` | `[]` | Paths that skip the CSRF check (webhooks). |
-| `[security]` | `allowed_hosts` | `[]` | [Trusted hosts](security.md#trusted-hosts). Empty means any `Host`: **set it in production**. |
-| `[security]` | `cors_origins` | `[]` | [CORS](security.md#cors) origins. Empty means no CORS headers. |
-| `[security]` | `cors_methods` | `["GET", "POST", "PUT", "PATCH", "DELETE"]` | Methods CORS allows. |
-| `[security]` | `cors_headers` | `[]` | Request headers CORS allows. Empty echoes what the preflight asks for. |
-| `[security]` | `cors_credentials` | `false` | Let other origins send cookies. Refused with `["*"]`. |
-| `[security]` | `cors_max_age` | `600` | Seconds a browser may cache the preflight answer. |
-| `[seo]` | `url` | `""` | Public origin, for canonical links and the sitemap. See [SEO](seo.md). |
-| `[seo]` | `description`, `image`, `site_name`, `robots`... | | Defaults for every page's SEO tags; the full list is in [SEO](seo.md#all-the-settings). |
-| `[pwa]` | `enable` | `false` | Serve the manifest, service worker and offline page. See [PWA](pwa.md). |
-| `[pwa]` | `name`, `icons`, `theme_color`... | | The manifest; the full list is in [PWA](pwa.md#all-the-settings). |
+This is every setting Ushka reads: if it is not listed here, Ushka does not use
+it. Nothing is hidden. The list is generated from the same schema that provides
+the defaults, so it cannot drift.
+
+- `ushka new` writes a `ushka.toml` with **all of them**, each with its meaning.
+- `ushka config` prints the values in use and where each one came from
+  (`default`, `ushka.toml`, `.env` or `environment`). Add `--describe` for the
+  meaning and the environment variable of each, or a section name such as
+  `ushka config security` to see just one.
+- `ushka config --template` prints a complete, annotated `ushka.toml` for an
+  existing project.
+- `ushka check` warns about a key Ushka does not know (a typo such as `tain`
+  suggests `taint`) and about a value of the wrong type (`csrf = "false"` is a
+  non-empty string, so it would read as *on*).
+
+Every key can also be set as `USHKA_<SECTION>_<KEY>` in the environment or
+`.env`: `USHKA_SECURITY_CSRF=false`. `DATABASE_URL` and `USHKA_DB_URL` are
+accepted for `[database] url`.
+
+Besides these, Ushka adds a read-only `[ushka]` section at run time: `version`
+and `workdir`.
+
+<!-- settings:start (generated by `ushka config --markdown`; do not edit by hand) -->
+
+### `[app]`
+
+Your application.
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `name` | `"Ushka App"` | Display name. Used in page titles, the SEO site name and the PWA name. |
+| `debug` | `false` | Debug pages with tracebacks and local variables. Never turn it on in production. |
+| `auto_discover` | `true` | Load route files from the routes/ folder. |
+| `secret_key` | *(set it in the environment)* | Signs the session cookie. Use USHKA_APP_SECRET_KEY in .env, never this file. |
+
+### `[database]`
+
+The database used by the async ORM. See [orm](orm.md).
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `url` | `"sqlite:///ushka.db"` | SQLAlchemy URL. Plain sqlite://, postgresql:// and mysql:// get an async driver. DATABASE_URL also works. |
+
+### `[server]`
+
+How `ushka dev`, `ushka run` and `app.run()` serve the app. See [deploy](deploy.md).
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `host` | `"127.0.0.1"` | Address to bind. Use "0.0.0.0" in a container. |
+| `port` | `8000` | Port to listen on. |
+| `workers` | `1` | Worker processes for `ushka run` (`ushka dev` always uses one). |
+
+### `[static]`
+
+Serving static files. See [static files](static_files.md).
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `enable` | `false` | Serve the static folder under `url`. |
+| `url` | `"/static"` | URL prefix of the static files. |
+| `dir` | `"static"` | Folder with the files, relative to the app directory or absolute. |
+| `cache_control` | `"public, max-age=3600"` | Cache-Control sent with every static file. |
+
+### `[limits]`
+
+Size limits that protect the server from huge requests.
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `max_request_body_size_in_KB` | `2048` | Largest request body, in KB. Bigger bodies get 413. |
+| `max_request_body_multipart_size_in_KB` | `51200` | Largest multipart upload, in KB. |
+| `websocket_max_message_in_KB` | `1024` | Largest WebSocket message, in KB. Bigger ones close the socket with 1009. |
+
+### `[security]`
+
+Ushka Guard and the security middleware, all on by default. See [security](security.md).
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `taint` | `true` | Ushka Guard: request data arrives as `Untrusted` and dangerous sinks refuse it. Turning it off is a migration aid, not a mode. |
+| `headers` | `true` | Security headers on every response (nosniff, frame options, referrer policy, CSP, HSTS). |
+| `csp` | `""` | Content-Security-Policy. Empty is the strict default policy; "off" sends none. |
+| `frame_options` | `"DENY"` | X-Frame-Options. |
+| `referrer_policy` | `"strict-origin-when-cross-origin"` | Referrer-Policy. |
+| `hsts_seconds` | `31536000` | Strict-Transport-Security max-age, sent on https requests only. 0 turns it off. |
+| `csrf` | `true` | CSRF protection for writes from browsers, without tokens. |
+| `csrf_trusted_origins` | `[]` | Other origins allowed to send writes. |
+| `csrf_exempt_paths` | `[]` | Paths that skip the CSRF check (webhooks, for example). |
+| `allowed_hosts` | `[]` | Accepted Host headers. Empty means any host: set it in production. |
+| `cors_origins` | `[]` | Origins allowed by CORS. Empty means no CORS headers. |
+| `cors_methods` | `["GET", "POST", "PUT", "PATCH", "DELETE"]` | Methods CORS allows. |
+| `cors_headers` | `[]` | Request headers CORS allows. Empty echoes what the preflight asks for. |
+| `cors_credentials` | `false` | Let other origins send cookies. Refused together with "*". |
+| `cors_max_age` | `600` | Seconds a browser may cache the preflight answer. |
+
+### `[seo]`
+
+SEO tags, robots.txt and sitemap.xml, ready out of the box. See [seo](seo.md).
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `enable` | `true` | `{{ seo() }}` tags, /robots.txt and /sitemap.xml. false turns all of it off. |
+| `url` | `""` | Public origin, such as "https://example.com". Needed for canonical links and the sitemap. |
+| `site_name` | `""` | Site name in titles and social cards. Empty uses [app] name. |
+| `title` | `""` | Title of pages that set none (usually the home page). |
+| `title_template` | `"{title} · {site_name}"` | How a page title is combined with the site name. |
+| `description` | `""` | Default meta and social description. |
+| `image` | `""` | Default social preview image, a path or a URL. |
+| `image_alt` | `""` | Alternative text of that image. |
+| `locale` | `"en_US"` | Open Graph locale. |
+| `type` | `"website"` | Default Open Graph type. |
+| `robots` | `"index, follow"` | Robots rule. "noindex, nofollow" keeps a staging site out of search. |
+| `author` | `""` | Default author. |
+| `twitter_site` | `""` | Twitter/X handle of the site, such as "@example". |
+| `twitter_card` | `"summary_large_image"` | Twitter/X card type when there is an image. |
+| `jsonld` | `true` | Structured data: WebSite on the home page, Article for articles. |
+| `robots_txt` | `true` | Serve /robots.txt. |
+| `robots_disallow` | `[]` | Paths written as Disallow lines in robots.txt. |
+| `sitemap` | `true` | Serve /sitemap.xml. |
+| `sitemap_paths` | `[]` | Extra paths to list in the sitemap (pages with parameters). |
+| `sitemap_exclude` | `["/api/*", "/admin/*", "/_*"]` | Patterns left out of the sitemap. Plain GET pages are listed otherwise. |
+
+### `[pwa]`
+
+Progressive Web App: manifest, service worker and offline page (off by default). See [pwa](pwa.md).
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `enable` | `false` | Serve the manifest, service worker and offline page. |
+| `name` | `""` | App name. Empty uses [seo] site_name, then [app] name. |
+| `short_name` | `""` | Short name under the home-screen icon (12 characters work best). |
+| `description` | `""` | Empty uses [seo] description. |
+| `start_url` | `"/"` | Where the installed app opens. |
+| `scope` | `"/"` | Which URLs the installed app and the service worker control. |
+| `display` | `"standalone"` | standalone, fullscreen, minimal-ui or browser. |
+| `orientation` | `""` | Optional lock, such as "portrait" or "landscape". |
+| `theme_color` | `"#1b1720"` | Colour of the title bar. |
+| `background_color` | `"#ffffff"` | Colour of the splash screen. |
+| `lang` | `""` | Language of the manifest, such as pt-BR. |
+| `id` | `""` | Stable identity of the app. Empty uses start_url. |
+| `categories` | `[]` | Store categories, such as ["productivity"]. |
+| `icons` | `[]` | Paths, or [[pwa.icons]] tables with src, sizes, type and purpose. Chrome wants 192x192 and 512x512 PNGs. |
+| `shortcuts` | `[]` | [[pwa.shortcuts]] tables with name and url, shown on long-press. |
+| `offline` | `true` | Show an offline page when a navigation fails for lack of network. |
+| `offline_title` | `"You are offline"` | Title of the built-in offline page. |
+| `offline_message` | `"Check your connection and try again."` | Text of the built-in offline page. |
+| `precache` | `[]` | Extra URLs fetched when the worker installs. They must all exist. |
+| `cache_paths` | `[]` | Extra URL prefixes cached at runtime. [static] is always included. |
+| `cache_version` | `"1"` | Change it to drop every cache on the next visit. |
+| `manifest_path` | `"/manifest.webmanifest"` | Where the manifest is served. |
+| `sw_path` | `"/sw.js"` | Where the service worker is served. |
+| `script_path` | `"/pwa.js"` | Where the script that registers the worker is served. |
+| `offline_path` | `"/offline"` | Where the offline page is served. |
+
+### `[mcp]`
+
+The MCP endpoint that exposes routes as tools for AI agents. See [agents](agents.md).
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `token` | *(set it in the environment)* | Bearer token of the MCP endpoint. Use USHKA_MCP_TOKEN, never this file. |
+
+<!-- settings:end -->
 
 Lists are written `["a", "b"]` in TOML and `a,b` in environment variables.
 
-You can add your own sections and keys too; they are read the same way:
+You can add sections of your own, which are read the same way. Use a section of your own (not a built-in one), because an unknown key inside `[security]` or the other built-in sections is reported as a mistake:
 
 ```toml
 [payments]

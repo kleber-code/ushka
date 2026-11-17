@@ -53,6 +53,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--production", action="store_true", help="also require debug off and a secret key"
     )
 
+    p = sub.add_parser("config", help="list every setting, its value and where it came from")
+    p.add_argument("section", nargs="?", default="", help="only this section, e.g. security")
+    p.add_argument("--describe", action="store_true", help="also explain each setting and its environment variable")
+    p.add_argument("--template", action="store_true", help="print a complete, annotated ushka.toml")
+    p.add_argument("--markdown", action="store_true", help="print the settings reference as Markdown (used by the docs)")
+
     p = sub.add_parser("verify", help="attack your own routes with hostile payloads and report what got through")
     p.add_argument("app", help="the app as module:attribute, e.g. app:app")
     p.add_argument("--include-writes", action="store_true", help="also probe POST/PUT/PATCH/DELETE routes (runs their handlers: use a test database)")
@@ -120,6 +126,12 @@ def main(argv: list[str] | None = None) -> None:
         from ushka.cli.commands.check import check
 
         if check(production=args.production):
+            raise SystemExit(1)
+
+    elif args.command == "config":
+        from ushka.cli.commands.config import show
+
+        if show(args.section, args.describe, args.template, args.markdown):
             raise SystemExit(1)
 
     elif args.command == "verify":

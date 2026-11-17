@@ -7,6 +7,7 @@ import secrets
 from pathlib import Path
 
 from ushka.cli import ui
+from ushka.core.settings import render_toml
 
 _NAME = re.compile(r"^[A-Za-z][A-Za-z0-9_-]{0,63}$")
 
@@ -19,45 +20,33 @@ if __name__ == "__main__":
     app.run()
 '''
 
-USHKA_TOML = '''\
-# Ushka configuration. Every key is optional: missing keys use the defaults.
-# Any value can be overridden with an environment variable (or a line in .env)
-# named USHKA_<SECTION>_<KEY>, e.g. USHKA_APP_DEBUG=true.
+USHKA_TOML_HEADER = """\
+# Ushka configuration for {name}.
+#
+# EVERY setting Ushka reads is listed below with its default and what it does,
+# so nothing is hidden: change a value here, or override it without touching
+# this file with an environment variable (or a line in .env) named
+# USHKA_<SECTION>_<KEY>, for example USHKA_APP_DEBUG=true.
+# Order of precedence: defaults < ushka.toml < .env < environment.
+#
 # Secrets never go here: the session key lives in .env (USHKA_APP_SECRET_KEY).
+# `ushka config` shows the values in use and where each came from;
+# `ushka check` validates them. Reference: https://ushka.satela.com.br/docs/guide/configuration/
+"""
 
-[app]
-name = "{name}"
-# `ushka dev` turns debug on by itself; keep it off here so production is safe.
-debug = false
 
-[database]
-# SQLAlchemy URL. Plain sqlite://, postgresql:// and mysql:// get an async
-# driver automatically. DATABASE_URL in the environment also works.
-url = "sqlite:///{name}.db"
+def ushka_toml(name: str) -> str:
+    """The complete ``ushka.toml`` of a new project: every setting, annotated."""
+    return render_toml(
+        {
+            "app": {"name": name, "debug": False},
+            "database": {"url": f"sqlite:///{name}.db"},
+            "static": {"enable": True},
+            "seo": {"description": f"{name}, built with Ushka."},
+        },
+        header=USHKA_TOML_HEADER.format(name=name),
+    )
 
-[static]
-enable = true
-url = "/static"
-dir = "static"
-
-# SEO is ready: `{{{{ seo() }}}}` in templates/index.html writes the title, description,
-# canonical link, Open Graph and Twitter tags. Fill these in, and set `url` to
-# your public address before going live (`ushka check` reminds you). A page can
-# override any of it: `{{{{ seo(title="About", description="...") }}}}`.
-# Also served: /robots.txt and /sitemap.xml.
-[seo]
-# url = "https://example.com"
-description = "{name}, built with Ushka."
-# image = "/static/social.png"   # preview image for links shared on social networks
-# twitter_site = "@handle"
-
-# Make it installable (Progressive Web App): turn it on, add 192x192 and 512x512
-# PNG icons to static/, and put `{{{{ pwa() }}}}` in the <head>.
-# [pwa]
-# enable = true
-# icons = ["/static/icon-192.png", "/static/icon-512.png"]
-# theme_color = "#2b1e3a"
-'''
 
 DOTENV = '''\
 # Local secrets. Never commit this file (.gitignore already excludes it).
@@ -150,6 +139,7 @@ It uses **Ushka**, an async Python web framework with filesystem routing and
 
 - `ushka dev` — development server with reload (debug on).
 - `ushka check` — validate configuration and security settings.
+- `ushka config` — every setting, its value and where it came from.
 - `ushka routes list` — show all routes.
 '''
 
@@ -168,7 +158,7 @@ def create_project(project_name: str) -> None:
     ui.title(f"Creating {project_name}")
     files = {
         "app.py": APP_PY,
-        "ushka.toml": USHKA_TOML.format(name=project_name),
+        "ushka.toml": ushka_toml(project_name),
         ".env": DOTENV.format(secret=secrets.token_urlsafe(48)),
         ".env.example": DOTENV_EXAMPLE,
         ".gitignore": GITIGNORE,

@@ -56,6 +56,10 @@ def check(production: bool = False) -> int:
     else:
         ui.warn("no ushka.toml: using defaults")
 
+    for mistake in config.problems:
+        problems += 1
+        ui.error(f"ushka.toml: {mistake}")
+
     if config.get("security_taint") is False:
         problems += 1
         ui.error("Ushka Guard is disabled ([security] taint = false)")

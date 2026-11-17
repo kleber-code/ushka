@@ -6,7 +6,7 @@ attributes (``[app] debug`` becomes ``config.APP_DEBUG``) and through
 
 Layers, lowest to highest priority:
 
-1. Built-in defaults (`DEFAULTS` below).
+1. Built-in defaults (`ushka.core.settings.SCHEMA`: every setting, with its meaning).
 2. ``ushka.toml`` in the application directory. It is only *read*: Ushka
    never rewrites your file.
 3. A ``.env`` file next to it (``KEY=value`` lines), for secrets you keep
@@ -36,108 +36,14 @@ if sys.version_info >= (3, 11):
 else:  # pragma: no cover - exercised on Python 3.10 only
     import tomli as tomllib
 
+from .settings import DEFAULTS, ENV_ALIASES, problems_in
+
 log = logging.getLogger("ushka")
 
-DEFAULTS: dict[str, dict[str, Any]] = {
-    "app": {
-        "name": "Ushka App",
-        "debug": False,
-        "auto_discover": True,
-        # Never put a real key in ushka.toml: use USHKA_APP_SECRET_KEY (.env).
-        "secret_key": "",
-    },
-    # MCP endpoint (app.enable_mcp). Keep the token in USHKA_MCP_TOKEN, not in ushka.toml.
-    "mcp": {"token": ""},
-    "database": {"url": "sqlite:///ushka.db"},
-    "server": {"host": "127.0.0.1", "port": 8000, "workers": 1},
-    "static": {
-        "enable": False,
-        "url": "/static",
-        "dir": "static",
-        "cache_control": "public, max-age=3600",
-    },
-    # SEO, ready out of the box (ushka.seo): edit the values, then put
-    # `{{ seo() }}` in your layout's <head>. Pages override per call.
-    "seo": {
-        "enable": True,  # {{ seo() }}, /robots.txt and /sitemap.xml
-        "url": "",  # public origin, e.g. "https://example.com"; needed for absolute URLs
-        "site_name": "",  # empty = [app] name
-        "title": "",  # title of pages that set none (the home page, usually)
-        "title_template": "{title} \u00b7 {site_name}",
-        "description": "",
-        "image": "",  # default social preview image: a path or a URL
-        "image_alt": "",
-        "locale": "en_US",
-        "type": "website",
-        "robots": "index, follow",  # "noindex, nofollow" keeps a staging site out of search
-        "author": "",
-        "twitter_site": "",  # "@handle"
-        "twitter_card": "summary_large_image",
-        "jsonld": True,  # structured data: WebSite on "/", Article for type = "article"
-        "robots_txt": True,
-        "robots_disallow": [],
-        "sitemap": True,
-        "sitemap_paths": [],  # extra paths to list (dynamic pages, or app.sitemap_source)
-        "sitemap_exclude": ["/api/*", "/admin/*", "/_*"],  # patterns; plain GET pages are listed otherwise
-    },
-    # Progressive Web App (ushka.pwa): off by default. See the guide "PWA".
-    "pwa": {
-        "enable": False,
-        "name": "",  # empty = [seo] site_name, then [app] name
-        "short_name": "",
-        "description": "",  # empty = [seo] description
-        "start_url": "/",
-        "scope": "/",
-        "display": "standalone",  # standalone | fullscreen | minimal-ui | browser
-        "orientation": "",
-        "theme_color": "#1b1720",
-        "background_color": "#ffffff",
-        "lang": "",
-        "id": "",
-        "categories": [],
-        # Paths or [[pwa.icons]] tables with src, sizes, type and purpose. Chrome wants 192x192 and 512x512 PNGs.
-        "icons": [],
-        "shortcuts": [],  # [[pwa.shortcuts]] tables with name and url
-        "offline": True,  # an offline page for navigations that fail
-        "offline_title": "You are offline",
-        "offline_message": "Check your connection and try again.",
-        "precache": [],  # extra URLs fetched when the worker installs
-        "cache_paths": [],  # extra prefixes cached at runtime ([static] is always included)
-        "cache_version": "1",  # change it to drop every cache
-        "manifest_path": "/manifest.webmanifest",
-        "sw_path": "/sw.js",
-        "script_path": "/pwa.js",
-        "offline_path": "/offline",
-    },
-    "limits": {
-        "max_request_body_size_in_KB": 2048,
-        "max_request_body_multipart_size_in_KB": 51200,
-        "websocket_max_message_in_KB": 1024,
-    },
-    # Ushka Guard: request data arrives as `Untrusted` and dangerous sinks
-    # refuse it. Turning it off is a migration aid, not a mode.
-    "security": {
-        "taint": True,
-        # Security middleware (ushka.security). Each part can be switched off.
-        "headers": True,
-        "csp": "",  # empty = the default policy; "off" = no CSP header
-        "frame_options": "DENY",
-        "referrer_policy": "strict-origin-when-cross-origin",
-        "hsts_seconds": 31536000,  # sent on https requests only
-        "csrf": True,
-        "csrf_trusted_origins": [],
-        "csrf_exempt_paths": [],
-        "allowed_hosts": [],  # empty = any Host; set it in production
-        "cors_origins": [],  # empty = no CORS headers
-        "cors_methods": ["GET", "POST", "PUT", "PATCH", "DELETE"],
-        "cors_headers": [],
-        "cors_credentials": False,
-        "cors_max_age": 600,
-    },
-}
+#: Problems already reported, so a setting is not warned about once per Config load.
+_reported: set[str] = set()
 
-# Environment names honoured in addition to USHKA_<SECTION>_<KEY>.
-ENV_ALIASES = {"USHKA_DATABASE_URL": ("DATABASE_URL", "USHKA_DB_URL")}
+# Environment names honoured in addition to USHKA_<SECTION>_<KEY>: see settings.ENV_ALIASES.
 
 _TRUE = {"1", "true", "yes", "on"}
 _FALSE = {"0", "false", "no", "off", ""}
@@ -222,6 +128,8 @@ class Config:
         self.workdir = Path(workdir) if workdir else Path.cwd()
         self.default_config_file_path = self.workdir / "ushka.toml"
         self.sources: dict[str, str] = {}
+        #: Mistakes found in ushka.toml: unknown keys in a Ushka section, wrong types.
+        self.problems: list[str] = []
         self._applied: set[str] = set()
         self._apply(self._merged(file_data={}, dotenv={}, environ=dict(os.environ)))
         self._initialized = True
@@ -261,6 +169,12 @@ class Config:
 
         dotenv_path = path.parent / ".env"
         dotenv = parse_dotenv(dotenv_path.read_text("utf-8")) if dotenv_path.exists() else {}
+
+        self.problems = problems_in(file_data)
+        for problem in self.problems:
+            if problem not in _reported:
+                _reported.add(problem)
+                log.warning("ushka.toml: %s", problem)
 
         self._apply(self._merged(file_data, dotenv, dict(os.environ)))
         return self

@@ -123,8 +123,9 @@ ushka check
 ushka check --production
 ```
 
-Prints the main settings with the layer each one came from, then checks the
-project:
+Prints the main settings with the layer each one came from (all of them are in
+[`ushka config`](#ushka-config)), then checks the project, including mistakes in
+`ushka.toml`:
 
 ```text
 ◆ Ushka 0.7.0 · checking /home/me/hello
@@ -165,6 +166,21 @@ step or a pre-deploy gate:
   env:
     USHKA_APP_SECRET_KEY: ${{ secrets.USHKA_APP_SECRET_KEY }}
 ```
+
+## `ushka config`
+
+```bash
+ushka config                  # every setting, its value and where it came from
+ushka config security         # one section
+ushka config --describe       # plus what each does and its environment variable
+ushka config --template       # a complete, annotated ushka.toml
+```
+
+Lists **every** setting Ushka reads (see [Configuration](configuration.md#all-settings)),
+with the layer each value came from: `default`, `ushka.toml`, `.env` or
+`environment`. Secrets show only `(set)` or `(not set)`. It exits with status 1 and
+names the key when `ushka.toml` has a key Ushka does not know or a value of the
+wrong type, so it also works in CI.
 
 ## `ushka docs`
 

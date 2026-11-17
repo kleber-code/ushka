@@ -10,6 +10,10 @@
   with the standard library. Security-critical parsers are the exception.
 - **Batteries included.** Features a typical web app needs belong in the box.
 - **Lightweight in concept.** One clear idea per feature; no hidden magic.
+- **Nothing hidden.** A new setting is added to `SCHEMA` in `src/ushka/core/settings.py` (default and description) and
+  nowhere else: `ushka new`, `ushka config` and the table in `docs/guide/configuration.md` are generated from it
+  (run `ushka config --markdown` and paste it between the markers). `tests/test_settings.py` fails when code reads
+  an undeclared setting or the docs drift.
 - **Secure by default.** New sinks must call a `ushka.guard.check_*` function;
   new request data sources must be wrapped in `Untrusted`.
 

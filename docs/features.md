@@ -82,11 +82,13 @@ app gets a web manifest, a conservative service worker and an offline page. Both
 are configured in the file, with no extra packages. See [SEO](guide/seo.md) and
 [Progressive Web App](guide/pwa.md).
 
-## Configuration without extra packages
+## Configuration without extra packages, with nothing hidden
 
-Defaults, then `ushka.toml`, then `.env`, then `USHKA_<SECTION>_<KEY>`
-environment variables. `DATABASE_URL` from your host works as is. Ushka never
-rewrites your files. See [Configuration](guide/configuration.md).
+Defaults, then `ushka.toml`, then `.env`, then environment variables, all without
+extra packages. **Every setting is listed with its meaning**: `ushka new` writes
+them all into your `ushka.toml`, `ushka config` shows the value in use and where it
+came from, and `ushka check` catches typos and wrong types. `DATABASE_URL` works
+out of the box. See [Configuration](guide/configuration.md).
 
 ## Fast, and quiet when idle
 
