@@ -105,6 +105,19 @@ Serving static files. See [static files](static_files.md).
 | `dir` | `"static"` | Folder with the files, relative to the app directory or absolute. |
 | `cache_control` | `"public, max-age=3600"` | Cache-Control sent with every static file. |
 
+### `[session]`
+
+Sessions: a signed cookie by default, or revocable sessions kept on the server. See [sessions](sessions.md).
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `store` | `"cookie"` | Where sessions live: "cookie" (signed, in the browser), "memory" (development only) or "database" (revocable, no size limit). |
+| `cookie_name` | `"_ushka_session"` | Name of the session cookie. |
+| `max_age` | `1209600` | Seconds a session lasts, counted from its creation (14 days). 0 means no limit. |
+| `idle_timeout` | `0` | Server-side stores only: seconds without a request after which a session ends. 0 turns it off. |
+| `user_key` | `"user_id"` | Server-side stores only: the session key that holds the user id, used to revoke all of a user's sessions. |
+| `table` | `"ushka_sessions"` | Table used by store = "database". Created on first use. |
+
 ### `[limits]`
 
 Size limits that protect the server from huge requests.

@@ -8,7 +8,7 @@ from ushka.guard import Untrusted, taint_deep
 from ushka.http.cookies import Cookies
 from ushka.http.exceptions import HTTPBadRequest, HTTPPayloadTooLarge
 from ushka.http.multipart import parse_multipart_asgi
-from ushka.http.sessions import Session
+from ushka.http.sessions import ServerSession, Session
 
 if TYPE_CHECKING:
     from ushka.core.app import Ushka
@@ -143,25 +143,64 @@ class Request:
             )
         return self._cached_data["cookies"]
 
+    def _session_secret(self) -> str:
+        # In debug mode Config generates a per-process key when none is set.
+        secret = self.app.config.get("APP_SECRET_KEY")
+        if not secret:
+            raise RuntimeError(
+                "Sessions need a secret key. Set USHKA_APP_SECRET_KEY in the "
+                "environment or in .env (generate one with: "
+                'python -c "import secrets; print(secrets.token_urlsafe(48))").'
+            )
+        return secret
+
+    def _server_session_options(self) -> dict:
+        config = self.app.config
+        return {
+            "secret_key": self._session_secret(),
+            "max_age": int(config.get("session_max_age", 1209600)),
+            "idle_timeout": int(config.get("session_idle_timeout", 0)),
+            "user_key": config.get("session_user_key", "user_id"),
+            "secure": not self._is_debug,
+        }
+
+    async def load_session(self) -> None:
+        """Reads a server-side session from its store. The app calls this
+        before the route runs, because stores are asynchronous. It does
+        nothing for signed-cookie sessions."""
+        from ushka.http.session_store import get_store
+
+        store = get_store(self.app)
+        if store is None or "session" in self._cached_data:
+            return
+        if not self.app.config.get("APP_SECRET_KEY"):
+            return  # `request.session` explains the missing key when it is used
+        name = self.app.config.get("session_cookie_name", Session.COOKIE_NAME)
+        session = await ServerSession.load(store, self.cookies.get(name), **self._server_session_options())
+        session.COOKIE_NAME = name
+        self._cached_data["session"] = session
+
     @property
     def session(self) -> Session:
         """Session is a property as it depends on the Cookie (Header), not the Body."""
         if "session" not in self._cached_data:
-            # In debug mode Config generates a per-process key when none is set.
-            secret = self.app.config.get("APP_SECRET_KEY")
-            if not secret:
-                raise RuntimeError(
-                    "Sessions need a secret key. Set USHKA_APP_SECRET_KEY in the "
-                    "environment or in .env (generate one with: "
-                    'python -c "import secrets; print(secrets.token_urlsafe(48))").'
-                )
+            from ushka.http.session_store import get_store
 
-            raw_session_value = self.cookies.get(Session.COOKIE_NAME)
-            self._cached_data["session"] = Session(
-                secret_key=secret,
-                raw_cookie_value=raw_session_value,
-                secure=not self._is_debug,
-            )
+            secret = self._session_secret()
+            name = self.app.config.get("session_cookie_name", Session.COOKIE_NAME)
+            store = get_store(self.app)
+            if store is not None:
+                # The app loads it before the route; this is the empty fallback.
+                session = ServerSession(store, **self._server_session_options())
+            else:
+                session = Session(
+                    secret_key=secret,
+                    raw_cookie_value=self.cookies.get(name),
+                    max_age=int(self.app.config.get("session_max_age", 1209600)),
+                    secure=not self._is_debug,
+                )
+            session.COOKIE_NAME = name
+            self._cached_data["session"] = session
         return self._cached_data["session"]
 
     # --- ASYNCHRONOUS DATA (METHODS) ---

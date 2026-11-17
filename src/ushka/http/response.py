@@ -120,6 +120,9 @@ class Response:
                 asgi_headers.extend(cookies.get_response_headers())
 
             session = touched.get("session")
+            commit = getattr(session, "commit", None)
+            if commit is not None:
+                await commit()  # server-side sessions are written to their store
             if session is not None and session.should_save:
                 asgi_headers.extend(session.get_response_headers())
 
