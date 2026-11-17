@@ -46,6 +46,7 @@ pages = [
     "guide/guard-frameworks.md",
     "guide/security.md",
     "guide/crypto.md",
+    "guide/auth.md",
     "guide/verify.md",
 ]
 
@@ -114,6 +115,11 @@ modules = ["ushka.security.middleware", "ushka.security.verify"]
 title = "Encryption"
 description = "Fernet encrypt and decrypt with key rotation (needs ushka[crypto])."
 modules = ["ushka.crypto.fernet"]
+
+[[api.group]]
+title = "Sign in (OAuth)"
+description = "Login with Google and GitHub: the helpers for your routes and the providers."
+modules = ["ushka.auth", "ushka.auth.providers", "ushka.auth.flow"]
 
 [[api.group]]
 title = "Guard"

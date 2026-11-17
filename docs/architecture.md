@@ -26,6 +26,8 @@ src/ushka/
 │                     sessions (database store)
 ├── crypto/           Fernet encrypt/decrypt, key rotation (needs ushka[crypto];     226
 │                     `cryptography` is imported on first use, never at import)
+├── auth/             OAuth 2.0 / OpenID Connect login (Google, GitHub):        626
+│                     providers, the built-in routes, `login_required`
 ├── templating/       Jinja2 engine with the guarded |safe, flash messages      365
 ├── static/           static files with ETag and 304                            110
 │  what browsers and search engines see (each has its own [section])

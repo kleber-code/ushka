@@ -20,6 +20,7 @@ field; feedback shapes it. *Experimental*: the API may still change.
 | [Typed parameters and validation](guide/validation.md) | `item_id: int`, bodies as dataclasses, 422 with every error. | Established |
 | [HTML forms](guide/validation.md) | A whole `<form>` as a dataclass, and the page again with the errors. | New |
 | [Routing, templates, static files](guide/routing.md) | Files are URLs; autoescaped Jinja2; `ETag`/`304`. | Established |
+| [Sign in with Google and GitHub](guide/auth.md) | OAuth 2.0 / OpenID Connect with PKCE, `login_required`, no extra package. On when a provider has credentials. | New |
 | [Cookie sessions](guide/sessions.md) | Signed, `HttpOnly`, no setup. | Established |
 | [Settings you can see](guide/configuration.md) | Every setting listed; `ushka config` and `ushka check` find typos. | New |
 | [Production server](guide/deploy.md) | `ushka run`: fast (`uvloop`, `httptools`) and quiet when idle. | New |
@@ -133,6 +134,14 @@ still needs no cipher. See [Encryption](guide/crypto.md).
 standard library only. Messages come back with every text `Untrusted`,
 attachments save like uploads, and the limits (size, parts, depth) and TLS
 verification are on by default. See [Reading e-mail](guide/mail.md).
+
+## Sign in with Google and GitHub
+
+Set a client id and secret in `[oauth]` and Ushka serves `/auth/google/login` and
+`/auth/google/callback` (GitHub the same way): authorization code with PKCE, `state`,
+`nonce`, a verified e-mail, an optional domain allow-list, and a session id that
+changes at login. `Depends(login_required)` protects a route. The HTTP calls use the
+standard library. See [Sign in with Google and GitHub](guide/auth.md).
 
 ## SEO and PWA, from `ushka.toml`
 

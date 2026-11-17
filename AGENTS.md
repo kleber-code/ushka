@@ -34,6 +34,8 @@
 - `src/ushka/sessions/` — signed-cookie sessions and revocable server-side sessions (database store).
 - `src/ushka/crypto/` — Fernet `encrypt`/`decrypt`, keys and rotation. The only place that may import
   `cryptography` (the `crypto` extra), and only lazily; never write a cipher of our own.
+- `src/ushka/auth/` — login with OAuth 2.0 / OpenID Connect (`providers.py`, `flow.py`, the API in
+  `__init__.py`), `[oauth]` in the schema; imported only by apps that configure a provider.
 - `src/ushka/templating/` (Jinja2 engine, flash), `static/` (static files).
 - `src/ushka/web/` — what browsers and search engines see: `seo.py`, `pwa.py`, `i18n/`. Each has its own
   `[section]` in the schema and is off, or passive, until used.
