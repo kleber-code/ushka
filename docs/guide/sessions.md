@@ -39,12 +39,23 @@ It is saved on whatever response you return. Things to know:
 
 ## Server-side sessions
 
-A signed cookie cannot be revoked and holds about 4 KB. Turn on a server-side
-store and the cookie carries only a random id, signed with the secret key; the
-data stays on the server. It is **off by default** (`store = "cookie"`).
+```python
+app.use(Sessions("database"))
+```
+
+A signed cookie cannot be revoked and holds about 4 KB. With a server-side store the cookie carries
+only a random id, signed with the secret key; the data stays on the server. It is **off by default**.
+
+`Sessions(store, **options)`: the first argument is `"cookie"` (default) or `"database"`; the rest are
+the keys of `[session]`, which `ushka.toml` and the environment still override:
+
+```python
+app.use(Sessions("database", idle_timeout=1800))   # end the session after 30 idle minutes
+app.use(Sessions("cookie", encrypt=True))          # needs ushka[crypto]
+```
 
 ```toml
-# ushka.toml
+# ushka.toml: the same thing, per environment
 [session]
 store = "database"      # "cookie" (default) or "database"
 max_age = 1209600       # absolute lifetime, in seconds (0 = no limit)

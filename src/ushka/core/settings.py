@@ -234,6 +234,15 @@ def env_name(section: str, key: str) -> str:
 # -- checking what the user wrote ---------------------------------------------------
 
 
+def reject_options(owner: str, options: dict, allowed) -> None:
+    """Raises `TypeError` for the first key of `options` not in `allowed`, suggesting the closest one."""
+    for key in options:
+        if key not in allowed:
+            close = difflib.get_close_matches(key, list(allowed), n=1)
+            hint = f"; did you mean {close[0]!r}?" if close else f"; options: {', '.join(sorted(allowed))}"
+            raise TypeError(f"{owner} got an unexpected option {key!r}{hint}")
+
+
 def _type_name(value: Any) -> str:
     return {bool: "true/false", int: "a number", float: "a number", str: "a string", list: "a list", dict: "a table"}.get(type(value), type(value).__name__)
 

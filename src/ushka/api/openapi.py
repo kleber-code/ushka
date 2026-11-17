@@ -2,7 +2,7 @@
 
 It reads the same parameter plans the request validation uses, so the document
 cannot drift from what the app actually accepts. ``app.openapi()`` returns the
-dict and ``app.enable_openapi()`` serves it as JSON.
+dict and ``app.use(OpenAPI())`` serves it as JSON at ``/openapi.json``.
 """
 
 from __future__ import annotations
@@ -202,3 +202,32 @@ def build(router, title: str = "Ushka API", version: str = "0.1.0", skip: set | 
     if schemas.components:
         doc["components"] = {"schemas": schemas.components}
     return doc
+
+
+class OpenAPI:
+    """Serves the OpenAPI document of the app: ``app.use(OpenAPI())``.
+
+    Opt-in, because the document is a map of your routes. The route that serves it (and
+    the MCP endpoint) are left out of it. ``app.enable_openapi()`` is the same thing.
+
+    Parameters
+    ----------
+    path : str
+        Where the JSON is served.
+    title : str, optional
+        Defaults to ``[app] name``.
+    version : str
+        The API version shown in the document.
+    """
+
+    name = "openapi"
+
+    def __init__(self, path: str = "/openapi.json", *, title: str | None = None, version: str = "0.1.0") -> None:
+        self.path, self.title, self.version = path, title, version
+
+    def install(self, app) -> None:
+        async def openapi_json():
+            return app.openapi(self.title, self.version)
+
+        app._openapi_skip = getattr(app, "_openapi_skip", set()) | {openapi_json}
+        app.router.add_route("GET", self.path, openapi_json)

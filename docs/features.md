@@ -26,17 +26,17 @@ field; feedback shapes it. *Experimental*: the API may still change.
 | [Production server](guide/deploy.md) | `ushka run`: fast (`uvloop`, `httptools`) and quiet when idle. | New |
 | | **Opt-in, when your app needs them** | |
 | [Encryption](guide/crypto.md) | Fernet `encrypt`/`decrypt` with key rotation, encrypted session cookies and `db.Encrypted` columns. Needs `ushka[crypto]`. | New |
-| [Server-side sessions](guide/sessions.md) | Logout that really ends a session. Needs a database; without one you keep cookies. | New |
+| [Server-side sessions](guide/sessions.md) | `app.use(Sessions("database"))`: logout that really ends a session. Needs a database; without one you keep cookies. | New |
 | [Async ORM](guide/orm.md) | Active Record on SQLAlchemy, with transactions and automatic timestamps. | Established, transactions new |
 | [SEO](guide/seo.md) | Meta tags, `robots.txt`, `sitemap.xml`. Passive until you add `{{ seo() }}`. | New |
-| [Reading e-mail (IMAP)](guide/mail.md) | `ImapClient` for an app's inbox: verified TLS, safe search, size limits, every text `Untrusted`. Not loaded until imported. | New |
+| [Reading e-mail (IMAP)](guide/mail.md) | `ImapClient()` for an app's inbox: verified TLS, safe search, size limits, every text `Untrusted`. Not loaded until imported. | New |
 | [Internationalisation](guide/i18n.md) | gettext catalogs and `{% trans %}`. Off until `[i18n] enable`. | New |
 | [Progressive Web App](guide/pwa.md) | Manifest, a service worker that never caches pages, offline page. Off by default. | Experimental |
 | | **Tooling** | |
 | [`ushka verify`](guide/verify.md) | Attacks your own routes with hostile input and reports what got through. | Established |
 | [Test client](guide/testing.md) | In-process client with lifespan and cookies. | New |
-| OpenAPI | An API description from your signatures, so it cannot drift. | Established |
-| [Agents (MCP)](guide/agents.md) | Routes as tools for AI agents, with a token and approvals. | Experimental |
+| OpenAPI | `app.use(OpenAPI())`: an API description from your signatures, so it cannot drift. | Established |
+| [Agents (MCP)](guide/agents.md) | `app.use(MCP(approve=queue))`: routes as tools for AI agents, with a token and approvals. | Experimental |
 | [Ushka Docs](guide/docs.md) | A Markdown folder becomes a docs site (this one). | Established |
 
 If you only learn five things, learn the ones at the top: Guard, the middleware,
@@ -118,7 +118,7 @@ Built on SQLAlchemy, with migrations through `ushka db`. Install it with
 Jinja2 with autoescaping, project templates that override the built-in ones,
 [signed cookie sessions](guide/sessions.md), [flash messages](guide/flashing.md),
 [uploads](guide/uploads.md) (`UploadFile`, safe `save()`, size limits), and [static files](guide/static_files.md) with
-`ETag`/`304` and any folder you mount. See [Templates](guide/templates.md).
+`ETag`/`304` and any folder you mount with `app.use(Static("public", url="/assets"))`. See [Templates](guide/templates.md).
 
 ## Encryption
 
@@ -130,7 +130,7 @@ still needs no cipher. See [Encryption](guide/crypto.md).
 
 ## Reading e-mail
 
-`ushka.mail.ImapClient` reads an inbox (support, leads, receipts) with the
+`ImapClient()` (from `ushka.mail`) reads an inbox (support, leads, receipts) with the
 standard library only. Messages come back with every text `Untrusted`,
 attachments save like uploads, and the limits (size, parts, depth) and TLS
 verification are on by default. See [Reading e-mail](guide/mail.md).

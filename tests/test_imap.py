@@ -706,6 +706,74 @@ def test_from_config(workdir, monkeypatch, server):
     assert PASSWORD not in repr(mail)
 
 
+def configure(workdir, monkeypatch, extra=""):
+    (workdir / "ushka.toml").write_text(f'[imap]\nhost = "mail.example.org"\nuser = "support@example.org"\n{extra}')
+    monkeypatch.setenv("USHKA_IMAP_PASSWORD", PASSWORD)
+
+
+def test_no_arguments_is_from_config(workdir, monkeypatch):
+    configure(workdir, monkeypatch, 'folder = "Leads"\nmax_parts = 7\n')
+    a, b = ImapClient(), ImapClient.from_config()
+    for mail in (a, b):
+        assert (mail.host, mail.user, mail.folder, mail.max_parts, mail.port) == ("mail.example.org", "support@example.org", "Leads", 7, 993)
+        assert mail.ssl and mail.taint and mail._password.reveal() == PASSWORD and PASSWORD not in repr(mail)
+    assert vars(a).keys() == vars(b).keys()
+
+
+def test_what_is_passed_wins_and_the_rest_comes_from_the_file(workdir, monkeypatch):
+    configure(workdir, monkeypatch, "timeout = 5\n")
+    mail = ImapClient("other.example.org", folder="Archive", max_message_kb=1)
+    assert (mail.host, mail.user, mail.folder, mail.timeout, mail.max_message_bytes) == ("other.example.org", "support@example.org", "Archive", 5, 1024)
+    assert ImapClient(password="p").user == "support@example.org"
+
+
+def test_the_environment_still_changes_options_of_a_direct_client(workdir, monkeypatch):
+    configure(workdir, monkeypatch)
+    monkeypatch.setenv("USHKA_IMAP_FOLDER", "FromEnv")
+    assert ImapClient().folder == "FromEnv"
+
+
+def test_code_options_and_taint(workdir, monkeypatch):
+    configure(workdir, monkeypatch)
+    context = ssl.create_default_context()
+    mail = ImapClient(ssl_context=context, taint=False, max_depth=3)
+    assert mail._ssl_context is context and mail.taint is False and mail.max_depth == 3
+    (workdir / "ushka.toml").write_text('[imap]\nhost = "h"\n[security]\ntaint = false\n')
+    assert ImapClient().taint is False
+
+
+def test_a_misspelt_option_is_a_type_error_with_a_suggestion(workdir, monkeypatch):
+    configure(workdir, monkeypatch)
+    with pytest.raises(TypeError, match="did you mean 'max_message_kb'"):
+        ImapClient(max_message_kbs=5)
+    with pytest.raises(TypeError, match="unexpected option 'foldr'"):
+        ImapClient("h", "u", "p", foldr="X")
+
+
+def test_security_checks_hold_with_values_from_the_file(workdir, monkeypatch):
+    configure(workdir, monkeypatch, "ssl = false\n")
+    with pytest.raises(ImapSecurityError, match="plain-text"):
+        ImapClient()
+    with pytest.raises(ImapSecurityError, match="exclusive"):
+        ImapClient(ssl=True, starttls=True)
+    with pytest.raises(ImapSecurityError, match="verify"):
+        ImapClient(ssl=True, ssl_context=_lax_context())
+    with pytest.raises(ImapSecurityError, match="control characters"):
+        ImapClient(ssl=True, user="a\r\nb")
+
+
+def _lax_context():
+    context = ssl.create_default_context()
+    context.check_hostname = False
+    context.verify_mode = ssl.CERT_NONE
+    return context
+
+
+def test_no_host_anywhere(workdir):
+    with pytest.raises(ImapError, match="host"):
+        ImapClient()
+
+
 def test_from_config_without_a_host(workdir):
     with pytest.raises(ImapError, match="host"):
         ImapClient.from_config(Config(workdir).load_from_file())

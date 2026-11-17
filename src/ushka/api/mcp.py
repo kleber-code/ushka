@@ -10,7 +10,7 @@ Mark the routes an agent may use, declare what each one touches, and serve them:
     @tool(writes=["orders"], description="Refund an order")
     async def post(order_id: int, reason: str): ...
 
-    app.enable_mcp("/mcp", approve=queue)                 # token from USHKA_MCP_TOKEN
+    app.use(MCP(approve=queue))                           # token from USHKA_MCP_TOKEN
 
 Nothing is exposed unless you mark it. A tool call is an ordinary request to
 your own app (with a service credential from ``internal_headers`` if your routes
@@ -183,7 +183,7 @@ class MCPServer:
             self.app.log.warning("MCP endpoint at %s has no token: allowed because debug is on", self.path)
             return None
         raise ValueError(
-            "enable_mcp needs a token: set USHKA_MCP_TOKEN (or pass token=...). "
+            "MCP needs a token: set USHKA_MCP_TOKEN (or pass token=...). "
             "An agent endpoint without authentication would let anyone call your tools."
         )
 
@@ -388,3 +388,47 @@ def _error(mid, code: int, message: str) -> dict:
 
 def _text(text: str, error: bool = False) -> dict:
     return {"content": [{"type": "text", "text": text}], "isError": error}
+
+
+class MCP:
+    """Serves the routes marked with `tool` to AI agents: ``app.use(MCP(approve=queue))``.
+
+    Plug it in after your routes are registered. Without a token (``token=`` or
+    ``USHKA_MCP_TOKEN``) it refuses to start unless debug is on; ``token=False`` means no
+    shared secret, and the caller's ``Authorization`` reaches your routes, which check it.
+    ``app.enable_mcp()`` is the same thing.
+
+    Parameters
+    ----------
+    token : str, optional
+        The bearer token agents must send.
+    approve : callable or ApprovalQueue, optional
+        Answers, with a human, for each call to a sensitive tool.
+    path : str
+        Where the endpoint lives.
+    **options
+        ``name`` (server name), ``instructions`` (text for the agent) and ``internal_headers``
+        (a dict, or a function of the request: a service credential your routes check).
+    """
+
+    name = "mcp"
+    _OPTIONS = ("name", "instructions", "internal_headers")
+
+    def __init__(self, token=None, approve=None, *, path: str = "/mcp", **options) -> None:
+        from ushka.core.settings import reject_options
+
+        reject_options("MCP()", options, self._OPTIONS)
+        self.token, self.approve, self.path, self.options = token, approve, path, options
+
+    def install(self, app) -> None:
+        server = MCPServer(app, self.path, self.token, self.approve, self.options.get("name"), self.options.get("instructions"), self.options.get("internal_headers"))
+        app.mcp = server
+
+        async def mcp_endpoint(request):
+            from ushka.http import Response
+
+            status, payload = await server.handle(request)
+            return (payload, status) if payload is not None else Response(b"", status_code=status)
+
+        app._openapi_skip = getattr(app, "_openapi_skip", set()) | {mcp_endpoint}
+        app.router.add_route("POST", self.path, mcp_endpoint)

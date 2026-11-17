@@ -1,24 +1,33 @@
 # Static Files
 
-CSS, JavaScript, images and fonts are served by Ushka's built-in static file
-server. It is **off by default**; projects created with `ushka new` have it
-turned on.
+```python
+app.use(Static("public", url="/assets"))     # public/app.css is served at /assets/app.css
+```
 
-## Turning it on
+CSS, JavaScript, images and fonts, with `ETag`/`304`, caching and path checks. `Static()` with no
+folder turns on `[static]` (`./static` under `/static`), which `ushka new` already does.
+
+| Argument | Meaning |
+| --- | --- |
+| `directory` | Folder to serve, relative to the app directory. Omit for the `[static]` folder. |
+| `url` | URL prefix. |
+| `html=True` | Serve `index.html` for folders and redirect `/guide` to `/guide/` (a static-site build). |
+| `cache_control` | Default `public, max-age=3600`; `"public, max-age=31536000, immutable"` for fingerprinted names. |
+
+With a folder, `Static` is [`app.mount_static`](#serving-any-folder), and you can mount as many as
+you like. Without one, `url` and `cache_control` are defaults that `ushka.toml` and the
+environment can still change:
 
 ```toml
-# ushka.toml
+# ushka.toml: the same thing, per environment
 [static]
 enable = true      # default: false
 url = "/static"    # URL prefix (default)
 dir = "static"     # folder, relative to the app directory or absolute (default)
 ```
 
-The same settings work as environment variables, e.g. `USHKA_STATIC_ENABLE=true`
-(see [Configuration](configuration.md)).
-
-With this in place, `static/css/style.css` is served at `/static/css/style.css`.
-A relative `dir` is resolved against the application directory.
+With this, `static/css/style.css` is served at `/static/css/style.css`. The settings also work
+as environment variables, e.g. `USHKA_STATIC_ENABLE=true` (see [Configuration](configuration.md)).
 
 ## Linking to files
 
@@ -88,17 +97,17 @@ so a deploy is never hidden behind a cached stylesheet.
 
 ## Serving any folder
 
-`app.mount_static(url, directory)` serves a folder anywhere, independently of
-`[static]`. Use it for uploads, a built front end or a static site:
+`Static("public", url="/assets")` (or `app.mount_static(url, directory)`) serves a folder anywhere,
+independently of `[static]`. Use it for uploads, a built front end or a static site:
 
 ```python
 # app.py
-app.mount_static("/assets", "public")
-app.mount_static(
-    "/site", "dist",
+app.use(Static("public", url="/assets"))
+app.use(Static(
+    "dist", url="/site",
     html=True,                                   # /site/guide/ serves dist/guide/index.html
     cache_control="public, max-age=31536000, immutable",
-)
+))
 ```
 
 `html=True` serves `index.html` for directories and redirects `/site/guide` to

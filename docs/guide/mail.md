@@ -1,16 +1,18 @@
 # Reading e-mail (IMAP)
 
-Many apps have an inbox that is part of the product: a support address, a leads
-form that arrives as a message, receipts to file. `ushka.mail.ImapClient` reads
-one over IMAP, with no dependency (the standard library's `imaplib`, run outside
-the event loop) and with the one rule that matters: **everything in an e-mail is
-written by a stranger**, so everything in it is `Untrusted`.
-
-It is not imported by `import ushka`. Import it where you use it:
-
 ```python
 from ushka.mail import ImapClient
+
+async with ImapClient() as mail:                 # host, user and password from ushka.toml and .env
+    async for msg in mail.unseen():
+        ...
+        await mail.mark_seen(msg.uid)
 ```
+
+`ImapClient` reads an app's inbox (support, leads, receipts) with no dependency: the
+standard library's `imaplib`, run outside the event loop. One rule matters: **everything
+in an e-mail is written by a stranger**, so everything in it is `Untrusted`.
+It is not loaded by `import ushka`; import it where you use it.
 
 ## Configuration
 
@@ -19,7 +21,6 @@ from ushka.mail import ImapClient
 [imap]
 host = "imap.example.com"
 user = "support@example.com"
-folder = "INBOX"
 ```
 
 ```bash
@@ -27,12 +28,16 @@ folder = "INBOX"
 USHKA_IMAP_PASSWORD=...
 ```
 
-All keys, with their defaults, are in the [`[imap]` table](configuration.md).
-`ushka check` reports a host without a password, a password written in
-`ushka.toml`, and a connection that is not encrypted.
+`ImapClient()` reads `[imap]`; what you pass wins, and the rest still comes from there:
+`ImapClient(folder="Leads")`, `ImapClient("imap.other.com", "me@other.com", password)`.
+`ImapClient.from_config()` is the same call. A misspelt option is a `TypeError`
+that suggests the right name. Options are the keys of the [`[imap]` table](configuration.md)
+(`port`, `ssl`, `starttls`, `allow_insecure`, `folder`, `timeout`, `max_message_kb`,
+`max_parts`) and three that exist only in code: `ssl_context`, `taint` and `max_depth`.
 
-Gmail and Outlook do not accept the account password over IMAP: create an app
-password and use it as `USHKA_IMAP_PASSWORD`. OAuth (XOAUTH2) is not supported.
+`ushka check` reports a host without a password, a password written in `ushka.toml`, and a
+connection that is not encrypted. Gmail and Outlook do not accept the account password
+over IMAP: use an app password. OAuth (XOAUTH2) is not supported.
 
 ## A routine that turns unread mail into leads
 
@@ -51,7 +56,7 @@ async def collect_leads(save_lead) -> int:
     def refused(uid, error):          # too big, too many parts: skip it, keep going
         log.warning("message %s refused: %s", uid, error)
 
-    async with ImapClient.from_config() as mail:
+    async with ImapClient() as mail:
         async for msg in mail.unseen(limit=50, on_error=refused):
             await save_lead(
                 sender=msg.from_address,   # Untrusted: the ORM stores it as data
@@ -70,7 +75,7 @@ handled it, so a crash does not lose mail.
 ## The client
 
 ```python
-async with ImapClient.from_config() as mail:         # or ImapClient(host=..., user=..., password=...)
+async with ImapClient() as mail:
     await mail.folders()                              # ["INBOX", "Faturas ção", ...]
     await mail.select("Faturas ção")                  # returns the message count
     uids = await mail.search(unseen=True, from_="billing@example.com", since=date(2026, 11, 1))
