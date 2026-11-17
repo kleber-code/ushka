@@ -21,8 +21,8 @@ import re
 from collections.abc import AsyncIterable, Callable, Iterable
 from typing import Any
 
-from ushka.http.response import Response
 from ushka.http.jsonenc import dumps
+from ushka.http.response import Response
 
 _LINES = re.compile(r"\r\n|\r|\n")
 _FIELD_FORBIDDEN = re.compile(r"[\r\n\x00]")
@@ -154,7 +154,7 @@ class EventSourceResponse(StreamingResponse):
             try:
                 async for item in source:
                     await queue.put(item)
-            except BaseException as exc:  # noqa: BLE001 - handed to the consumer
+            except BaseException as exc:
                 await queue.put(exc)
             finally:
                 await queue.put(done)

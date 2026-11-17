@@ -4,7 +4,7 @@ import pytest
 
 pytest.importorskip("aiosqlite")
 
-from ushka.orm.database import UshkaDB  # noqa: E402
+from ushka.orm.database import UshkaDB
 
 
 async def _db(tmp_path, name="t"):

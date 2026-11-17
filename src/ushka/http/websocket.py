@@ -17,8 +17,8 @@ import json
 from collections.abc import AsyncIterator
 from typing import Any
 
-from ushka.http.request import Request
 from ushka.http.jsonenc import dumps
+from ushka.http.request import Request
 
 
 class WebSocketDisconnect(Exception):
