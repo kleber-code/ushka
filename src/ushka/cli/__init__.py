@@ -80,7 +80,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     i18n = sub.add_parser("i18n", help="translations: find messages and compile catalogs")
     isub = i18n.add_subparsers(dest="i18n_command", metavar="<action>")
-    p = isub.add_parser("extract", help="find _() and {% trans %} messages and write the .pot template")
+    p = isub.add_parser("extract", help="find _() and {%% trans %%} messages and write the .pot template")
     p.add_argument("-o", "--output", default="", help="where to write it (default: <catalog_dir>/<domain>.pot)")
     isub.add_parser("compile", help="compile every .po in the catalog folder to .mo")
 
