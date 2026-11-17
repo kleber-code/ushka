@@ -46,7 +46,7 @@ Return whatever is most natural; Ushka turns it into a response.
 
 | You return | Response |
 | --- | --- |
-| `dict`, `list`, `bool`, `float` | JSON (`application/json`). |
+| `dict`, `list`, `bool`, `float` | JSON (`application/json`); `datetime`, `date`, `time` become ISO 8601 text, `Decimal` and `UUID` strings. |
 | `str` | `text/plain`, or `text/html` when it contains `<html` or `<!DOCTYPE html>`. |
 | `bytes` | The bytes as they are. |
 | `int` | The number as text. |

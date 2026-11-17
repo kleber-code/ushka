@@ -88,6 +88,27 @@ such as `safe.integer(item_id, min=1)` (a rejected value answers 400). More in
 Static routes always win over dynamic ones: with both `routes/users/me.py` and
 `routes/users/[username].py`, `/users/me` goes to `me.py`.
 
+## Routes per host
+
+One app can answer several host names with different routes (a dashboard, an admin, an API):
+
+```toml
+[routes]
+hosts = { "dashboard.example.com" = "routes_dashboard", "api.*" = "routes_api" }
+```
+
+Each value is a folder of route files, loaded like `routes/` (a list of folders also works). A request for that host is answered by those routes alone, and every other host by `routes/`. A folder listed here is never part of the default routes, even when it sits inside `routes/`. Hosts are globs (`*.example.com`) and a port is ignored. `[static]` files are served on every host.
+
+The same from code:
+
+```python
+@app.host("api.*").get("/status")
+async def status():
+    return {"ok": True}
+```
+
+The host is `request.host`: `X-Forwarded-Host` counts only when the direct peer is in `[security] trusted_proxies`, otherwise the `Host` header. Combine with `allowed_hosts` in `[security]` so only your own names reach the app.
+
 ## Decorator routes
 
 For small apps or scripts, register handlers on the app object instead. Paths

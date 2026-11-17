@@ -231,3 +231,30 @@ async def test_depends_in_annotated_and_shared_response(app, call):
 
     res = await call(app, "GET", "/a")
     assert res["headers"]["x-tag"] == "t"
+
+
+async def test_depends_can_interrupt_with_a_redirect(app, call):
+    from ushka.http.exceptions import HTTPRedirect, HTTPResponse
+
+    async def login_required(request: Request):
+        raise HTTPRedirect("/login")
+
+    async def teapot():
+        raise HTTPResponse(Response("short", 418))
+
+    ran = []
+
+    @app.get("/inside")
+    async def inside(user=Depends(login_required)):
+        ran.append(1)
+        return "inside"
+
+    @app.get("/tea")
+    async def tea(x=Depends(teapot)):
+        return "no"
+
+    res = await call(app, "GET", "/inside")
+    assert res["status"] == 302 and not ran
+    assert dict(res["headers"]).get("location", dict(res["headers"]).get(b"location")) in ("/login", b"/login")
+    tea_res = await call(app, "GET", "/tea")
+    assert tea_res["status"] == 418 and tea_res["body"] == "short"

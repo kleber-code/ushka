@@ -159,3 +159,42 @@ def test_failing_threshold():
     assert r.failing("medium") == [] and r.failing("high") == []
     r.add(engine.Finding("medium", "crash", "junk", "GET /a", "query:q", "d"))
     assert len(r.failing("medium")) == 1 and r.failing("high") == [] and r.failing("none") == []
+
+
+async def test_headers_are_sent_with_every_probe(make_app, workdir):
+    write_routes(workdir, {"me.py": "from ushka import Response\nasync def get(request):\n    if request.cookies.get('sid') != 'ok':\n        return Response('login', 401)\n    return {'me': 1}\n"})
+    app = make_app()
+    client = engine._Client(app, "localhost", {"Cookie": "sid=ok"})
+    try:
+        res = await client.send("GET", "/me")
+        anon = await engine._Client(app, "localhost").send("GET", "/me")
+    finally:
+        client.close()
+    assert res["status"] == 200 and anon["status"] == 401
+    report = await engine.run(make_app(), headers={"Cookie": "sid=ok"})
+    assert report.routes >= 1
+
+
+async def test_headers_and_cookies_are_merged_and_never_reported(make_app, workdir):
+    import json
+
+    write_routes(workdir, {"me.py": "from ushka import Response\nasync def get(request):\n    if request.cookies.get('sid') != 'ok' or request.headers.get('x-token') != 'tk-secret':\n        return Response('login', 401)\n    return {'me': 1}\n"})
+    app = make_app()
+    report = await engine.run(app, cookie="sid=ok; theme=dark", headers={"X-Token": "tk-secret"})
+    dumped = json.dumps(report.to_dict())
+    assert report.routes >= 1 and "tk-secret" not in dumped and "sid=ok" not in dumped
+    client = engine._Client(app, "localhost", {"Cookie": "a=1"})
+    client.cookie = "b=2"
+    try:
+        app.router.add_route("GET", "/echo", lambda request: request.headers.get("cookie"))
+        res = await client.send("GET", "/echo")
+    finally:
+        client.close()
+    assert res["body"] == "a=1; b=2"
+
+
+def test_cli_header_and_cookie_are_repeatable():
+    from ushka.cli import build_parser
+
+    args = build_parser().parse_args(["verify", "app:app", "--cookie", "a=1", "--cookie", "b=2", "--header", "X-A: 1", "--header", "X-B: 2"])
+    assert args.cookie == ["a=1", "b=2"] and args.header == ["X-A: 1", "X-B: 2"]

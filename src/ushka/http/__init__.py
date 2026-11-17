@@ -9,9 +9,10 @@ from .exceptions import (
     HTTPBadRequest,
     HTTPError,
     HTTPMethodNotAllowed,
+    HttpNotFound,
     HTTPPayloadTooLarge,
     HTTPRedirect,
-    HttpNotFound,
+    HTTPResponse,
 )
 from .redirect import redirect
 from .request import Request
@@ -24,6 +25,7 @@ __all__ = [
     "HTTPMethodNotAllowed",
     "HTTPPayloadTooLarge",
     "HTTPRedirect",
+    "HTTPResponse",
     "HttpNotFound",
     "Request",
     "Response",

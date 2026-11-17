@@ -95,13 +95,14 @@ login, so its handler is never attacked. Give `verify` a visitor:
 ```console
 $ USHKA_APP_SECRET_KEY=... ushka verify app:app --as-session uid=1 --as-session role=admin
 $ ushka verify app:app --cookie "_ushka_session=..."      # a cookie you already have
+$ ushka verify app:app --header "Authorization: Bearer ..."  # an API token
 ```
 
 `--as-session KEY=VALUE` (repeatable; `1` is an integer, `true` a boolean, the rest
 text) forges a session signed with the app's secret key and sends it with every
 probe, and with `[session] store = "database"` it creates the record in the store
 and removes it when the run ends. Only the keys of the session are printed, never
-the values. It is a test tool: keep the key in the environment or `.env`, use a
+the values (nor those of `--cookie` and `--header`). It is a test tool: keep the key in the environment or `.env`, use a
 development key and a test database. The same cookie is available to your own
 tests as `ushka.sessions.forge_session_cookie` (see
 [Sessions](sessions.md#forging-a-session-for-tests)) and to `curl` as
@@ -114,7 +115,8 @@ tests as `ushka.sessions.forge_session_cookie` (see
 | `--include-writes` | Also probe `POST`, `PUT`, `PATCH` and `DELETE` routes. |
 | `--skip-exempt` | Leave out the routes exempt from CSRF (they are probed by default). |
 | `--as-session KEY=VALUE` | Probe as a logged-in user: forge a session with this item (repeatable). |
-| `--cookie NAME=VALUE` | Send this cookie with every probe. |
+| `--cookie NAME=VALUE` | Send this cookie with every probe, such as a real session cookie (repeatable). Use a test account and a test database. |
+| `--header 'NAME: VALUE'` | Send this header with every probe (repeatable), for example `Authorization: Bearer ...`; `Host: ...` picks a host in [per-host routes](routing.md#routes-per-host). |
 | `--param NAME` | Also probe this query parameter (repeatable). |
 | `--json` | Print the report as JSON. |
 | `--fail-on high\|medium\|none` | Lowest severity that makes the exit status 1. Default `medium`: vulnerabilities and crashes fail, guard refusals do not. |

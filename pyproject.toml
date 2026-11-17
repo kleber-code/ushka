@@ -1,6 +1,6 @@
 [project]
 name = "ushka"
-version = "0.8.0b1"
+version = "0.8.0b2"
 description = "The async Python web framework where insecure code - yours or your AI's - does not run silently: untrusted data is a type, dangerous sinks refuse it."
 authors = [
     { name = "kleber-code", email = "kleber.code@gmail.com" },

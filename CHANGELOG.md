@@ -5,6 +5,29 @@ All notable changes to Ushka. The format follows
 
 ## [Unreleased]
 
+## [0.8.0b2] - 2026-11-17
+
+Second beta of 0.8: fixes and small features found while porting a real application.
+
+### Added
+
+- **`ushka verify --header 'Name: value'`** (repeatable) sends a header with every probe, such as `Authorization: Bearer ...`, to attack the routes behind a login as a signed-in user (`verify.run(headers={...})` from code). Together with `--cookie NAME=VALUE` (now repeatable), `--as-session` and `--skip-exempt`. Values of headers and cookies are never printed.
+- **Routing by host.** `[routes] hosts = { "dashboard.example.com" = "routes_dashboard", "api.*" = "routes_api" }` maps a host (or glob) to a folder of route files, and `@app.host("api.*").get("/x")` does the same from code. A request for that host is answered by its routes alone (static files are shared); every other host by `routes/`. The host is `request.host`, so `X-Forwarded-Host` counts only from a `[security] trusted_proxies` peer. Without `[routes] hosts` nothing changes. `[security] allowed_hosts` still decides which hosts are accepted at all.
+- **`Depends` can stop the request with a response.** `raise HTTPResponse(response)` answers with that response as it is, and `raise HTTPRedirect(url)` redirects (saving the session and flash messages), so a `login_required` that redirects to the login page is possible. `HTTPResponse` is exported from `ushka`. A response a dependency merely returns is still injected as a value, as before.
+- **`db.DateTime(tz=True)`**, an alias of `timezone=True`: a timezone-aware column (`TIMESTAMP WITH TIME ZONE` on PostgreSQL). Passing both with different values is a `TypeError`.
+
+### Changed
+
+- `ushka verify --cookie` can be given several times (`--cookie a=1 --cookie b=2`); `verify.run(cookie=...)` takes the joined `"a=1; b=2"`.
+- `db.execute()` outside a transaction commits what it wrote; inside `async with db.transaction():` it joins the transaction and commits (or rolls back) with it.
+
+### Fixed
+
+- **`db.execute()` no longer loses writes.** `UPDATE`, `INSERT` and `DELETE` made through it outside a transaction were rolled back when the session closed, without any error.
+- **Route files are registered in `sys.modules` under their import name** (`routes.auth.login`). `from routes.auth.login import x` in a test used to load a second copy, so `monkeypatch` and module variables did not reach the route that answers requests.
+- **JSON responses serialize `datetime`, `date`, `time`, `Decimal` and `UUID`** (ISO 8601 text; `Decimal` and `UUID` as strings). They used to answer 500 (`TypeError`). Also applies to `send_json` and SSE data.
+- README links that returned 404 on PyPI fixed.
+
 ## [0.8.0b1] - 2026-11-17
 
 First beta of 0.8 (`pip install --pre ushka`). The 0.7 line stays the default install until 0.8 is final. This release adds server-side sessions, internationalisation, HTML forms and uploads, a test client, ORM transactions, `ushka db inspect` for databases made by another ORM, trusted proxies, a sharper `ushka verify`, SEO, a PWA option and strict templates (below), and reorganises the code by who uses it.

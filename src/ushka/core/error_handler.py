@@ -18,7 +18,7 @@ from typing import Any
 
 from ushka.core.config import Config
 from ushka.guard import RejectedValueError, UnsafeValueError
-from ushka.http.exceptions import HTTPBadRequest, HTTPError, HTTPRedirect
+from ushka.http.exceptions import HTTPBadRequest, HTTPError, HTTPRedirect, HTTPResponse
 from ushka.http.redirect import redirect
 from ushka.http.request import Request
 from ushka.http.response import Response
@@ -222,6 +222,9 @@ class ErrorHandler:
         # A sanitiser refused client input: that is the client's fault (400).
         if isinstance(exc, RejectedValueError):
             exc = HTTPBadRequest(message=str(exc))
+
+        if isinstance(exc, HTTPResponse):
+            return exc.response
 
         if isinstance(exc, RequestValidationError):
             return Response({"detail": exc.errors}, status_code=422, media_type="application/json")

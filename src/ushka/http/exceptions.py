@@ -185,3 +185,22 @@ class HTTPRedirect(HTTPError):
         check_redirect(url)
         super().__init__("error.html", status_code, f"Redirect to {url}")
         self.url = url
+
+
+class HTTPResponse(Exception):
+    """Interrupts the request and answers with `response`, as it is.
+
+    Raise it from a `Depends` function (or the handler) to stop early with any
+    response, for example a JSON 401 for an API client::
+
+        async def api_key(request: Request):
+            if request.headers.get("x-api-key") != KEY:
+                raise HTTPResponse(Response({"error": "no key"}, status_code=401))
+
+    To redirect, raise `HTTPRedirect` instead: it also saves the session and
+    flash messages. Unlike `HTTPError`, no error page is rendered.
+    """
+
+    def __init__(self, response) -> None:
+        super().__init__(f"HTTP {getattr(response, 'status_code', '?')} response")
+        self.response = response

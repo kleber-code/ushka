@@ -553,7 +553,8 @@ class UshkaDB:
 
     async def execute(self, stmt):
         """
-        Executes a raw SQL statement or SQLAlchemy construct using a session.
+        Executes a raw SQL statement or SQLAlchemy construct using a session
+        and commits it, so writes (``UPDATE``, ``INSERT``, ``DELETE``) persist.
 
         Parameters
         ----------
@@ -579,7 +580,9 @@ class UshkaDB:
         elif isinstance(stmt, str):
             stmt = self.text(stmt)
         async with self._use_session() as session:
-            return await session.execute(stmt)
+            result = await session.execute(stmt)
+            await self._commit(session)
+            return result
 
     # --- TYPE HELPERS ---
 
@@ -784,6 +787,7 @@ class UshkaDB:
         nullable=False,
         auto_now_add=False,
         timezone: bool | None = None,
+        tz: bool | None = None,
     ) -> Column:
         """
         Defines a SQLAlchemy DateTime column.
@@ -802,12 +806,18 @@ class UshkaDB:
             Store a timezone-aware value (``timestamptz`` on PostgreSQL; read
             back as UTC everywhere). Defaults to True for the automatic
             columns and False for a plain one.
+        tz : bool, optional
+            Alias of ``timezone``. Pass one or the other, not both.
 
         Returns
         -------
         sqlalchemy.Column
             The configured Column object.
         """
+        if tz is not None:
+            if timezone is not None and timezone != tz:
+                raise TypeError("DateTime: pass timezone= or tz= (an alias), not both")
+            timezone = tz
         auto = auto_now or auto_now_add
         aware = auto if timezone is None else timezone
         stamp = utcnow if aware else _utcnow_naive

@@ -173,6 +173,17 @@ async def get_db():
         await db.close()
 ```
 
+- A dependency can **stop the request with a response**: raise `HTTPRedirect(url)` to redirect (session and flash messages are saved, see [Error handling](error_handling.md#redirecting-from-anywhere)), or `HTTPResponse(response)` to answer with any response as it is. This is how a `login_required` is written:
+
+```python
+from ushka import HTTPRedirect
+
+async def login_required(request: Request):
+    if not request.session.get("user"):
+        raise HTTPRedirect("/login")
+    return request.session["user"]
+```
+
 - A dependency that takes `response: Response` shares the handler's response, so it can set headers and cookies.
 - In tests, swap one: `app.dependency_overrides[get_db] = fake_db`.
 

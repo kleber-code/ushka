@@ -218,8 +218,10 @@ def discover_slots(method: str, raw_path: str, func: Callable, extra_params=()) 
 
 
 class _Client:
-    def __init__(self, app, host: str) -> None:
+    def __init__(self, app, host: str, headers: dict | None = None) -> None:
         self.app, self.host = app, host
+        #: Sent with every request (a session cookie, an Authorization header).
+        self.base_headers = {k.lower(): v for k, v in (headers or {}).items()}
         self.last_exc: BaseException | None = None
         self.cookie = ""  # sent with every request: probing as a logged-in visitor
         original = app.error_handler.handle_exception
@@ -237,9 +239,10 @@ class _Client:
     async def send(self, method: str, path: str, query: dict | None = None, body: Any = None, headers: dict | None = None, raw_body: bytes | None = None) -> dict:
         self.last_exc = None
         payload = raw_body if raw_body is not None else (json.dumps(body).encode() if body is not None else b"")
-        hdrs = {"host": self.host, **(headers or {})}
-        if self.cookie:
-            hdrs.setdefault("cookie", self.cookie)
+        hdrs = {"host": self.host, **self.base_headers, **(headers or {})}
+        jar = "; ".join(c for c in (self.base_headers.get("cookie"), self.cookie) if c)
+        if jar and "cookie" not in (headers or {}):
+            hdrs["cookie"] = jar
         if body is not None or raw_body is not None:
             hdrs.setdefault("content-type", "application/json")
         hdrs["content-length"] = str(len(payload))
@@ -420,12 +423,15 @@ async def run(
     skip_exempt: bool = False,
     cookie: str = "",
     session_data: dict[str, Any] | None = None,
+    headers: dict[str, str] | None = None,
 ) -> Report:
     """Probes every route of `app` and returns the `Report`.
 
-    `skip_exempt` leaves out the routes exempt from CSRF. `cookie` (``name=value``)
-    and `session_data` (forged into a signed session cookie) probe as a visitor
-    who is logged in; only the keys of `session_data` are ever reported.
+    `skip_exempt` leaves out the routes exempt from CSRF. `cookie` (``name=value``,
+    several joined with ``; ``), `headers` (sent with every request, e.g.
+    ``Authorization``) and `session_data` (forged into a signed session cookie)
+    probe as a visitor who is logged in. Their values are never reported; only
+    the keys of `session_data` are.
     """
     report = Report()
     config = app.config
@@ -437,7 +443,7 @@ async def run(
         report.add(Finding("medium", "config", "headers", "-", "-", "security headers are turned off ([security] headers = false)", "Remove that setting, or set a CSP of your own."))
 
     hosts = [h for h in app.security.allowed_hosts if "*" not in h]
-    client = _Client(app, hosts[0] if hosts else "localhost")
+    client = _Client(app, hosts[0] if hosts else "localhost", headers)
     skip = getattr(app, "_openapi_skip", set())
     mcp_path = getattr(getattr(app, "mcp", None), "path", None)
     lifespan = _Lifespan(app)
