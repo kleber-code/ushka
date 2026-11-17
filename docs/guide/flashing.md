@@ -23,7 +23,7 @@ proxy), or messages will seem to vanish.
 # routes/profile.py
 from ushka.http import redirect
 from ushka.templating import render
-from ushka.utils import Category, flash
+from ushka.templating.flash import Category, flash
 
 
 async def get(request):
@@ -67,7 +67,7 @@ Outside templates (in a JSON API, for example) use `get_flashed_messages()`.
 It also removes the messages from the session.
 
 ```python
-from ushka.utils import get_flashed_messages
+from ushka.templating.flash import get_flashed_messages
 
 
 async def get(request):

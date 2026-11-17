@@ -10,6 +10,9 @@
   with the standard library. Security-critical parsers are the exception.
 - **Batteries included.** Features a typical web app needs belong in the box.
 - **Lightweight in concept.** One clear idea per feature; no hidden magic.
+- **Flask and Mako, not Django.** Syntax stays explicit and Pythonic: decorators, plain functions, Jinja2 in
+  templates, SQLAlchemy-style attributes (`__tablename__`). Avoid Django idioms (nested `class Meta`, managers, tag
+  libraries, one big settings module) in new APIs.
 - **Nothing hidden.** A new setting is added to `SCHEMA` in `src/ushka/core/settings.py` (default and description) and
   nowhere else: `ushka new`, `ushka config` and the table in `docs/guide/configuration.md` are generated from it
   (run `ushka config --markdown` and paste it between the markers). `tests/test_settings.py` fails when code reads
