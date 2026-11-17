@@ -43,6 +43,7 @@ SECTIONS: dict[str, str] = {
     "seo": "SEO tags, robots.txt and sitemap.xml, ready out of the box.",
     "pwa": "Progressive Web App: manifest, service worker and offline page (off by default).",
     "mcp": "The MCP endpoint that exposes routes as tools for AI agents.",
+    "imap": "Reading e-mail over IMAP (`ushka.mail.ImapClient`): the inbox of a support, leads or receipts address. Off until host is set.",
 }
 
 #: Where each section is explained, relative to ``docs/guide/``.
@@ -57,6 +58,7 @@ SECTION_DOCS: dict[str, str] = {
     "seo": "seo.md",
     "pwa": "pwa.md",
     "mcp": "agents.md",
+    "imap": "mail.md",
 }
 
 SCHEMA: dict[str, dict[str, Setting]] = {
@@ -177,6 +179,19 @@ SCHEMA: dict[str, dict[str, Setting]] = {
     },
     "mcp": {
         "token": _s("", "Bearer token of the MCP endpoint. Use USHKA_MCP_TOKEN, never this file.", secret=True),
+    },
+    "imap": {
+        "host": _s("", "IMAP server, for example imap.example.com. Empty means the mail client is not configured."),
+        "port": _s(993, "Server port: 993 for TLS from the start, usually 143 with starttls."),
+        "user": _s("", "Login name, usually the full address."),
+        "password": _s("", "Password or app password. Use USHKA_IMAP_PASSWORD, never this file.", secret=True),
+        "ssl": _s(True, "TLS from the first byte, with the certificate and host name verified. Turning it off needs starttls or allow_insecure."),
+        "starttls": _s(False, "With ssl = false, upgrade a plain connection to verified TLS before logging in."),
+        "allow_insecure": _s(False, "Allow a plain-text connection (ssl = false, starttls = false). The password travels in the clear: only for a local test server."),
+        "folder": _s("INBOX", "Folder selected when the client connects."),
+        "timeout": _s(30, "Seconds to connect, and to wait for the server on each read."),
+        "max_message_kb": _s(10240, "Largest message in KB. A bigger one is refused from its size, before its body is downloaded."),
+        "max_parts": _s(100, "Most MIME parts (body, alternatives, attachments) accepted in one message."),
     },
 }
 

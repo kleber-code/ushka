@@ -27,6 +27,7 @@ pages = [
     "guide/static_files.md",
     "guide/sessions.md",
     "guide/uploads.md",
+    "guide/mail.md",
     "guide/i18n.md",
     "guide/seo.md",
     "guide/pwa.md",
@@ -139,6 +140,11 @@ modules = [
     "ushka.static.files",
     "ushka.templating.flash",
 ]
+
+[[api.group]]
+title = "Mail"
+description = "Reading e-mail over IMAP, with everything from the message marked Untrusted."
+modules = ["ushka.mail.imap"]
 
 [[api.group]]
 title = "Web: SEO, PWA and i18n"

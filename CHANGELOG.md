@@ -5,6 +5,10 @@ All notable changes to Ushka. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **`ushka.mail.ImapClient`: read an app's inbox** (support, leads, receipts), with no new dependency (`imaplib` in a worker thread, `email` to parse). `async with ImapClient.from_config() as mail:` gives `folders()`, `select()`, `search(unseen=True, from_=..., since=...)`, `fetch(uid)`, `unseen()`, `mark_seen()`, `mark_unseen()`, `move()` and `delete()`, all by UID and one command at a time. Secure by default: TLS with the certificate and host name verified (plain text needs `allow_insecure = true`), search values quoted with CR, LF and NUL refused (no IMAP command injection), modified UTF-7 folder names, a size limit decided from `RFC822.SIZE` before the body is downloaded, limits on MIME parts and depth, and no password or body in logs or `repr`. Every text from a message (subject, sender, body, HTML, attachment names) is `Untrusted` with a `mail:*` source, and `Attachment.save()` has the guarantees of `UploadFile.save`. New `[imap]` section and guide "Reading e-mail"; `ushka check` warns about a missing password and an unencrypted connection.
+
 ## [0.8.0b4] - 2026-11-17
 
 Fourth beta of 0.8: a layout for real applications.

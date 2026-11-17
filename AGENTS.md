@@ -35,6 +35,9 @@
 - `src/ushka/templating/` (Jinja2 engine, flash), `static/` (static files).
 - `src/ushka/web/` — what browsers and search engines see: `seo.py`, `pwa.py`, `i18n/`. Each has its own
   `[section]` in the schema and is off, or passive, until used.
+- `src/ushka/mail/` — `imap.py`: `ImapClient` (stdlib `imaplib` in `asyncio.to_thread`, one lock). Everything from
+  an e-mail is `Untrusted`; values going into IMAP commands are quoted and control characters refused. Not imported
+  by `import ushka`; it has its own `[imap]` section in the schema.
 - `src/ushka/api/` — what machines consume: `openapi.py` and `mcp.py` (routes as MCP tools).
 - `src/ushka/orm/`, `docs/`, `testing.py` — batteries and tooling.
 - `src/ushka/cli/` — argparse CLI; output through `ushka.cli.ui`; errors exit 1.
