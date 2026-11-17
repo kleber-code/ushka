@@ -63,3 +63,33 @@ async def test_datetime_tz_accepts_aware_values(tmp_path):
     row = await AuditRT.create(when=datetime(2026, 11, 17, 10, 0, tzinfo=timezone.utc))
     assert (await AuditRT.get(row.id)).when.replace(tzinfo=None) == datetime(2026, 11, 17, 10, 0)
     await db.engine.dispose()
+
+
+async def test_rollback_refresh_keeps_objects_readable(tmp_path, monkeypatch):
+    import pytest as _pytest
+    from sqlalchemy.exc import DBAPIError
+
+    from ushka.orm import db as _db
+    from ushka.orm.database import UshkaDB
+
+    monkeypatch.chdir(tmp_path)
+    udb = UshkaDB(f"sqlite:///{tmp_path}/rb.db")
+
+    class Item(udb.Model):
+        __tablename__ = "rb_items"
+        name = udb.String(length=20)
+
+    async with udb.engine.begin() as conn:
+        await conn.run_sync(udb.Model.metadata.create_all)
+    first = await Item.create(name="ana")
+    async with udb.Session() as s:
+        mine = await s.get(Item, first.id)
+        await s.rollback()  # plain SQLAlchemy: the object is expired
+        with _pytest.raises(DBAPIError):
+            _ = mine.name
+    async with udb.Session() as s:
+        mine = await s.get(Item, first.id)
+        await s.rollback(refresh=True)
+        assert mine.name == "ana"
+    await udb.engine.dispose()
+    assert _db is not None

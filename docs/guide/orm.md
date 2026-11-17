@@ -373,6 +373,27 @@ async def transaction():
 On SQLite, Ushka makes the driver issue `BEGIN` when SQLAlchemy asks, so that
 savepoints and rollbacks behave as they do on PostgreSQL.
 
+### After a rollback
+
+SQLAlchemy expires every object a session holds when you call `rollback()`. In async
+code the next attribute read then fails with a cryptic `MissingGreenlet`, because it
+tries to reload the row outside the event loop. This only happens with a session you
+open yourself and roll back yourself; objects you loaded before a failed
+`async with db.transaction():`, or in other sessions, stay readable.
+
+When you need the objects after a rollback, ask for them to be reloaded:
+
+```python
+async with db.Session() as s:
+    lead = await s.get(Lead, lead_id)
+    ...
+    await s.rollback(refresh=True)   # reloads what the session holds
+    print(lead.name)                 # works
+```
+
+Without `refresh=True`, `rollback()` is plain SQLAlchemy. A row the rollback removed
+(an insert that never happened) is dropped from the session instead of reloaded.
+
 ### Automatic timestamps
 
 ```python

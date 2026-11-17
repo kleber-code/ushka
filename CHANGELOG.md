@@ -23,6 +23,8 @@ Second beta of 0.8: fixes and small features found while porting a real applicat
 
 ### Fixed
 
+- A NUL byte (`\x00`) in a query string, form, JSON, text body or path parameter is now a 400 at the door. It used to reach the handler and the database, where PostgreSQL refused it and the request ended in a 500. The check also runs with `[security] taint = false`.
+- `await session.rollback(refresh=True)` on a `db.Session()` reloads the objects the session holds, so they stay readable after a rollback (plain SQLAlchemy expires them and the next read fails with `MissingGreenlet`). Without `refresh=True` nothing changes.
 - **`db.execute()` no longer loses writes.** `UPDATE`, `INSERT` and `DELETE` made through it outside a transaction were rolled back when the session closed, without any error.
 - **Route files are registered in `sys.modules` under their import name** (`routes.auth.login`). `from routes.auth.login import x` in a test used to load a second copy, so `monkeypatch` and module variables did not reach the route that answers requests.
 - **JSON responses serialize `datetime`, `date`, `time`, `Decimal` and `UUID`** (ISO 8601 text; `Decimal` and `UUID` as strings). They used to answer 500 (`TypeError`). Also applies to `send_json` and SSE data.

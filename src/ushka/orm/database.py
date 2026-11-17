@@ -50,6 +50,26 @@ _Base = declarative_base(metadata=_metadata)
 T = TypeVar("T", bound=_Base)
 
 
+class UshkaSession(AsyncSession):
+    """The session `db.Session()` opens: an `AsyncSession` whose `rollback()` can keep your objects usable.
+
+    SQLAlchemy expires every loaded object on `rollback()`. In async code the next
+    attribute read then tries to reload it outside the event loop and fails with a
+    cryptic ``MissingGreenlet``. ``await session.rollback(refresh=True)`` reloads the
+    objects the session still holds, so ``obj.name`` keeps working. Without
+    ``refresh`` nothing changes from plain SQLAlchemy.
+    """
+
+    async def rollback(self, *, refresh: bool = False) -> None:
+        await super().rollback()
+        if refresh:
+            for obj in list(self.sync_session.identity_map.values()):
+                try:
+                    await self.refresh(obj)
+                except Exception:  # noqa: BLE001 - a row the rollback removed is simply gone
+                    self.expunge(obj)
+
+
 def utcnow() -> _dt.datetime:
     """The current time as an aware ``datetime`` in UTC (what ``auto_now`` stores)."""
     return _dt.datetime.now(_dt.timezone.utc)
@@ -202,7 +222,7 @@ class UshkaDB:
         """Factory for new `AsyncSession` objects."""
         if self._session_factory is None:
             self._session_factory = async_sessionmaker(
-                bind=self.engine, class_=AsyncSession, expire_on_commit=False
+                bind=self.engine, class_=UshkaSession, expire_on_commit=False
             )
         return self._session_factory
 

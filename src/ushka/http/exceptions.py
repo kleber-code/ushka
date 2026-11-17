@@ -204,3 +204,24 @@ class HTTPResponse(Exception):
     def __init__(self, response) -> None:
         super().__init__(f"HTTP {getattr(response, 'status_code', '?')} response")
         self.response = response
+
+
+def reject_nul(value):
+    """Refuses a NUL byte (``\\x00``) anywhere in client text, with a 400.
+
+    No form, query, JSON document or header has a legitimate use for it, and it
+    breaks things later: PostgreSQL refuses it in text, C-based file APIs stop at
+    it. Stopping it at the door is a 400 here instead of a 500 from the database.
+    Returns `value` unchanged, so it can wrap an expression.
+    """
+    if isinstance(value, str):
+        if "\x00" in value:
+            raise HTTPBadRequest(message="Invalid character in request data")
+    elif isinstance(value, dict):
+        for k, v in value.items():
+            reject_nul(k)
+            reject_nul(v)
+    elif isinstance(value, (list, tuple)):
+        for v in value:
+            reject_nul(v)
+    return value

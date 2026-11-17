@@ -6,9 +6,9 @@ from typing import TYPE_CHECKING, Any
 from urllib.parse import parse_qs
 
 from ushka.guard import Untrusted, taint_deep
+import ushka.http.proxy as proxy  # noqa: PLR0402 - `from ushka.http import proxy` would be an import cycle
 from ushka.http.cookies import Cookies
-from ushka.http.exceptions import HTTPBadRequest, HTTPPayloadTooLarge
-import ushka.http.proxy as proxy
+from ushka.http.exceptions import HTTPBadRequest, HTTPPayloadTooLarge, reject_nul
 from ushka.http.multipart import parse_multipart_asgi
 from ushka.http.uploads import UploadFile
 from ushka.sessions.session import ServerSession, Session
@@ -68,11 +68,18 @@ class Request:
         #: Whether client-supplied values are wrapped in `Untrusted` (Ushka Guard).
         self.taint_enabled = self.app.config.get("security_taint", True) is not False
 
-    def _mark(self, value: Any, source: str) -> Any:
-        """Wraps client-supplied data in `Untrusted` when the guard is on."""
+    def _mark(self, value: Any, source: str, check_nul: bool = True) -> Any:
+        """Refuses NUL bytes, then wraps client-supplied data in `Untrusted` when the guard is on.
+
+        Headers skip the NUL check (`check_nul=False`): the HTTP servers already refuse
+        them, and this runs inside the outermost middleware, before errors are mapped.
+        """
+        if check_nul:
+            reject_nul(value)
         return taint_deep(value, source) if self.taint_enabled else value
 
     def _mark_mapping(self, data: dict[str, Any], kind: str) -> dict[str, Any]:
+        reject_nul(data)
         if not self.taint_enabled:
             return data
         return {
@@ -98,7 +105,7 @@ class Request:
             headers = {}
             for k, v in self.scope["headers"]:
                 name = k.decode("latin-1")
-                headers[name] = self._mark(v.decode("latin-1"), f"header:{name}")
+                headers[name] = self._mark(v.decode("latin-1"), f"header:{name}", check_nul=False)
             self._cached_data["headers"] = headers
         return self._cached_data["headers"]
 

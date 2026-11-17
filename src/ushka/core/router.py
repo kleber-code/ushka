@@ -383,6 +383,10 @@ class Router:
                 match = regex.match(path)
                 if match:
                     path_params = match.groupdict()
+                    if any(v and "\x00" in v for v in path_params.values()):
+                        from ushka.http.exceptions import HTTPBadRequest  # core must not import http at load time
+
+                        raise HTTPBadRequest(message="Invalid character in request data")
                     if getattr(request, "taint_enabled", False):
                         path_params = {
                             k: Untrusted(v, f"path:{k}") for k, v in path_params.items()
