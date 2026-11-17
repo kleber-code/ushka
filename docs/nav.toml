@@ -19,6 +19,7 @@ pages = [
 title = "Build"
 pages = [
     "guide/routing.md",
+    "guide/pieces.md",
     "guide/requests-responses.md",
     "guide/validation.md",
     "guide/testing.md",

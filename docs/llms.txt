@@ -4,6 +4,7 @@
 
 Rules for generating Ushka code:
 
+- Plug features in with one verb: `app.use(piece)`. A piece is an object with `install(app)` or a function `fn(app)` that registers routes, middleware or hooks with the app's own methods. Write extensions as pieces; `app.pieces[name]` reads or swaps one.
 - Layout: the project root holds only `app.py` and config. Code goes in folders by role, one module per domain in each: `routes/` (thin handlers: read the request, call a service, return), `services/` (business rules as plain functions, no `request`, templates or `ushka.http`), `models/` (ORM, never one big `models.py`), `integrations/` (one module per outside vendor), `deps/` (`Depends` functions), `templates/<area>/`, `scripts/`, `tests/`. Imports go `routes` -> `services` -> `models`/`integrations`. Name files after the domain (`billing`), never `utils`/`helpers`/`core`. A module over about 500 lines is several domains. A host name with its own routes gets `routes_<name>/` and an entry in `[routes] hosts`. Never add a `.py` file to the root. `ushka check` warns when the layout drifts.
 - Routes: `routes/index.py` is `/`; `routes/users/[user_id].py` is `/users/<user_id>`. Export functions named after the verb: `async def get(request): ...` (also `post`, `put`, `patch`, `delete`, `websocket`). Or use decorators on `app = Ushka()`: `@app.get("/path")`.
 - Run it with `ushka dev` (reload, debug on) or `ushka run` (production). The app object is `app` in `app.py`; serve it as `app:app`.
@@ -47,6 +48,7 @@ Rules for generating Ushka code:
 ## Guide
 
 - [Routing](https://ushka.satela.com.br/docs/guide/routing/): file and decorator routes, dynamic segments, hooks
+- [Pieces](https://ushka.satela.com.br/docs/guide/pieces/): `app.use(piece)` plugs in any feature; a piece is an object with `install(app)` or a function taking the app; `app.pieces` to read or swap one
 - [Requests and responses](https://ushka.satela.com.br/docs/guide/requests-responses/): the request object, return values, Response, redirect
 - [Validation and typed parameters](https://ushka.satela.com.br/docs/guide/validation/): types, Query/Header/Body, Depends, 422 errors, OpenAPI
 - [Testing](https://ushka.satela.com.br/docs/guide/testing/): `ushka.testing.TestClient` runs startup/shutdown, keeps cookies, sends json/forms/files, simulates a browser for CSRF

@@ -115,6 +115,8 @@ class Ushka:
         #: ``{path: handler}`` for GET pages Ushka ships (robots.txt, the PWA files...).
         #: They answer only when no route of yours matches, so yours always win.
         self._builtin_routes: dict = {}
+        #: The pieces plugged in with `use`, by name (``app.pieces["docs"]``).
+        self.pieces: dict = {}
         seo_module.install(self)
         pwa_module.install(self)
         if any(self.config.get(f"oauth_{n}_client_id") for n in ("google", "github")):
@@ -558,6 +560,46 @@ class Ushka:
         self._add_shared_route("GET", prefix + "/[path:filename]", serve)
         if html:
             self._add_shared_route("GET", prefix, serve)
+
+    def use(self, *pieces):
+        """Plugs pieces into the app: ``app.use(Docs("docs"))``. The one verb for every feature.
+
+        A piece is any object with an ``install(app)`` method, or a plain function that
+        takes the app. It registers what it needs (routes, hooks, middleware) with the
+        app's own methods. Ushka's batteries are pieces, and so is the one you write:
+
+            def health(app):
+                @app.get("/health")
+                async def ok():
+                    return "ok"
+
+            app.use(health)
+
+        Returns the piece, or a tuple when you pass several. A piece may have a ``name``
+        (otherwise its class or function name, lower-case); it is kept in
+        ``app.pieces[name]``, and using another piece with the same name replaces it.
+        Using the same object twice installs it once.
+        """
+        done = []
+        for piece in pieces:
+            if any(piece is p for p in self.pieces.values()):
+                done.append(piece)
+                continue
+            install = getattr(piece, "install", None)
+            if callable(install):
+                install(self)
+            elif callable(piece):
+                piece(self)
+            else:
+                raise TypeError(
+                    f"app.use() takes an object with install(app) or a function(app), got {type(piece).__name__}"
+                )
+            name = getattr(piece, "name", None)
+            if not isinstance(name, str) or not name:
+                name = getattr(piece, "__name__", None) or type(piece).__name__
+            self.pieces[name.lower()] = piece
+            done.append(piece)
+        return done[0] if len(done) == 1 else tuple(done)
 
     def openapi(self, title: str | None = None, version: str = "0.1.0") -> dict:
         """The OpenAPI 3.1 document describing this app's routes (a dict)."""
