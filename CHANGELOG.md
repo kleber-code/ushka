@@ -5,6 +5,11 @@ All notable changes to Ushka. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **A layout for real applications** (guide: Application structure). The root holds `app.py` and config; code goes in `routes/` (thin), `services/` (rules, no HTTP), `models/`, `integrations/` and `deps/`, one module per domain. `ushka new` now creates it, with a service, a test and a `pytest.ini`, and its `AGENTS.md` tells coding agents where each kind of code goes (a project built by agents had grown 49 modules in the root and an 850-line `models.py`, because the old file only described `routes/`, `templates/` and `static/`).
+- **`ushka check` warns when the layout drifts**: more than 5 modules in the root (and the file-name prefixes that are folders waiting to exist), a module over 500 lines, a `routes_*` folder no host uses, a file in `services/` or `models/` that imports HTTP, and a folder named like an installed package. Warnings only; the thresholds are in `ushka/cli/commands/structure.py` and in the guide.
+
 ## [0.8.0b3] - 2026-11-17
 
 Third beta of 0.8: findings from the Satela cut-over.

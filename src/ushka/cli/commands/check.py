@@ -12,6 +12,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from ushka.cli import ui
+from ushka.cli.commands.structure import structure_warnings
 from ushka.core.config import Config
 from ushka.guard import TEMPLATES_SUPPORTED
 from ushka.sessions.stores import no_database_reason
@@ -198,6 +199,14 @@ def check(production: bool = False) -> int:
     routes = workdir / "routes"
     if routes.is_dir():
         ui.ok(f"{sum(1 for _ in routes.rglob('*.py'))} route file(s) in routes/")
+
+    layout = structure_warnings(workdir, config)
+    if layout:
+        for message in layout:
+            ui.warn(message)
+        ui.hint("the layout rules are in the guide 'Application structure'; they only warn")
+    else:
+        ui.ok("project layout follows the Ushka structure")
 
     if TEMPLATES_SUPPORTED:
         ui.ok(f"Python {sys.version.split()[0]}: t-strings available")

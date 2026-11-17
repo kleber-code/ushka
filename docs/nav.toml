@@ -12,6 +12,7 @@ pages = [
     "guide/install.md",
     "guide/quickstart.md",
     "guide/project-structure.md",
+    "guide/app-structure.md",
 ]
 
 [[section]]

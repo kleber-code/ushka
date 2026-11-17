@@ -4,6 +4,7 @@
 
 Rules for generating Ushka code:
 
+- Layout: the project root holds only `app.py` and config. Code goes in folders by role, one module per domain in each: `routes/` (thin handlers: read the request, call a service, return), `services/` (business rules as plain functions, no `request`, templates or `ushka.http`), `models/` (ORM, never one big `models.py`), `integrations/` (one module per outside vendor), `deps/` (`Depends` functions), `templates/<area>/`, `scripts/`, `tests/`. Imports go `routes` -> `services` -> `models`/`integrations`. Name files after the domain (`billing`), never `utils`/`helpers`/`core`. A module over about 500 lines is several domains. A host name with its own routes gets `routes_<name>/` and an entry in `[routes] hosts`. Never add a `.py` file to the root. `ushka check` warns when the layout drifts.
 - Routes: `routes/index.py` is `/`; `routes/users/[user_id].py` is `/users/<user_id>`. Export functions named after the verb: `async def get(request): ...` (also `post`, `put`, `patch`, `delete`, `websocket`). Or use decorators on `app = Ushka()`: `@app.get("/path")`.
 - Run it with `ushka dev` (reload, debug on) or `ushka run` (production). The app object is `app` in `app.py`; serve it as `app:app`.
 - Return a `str`, `dict`/`list` (JSON), `(body, status)` or `(body, status, headers)`, `None` (204), a t-string (3.14, escaped HTML) or `Response`. Raise `HttpNotFound`, `HTTPForbidden`, `HTTPBadRequest` (from `ushka.http.exceptions`) with `message=` as a keyword.
@@ -36,6 +37,7 @@ Rules for generating Ushka code:
 - [Installation](https://ushka.satela.com.br/docs/guide/install/): pip, extras (orm, postgres, mysql, docs, full), the install script
 - [Quickstart](https://ushka.satela.com.br/docs/guide/quickstart/): a running app in five minutes
 - [Project structure](https://ushka.satela.com.br/docs/guide/project-structure/): what `ushka new` creates
+- [Application structure](https://ushka.satela.com.br/docs/guide/app-structure/): the layout for a real app (routes, services, models, integrations, deps), the rules, where new code goes, tidying a flat project
 - [Why Ushka changed](https://ushka.satela.com.br/docs/why-ushka-changed/): purpose and direction
 - [Features](https://ushka.satela.com.br/docs/features/): the short tour
 
