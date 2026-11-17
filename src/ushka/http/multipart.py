@@ -210,9 +210,13 @@ class MultiPartCollector:
         if self._is_file and self._current_file:
             self._current_file.seek(0)
         else:
-            self.form_data[self._current_field_name] = self._data_buffer.decode(
-                self.charset
-            )
+            value = self._data_buffer.decode(self.charset)
+            name = self._current_field_name
+            if name in self.form_data:  # a repeated field is a list, as in urlencoded forms
+                seen = self.form_data[name]
+                self.form_data[name] = [*seen, value] if isinstance(seen, list) else [seen, value]
+            else:
+                self.form_data[name] = value
 
     def get_callbacks(self) -> Dict[str, Callable]:
         """Returns a dictionary of callback functions for the multipart parser.

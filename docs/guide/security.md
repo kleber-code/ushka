@@ -25,8 +25,24 @@ Every response gets these, unless your route already set the same header:
 | `Strict-Transport-Security` | `max-age=31536000; includeSubDomains`, on **https requests only** (`hsts_seconds`, `0` turns it off) |
 
 The default CSP blocks inline scripts and third-party scripts, images and
-fonts. If your pages load from a CDN, set `csp` to your own policy, or to
-`"off"` to send none. Behind a proxy that ends TLS, tell the server which
+fonts. The browser blocks them **silently**: the server sees nothing, only the
+browser console says "Refused to load...". `ushka check` scans `templates/`
+and warns with `file:line` for each `<script src="https://...">`, stylesheet
+`<link>` to another site and inline `<script>` (not an error: it is a warning).
+
+To fix it, in order of preference: host the file under `static/`; move inline
+code to a `.js` file under `static/`; or allow the CDN by setting `csp` in
+`ushka.toml` to your own policy (it **replaces** the default, so repeat what you
+keep):
+
+```toml
+[security]
+csp = "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+```
+
+An inline script needs `'unsafe-inline'` in `script-src`, which removes most of
+what the CSP protects you from; avoid it. Set `csp = "off"` to send no policy.
+`ushka check` stops warning about a host your policy names. Behind a proxy that ends TLS, tell the server which
 proxy to trust so Ushka sees `https` (see [Deploy](deploy.md#behind-a-proxy)).
 
 ## CSRF

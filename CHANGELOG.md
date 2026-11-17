@@ -5,6 +5,13 @@ All notable changes to Ushka. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **A whole HTML form as a dataclass.** `Annotated[Lead, Form()]` fills the dataclass (or `TypedDict`) from `application/x-www-form-urlencoded` and `multipart/form-data` with the same conversion, limits and body-size checks as a JSON body. An unchecked checkbox is `False`, an unchecked group is `[]`, an empty number or date input is "not filled in", repeated fields (`a=1&a=2`) are a list, and fields the model does not declare are dropped (no mass assignment). Multipart text fields that repeat are now a list too, as in urlencoded forms. A `dict` field receives an uploaded file's info.
+- **Answer an invalid form yourself.** `@app.post("/lead", on_invalid=show)` (or `@on_invalid(show)` on a file route) runs `show` instead of the JSON 422. It is an ordinary handler and takes `errors: RequestValidationError`, which now has `.fields` (messages by field name) and `.values` (what was typed, still `Untrusted`, so a template escapes it) to draw the form again. Without it the answer stays a JSON 422 that never echoes the input.
+- **`ushka.testing.TestClient`**, with no new dependency: `async with TestClient(app) as client` runs `on_startup` and `on_shutdown` (which `httpx.ASGITransport` does not), keeps cookies between requests, and offers `get/post/put/patch/delete/head/options` with `json=`, `data=`, `files=`, `params=`, `headers=`, `cookies=` and `follow_redirects=`. `TestClient(app, browser=True)` sends `Sec-Fetch-Site` and `Origin` like a same-origin browser for CSRF tests. Guide: Testing.
+- **`ushka check` warns about what the Content-Security-Policy blocks**: `<script src>` and stylesheet `<link>` from another site and inline `<script>` in `templates/`, with `file:line` and how to fix it. Warnings only; it stays quiet when `[security] csp` is `"off"`, names the host, or allows inline code. The Security guide shows how to allow a CDN.
+
 ## [0.7.0] - 2026-11-16
 
 ### Added

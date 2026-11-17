@@ -20,6 +20,7 @@ pages = [
     "guide/routing.md",
     "guide/requests-responses.md",
     "guide/validation.md",
+    "guide/testing.md",
     "guide/dependency_injection.md",
     "guide/templates.md",
     "guide/static_files.md",
@@ -133,7 +134,7 @@ modules = [
 [[api.group]]
 title = "Agents and tooling"
 description = "Routes as MCP tools, OpenAPI from signatures, and `ushka verify`."
-modules = ["ushka.mcp", "ushka.openapi", "ushka.verify"]
+modules = ["ushka.mcp", "ushka.openapi", "ushka.verify", "ushka.testing"]
 
 [[api.group]]
 title = "CLI commands"
