@@ -260,18 +260,25 @@ The MCP endpoint that exposes routes as tools for AI agents. See [agents](agents
 
 Reading e-mail over IMAP (`ushka.mail.ImapClient`): the inbox of a support, leads or receipts address. Off until host is set. See [mail](mail.md).
 
+**Common**
+
 | Key | Default | Meaning |
 | --- | --- | --- |
 | `host` | `""` | IMAP server, for example imap.example.com. Empty means the mail client is not configured. |
-| `port` | `993` | Server port: 993 for TLS from the start, usually 143 with starttls. |
 | `user` | `""` | Login name, usually the full address. |
 | `password` | *(set it in the environment)* | Password or app password. Use USHKA_IMAP_PASSWORD, never this file. |
+| `folder` | `"INBOX"` | Folder selected when the client connects. |
+| `max_parts` | `100` | Most MIME parts (body, alternatives, attachments) accepted in one message. |
+
+**Advanced**
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `port` | `993` | Server port: 993 for TLS from the start, usually 143 with starttls. |
 | `ssl` | `true` | TLS from the first byte, with the certificate and host name verified. Turning it off needs starttls or allow_insecure. |
 | `starttls` | `false` | With ssl = false, upgrade a plain connection to verified TLS before logging in. |
 | `allow_insecure` | `false` | Allow a plain-text connection (ssl = false, starttls = false). The password travels in the clear: only for a local test server. |
-| `folder` | `"INBOX"` | Folder selected when the client connects. |
 | `timeout` | `30` | Seconds to connect, and to wait for the server on each read. |
 | `max_message_kb` | `10240` | Largest message in KB. A bigger one is refused from its size, before its body is downloaded. |
-| `max_parts` | `100` | Most MIME parts (body, alternatives, attachments) accepted in one message. |
 
 <!-- settings:end -->
