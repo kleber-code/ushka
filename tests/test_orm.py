@@ -234,7 +234,7 @@ def test_plain_datetime_has_no_default():
 # --- mirrored tables --------------------------------------------------------
 
 
-async def test_meta_extend_existing(sqlite):
+async def test_extend_existing(sqlite):
     Table(
         "t_legacy", db.metadata, Column("id", Integer, primary_key=True),
         Column("name", String(20)),
@@ -243,8 +243,7 @@ async def test_meta_extend_existing(sqlite):
     class Legacy(db.BaseModel):
         __tablename__ = "t_legacy"
 
-        class Meta:
-            extend_existing = True
+        __extend_existing__ = True
 
         id = Column(Integer, primary_key=True)
         name = Column(String(20))
@@ -263,15 +262,14 @@ def test_duplicate_table_without_meta_still_fails():
             id = Column(Integer, primary_key=True)
 
 
-def test_meta_extend_existing_merges_tuple_table_args():
+def test_extend_existing_merges_tuple_table_args():
     Table("t_legacy2", db.metadata, Column("id", Integer, primary_key=True))
 
     class Legacy2(db.BaseModel):
         __tablename__ = "t_legacy2"
         __table_args__ = (Column("extra", Integer), {"comment": "c"})
 
-        class Meta:
-            extend_existing = True
+        __extend_existing__ = True
 
         id = Column(Integer, primary_key=True)
 

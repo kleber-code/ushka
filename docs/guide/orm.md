@@ -182,7 +182,7 @@ in the file and as warnings, and applies none of them for you:
 
 Relationships are not generated: add `db.Relationship(...)` where you need them. If
 the generated models share a metadata with models that already describe the same
-tables, use [`class Meta: extend_existing`](#existing-tables).
+tables, use [`__extend_existing__ = True`](#existing-tables).
 
 ### Keeping the models honest
 
@@ -402,18 +402,16 @@ everywhere. Pass `timezone=False` for a naive (UTC) column instead.
 
 A model that describes a table already declared in the same metadata (a
 reflected or mirrored schema) fails with "Table is already defined". Opt in
-with `Meta`:
+with `__extend_existing__`:
 
 ```python
 class Legacy(db.BaseModel):
     __tablename__ = "legacy_orders"
-
-    class Meta:
-        extend_existing = True
+    __extend_existing__ = True
 ```
 
 This adds `extend_existing=True` to `__table_args__` (an existing dict or tuple
-is merged), so you no longer write it by hand. Without `Meta` the error stays,
+is merged), so you no longer write it by hand. Without it the error stays,
 so an accidental duplicate is still caught.
 
 ### UUID keys

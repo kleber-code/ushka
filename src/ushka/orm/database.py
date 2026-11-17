@@ -317,7 +317,7 @@ class UshkaDB:
             This class provides Active Record pattern methods for persistence
             and querying using asynchronous SQLAlchemy 2.0 style.
 
-            ``class Meta: extend_existing = True`` lets a model describe a table
+            ``__extend_existing__ = True`` lets a model describe a table
             that is already in the metadata (a mirrored or reflected schema).
             """
 
@@ -325,10 +325,8 @@ class UshkaDB:
 
             def __init_subclass__(cls, **kw):
                 super().__init_subclass__(**kw)
-                meta = getattr(cls, "Meta", None)
-                if (
-                    cls.__dict__.get("__abstract__")
-                    or not getattr(meta, "extend_existing", False)
+                if cls.__dict__.get("__abstract__") or not getattr(
+                    cls, "__extend_existing__", False
                 ):
                     return
                 args = getattr(cls, "__table_args__", None)
