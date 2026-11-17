@@ -1,12 +1,17 @@
 # Configuration
 
-Ushka reads its settings from four layers. Each one overrides the one before:
+Ushka reads its settings from five layers. Each one overrides the one before:
 
 1. **Built-in defaults** (the table below).
-2. **`ushka.toml`** in the application directory (the folder of the file that
+2. **Code**: the options of a piece, `app.use(Seo(url="https://example.com"))`.
+   The keys are the same as the section of `ushka.toml`, so there is one vocabulary.
+3. **`ushka.toml`** in the application directory (the folder of the file that
    creates `Ushka()`).
-3. **`.env`** next to `ushka.toml`, for secrets you keep out of Git.
-4. **Environment variables**.
+4. **`.env`** next to `ushka.toml`, for secrets you keep out of Git.
+5. **Environment variables**.
+
+The environment has the last word, so staging and production differ by variable and
+not by editing code. Secrets are never accepted from code.
 
 Every layer is optional. Ushka only *reads* `ushka.toml`: it never creates or
 rewrites the file.

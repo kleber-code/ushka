@@ -131,6 +131,9 @@ class Config:
         self.workdir = Path(workdir) if workdir else Path.cwd()
         self.default_config_file_path = self.workdir / "ushka.toml"
         self.sources: dict[str, str] = {}
+        #: Defaults set from code by pieces (``app.use(Seo(url=...))``); see `defaults`.
+        self._code: dict[str, dict[str, Any]] = {}
+        self._path: Path | None = None
         #: Mistakes found in ushka.toml: unknown keys in a Ushka section, wrong types.
         self.problems: list[str] = []
         self._applied: set[str] = set()
@@ -162,6 +165,7 @@ class Config:
             The instance, for chaining.
         """
         path = Path(config_path) if config_path else self.default_config_file_path
+        self._path = Path(config_path) if config_path else None
         file_data: dict[str, Any] = {}
         if path.exists():
             with open(path, "rb") as fh:
@@ -185,6 +189,10 @@ class Config:
     def _merged(self, file_data: dict, dotenv: dict, environ: dict) -> dict[str, dict[str, Any]]:
         merged: dict[str, dict[str, Any]] = {s: dict(v) for s, v in DEFAULTS.items()}
         self.sources = {}
+        for section, values in self._code.items():  # set from code: above the defaults, below ushka.toml
+            merged[section].update(values)
+            for key in values:
+                self.sources[f"{section}_{key}".upper()] = "code"
 
         for section, content in file_data.items():
             if section == "ushka" or not isinstance(content, dict):
@@ -225,6 +233,37 @@ class Config:
         for stale in getattr(self, "_applied", set()) - names:
             delattr(self, stale)
         self._applied = names
+
+    def defaults(self, section: str, **values: Any) -> Config:
+        """Sets defaults from code: ``config.defaults("seo", url="https://example.com")``.
+
+        This is how a piece takes its options (``app.use(Seo(url=...))``). The keys are the
+        ones of the ``[section]`` of ``ushka.toml``, so code and file share one vocabulary.
+        The layers, lowest first: built-in defaults, **code**, ``ushka.toml``, ``.env``, the
+        environment. So the environment still wins, and staging and production differ by
+        variable, not by edit.
+
+        Raises
+        ------
+        TypeError
+            For a key that is not a setting of the section (with a suggestion), a value of
+            the wrong type, or a secret: secrets only come from the environment.
+        """
+        from .settings import SCHEMA, problems_in
+
+        if section not in SCHEMA:
+            raise TypeError(f"{section!r} is not a settings section; sections: {', '.join(SCHEMA)}")
+        for key in values:
+            setting = SCHEMA[section].get(key)
+            if setting is not None and setting.secret:
+                from .settings import env_name
+
+                raise TypeError(f"[{section}] {key} is a secret: set {env_name(section, key)} in the environment or .env, not in code")
+        found = problems_in({section: values})
+        if found:
+            raise TypeError("; ".join(found))
+        self._code.setdefault(section, {}).update(values)
+        return self.load_from_file(self._path)
 
     # -- access ----------------------------------------------------------------
 

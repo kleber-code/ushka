@@ -37,6 +37,23 @@ class Audit:
 app.use(Audit(log="/var/log/shop.log"))
 ```
 
+## Options, in code or in the file
+
+A piece's options use the same names as its section of `ushka.toml`, so you can write
+them in code or in the file, and the file and the environment still win:
+
+```python
+app.use(Seo(url="https://shop.example", description="Handmade shoes"))   # code: the default
+```
+```toml
+[seo]
+url = "https://staging.example"     # the file overrides the code, per environment
+```
+
+In your own piece, `app.config.defaults("seo", url=...)` does that: it checks the keys and
+types, suggests the right name for a typo, and refuses secrets (those come from the
+environment).
+
 ## Swap one
 
 A piece has a `name` (the one you give it, or its class or function name in lower case),
