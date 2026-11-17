@@ -5,6 +5,16 @@ All notable changes to Ushka. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **ORM transactions**: `async with db.transaction():` (alias `db.atomic()`) runs several operations atomically. `Model.create/save/delete/get/all/first/filter` and `db.execute` share one session (kept in a context variable, so requests and tasks never share it), committed at the end and rolled back on an exception. Nested blocks use a `SAVEPOINT` (`savepoint=False` joins the outer one); `db.in_transaction` reports the state. Outside a block nothing changes. On SQLite the driver now issues `BEGIN` explicitly so savepoints work.
+- **Automatic timestamps**: `db.DateTime(auto_now_add=True)` (insert) and `db.DateTime(auto_now=True)` (insert and every update, including bulk `update()` through `db.execute`), in UTC and timezone-aware (`timestamptz` on PostgreSQL, read back as UTC on SQLite and MySQL; `timezone=False` for a naive column). `ushka.orm.utcnow()`.
+- **ORM schema options**: `class Meta: extend_existing = True` to mirror a table already in the metadata; `db.BaseModel`, a base without the default `id`; declaring `id = db.UUID(primary_key=True)` replaces the default key; `db.ForeignKey(..., use_alter=True)` and `db.Relationship(..., post_update=True)` for cyclic foreign keys, which removes the `Cannot correctly sort tables` warning. How UUID columns are stored on SQLite and MySQL is documented.
+
+### Changed
+
+- `db.DateTime(auto_now=True)` now also refreshes the column on update (it only set a default on insert); use `auto_now_add=True` for a creation date. Automatic columns are timezone-aware, so an existing one needs a migration or `timezone=False`.
+
 ## [0.7.0] - 2026-11-16
 
 ### Added
