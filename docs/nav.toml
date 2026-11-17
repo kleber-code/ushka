@@ -99,7 +99,7 @@ modules = [
 [[api.group]]
 title = "Sessions"
 description = "The signed-cookie session and revocable server-side sessions."
-modules = ["ushka.sessions.session", "ushka.sessions.stores"]
+modules = ["ushka.sessions.session", "ushka.sessions.stores", "ushka.sessions.forge"]
 
 [[api.group]]
 title = "Security"

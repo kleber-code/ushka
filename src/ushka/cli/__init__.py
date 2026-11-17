@@ -63,6 +63,14 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--param", action="append", default=[], metavar="NAME", help="also probe this query parameter (repeatable)")
     p.add_argument("--json", action="store_true", help="print the report as JSON")
     p.add_argument("--fail-on", choices=["high", "medium", "none"], default="medium", help="lowest severity that makes the exit status 1 (default: medium)")
+    p.add_argument("--skip-exempt", action="store_true", help="leave out the routes exempt from CSRF ([security] csrf_exempt_paths); they are probed by default")
+    p.add_argument("--as-session", action="append", default=[], metavar="KEY=VALUE", help="probe as a logged-in user: forge a session with this item (repeatable; 1 and true become int and bool). Test tool")
+    p.add_argument("--cookie", default="", metavar="NAME=VALUE", help="send this cookie with every probe (a real session cookie)")
+
+    p = sub.add_parser("session", help="print a forged session cookie (name=value) to test as a logged-in user")
+    p.add_argument("--set", action="append", default=[], metavar="KEY=VALUE", dest="items", help="a session item, e.g. uid=1 (repeatable)")
+    p.add_argument("--app", default="app:app", help="module:attribute (default: app:app)")
+    p.add_argument("--allow-non-debug", action="store_true", help="sign even when debug is off (only for a key that belongs to a test deployment)")
 
     docs = sub.add_parser("docs", help="check or preview Markdown docs (needs ushka[docs])")
     docsub = docs.add_subparsers(dest="docs_command", metavar="<action>")
@@ -141,7 +149,13 @@ def main(argv: list[str] | None = None) -> None:
     elif args.command == "verify":
         from ushka.cli.commands.verify import verify
 
-        if verify(args.app, args.include_writes, args.param, args.json, args.fail_on):
+        if verify(args.app, args.include_writes, args.param, args.json, args.fail_on, args.skip_exempt, args.as_session, args.cookie):
+            raise SystemExit(1)
+
+    elif args.command == "session":
+        from ushka.cli.commands.session import session
+
+        if session(args.app, args.items, args.allow_non_debug):
             raise SystemExit(1)
 
     elif args.command == "docs":
