@@ -38,7 +38,8 @@ async def post(request):
 ```
 
 `flash(request, message, category="info")` appends the message to the
-session. The session cookie is saved on the redirect response automatically.
+session. The session cookie is saved on the redirect response automatically,
+also when you `raise HTTPRedirect("/profile")` instead of returning it.
 
 ## Showing messages in a template
 

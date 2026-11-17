@@ -8,7 +8,9 @@ from urllib.parse import parse_qs
 from ushka.guard import Untrusted, taint_deep
 from ushka.http.cookies import Cookies
 from ushka.http.exceptions import HTTPBadRequest, HTTPPayloadTooLarge
+import ushka.http.proxy as proxy
 from ushka.http.multipart import parse_multipart_asgi
+from ushka.http.uploads import UploadFile
 from ushka.sessions.session import ServerSession, Session
 
 if TYPE_CHECKING:
@@ -88,7 +90,7 @@ class Request:
 
         Returns
         -------
-        Dict[str, str]
+        dict[str, str]
             A dictionary where keys are header names (lowercase) and values are
             header values.
         """
@@ -109,7 +111,7 @@ class Request:
 
         Returns
         -------
-        Dict[str, Any]
+        dict[str, Any]
             A dictionary where keys are query parameter names and values are
             either single strings or lists of strings.
         """
@@ -205,6 +207,48 @@ class Request:
             session.COOKIE_NAME = name
             self._cached_data["session"] = session
         return self._cached_data["session"]
+
+    # --- WHO IS CALLING (behind a reverse proxy) ---
+    # `X-Forwarded-*` is believed only when the direct peer is listed in
+    # `[security] trusted_proxies`; see `ushka.http.proxy` for the rules.
+
+    @property
+    def _proxies(self) -> "tuple[proxy.Network, ...]":
+        return proxy.networks_from_config(self.app.config.get("security_trusted_proxies"))
+
+    @property
+    def client_ip(self) -> str | None:
+        """The visitor's IP address, or ``None`` when it is unknown.
+
+        Without ``[security] trusted_proxies`` this is the address of whoever
+        connected, and ``X-Forwarded-For`` is ignored. When the connection
+        comes from a trusted proxy, the header is read from the right and the
+        first address that is not a trusted proxy is returned, so a forged
+        left-most entry never wins. A malformed header falls back to the peer.
+
+        It is a plain ``str`` (validated with ``ipaddress``), not ``Untrusted``:
+        it can only be an IP address and never carries markup or SQL.
+        """
+        if "client_ip" not in self._cached_data:
+            self._cached_data["client_ip"] = proxy.client_ip(self.scope, self._proxies)
+        return self._cached_data["client_ip"]
+
+    @property
+    def scheme(self) -> str:
+        """``"https"`` or ``"http"``, honouring ``X-Forwarded-Proto`` from a trusted proxy."""
+        return proxy.forwarded_scheme(self.scope, self._proxies)
+
+    @property
+    def is_secure(self) -> bool:
+        """True when the visitor reached the site over https (see `scheme`)."""
+        return self.scheme == "https"
+
+    @property
+    def host(self) -> str:
+        """The host the visitor asked for: ``X-Forwarded-Host`` from a trusted
+        proxy, else the ``Host`` header (still `Untrusted`: the client wrote it)."""
+        forwarded = proxy.forwarded_host(self.scope, self._proxies)
+        return forwarded if forwarded is not None else self.headers.get("host", "")
 
     # --- ASYNCHRONOUS DATA (METHODS) ---
     # This data requires reading the network stream via 'await'.
@@ -339,7 +383,7 @@ class Request:
 
         Returns
         -------
-        Dict[str, Any]
+        dict[str, Any]
             A dictionary of form fields. For `application/x-www-form-urlencoded`,
             values are automatically unwrapped from lists if there's only one.
 
@@ -373,18 +417,19 @@ class Request:
                 self._cached_data["files"] = {}
         return self._cached_data["form"]
 
-    async def files(self) -> dict[str, Any]:
-        """Reads and returns any uploaded files from the request body.
+    async def files(self) -> dict[str, UploadFile]:
+        """Reads and returns the uploaded files, by form field name.
 
-        This method implicitly calls `request.form()` if form data (including files)
-        has not yet been parsed. It extracts file-specific information and
-        `SpooledTemporaryFile` objects.
+        This method implicitly calls `request.form()` if the body has not been
+        parsed yet. (`form()` itself holds only the text fields.)
 
         Returns
         -------
-        Dict[str, Any]
-            A dictionary where keys are file input names and values are dictionaries
-            containing 'filename', 'content_type', and a `SpooledTemporaryFile` object.
+        dict[str, UploadFile]
+            Field name to `UploadFile`. When a field was sent more than once
+            (``<input type="file" multiple>``) this holds the last file; use
+            `uploads` to get all of them. For code written against the old
+            dictionaries, ``upload["filename"]`` still works.
 
         Raises
         ------
@@ -398,3 +443,15 @@ class Request:
         if "files" not in self._cached_data:
             await self.form()
         return self._cached_data["files"]
+
+    async def uploads(self) -> dict[str, list[UploadFile]]:
+        """Like `files`, but every field maps to the list of all its files."""
+        if "files" not in self._cached_data:
+            await self.form()
+        return self._cached_data.get("uploads", {})
+
+    def _close_uploads(self) -> None:
+        """Releases the temporary files of the request (the app calls this when done)."""
+        for group in self._cached_data.get("uploads", {}).values():
+            for upload in group:
+                upload.close()

@@ -55,6 +55,9 @@ class Response:
         self.request = request
         #: Set for HEAD requests: headers are sent, the body is not.
         self.head_only = False
+        #: When False, cookie and session changes made during the request are
+        #: not sent. Unexpected errors (500) set it: a crash saves nothing.
+        self.persist = True
 
         # Body Processing
         self._body = ""
@@ -114,7 +117,7 @@ class Response:
         # The Response asks the Request if something has changed and needs to be saved.
         # Only what the handler actually touched: reading `request.session`
         # here would demand a secret key from apps that never use sessions.
-        if self.request:
+        if self.request and self.persist:
             touched = self.request._cached_data
             cookies = touched.get("cookies")
             if cookies is not None and cookies.should_save:

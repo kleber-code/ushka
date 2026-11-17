@@ -42,8 +42,10 @@ csp = "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src
 
 An inline script needs `'unsafe-inline'` in `script-src`, which removes most of
 what the CSP protects you from; avoid it. Set `csp = "off"` to send no policy.
-`ushka check` stops warning about a host your policy names. Behind a proxy that ends TLS, tell the server which
-proxy to trust so Ushka sees `https` (see [Deploy](deploy.md#behind-a-proxy)).
+`ushka check` stops warning about a host your policy names. 
+
+Behind a proxy that ends TLS, list it in `[security] trusted_proxies` so
+Ushka sees `https` (see [Deploy](deploy.md#behind-a-proxy)).
 
 ## CSRF
 

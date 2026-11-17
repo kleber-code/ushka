@@ -114,7 +114,7 @@ Built on SQLAlchemy, with migrations through `ushka db`. Install it with
 
 Jinja2 with autoescaping, project templates that override the built-in ones,
 [signed cookie sessions](guide/sessions.md), [flash messages](guide/flashing.md),
-multipart uploads with size limits, and [static files](guide/static_files.md) with
+[uploads](guide/uploads.md) (`UploadFile`, safe `save()`, size limits), and [static files](guide/static_files.md) with
 `ETag`/`304` and any folder you mount. See [Templates](guide/templates.md).
 
 ## SEO and PWA, from `ushka.toml`

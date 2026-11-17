@@ -21,6 +21,27 @@ exceptions become a 500 that shows details only in debug mode.
 
 Error pages are rendered with the `error.html` template (validation errors are JSON).
 
+## Redirecting from anywhere
+
+`raise HTTPRedirect(url, status_code=302)` is `return redirect(url, ...)` for
+code that cannot return a response, such as a helper or a dependency:
+
+```python
+from ushka import HTTPRedirect
+
+def require_login(request):
+    if "user" not in request.session:
+        request.session["next"] = request.path
+        raise HTTPRedirect("/login")
+```
+
+Cookies, session values and flash messages set before the `raise` are saved
+with the redirect, exactly as with `redirect()`. In general the session and
+cookies are saved on every response, including 4xx errors, **only if the handler
+changed them**; an unexpected exception (500) saves nothing, so a crash never
+half-applies what the handler had done. The URL is checked like `redirect()`:
+an `Untrusted` one raises `UnsafeValueError` (use `safe.url()` first).
+
 ## Debug mode
 
 With `[app] debug = true` (which `ushka dev` turns on for you):

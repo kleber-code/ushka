@@ -45,12 +45,14 @@ def serve(app_path: str, host: str, port: int, *, dev: bool) -> None:
             ui.hint("set [app] debug = false or USHKA_APP_DEBUG=false")
         if not config.get("app_secret_key"):
             ui.warn("no USHKA_APP_SECRET_KEY: sessions will fail.")
+        if os.environ.get("FORWARDED_ALLOW_IPS") and not config.get("security_trusted_proxies"):
+            ui.warn("FORWARDED_ALLOW_IPS is no longer read: list your proxies in [security] trusted_proxies.")
         if workers > 1:
             ui.info(f"{workers} workers")
     ui.hint("press Ctrl+C to stop")
 
     if dev:
-        uvicorn.run(app_path, host=host, port=port, reload=True, lifespan="on", log_config=get_log_config())
+        uvicorn.run(app_path, host=host, port=port, reload=True, lifespan="on", log_config=get_log_config(), proxy_headers=False)
         return
     # Production: a server that stays asleep when idle (see ushka.core.server).
     from ushka.core.server import run_server

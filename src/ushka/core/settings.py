@@ -103,6 +103,7 @@ SCHEMA: dict[str, dict[str, Setting]] = {
         "csrf_trusted_origins": _s([], "Other origins allowed to send writes."),
         "csrf_exempt_paths": _s([], "Paths that skip the CSRF check (webhooks, for example)."),
         "allowed_hosts": _s([], "Accepted Host headers. Empty means any host: set it in production."),
+        "trusted_proxies": _s([], "IPs and CIDRs of your reverse proxies (Caddy, nginx). Only these may set X-Forwarded-For, -Proto and -Host. Empty trusts no one."),
         "cors_origins": _s([], "Origins allowed by CORS. Empty means no CORS headers."),
         "cors_methods": _s(["GET", "POST", "PUT", "PATCH", "DELETE"], "Methods CORS allows."),
         "cors_headers": _s([], "Request headers CORS allows. Empty echoes what the preflight asks for."),

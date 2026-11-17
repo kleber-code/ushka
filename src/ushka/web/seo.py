@@ -80,8 +80,8 @@ def origin_of(request: Request | None, config: Any) -> str | None:
         return configured if safe_url(configured) else None
     if request is None or not (config.get("app_debug") or _list(config.get("security_allowed_hosts"))):
         return None
-    host = next((v.decode("latin-1") for k, v in request.scope.get("headers", []) if k == b"host"), "")
-    scheme = request.scope.get("scheme", "http")
+    host = str(request.host)
+    scheme = request.scheme
     return f"{scheme}://{host}" if host and scheme in ("http", "https") else None
 
 
