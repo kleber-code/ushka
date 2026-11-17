@@ -6,7 +6,16 @@ import json
 
 import pytest
 
-from tests.test_verify import kinds, write_routes
+
+def write_routes(workdir, files: dict):
+    (workdir / "routes").mkdir(exist_ok=True)
+    for name, source in files.items():
+        (workdir / "routes" / name).write_text(source)
+
+
+def kinds(report):
+    return {(f.kind, f.route, f.category) for f in report.findings}
+
 from ushka.cli import main
 from ushka.security import verify as engine
 from ushka.sessions import (
