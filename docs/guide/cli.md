@@ -140,7 +140,7 @@ Prints the main settings with the layer each one came from (all of them are in
 `ushka.toml`:
 
 ```text
-◆ Ushka 0.8.0b4 · checking /home/me/hello
+◆ Ushka 0.8.0b5 · checking /home/me/hello
 
   Settings
   · app_debug = False  [ushka.toml]

@@ -5,6 +5,10 @@ All notable changes to Ushka. The format follows
 
 ## [Unreleased]
 
+## [0.8.0b5] - 2026-11-17
+
+Fifth beta of 0.8: every feature plugs in with `app.use(...)`, configuration is short, and sign-in, encryption and IMAP arrive.
+
 ### Added
 
 - **`app.use(piece)`: one verb to plug in any feature** (guide: Pieces). A piece is an object with `install(app)` or a function that takes the app; `app.pieces` keeps them by name, and a piece with the same name replaces the old one. The batteries move to it, and `enable_*`/`mount_*` stay as shortcuts.
@@ -20,12 +24,12 @@ All notable changes to Ushka. The format follows
 - **Ushka Docs as a piece, with no configuration** (guide: Ushka Docs). `app.use(Docs("docs"))` is the whole setup, and `Docs.mount(app)` still works. The signature is now `Docs(path, *, url="/docs", title=None, api=None, **options)`; `options` accepts every older argument (`logo`, `og_image`, `links`, `edit_url`, `home_url`, `extra_css`, `cache_control`, `cache`, `base_url`, `nav`, `api_package`, `api_path`) and refuses typos with a suggestion. The menu comes from the folders: `index.md` opens, a folder is a section (titled by the `# H1` of its `index.md` or the folder name), a page is titled by `title:` or its first H1, and the order is `order:` in the front matter, a number prefix (`01-install.md`, not part of the URL) or the alphabet; names starting with `_` or `.` are left out and never served. `api="mypkg"` finds the package (`src/`, the project folder or the import path, with a clear error otherwise) and generates the API reference grouped by sub-package. `docs/nav.toml` still overrides all of it, unchanged. An optional `docs/docs.toml` sets `title`, `logo`, `og_image`, `links`, `edit_url`, `base_url` and `extra_css`; constructor arguments win. The render cache is on by default (`.cache/` in the app directory, keyed by a hash that now includes `docs.toml` and page paths; unwritable places are ignored; `cache=False` turns it off). `ushka docs check` and `ushka docs serve` work without `nav.toml` (and `--api-path` is found automatically), and `check` also reports two pages with the same URL and a bad `docs.toml`.
 
 - **Seo, Pwa, I18n, Google and GitHub are pieces**: `app.use(Seo(url="https://shop.example", description="..."))`, `app.use(Pwa(name="Shop", icons=[...]))`, `app.use(I18n(locales=["en", "pt"], default="en"))` and `app.use(Google(), GitHub())`, from `ushka.web` and `ushka.auth` (imported lazily; `import ushka` still loads neither `ushka.auth`). Each works with no arguments, takes its common options by name and any other key of its `ushka.toml` section as `**options` (checked, with a suggestion for a typo), and using it switches the feature on. `ushka.toml` and the environment still win over code. `Google(client_id=...)` and `allowed_domains=` (for `allowed_email_domains`) are accepted in code; a client secret in code is a `TypeError`. The old way, only `ushka.toml`, works unchanged. The OAuth redirect address is checked at startup when a provider is plugged in with `use`, so `Seo(url=...)` may come after it. The runtime object behind `app.i18n` is now `ushka.web.i18n.Translator` (`I18n(config, workdir)` still returns one).
+- **`advanced=True` on a setting.** `ushka config` lists the common settings of each section and counts the rest (`+17 advanced (ushka config --all)`); an advanced key you changed is still shown. `ushka config --all` lists everything, and `--template` and `--markdown` stay complete (the markdown separates Common from Advanced). No section has more than 8 common settings.
+- **All settings** page (`docs/guide/settings.md`), the generated reference, apart from the short Configuration page.
 
 ### Fixed
 
 - Docs theme: the accent bar of the current page in the sidebar followed the rounded corners of the item and looked bent; it is now straight, with the rounding only on the right.
-- **`advanced=True` on a setting.** `ushka config` lists the common settings of each section and counts the rest (`+17 advanced (ushka config --all)`); an advanced key you changed is still shown. `ushka config --all` lists everything, and `--template` and `--markdown` stay complete (the markdown separates Common from Advanced). No section has more than 8 common settings.
-- **All settings** page (`docs/guide/settings.md`), the generated reference, apart from the short Configuration page.
 
 ### Changed
 
