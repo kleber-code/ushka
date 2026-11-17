@@ -5,8 +5,13 @@ All notable changes to Ushka. The format follows
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-11-16
+
 ### Added
 
+- **A API reference that is easy to move around in** (`ushka.docs`). `docs/nav.toml` can group the modules with `[[api.group]]` (`title`, `description`, `modules`; the old `modules = [...]` list still works and is grouped by sub-package). The sidebar shows the API as collapsible groups with short labels and opens only the group you are in (the same for sections such as Guide), instead of 41 dotted module names; there is an `api/` overview page describing every module, breadcrumbs, and a scroll-spy "On this page". Each module page starts with an index of its classes and functions, a methods table for classes, the signature as a code block (one parameter per line when long, keyword-only `*` kept), parameters in a table with headers and without `self`; private names stay out. `` `Name` ``, `` `Class.method` `` and `` `function()` `` in docstrings link to the documented symbol. `ushka docs check` now also reports a module listed twice, outside the package, or a group without title or modules.
+- **`uvloop` and `httptools` are installed by default** (not on Windows or PyPy, where uvloop does not exist) and Uvicorn uses them without configuration. On the project's benchmark, one worker went from about 3,200 to 7,600 requests per second on the hello route (about 2.3x; typed and POST routes 2.6x and 1.7x), ahead of FastAPI on the same loop and parser. A core install is now 9 packages and 20 MB. `benchmarks/run.sh` takes `LOOP=asyncio HTTP=h11` to measure the pure-Python stack.
+- **`Docs(cache=...)`**: keeps the rendered site in a JSON file, keyed by a hash of the Markdown, the documented sources and the renderer, so it is never stale. The Ushka website builds it in its Docker image, and the server starts in 0.3 s instead of 1 s of CPU per worker (about 15 s under a 20% CPU quota).
 - **Security middleware, on by default** (`ushka.security`, guide: Security middleware):
   - Headers on every response, error pages included: `nosniff`, `X-Frame-Options`, `Referrer-Policy`, a restrictive `Content-Security-Policy`, `Cross-Origin-Opener-Policy`, and HSTS on https.
   - CSRF protection without tokens or a secret key, based on `Sec-Fetch-Site` and `Origin`.
@@ -42,10 +47,13 @@ All notable changes to Ushka. The format follows
 
 ### Fixed
 
+- **`ushka run` no longer burns CPU when idle.** A site with two workers and only a healthcheck cost about 1.2 s of CPU per minute (10 to 80 times a FastAPI app), because Uvicorn wakes each worker 10 times a second and pings each worker from the supervisor twice a second. Production now runs `ushka.core.server`: workers tick once a second, the supervisor sleeps until a worker dies, a signal arrives or the next health check (every 10 s), and an idle two-worker app measured 0.32 s of CPU per minute with stock Uvicorn and 0.04 s with this. `ushka dev` is unchanged.
+- **Slow starts no longer kill workers in a loop.** Uvicorn's 5 s health ping judged a worker that was still importing its app as hung and killed it, over and over, wasting CPU. A new worker is now exempt from pings for 90 s and the ping timeout is 30 s. A worker that really dies is still replaced at once.
 - A response that cannot be sent (for example a header value with a line break, with the guard off) now gets a clean 500 instead of an exception escaping to the ASGI server.
 
 ### Changed
 
+- The Ushka website now runs one worker (it serves cached pages), halving idle memory and startup CPU.
 - Responses with a known body size now send `Content-Length` instead of chunked encoding (not for streaming, `204` or `304`, and a header you set yourself is kept). `HEAD` now reports the length of the `GET` body. In an alternating A/B test on small responses the median was about 15% faster, and steadier.
 - `import ushka` is about 25% faster (128 ms to 95 ms): `uvicorn` is imported only when `Ushka.run()` serves.
 
