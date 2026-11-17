@@ -7,38 +7,13 @@ All notable changes to Ushka. The format follows
 
 ## [0.8.0b1] - 2026-11-17
 
-First beta of 0.8 (`pip install --pre ushka`). The 0.7 line stays the default install until 0.8 is final. This release adds server-side sessions, internationalisation, HTML forms, a test client, ORM transactions and strict templates (below), and reorganises the code by who uses it.
+First beta of 0.8 (`pip install --pre ushka`). The 0.7 line stays the default install until 0.8 is final. This release adds server-side sessions, internationalisation, HTML forms and uploads, a test client, ORM transactions, `ushka db inspect` for databases made by another ORM, trusted proxies, a sharper `ushka verify`, SEO, a PWA option and strict templates (below), and reorganises the code by who uses it.
 
-### Added (verify and sessions)
+### Added
 
 - **A supported way to forge a session for tests** (`ushka.sessions`, guides: Sessions, `ushka session`, ushka verify): `forge_session_cookie(app, {"uid": 1})` returns `"name=value"` signed with the app's secret key (`aforge_session_cookie` is the coroutine that also works with `[session] store = "database"` and creates the record). `parse_session_pairs` turns `["uid=1", "admin=true"]` into typed data.
   - `ushka verify --as-session uid=1` (repeatable) probes as that user, so routes behind a login are really attacked; `--cookie NAME=VALUE` sends a cookie you already have. Only session keys are reported, never values, and a forged server-side record is removed at the end.
   - `ushka session --set uid=1 [--app app:app]` prints `name=value` for `curl`. It needs a key from the environment or `.env` (never from the command line), and refuses when debug is off unless `--allow-non-debug`.
-
-### Fixed (verify)
-
-- **`ushka verify` probes the routes exempt from CSRF** (`[security] csrf_exempt_paths`), the webhooks and machine APIs, with the same method rules as the others (`--include-writes` for writes), marks them as exempt in the report, and no longer prints a "not probed" note for them. `--skip-exempt` leaves them out. The cross-site CSRF probe is not sent to them, since accepting it is their purpose.
-- **A redirect is no longer a finding by itself.** Open redirect is reported only when the `Location` reflects the probe: its host is the probe's (high), or the probe is the destination in a parameter such as `next` (medium). The probe buried in the visitor's own URL is ignored, and the body of a 3xx response is not scanned for markup.
-
-### Changed in the code layout
-
-The top-level API (`from ushka import Ushka, render, Depends, Form, safe, _ ...`) does not change. Imports of modules by path do:
-
-| Before | Now |
-| --- | --- |
-| `ushka.http.sessions`, `ushka.http.session_store` | `ushka.sessions` (`.session`, `.stores`) |
-| `ushka.seo`, `ushka.pwa`, `ushka.i18n` | `ushka.web.seo`, `ushka.web.pwa`, `ushka.web.i18n` |
-| `ushka.openapi`, `ushka.mcp` | `ushka.api.openapi`, `ushka.api.mcp` |
-| `ushka.verify` | `ushka.security.verify` |
-| `ushka.utils.flash` | `ushka.templating.flash` |
-| `ushka.core.exceptions` | removed (its only used class, `ContentToJsonParserFailed`, is in `ushka.http.exceptions`) |
-
-- `ushka check --production` warns when `[security] allowed_hosts` is empty (any `Host` header is accepted).
-- Type annotations and imports modernised across the code (`ruff`), with no change in behaviour.
-- Docs: the features page says what is established, new and experimental, the API reference is grouped by area, and the architecture page matches the new layout.
-
-### Added
-
 - **`ushka db inspect`: adopt a database another ORM created** (guide: ORM, Existing databases). It reflects the configured database (`--url`, `--table` repeatable, `--schema`, `--write FILE [--force]`) with SQLAlchemy's generic inspector (SQLite, PostgreSQL, MySQL) and writes Ushka models: `db.String/Int/BigInt/UUID/Bool/DateTime/JSON/...`, `nullable`, `unique`, indexes, foreign keys with their `ON DELETE`/`ON UPDATE`, UUID, text and composite primary keys. Server defaults are mapped to Python defaults when possible (`true`, numbers, strings, `now()` becomes `auto_now_add=True`). What the database does not say is never applied silently: `NOT NULL` columns without a default, `created_at`/`updated_at`-style timestamps and foreign keys without `ON DELETE` (with the effect of deleting a parent and the two ways out) are reported as warnings and as `TODO(ushka db inspect)` comments.
 - **`ushka db check-models`** compares the app's models with the database (missing or extra columns, nullability, types, `ON DELETE`) and exits 1 on differences.
 - **`db.ForeignKey(on_update=...)`**, and `on_delete=None` for no clause (a schema made by another ORM usually has none).
@@ -58,6 +33,21 @@ The top-level API (`from ushka import Ushka, render, Depends, Form, safe, _ ...`
 
 ### Changed
 
+**Code layout.** The top-level API (`from ushka import Ushka, render, Depends, Form, safe, _ ...`) does not change. Imports of modules by path do:
+
+| Before | Now |
+| --- | --- |
+| `ushka.http.sessions`, `ushka.http.session_store` | `ushka.sessions` (`.session`, `.stores`) |
+| `ushka.seo`, `ushka.pwa`, `ushka.i18n` | `ushka.web.seo`, `ushka.web.pwa`, `ushka.web.i18n` |
+| `ushka.openapi`, `ushka.mcp` | `ushka.api.openapi`, `ushka.api.mcp` |
+| `ushka.verify` | `ushka.security.verify` |
+| `ushka.utils.flash` | `ushka.templating.flash` |
+| `ushka.core.exceptions` | removed (its only used class, `ContentToJsonParserFailed`, is in `ushka.http.exceptions`) |
+
+- `ushka check --production` warns when `[security] allowed_hosts` is empty (any `Host` header is accepted).
+- Type annotations and imports modernised across the code (`ruff`), with no change in behaviour.
+- Docs: the features page says what is established, new and experimental, the API reference is grouped by area, and the architecture page matches the new layout.
+
 - `db.DateTime(auto_now=True)` now also refreshes the column on update (it only set a default on insert); use `auto_now_add=True` for a creation date. Automatic columns are timezone-aware, so an existing one needs a migration or `timezone=False`.
 - Repeated text fields in a multipart form now become a list (as in a urlencoded form) instead of keeping only the last value.
 - **The built-in servers start Uvicorn with `proxy_headers=False`** (`ushka run`, `ushka dev`, `app.run()`), so `X-Forwarded-*` is interpreted once, by `[security] trusted_proxies`. Uvicorn's own `FORWARDED_ALLOW_IPS` (and its implicit trust of `127.0.0.1`) no longer applies: behind Caddy or nginx, set `trusted_proxies`.
@@ -65,6 +55,10 @@ The top-level API (`from ushka import Ushka, render, Depends, Form, safe, _ ...`
 
 ### Fixed
 
+- `UploadFile.save(extensions=[...])` with a disallowed extension raises `UploadRejected` (a 400 and a `ValueError`) instead of a bare `ValueError` that became a 500.
+- A `DatabaseStore` for sessions now closes its database connections when the app shuts down (it left an `aiosqlite` connection open).
+- **`ushka verify` probes the routes exempt from CSRF** (`[security] csrf_exempt_paths`), the webhooks and machine APIs, with the same method rules as the others (`--include-writes` for writes), marks them as exempt in the report, and no longer prints a "not probed" note for them. `--skip-exempt` leaves them out. The cross-site CSRF probe is not sent to them, since accepting it is their purpose.
+- **A redirect is no longer a finding by itself.** Open redirect is reported only when the `Location` reflects the probe: its host is the probe's (high), or the probe is the destination in a parameter such as `next` (medium). The probe buried in the visitor's own URL is ignored, and the body of a 3xx response is not scanned for markup.
 - Cookies, session values and flash messages set before `raise HTTPRedirect(...)` are saved with the redirect.
 - A multipart upload over the size limit, or without a boundary, answered 500 instead of 413 / 400 (the message was passed as the template name).
 - A multipart field sent twice no longer leaks the first temporary file; files are closed when parsing fails.

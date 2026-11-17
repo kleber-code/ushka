@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import IO, Any
 
 from ushka.guard import Untrusted, check_path
+from ushka.http.exceptions import HTTPBadRequest
 
 _CHUNK = 64 * 1024
 _UNSAFE = re.compile(r"[^A-Za-z0-9._-]+")
@@ -40,6 +41,18 @@ def safe_filename(name: str, default: str = "upload") -> str:
     stem, ext = stem[: _MAX_NAME - 1 - min(len(ext), _MAX_EXT)] or "", ext[:_MAX_EXT]
     result = f"{stem}.{ext}" if stem and ext else (stem or ext)
     return result or default
+
+
+class UploadRejected(HTTPBadRequest, ValueError):
+    """The visitor sent a file the app does not accept (for example a disallowed extension).
+
+    It is a 400 answer, so letting it propagate out of a handler shows the visitor
+    "File type not allowed" instead of a 500. It is also a `ValueError`, so code
+    that caught that keeps working. The message never repeats the file name.
+    """
+
+    def __init__(self, message: str) -> None:
+        HTTPBadRequest.__init__(self, message=message)
 
 
 class UploadFile:
@@ -137,7 +150,7 @@ class UploadFile:
         Raises
         ------
         ValueError
-            The name is not a plain file name, or its extension is not allowed.
+            The name is not a plain file name (``ValueError``), or the extension is not allowed (`UploadRejected`, a 400).
         FileExistsError
             The file exists and `overwrite` is False.
         UnsafeValueError
@@ -161,7 +174,7 @@ class UploadFile:
         if extensions is not None:
             allowed = {"." + e.lower().lstrip(".") for e in extensions}
             if Path(name).suffix.lower() not in allowed:
-                raise ValueError(f"extension of {name!r} is not allowed (allowed: {', '.join(sorted(allowed))})")
+                raise UploadRejected(f"File type not allowed (allowed: {', '.join(sorted(allowed))})")
 
         folder = Path(directory)
         folder.mkdir(parents=True, exist_ok=True)

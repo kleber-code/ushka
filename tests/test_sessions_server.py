@@ -467,3 +467,33 @@ def test_the_memory_store_is_gone_from_the_settings(workdir, make_app, monkeypat
     (workdir / "ushka.toml").write_text('[session]\nstore = "memory"\n')
     with pytest.raises(ValueError, match='"cookie" or "database"'):
         get_store(make_app())
+
+
+async def test_database_store_releases_its_connections_at_shutdown(workdir, make_app, monkeypatch):
+    from ushka.sessions.stores import DatabaseStore, get_store
+
+    monkeypatch.setenv("USHKA_APP_SECRET_KEY", KEY)
+    (workdir / "ushka.toml").write_text(f'[session]\nstore = "database"\n[database]\nurl = "sqlite:///{workdir}/c.db"\n')
+    app = make_app()
+    store = get_store(app)
+    assert isinstance(store, DatabaseStore)
+    closed = []
+    real = store.close
+
+    async def spy():
+        closed.append(True)
+        await real()
+
+    store.close = spy
+    scope = {"type": "lifespan"}
+    messages = iter([{"type": "lifespan.startup"}, {"type": "lifespan.shutdown"}])
+    sent = []
+
+    async def receive():
+        return next(messages)
+
+    async def send(m):
+        sent.append(m["type"])
+
+    await app(scope, receive, send)
+    assert closed == [True] and sent[-1] == "lifespan.shutdown.complete"

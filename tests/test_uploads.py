@@ -266,3 +266,14 @@ async def test_save_from_a_handler_and_files_are_closed_afterwards(app, call, tm
     assert (tmp_path / "up" / name).read_bytes() == b"hello"
     assert name.endswith(".txt")
     assert seen[0].file.closed
+
+
+def test_a_disallowed_extension_is_a_400_not_a_500(tmp_path):
+    from ushka.http.exceptions import HTTPBadRequest
+    from ushka.http.uploads import UploadRejected
+
+    up = make(b"x", "evil.php")
+    with pytest.raises(UploadRejected) as err:
+        up.save(tmp_path, extensions=[".png"])
+    assert isinstance(err.value, HTTPBadRequest) and isinstance(err.value, ValueError)
+    assert err.value.status_code == 400 and "evil" not in str(err.value.message)

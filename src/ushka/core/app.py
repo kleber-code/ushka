@@ -212,6 +212,12 @@ class Ushka:
                         await _maybe_await(hook())
                     except Exception:
                         self.log.exception("Shutdown hook failed")
+                store = self.session_store
+                if store is not None:  # release the sessions database connections
+                    try:
+                        await store.close()
+                    except Exception:
+                        self.log.exception("Closing the session store failed")
                 await send({"type": "lifespan.shutdown.complete"})
                 return
 

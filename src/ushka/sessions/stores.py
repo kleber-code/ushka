@@ -89,6 +89,9 @@ class SessionStore:
         """Removes every record of `user_id` and returns how many there were."""
         raise NotImplementedError
 
+    async def close(self) -> None:
+        """Releases connections. Called when the app shuts down; the default does nothing."""
+
     async def purge(self, created_before: float | None, seen_before: float | None) -> int:
         """Removes expired records (created before `created_before` or idle
         since `seen_before`; None means no such limit). Returns the count."""
@@ -187,6 +190,9 @@ class DatabaseStore(SessionStore):
         async with self._engine.begin() as conn:
             result = await conn.execute(self._sa.delete(t).where(t.c.user_id == user_id))
         return result.rowcount or 0
+
+    async def close(self) -> None:
+        await self._engine.dispose()
 
     async def purge(self, created_before: float | None, seen_before: float | None) -> int:
         await self._setup()

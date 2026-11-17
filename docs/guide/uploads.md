@@ -91,7 +91,9 @@ Code written for the old dictionaries still works: `upload["filename"]`,
   A `/`, `\`, `..`, an empty name, or an `Untrusted` value raises. To keep the
   client's name, pass `upload.safe_filename`, ideally with a prefix of your own.
 - **`extensions=[".png", ".jpg"]`** refuses any other extension of the final
-  name with `ValueError`. Dots and case do not matter.
+  name with `UploadRejected`, which is a **400 answer** (and a `ValueError`), so a
+  visitor who sends `evil.php` sees "File type not allowed" and not a 500. The
+  message never repeats the file name. Dots and case do not matter.
 - **It never overwrites** an existing file: `FileExistsError`, unless you pass
   `overwrite=True`. It does not follow a symbolic link at the target either.
 - `directory` is created with its parents. It must be a path of yours, not
