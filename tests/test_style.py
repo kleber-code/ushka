@@ -43,4 +43,4 @@ def test_no_emoji_anywhere():
 @pytest.mark.parametrize("name", ["README.md", ".github/CODE_OF_CONDUCT.md", ".github/CONTRIBUTING.md", ".github/SECURITY.md"])
 def test_community_files_exist_and_are_plain(name):
     text = (ROOT / name).read_text("utf-8")
-    assert re.search(r"^# ", text, re.M) and len(text.split()) > 60
+    assert re.search(r"^# ", text, re.MULTILINE) and len(text.split()) > 60

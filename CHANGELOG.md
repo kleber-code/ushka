@@ -29,6 +29,7 @@ All notable changes to Ushka. The format follows
 
 ### Changed
 
+- Plain, professional text everywhere: the Code of Conduct, Contributing, Security policy and the issue and pull request templates are rewritten without emoji or jokes (and brought up to date), `ushka db` and the server log no longer print emoji, and no em dashes remain in the docs or in the `AGENTS.md` that `ushka new` writes. `tests/test_style.py` keeps it that way.
 - **`ushka new` writes a short `ushka.toml`**: the app name, `debug = false`, the database and static, about 12 lines with one comment pointing to `ushka config` and `ushka config --template`, instead of 470 lines with every setting. `ushka config --template` still prints the complete annotated file. The generated `AGENTS.md` is about 40 lines and `app.py` shows `@app.middleware` in a comment.
 - The Configuration guide is a one-screen page (about 280 words, down from 2,700); the settings tables moved to All settings. `cli.md` and `project-structure.md` lose repeated explanations.
 
