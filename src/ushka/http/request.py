@@ -1,7 +1,8 @@
 """This module defines the `Request` class for handling incoming HTTP requests."""
 
 import json
-from typing import TYPE_CHECKING, Any, AsyncGenerator, Callable, Coroutine, Dict
+from collections.abc import AsyncGenerator, Callable, Coroutine
+from typing import TYPE_CHECKING, Any
 from urllib.parse import parse_qs
 
 from ushka.guard import Untrusted, taint_deep
@@ -51,8 +52,8 @@ class Request:
 
         self._receive = receive
         #: Values captured from the URL (``[item_id]``); set by the router.
-        self.path_params: Dict[str, Any] = {}
-        self._cached_data: Dict[str, Any] = {}
+        self.path_params: dict[str, Any] = {}
+        self._cached_data: dict[str, Any] = {}
 
         # Configs
         self.max_body_size_in_KB = int(
@@ -69,7 +70,7 @@ class Request:
         """Wraps client-supplied data in `Untrusted` when the guard is on."""
         return taint_deep(value, source) if self.taint_enabled else value
 
-    def _mark_mapping(self, data: Dict[str, Any], kind: str) -> Dict[str, Any]:
+    def _mark_mapping(self, data: dict[str, Any], kind: str) -> dict[str, Any]:
         if not self.taint_enabled:
             return data
         return {
@@ -80,7 +81,7 @@ class Request:
     # This data is already in the connection 'scope', no I/O needed.
 
     @property
-    def headers(self) -> Dict[str, str]:
+    def headers(self) -> dict[str, str]:
         """The request headers as a dictionary.
 
         Headers are lazily decoded from the ASGI scope and cached upon first access.
@@ -100,7 +101,7 @@ class Request:
         return self._cached_data["headers"]
 
     @property
-    def query(self) -> Dict[str, Any]:
+    def query(self) -> dict[str, Any]:
         """The parsed query parameters from the request URL.
 
         Query parameters are lazily parsed from the ASGI scope and cached upon first access.
@@ -328,7 +329,7 @@ class Request:
             self._cached_data["json"] = self._mark(parsed, "json")
         return self._cached_data["json"]
 
-    async def form(self) -> Dict[str, Any]:
+    async def form(self) -> dict[str, Any]:
         """Reads and returns the request body as parsed form data.
 
         This method handles both `application/x-www-form-urlencoded` and
@@ -372,7 +373,7 @@ class Request:
                 self._cached_data["files"] = {}
         return self._cached_data["form"]
 
-    async def files(self) -> Dict[str, Any]:
+    async def files(self) -> dict[str, Any]:
         """Reads and returns any uploaded files from the request body.
 
         This method implicitly calls `request.form()` if form data (including files)

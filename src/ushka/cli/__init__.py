@@ -7,8 +7,6 @@ import os
 import sys
 
 
-
-
 def _load_db_command():
     """Imports ``ushka.cli.commands.db`` lazily: it needs the ``orm`` extra."""
     try:

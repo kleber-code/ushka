@@ -5,9 +5,9 @@ from __future__ import annotations
 import asyncio
 import json
 
-from ushka.security import verify as engine
 from ushka.cli import ui
 from ushka.cli.commands.routes import load_app
+from ushka.security import verify as engine
 
 
 def verify(app_path: str, include_writes: bool = False, params: list[str] | None = None, as_json: bool = False, fail_on: str = "medium") -> int:

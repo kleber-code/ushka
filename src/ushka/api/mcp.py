@@ -38,8 +38,8 @@ from collections.abc import Awaitable, Callable
 from typing import Any
 from urllib.parse import quote, urlencode
 
-from ushka.http.params import Param
 from ushka.api.openapi import _PATH_SEGMENT, _required, _Schemas, _specs
+from ushka.http.params import Param
 
 log = logging.getLogger("ushka.api.mcp")
 

@@ -7,8 +7,9 @@ for a low-level multipart parser, and `parse_multipart_asgi` for integrating
 with ASGI requests.
 """
 
+from collections.abc import Callable
 from tempfile import SpooledTemporaryFile
-from typing import TYPE_CHECKING, Any, Callable, Dict, Union
+from typing import TYPE_CHECKING, Any
 
 from python_multipart.multipart import MultipartParser as LowLevelParser
 from python_multipart.multipart import parse_options_header
@@ -54,18 +55,18 @@ class MultiPartCollector:
             Exceeding this raises `HTTPPayloadTooLarge`. Defaults to 64 KB.
         """
         self.charset = charset
-        self.form_data: Dict[str, Any] = {}
-        self.files: Dict[str, Any] = {}
+        self.form_data: dict[str, Any] = {}
+        self.files: dict[str, Any] = {}
 
         self.max_ram_size = int(max_ram_size_kb * 1024)
         self.max_file_size = int(max_file_size_kb * 1024)
         self.max_text_size = int(max_text_field_size_kb * 1024)
 
-        self._current_headers: Dict[str, bytes] = {}
+        self._current_headers: dict[str, bytes] = {}
         self._current_header_name: bytearray = bytearray()
         self._current_header_value: bytearray = bytearray()
         self._current_field_name: str = ""
-        self._current_file: Union[SpooledTemporaryFile, None] = None
+        self._current_file: SpooledTemporaryFile | None = None
         self._is_file: bool = False
         self._data_buffer: bytearray = bytearray()
 
@@ -218,7 +219,7 @@ class MultiPartCollector:
             else:
                 self.form_data[name] = value
 
-    def get_callbacks(self) -> Dict[str, Callable]:
+    def get_callbacks(self) -> dict[str, Callable]:
         """Returns a dictionary of callback functions for the multipart parser.
 
         These callbacks are used by the `python-multipart` library to process

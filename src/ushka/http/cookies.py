@@ -5,7 +5,7 @@ It handles parsing raw cookie headers from incoming ASGI requests and
 manages changes to generate appropriate `Set-Cookie` headers for outgoing responses.
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from ushka.guard import Untrusted
 
@@ -61,7 +61,7 @@ class Cookies(dict):
         self._taint_values = taint_values
 
         # Internal State: What needs to be sent to the client
-        self._changes: Dict[str, dict] = {}
+        self._changes: dict[str, dict] = {}
 
         # Default security settings
         self._defaults = {
@@ -149,10 +149,10 @@ class Cookies(dict):
         self,
         key: str,
         value: str,
-        max_age: Optional[int] = None,
-        expires: Optional[int] = None,
+        max_age: int | None = None,
+        expires: int | None = None,
         path: str | None = None,
-        domain: Optional[str] = None,
+        domain: str | None = None,
         secure: bool | None = None,
         httponly: bool | None = None,
         samesite: str | None = None,
@@ -237,7 +237,7 @@ class Cookies(dict):
             else self._defaults["samesite"],
         }
 
-    def delete(self, key: str, path: str = "/", domain: Optional[str] = None) -> None:
+    def delete(self, key: str, path: str = "/", domain: str | None = None) -> None:
         """Forces the removal of a cookie from the client's browser.
 
 
@@ -294,7 +294,7 @@ class Cookies(dict):
         """Returns True if there are pending cookies to be sent."""
         return bool(self._changes)
 
-    def get_response_headers(self) -> List[Tuple[bytes, bytes]]:
+    def get_response_headers(self) -> list[tuple[bytes, bytes]]:
         """Generates the list of ASGI headers (bytes)."""
         if not self._changes:
             return []
@@ -305,7 +305,7 @@ class Cookies(dict):
             headers.append((b"set-cookie", header_val.encode("latin-1")))
         return headers
 
-    def _format_cookie_header(self, key: str, options: Dict[str, Any]) -> str:
+    def _format_cookie_header(self, key: str, options: dict[str, Any]) -> str:
         """Formats a single `Set-Cookie` header string.
 
 

@@ -5,11 +5,12 @@ automatically handles Cookie and Session persistence if a Request object is prov
 """
 
 import json
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, Optional
 
-from ushka.http.exceptions import ContentToJsonParserFailed
 from ushka.guard import check_html, is_template
 from ushka.guard.templates import html as render_template_html
+from ushka.http.exceptions import ContentToJsonParserFailed
 
 if TYPE_CHECKING:
     from ushka.http.request import Request
@@ -22,9 +23,9 @@ class Response:
 
     def __init__(
         self,
-        body: str | int | Dict | List | bytes = "",
+        body: str | int | dict | list | bytes = "",
         status_code: int = 200,
-        headers: Dict[str, str] | None = None,
+        headers: dict[str, str] | None = None,
         media_type: str | None = None,
         request: Optional["Request"] = None,
     ) -> None:
@@ -137,7 +138,7 @@ class Response:
 
         await self._send_body(send)
 
-    def _content_length(self) -> Optional[int]:
+    def _content_length(self) -> int | None:
         """Size of the body in bytes, or None when it is not known up front."""
         return len(self._body_bytes if self._body_bytes else self._body.encode("utf-8"))
 
@@ -157,7 +158,7 @@ class Response:
         return self._body_bytes.decode("latin-1")
 
     @body.setter
-    def body(self, value: str | int | Dict[Any, Any] | List[Any] | bytes):
+    def body(self, value: str | int | dict[Any, Any] | list[Any] | bytes):
         """Sets the response body content and attempts to infer the `media_type`.
 
         If the `media_type` has not been explicitly set, this setter will

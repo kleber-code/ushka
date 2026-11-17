@@ -29,9 +29,9 @@ from typing import Any
 log = logging.getLogger("ushka")
 
 __all__ = [
+    "DatabaseStore",
     "SessionRecord",
     "SessionStore",
-    "DatabaseStore",
     "get_store",
     "no_database_reason",
     "revoke_user_sessions",

@@ -10,24 +10,28 @@ import logging
 from pathlib import Path
 from types import FrameType
 
+import ushka.web.pwa as pwa_module
+import ushka.web.seo as seo_module
 from ushka.core.config import Config
 from ushka.core.error_handler import ErrorHandler
 from ushka.core.log import LogLevelType, get_log_config, setup_logging
-from ushka.http.exceptions import HTTPMethodNotAllowed, HttpNotFound
-from ushka.http.exceptions import HTTPError
+from ushka.http.exceptions import HTTPError, HTTPMethodNotAllowed, HttpNotFound
 from ushka.http.params import Resolver
+from ushka.http.redirect import redirect
+from ushka.http.request import Request
+from ushka.http.response import Response
 from ushka.http.validation import RequestValidationError
 from ushka.http.websocket import WebSocket, WebSocketDisconnect
-from ushka.http.request import Request
-from ushka.web.i18n import I18n
-import ushka.web.pwa as pwa_module
-import ushka.web.seo as seo_module
 from ushka.security import SecurityMiddleware
-from ushka.http.response import Response
-from ushka.http.redirect import redirect
-from ushka.static import DEFAULT_CACHE_CONTROL, file_response, resolve_in, server_static_files
+from ushka.static import (
+    DEFAULT_CACHE_CONTROL,
+    file_response,
+    resolve_in,
+    server_static_files,
+)
 from ushka.templating import render
 from ushka.templating.engine import engine as template_engine
+from ushka.web.i18n import I18n
 
 from .router import Router
 

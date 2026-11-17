@@ -12,22 +12,23 @@ import asyncio
 import contextlib
 import contextvars
 import datetime as _dt
-import os
-import uuid
 import enum
+import uuid
+from collections.abc import AsyncIterator
+from typing import Any, TypeVar
+
 import sqlalchemy.types as sqltypes
-from sqlalchemy import Column, ForeignKey, event, inspect, select, MetaData, text
+from sqlalchemy import Column, ForeignKey, MetaData, event, inspect, select, text
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
+from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.sql import func
 
 from ushka.guard import check_sql, is_template
 from ushka.guard.templates import sql as template_to_sql
-from sqlalchemy.orm import declarative_base, relationship
-from sqlalchemy.sql import func
-from sqlalchemy.ext.asyncio import (
-    create_async_engine,
-    async_sessionmaker,
-    AsyncSession,
-)
-from typing import Optional, List, TypeVar, Type, Any, AsyncIterator
 
 # =============================================================================
 # NAMING CONVENTION
@@ -145,7 +146,7 @@ class UshkaDB:
         "mysql": "mysql+aiomysql",
     }
 
-    def __init__(self, url: Optional[str] = None):
+    def __init__(self, url: str | None = None):
         """
         Initializes the database manager.
 
@@ -206,7 +207,7 @@ class UshkaDB:
         return self._session_factory
 
     @property
-    def Session(self):  # noqa: N802 - public name kept for compatibility
+    def Session(self):
         """Factory of new `AsyncSession` objects: ``async with db.Session() as s:``.
 
         Each call opens an independent session. (A task-scoped registry was used
@@ -397,7 +398,7 @@ class UshkaDB:
                 return data
 
             @classmethod
-            async def create(cls: Type[T], **kwargs) -> T:
+            async def create(cls: type[T], **kwargs) -> T:
                 """
                 Creates a new instance and saves it to the database.
 
@@ -417,7 +418,7 @@ class UshkaDB:
             # --- QUERY METHODS ---
 
             @classmethod
-            async def all(cls: Type[T]) -> List[T]:
+            async def all(cls: type[T]) -> list[T]:
                 """
                 Returns all records for this model.
 
@@ -431,7 +432,7 @@ class UshkaDB:
                     return result.scalars().all()
 
             @classmethod
-            async def get(cls: Type[T], id: Any) -> Optional[T]:
+            async def get(cls: type[T], id: Any) -> T | None:
                 """
                 Retrieves a single record by its Primary Key.
 
@@ -449,7 +450,7 @@ class UshkaDB:
                     return await session.get(cls, id)
 
             @classmethod
-            async def first(cls: Type[T], **kwargs) -> Optional[T]:
+            async def first(cls: type[T], **kwargs) -> T | None:
                 """
                 Returns the first record matching the filters.
 
@@ -469,7 +470,7 @@ class UshkaDB:
                     return result.scalars().first()
 
             @classmethod
-            async def filter(cls: Type[T], **kwargs) -> List[T]:
+            async def filter(cls: type[T], **kwargs) -> list[T]:
                 """
                 Returns a list of records matching the filters.
 
@@ -784,7 +785,7 @@ class UshkaDB:
         auto_now=False,
         nullable=False,
         auto_now_add=False,
-        timezone: Optional[bool] = None,
+        timezone: bool | None = None,
     ) -> Column:
         """
         Defines a SQLAlchemy DateTime column.
@@ -879,12 +880,12 @@ class UshkaDB:
             default_val = dict
         elif isinstance(default, (dict, list)):
             snapshot = default
-            default_val = lambda: type(snapshot)(snapshot)  # noqa: E731
+            default_val = lambda: type(snapshot)(snapshot)
         else:
             default_val = default
         return Column(sqltypes.JSON, nullable=nullable, default=default_val)
 
-    def Enum(self, enum_cls: Type[enum.Enum], nullable=False, default=None) -> Column:
+    def Enum(self, enum_cls: type[enum.Enum], nullable=False, default=None) -> Column:
         """
         Defines a SQLAlchemy Enum column based on a Python Enum class.
 

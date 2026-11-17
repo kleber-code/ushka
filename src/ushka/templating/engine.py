@@ -17,16 +17,15 @@ from jinja2 import (
     select_autoescape,
 )
 
-import ushka.web.i18n as i18n
-
 from ushka.guard import check_markup
 from ushka.templating.flash import get_flashed_messages
+from ushka.web import i18n
 
 if typing.TYPE_CHECKING:
     from ushka.http.request import Request
 
 ContextProcessor = typing.Callable[
-    ["Request"], typing.Awaitable[typing.Dict[str, typing.Any]]
+    ["Request"], typing.Awaitable[dict[str, typing.Any]]
 ]
 
 
@@ -39,7 +38,7 @@ class UshkaTemplates:
     directory and Ushka's internal default templates.
     """
 
-    def __init__(self, context_processors: typing.List[ContextProcessor] = None):
+    def __init__(self, context_processors: list[ContextProcessor] = None):
         """Initializes the UshkaTemplates engine.
 
         Sets up the Jinja2 environment with a `ChoiceLoader` to prioritize
@@ -107,7 +106,7 @@ class UshkaTemplates:
         self.env.undefined = StrictUndefined if self.strict else Undefined
         self._configured_for = config
 
-    def set_project_dir(self, path: typing.Union[str, Path]) -> None:
+    def set_project_dir(self, path: str | Path) -> None:
         """Points the project loader at `path` (the app calls this with
         ``<app dir>/templates``). Framework templates stay as the fallback."""
         self._project_loader.searchpath = [str(path)]
@@ -159,7 +158,7 @@ class UshkaTemplates:
         self,
         request: "Request",
         template_name: str,
-        context: typing.Dict[str, typing.Any] = None,
+        context: dict[str, typing.Any] = None,
     ) -> str:
         """Renders a Jinja2 template with the given context and request data.
 
@@ -226,7 +225,7 @@ engine = _engine
 
 
 async def render(
-    request: "Request", template_name: str, context: typing.Dict[str, typing.Any] = None
+    request: "Request", template_name: str, context: dict[str, typing.Any] = None
 ) -> str:
     """Renders an HTML template using the global templating engine instance.
 

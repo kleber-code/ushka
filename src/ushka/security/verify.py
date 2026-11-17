@@ -37,11 +37,11 @@ from collections.abc import Callable
 from typing import Any
 from urllib.parse import quote, unquote, urlencode, urlsplit
 
+from ushka.api.openapi import _PATH_SEGMENT
 from ushka.guard import RejectedValueError, UnsafeValueError
 from ushka.http.exceptions import HTTPError
 from ushka.http.params import build_plan
 from ushka.http.validation import RequestValidationError, hints_of
-from ushka.api.openapi import _PATH_SEGMENT
 
 SAFE = {"GET", "HEAD"}
 SEVERITY = {"high": 3, "medium": 2, "low": 1}

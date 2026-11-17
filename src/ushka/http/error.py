@@ -7,14 +7,14 @@ raising an `HTTPError` instance with specified status code, message, and
 template.
 """
 
+
 from ushka.http.exceptions import HTTPError
-from typing import Optional
 
 
 def raise_error(
     status_code: int = 404,
-    message: Optional[str] = None,
-    template: Optional[str] = None,
+    message: str | None = None,
+    template: str | None = None,
 ):
     """Raises an HTTPError with the specified status code and optional details.
 

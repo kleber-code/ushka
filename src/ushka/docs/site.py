@@ -372,7 +372,7 @@ class Docs:
 
     # -- serving --------------------------------------------------------------------
 
-    def _context(self, page: DocsPage | None, request: "Request") -> dict[str, Any]:
+    def _context(self, page: DocsPage | None, request: Request) -> dict[str, Any]:
         nav = []
         for section in self.sections:
             items = [{"title": "Overview" if u == "api/" else self.pages[u].title, "url": f"{self.prefix}/{u}", "active": page is not None and u == page.url}
@@ -424,7 +424,7 @@ class Docs:
             trail.append((page.title, None))
         return trail
 
-    async def _respond(self, request: "Request", template: str, context: dict[str, Any], status: int = 200) -> Response:
+    async def _respond(self, request: Request, template: str, context: dict[str, Any], status: int = 200) -> Response:
         html = await render(request, template, context)
         etag = 'W/"' + hashlib.sha1(html.encode()).hexdigest()[:20] + '"'
         headers = {"ETag": etag, "Cache-Control": self.cache_control}
@@ -432,7 +432,7 @@ class Docs:
             return Response(b"", status_code=304, headers=headers)
         return Response(html, status_code=status, headers=headers, media_type="text/html")
 
-    def mount(self, app: "Ushka") -> list[DocsProblem]:
+    def mount(self, app: Ushka) -> list[DocsProblem]:
         """Builds the site and registers its routes on `app`. Returns the problems found."""
         root = self.directory if self.directory.is_absolute() else app.workdir / self.directory
         if not self.api_path.is_absolute():
@@ -545,4 +545,4 @@ def _snippet(text: str, terms: list[str], radius: int = 90) -> Markup:
         out.append(Markup("<mark>") + escape(m.group(0)) + Markup("</mark>"))
         last = m.end()
     out.append(escape(chunk[last:]))
-    return Markup(("…" if start else "")) + Markup("").join(out) + Markup("…")
+    return Markup("…" if start else "") + Markup("").join(out) + Markup("…")

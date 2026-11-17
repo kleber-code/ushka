@@ -13,7 +13,7 @@ import json
 import logging
 import secrets
 import time
-from typing import Any, List, Tuple
+from typing import Any
 
 log = logging.getLogger("ushka")
 
@@ -304,7 +304,7 @@ class Session(dict):
         """Indicates if the cookie needs to be re-sent to the client."""
         return self._modified
 
-    def get_response_headers(self) -> List[Tuple[bytes, bytes]]:
+    def get_response_headers(self) -> list[tuple[bytes, bytes]]:
         """Generates the Set-Cookie header ready for the WSGI/ASGI server."""
 
         # If the session is empty, but was modified (e.g., session.clear()),
@@ -335,7 +335,7 @@ class Session(dict):
 
         return [(b"set-cookie", "; ".join(parts).encode("latin-1"))]
 
-    def _expire_cookie(self) -> List[Tuple[bytes, bytes]]:
+    def _expire_cookie(self) -> list[tuple[bytes, bytes]]:
         """Generates an instruction for the browser to delete the cookie."""
         expired = f"{self.COOKIE_NAME}=; Path=/; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT"
         return [(b"set-cookie", expired.encode("latin-1"))]
