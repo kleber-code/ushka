@@ -11,6 +11,9 @@ COPY src src
 RUN pip install --no-cache-dir ".[docs]"
 COPY docs docs
 COPY site site
+# Render the docs once, here, so a container starts by reading the result
+# (see Docs(cache=...)) instead of spending seconds of CPU per worker.
+RUN cd site && python -c "import app"
 RUN useradd --system --uid 10001 ushka && chown -R ushka /repo
 USER ushka
 WORKDIR /repo/site

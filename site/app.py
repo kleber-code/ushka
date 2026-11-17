@@ -55,6 +55,8 @@ docs = Docs(
     links=[("Ushka Guard", "/docs/guide/guard/"), ("GitHub", "https://github.com/kleber-code/ushka")],
     edit_url="https://github.com/kleber-code/ushka/edit/main/docs/",
     extra_css=[asset("docs-brand.css")],
+    # Rendered once (in the image build) instead of by every worker at startup.
+    cache=HERE / ".cache" / "docs.json",
 )
 docs.mount(app)
 

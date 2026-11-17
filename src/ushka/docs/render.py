@@ -35,6 +35,14 @@ def slugify(text: str) -> str:
     return re.sub(r"[-\s]+", "-", text)
 
 
+def shorten(text: str, limit: int = 140) -> str:
+    """One line of at most `limit` characters, cut at a word."""
+    text = " ".join(text.split())
+    if len(text) <= limit:
+        return text
+    return text[: limit - 1].rsplit(" ", 1)[0].rstrip(",;:") + "…"
+
+
 def highlight_code(code: str, lang: str, _attrs: str = "") -> str:
     name = _LEXER_ALIASES.get(lang.strip().lower(), lang.strip().lower())
     try:
@@ -154,4 +162,4 @@ class MarkdownRenderer:
         return Rendered(html, title, meta, headings, " ".join(plain), links, desc)
 
 
-__all__ = ["MarkdownRenderer", "Rendered", "Heading", "slugify", "highlight_code"]
+__all__ = ["MarkdownRenderer", "Rendered", "Heading", "slugify", "highlight_code", "shorten"]

@@ -32,15 +32,8 @@
   {%- for href in docs.extra_css %}
   <link rel="stylesheet" href="{{ href }}">
   {%- endfor %}
-  {%- if page and canonical %}
-  <script type="application/ld+json">{{ {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {"@type": "ListItem", "position": 1, "name": docs.title, "item": docs.base_url ~ docs.prefix ~ "/"},
-      {"@type": "ListItem", "position": 2, "name": page.title, "item": canonical}
-    ]
-  } | tojson }}</script>
+  {%- if crumbs and canonical %}
+  <script type="application/ld+json">{{ crumb_ld | tojson }}</script>
   {%- endif %}
   {% block head %}{% endblock %}
 </head>
@@ -70,14 +63,32 @@
       <details class="d-nav__menu" open>
         <summary>Menu</summary>
         {%- for section in nav %}
+        {%- if section.title %}
+        <details class="d-nav__section"{% if section.open %} open{% endif %}>
+          <summary class="d-nav__title">{{ section.title }}</summary>
+        {%- else %}
         <div class="d-nav__section">
-          {%- if section.title %}<p class="d-nav__title">{{ section.title }}</p>{% endif %}
+        {%- endif %}
           <ul>
             {%- for item in section["items"] %}
             <li><a href="{{ item.url }}"{% if item.active %} aria-current="page"{% endif %}>{{ item.title }}</a></li>
             {%- endfor %}
           </ul>
+          {%- for group in section.groups %}
+          <details class="d-nav__group"{% if group.open %} open{% endif %}>
+            <summary>{{ group.title }}</summary>
+            <ul>
+              {%- for item in group["items"] %}
+              <li><a href="{{ item.url }}"{% if item.active %} aria-current="page"{% endif %}>{{ item.title }}</a></li>
+              {%- endfor %}
+            </ul>
+          </details>
+          {%- endfor %}
+        {%- if section.title %}
+        </details>
+        {%- else %}
         </div>
+        {%- endif %}
         {%- endfor %}
       </details>
     </aside>

@@ -1,11 +1,19 @@
 {% extends "docs/layout.html" %}
 
 {% block content %}
-  {%- if page.section %}
-  <p class="d-crumb">{{ page.section }}</p>
+  {%- if crumbs %}
+  <nav class="d-crumb" aria-label="Breadcrumb">
+    <ol>
+      {%- for label, url in crumbs %}
+      <li>{% if url %}<a href="{{ url }}">{{ label }}</a>{% else %}<span{% if loop.last %} aria-current="page"{% endif %}>{{ label }}</span>{% endif %}</li>
+      {%- endfor %}
+    </ol>
+  </nav>
   {%- endif %}
   <article class="d-article">
-    {%- if page.source.startswith("api:") %}
+    {%- if page.source == "api:index" %}
+    <h1>{{ page.title }}</h1>
+    {%- elif is_api %}
     <h1><code>{{ page.title }}</code></h1>
     {%- endif %}
     {{ page.html | safe }}
@@ -29,7 +37,7 @@
   <p class="d-toc__title">On this page</p>
   <ul>
     {%- for level, text, anchor in toc %}
-    <li class="lvl-{{ level }}"><a href="#{{ anchor }}">{{ text }}</a></li>
+    <li class="lvl-{{ level }}"><a href="#{{ anchor }}">{{ text.rsplit(".", 1)[-1] if is_api and level == 3 else text }}</a></li>
     {%- endfor %}
   </ul>
   {%- endif %}
