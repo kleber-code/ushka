@@ -5,6 +5,10 @@ All notable changes to Ushka. The format follows
 
 ## [Unreleased]
 
+## [0.8.0b4] - 2026-11-17
+
+Fourth beta of 0.8: a layout for real applications.
+
 ### Added
 
 - **A layout for real applications** (guide: Application structure). The root holds `app.py` and config; code goes in `routes/` (thin), `services/` (rules, no HTTP), `models/`, `integrations/` and `deps/`, one module per domain. `ushka new` now creates it, with a service, a test and a `pytest.ini`, and its `AGENTS.md` tells coding agents where each kind of code goes (a project built by agents had grown 49 modules in the root and an 850-line `models.py`, because the old file only described `routes/`, `templates/` and `static/`).

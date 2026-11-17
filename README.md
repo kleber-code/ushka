@@ -12,7 +12,7 @@
 **Website and docs: [ushka.satela.com.br](https://ushka.satela.com.br)**
 
 > **0.8 is in beta.** The 0.7 line is the stable release: `pip install ushka`. To try 0.8:
-> `pip install "ushka==0.8.0b3"` (pin it: `--pre` would also accept unfinished versions of your other dependencies). See [what is settled and what is new](https://ushka.satela.com.br/docs/features/).
+> `pip install "ushka==0.8.0b4"` (pin it: `--pre` would also accept unfinished versions of your other dependencies). See [what is settled and what is new](https://ushka.satela.com.br/docs/features/).
 
 **Ushka is the Python web framework where insecure code, whether you or an AI
 wrote it, does not run silently. It stops and tells you how to fix it.**
