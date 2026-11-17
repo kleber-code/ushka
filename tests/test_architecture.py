@@ -22,6 +22,7 @@ CORE_ALLOWED = {"uvicorn", "jinja2", "markupsafe", "python_multipart", "multipar
 OPTIONAL = {
     "ushka.docs": {"markdown_it", "mdit_py_plugins", "pygments", "griffe"},
     "ushka.orm": {"sqlalchemy", "alembic"},
+    "ushka.crypto": {"cryptography"},
     "ushka.cli": {"alembic"},
 }
 

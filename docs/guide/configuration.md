@@ -126,6 +126,15 @@ Sessions: a signed cookie by default, or revocable sessions kept on the server. 
 | `idle_timeout` | `0` | Server-side stores only: seconds without a request after which a session ends. 0 turns it off. |
 | `user_key` | `"user_id"` | Server-side stores only: the session key that holds the user id, used to revoke all of a user's sessions. |
 | `table` | `"ushka_sessions"` | Table used by store = "database". Created on first use. |
+| `encrypt` | `false` | Cookie sessions only: encrypt the cookie (Fernet) instead of only signing it, so the browser cannot read it. Needs ushka[crypto]. Logs everyone out once, when turned on or off. |
+
+### `[crypto]`
+
+Encryption (Fernet): the keys behind `ushka.crypto`, encrypted sessions and `db.Encrypted` (needs ushka[crypto]). See [crypto](crypto.md).
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `keys` | *(set it in the environment)* | Fernet keys, newest first: the first encrypts, all decrypt (key rotation). Make one with `ushka crypto genkey`. Use USHKA_CRYPTO_KEYS (comma separated), never this file. Empty derives a key from [app] secret_key. |
 
 ### `[limits]`
 

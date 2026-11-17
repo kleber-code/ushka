@@ -44,6 +44,7 @@ pages = [
     "guide/guard.md",
     "guide/guard-frameworks.md",
     "guide/security.md",
+    "guide/crypto.md",
     "guide/verify.md",
 ]
 
@@ -107,6 +108,11 @@ modules = ["ushka.sessions.session", "ushka.sessions.stores", "ushka.sessions.fo
 title = "Security"
 description = "The security middleware that is on by default: CSRF, headers, CORS and trusted hosts."
 modules = ["ushka.security.middleware", "ushka.security.verify"]
+
+[[api.group]]
+title = "Encryption"
+description = "Fernet encrypt and decrypt with key rotation (needs ushka[crypto])."
+modules = ["ushka.crypto.fernet"]
 
 [[api.group]]
 title = "Guard"

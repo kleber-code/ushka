@@ -36,6 +36,7 @@ SECTIONS: dict[str, str] = {
     "server": "How `ushka dev`, `ushka run` and `app.run()` serve the app.",
     "routes": "Which routes answer on which host name.",
     "static": "Serving static files.",
+    "crypto": "Encryption (Fernet): the keys behind `ushka.crypto`, encrypted sessions and `db.Encrypted` (needs ushka[crypto]).",
     "limits": "Size limits that protect the server from huge requests.",
     "session": "Sessions: a signed cookie by default, or revocable sessions kept on the server.",
     "security": "Ushka Guard and the security middleware, all on by default.",
@@ -52,6 +53,7 @@ SECTION_DOCS: dict[str, str] = {
     "routes": "routing.md",
     "static": "static_files.md",
     "session": "sessions.md",
+    "crypto": "crypto.md",
     "security": "security.md",
     "i18n": "i18n.md",
     "seo": "seo.md",
@@ -91,6 +93,10 @@ SCHEMA: dict[str, dict[str, Setting]] = {
         "idle_timeout": _s(0, "Server-side stores only: seconds without a request after which a session ends. 0 turns it off."),
         "user_key": _s("user_id", "Server-side stores only: the session key that holds the user id, used to revoke all of a user's sessions."),
         "table": _s("ushka_sessions", 'Table used by store = "database". Created on first use.'),
+        "encrypt": _s(False, 'Cookie sessions only: encrypt the cookie (Fernet) instead of only signing it, so the browser cannot read it. Needs ushka[crypto]. Logs everyone out once, when turned on or off.'),
+    },
+    "crypto": {
+        "keys": _s([], "Fernet keys, newest first: the first encrypts, all decrypt (key rotation). Make one with `ushka crypto genkey`. Use USHKA_CRYPTO_KEYS (comma separated), never this file. Empty derives a key from [app] secret_key.", secret=True),
     },
     "limits": {
         "max_request_body_size_in_KB": _s(2048, "Largest request body, in KB. Bigger bodies get 413."),

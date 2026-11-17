@@ -104,6 +104,7 @@ Columns are `NOT NULL` unless you pass `nullable=True`.
 | `db.JSON` | `(nullable=False, default=None)`. Defaults to a fresh `{}` per row; a `dict`/`list` default is copied per row. |
 | `db.Enum` | `(enum_cls, nullable=False, default=None)` |
 | `db.Binary` | `(length=None, nullable=False)` |
+| `db.Encrypted` | `(nullable=False, default=None)`. A `str` stored as a Fernet token; needs `ushka[crypto]`. You cannot filter by its value. See [Encryption](crypto.md#encrypted-columns). |
 | `db.UUID` | `(unique=False, nullable=False, primary_key=False, default=None)`. With `primary_key=True` the default is `uuid.uuid4`. |
 | `db.ForeignKey` | `(target, dtype=None, on_delete=db.CASCADE, nullable=False, use_alter=False, on_update=None)`. `target` is `"table.column"`; the type defaults to `BigInteger`. `on_delete` is `db.CASCADE`, `db.SET_NULL` (makes the column nullable) or `db.RESTRICT` or `None` for no clause (what a schema made by another ORM usually has). |
 | `db.Relationship` | `(model, back_populates=None, post_update=False)`. `model` is the class name as a string. |

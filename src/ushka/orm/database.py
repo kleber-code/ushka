@@ -105,6 +105,33 @@ class UTCDateTime(sqltypes.TypeDecorator):
         return value
 
 
+class EncryptedText(sqltypes.TypeDecorator):
+    """A ``str`` stored as a Fernet token in a ``Text`` column (`db.Encrypted`).
+
+    Written encrypted, read back decrypted, with the keys of ``[crypto]`` (or the
+    one derived from ``[app] secret_key``). Needs ``ushka[crypto]``.
+    """
+
+    impl = sqltypes.Text
+    cache_ok = True
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return None
+        if not isinstance(value, str):
+            raise TypeError("db.Encrypted() stores str; encode other values (json.dumps, str) first")
+        from ushka.crypto import encrypt
+
+        return encrypt(value)
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return None
+        from ushka.crypto import decrypt
+
+        return decrypt(value)
+
+
 def _sqlite_explicit_begin(engine) -> None:
     """Make SQLite begin transactions when SQLAlchemy says so.
 
@@ -696,6 +723,30 @@ class UshkaDB:
             The configured Column object.
         """
         return Column(sqltypes.Text, nullable=nullable, default=default)
+
+    def Encrypted(self, nullable=False, default=None) -> Column:
+        """
+        Defines a column of text that is stored encrypted (Fernet, `ushka.crypto`).
+
+        You assign and read a plain ``str``; the database holds the token.
+        Needs ``ushka[crypto]``. Encryption is not deterministic, so you cannot
+        filter or index by the value (``where Model.col == "x"`` never matches).
+        Key rotation works because every key in ``[crypto] keys`` decrypts; a
+        row nobody can decrypt raises `ushka.crypto.DecryptionError` when read.
+
+        Parameters
+        ----------
+        nullable : bool, optional
+            If True, allows NULL values (stored as NULL, not encrypted). By default False.
+        default : Any, optional
+            Default value for the column. By default None.
+
+        Returns
+        -------
+        sqlalchemy.Column
+            The configured Column object.
+        """
+        return Column(EncryptedText(), nullable=nullable, default=default)
 
     def Int(self, unique=False, nullable=False, default=None) -> Column:
         """

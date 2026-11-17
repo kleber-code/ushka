@@ -11,7 +11,7 @@ from ushka.http.cookies import Cookies
 from ushka.http.exceptions import HTTPBadRequest, HTTPPayloadTooLarge, reject_nul
 from ushka.http.multipart import parse_multipart_asgi
 from ushka.http.uploads import UploadFile
-from ushka.sessions.session import ServerSession, Session
+from ushka.sessions.session import ServerSession, Session, cookie_keys
 
 if TYPE_CHECKING:
     from ushka.core.app import Ushka
@@ -210,6 +210,7 @@ class Request:
                     raw_cookie_value=self.cookies.get(name),
                     max_age=int(self.app.config.get("session_max_age", 1209600)),
                     secure=not self._is_debug,
+                    encrypt_keys=cookie_keys(self.app.config),
                 )
             session.COOKIE_NAME = name
             self._cached_data["session"] = session

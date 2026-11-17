@@ -70,4 +70,4 @@ def test_dependabot_keeps_the_pins_current():
 
 def test_lockfile_covers_the_declared_groups():
     lock = (Path(__file__).resolve().parent.parent / "pdm.lock").read_text()
-    assert 'groups = ["default", "dev", "docs", "orm"]' in lock and "sha256:" in lock  # hashes of every file
+    assert 'groups = ["default", "crypto", "dev", "docs", "orm"]' in lock and "sha256:" in lock  # hashes of every file
