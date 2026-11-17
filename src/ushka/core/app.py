@@ -112,6 +112,11 @@ class Ushka:
         self._builtin_routes: dict = {}
         seo_module.install(self)
         pwa_module.install(self)
+        if any(self.config.get(f"oauth_{n}_client_id") for n in ("google", "github")):
+            # only apps that sign in with OAuth load the package
+            from ushka.auth import install as install_auth
+
+            install_auth(self)
 
         if self.config.get("STATIC_ENABLE"):
             static_url = self.config.get("STATIC_URL", "/static") + "/[path:filename]"

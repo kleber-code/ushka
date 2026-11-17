@@ -166,6 +166,23 @@ def check(production: bool = False) -> int:
         else:
             ui.warn(f"[session] store = \"database\" has no database, so sessions stay signed cookies: {reason}")
 
+    if any(config.get(f"oauth_{n}_client_id") or config.get(f"oauth_{n}_client_secret") for n in ("google", "github")):
+        from ushka.auth import problems as oauth_problems
+
+        found = oauth_problems(config, production)
+        for name in ("google", "github"):
+            if config.source_of(f"oauth_{name}_client_secret") == "ushka.toml":
+                problems += 1
+                ui.error(f"ushka.toml contains {name}_client_secret: move it to .env / USHKA_OAUTH_{name.upper()}_CLIENT_SECRET")
+        for level, message in found:
+            if level == "error":
+                problems += 1
+                ui.error(message)
+            else:
+                ui.warn(message)
+        if not found:
+            ui.ok("OAuth login: configured")
+
     if config.get("seo_enable", True):
         if config.get("seo_url"):
             ui.ok(f"SEO: public URL is {config.get('seo_url')}")

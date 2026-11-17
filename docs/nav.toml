@@ -44,6 +44,7 @@ pages = [
     "guide/guard.md",
     "guide/guard-frameworks.md",
     "guide/security.md",
+    "guide/auth.md",
     "guide/verify.md",
 ]
 
@@ -107,6 +108,11 @@ modules = ["ushka.sessions.session", "ushka.sessions.stores", "ushka.sessions.fo
 title = "Security"
 description = "The security middleware that is on by default: CSRF, headers, CORS and trusted hosts."
 modules = ["ushka.security.middleware", "ushka.security.verify"]
+
+[[api.group]]
+title = "Sign in (OAuth)"
+description = "Login with Google and GitHub: the helpers for your routes and the providers."
+modules = ["ushka.auth", "ushka.auth.providers", "ushka.auth.flow"]
 
 [[api.group]]
 title = "Guard"

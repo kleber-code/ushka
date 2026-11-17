@@ -5,6 +5,10 @@ All notable changes to Ushka. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **Sign in with Google and GitHub** (guide: Sign in with Google and GitHub). `[oauth]` with a client id and secret turns on `/auth/<provider>/login` and `/auth/<provider>/callback`: authorization code with PKCE (S256), `state` (constant-time, single use, 10 minutes), `nonce` and claim checks for Google, a verified e-mail, `allowed_email_domains` (Google custom domains also need the `hd` claim), only `provider, sub, email, name, picture` in the session, and a new session id at login. `next` is validated before it is stored; the `redirect_uri` comes from `[oauth] redirect_base` or `[seo] url`, never from the `Host` header (the app refuses to start without one). Provider errors, timeouts, oversized answers and bad states redirect to `login_error_path` with a short code and never echo provider text. For your routes: `Depends(login_required)`, `current_user`, `login_url`, `logout`. Standard library only (`urllib` in a thread); no new dependency. `ushka check` warns about half-configured providers, a missing trusted origin, and cookie sessions in production.
+
 ## [0.8.0b4] - 2026-11-17
 
 Fourth beta of 0.8: a layout for real applications.

@@ -23,6 +23,7 @@ Rules for generating Ushka code:
 - Uploads: take `doc: UploadFile` as a parameter (or `list[UploadFile]`, or `request.files()`), then `doc.save("uploads", extensions=[".png", ".jpg"])`. `filename` and `content_type` are `Untrusted`; a refused extension is a 400. Check `doc.head(8)` magic bytes when the type matters.
 - Translations: `[i18n] enable = true`, then `{{ _("Hello") }}` or `{% trans %}` in templates and `from ushka import _, ngettext` in code; catalogs are gettext files in `locale/`, built with `ushka i18n extract` and `ushka i18n compile`.
 - Page head: put `{{ seo() }}` in `<head>` instead of `<title>` (override per page with `seo(title=..., description=..., noindex=True)`); `/robots.txt` and `/sitemap.xml` are served; set `[seo] url`. For a PWA set `[pwa] enable = true`, add icons, and put `{{ pwa() }}` in `<head>`.
+- Sign in with Google or GitHub: set `[oauth] google_client_id`/`github_client_id` and `redirect_base`, the secret in `USHKA_OAUTH_GOOGLE_CLIENT_SECRET`; `/auth/<provider>/login` and `/callback` are built in. Protect a route with `user=Depends(login_required)` (`from ushka.auth import current_user, login_required, login_url, logout`); never write your own OAuth callback or take `redirect_uri` from the Host header.
 - Tests: `from ushka.testing import TestClient`; `async with TestClient(app) as client: await client.post("/x", json={...})` runs startup and shutdown and keeps cookies.
 - Browser writes (`POST`, `PUT`, `PATCH`, `DELETE`) from another site get 403 (CSRF, no tokens). Allow origins with `[security] csrf_trusted_origins`.
 - WebSocket: `async def websocket(ws)` in `routes/`, or `@app.websocket("/ws")`. SSE: return `EventSourceResponse(async_generator)`.
@@ -65,6 +66,7 @@ Rules for generating Ushka code:
 ## Security
 
 - [Ushka Guard](https://ushka.satela.com.br/docs/guide/guard/): sources, sinks, sanitisers, error codes USHKA-G001 to G005, limits
+- [Sign in with Google and GitHub](https://ushka.satela.com.br/docs/guide/auth/): `[oauth]` in ushka.toml, the Google Cloud and GitHub setup, `login_required`, `current_user`, `login_url`, `logout`, the threat model
 - [Security middleware](https://ushka.satela.com.br/docs/guide/security/): CSRF, headers, CSP (and what it blocks), CORS, trusted hosts, trusted proxies, your own middleware
 - [ushka verify](https://ushka.satela.com.br/docs/guide/verify/): attack your own routes, CSRF-exempt ones included, as an anonymous or a logged-in user
 - [Guard on FastAPI, Starlette, Django](https://ushka.satela.com.br/docs/guide/guard-frameworks/): the same protection in other frameworks

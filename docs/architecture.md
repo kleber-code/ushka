@@ -24,6 +24,8 @@ src/ushka/
 │                     `ushka verify`, the hostile probes against your own app
 ├── sessions/         signed-cookie sessions and revocable server-side          804
 │                     sessions (database store)
+├── auth/             OAuth 2.0 / OpenID Connect login (Google, GitHub):        626
+│                     providers, the built-in routes, `login_required`
 ├── templating/       Jinja2 engine with the guarded |safe, flash messages      365
 ├── static/           static files with ETag and 304                            110
 │  what browsers and search engines see (each has its own [section])
