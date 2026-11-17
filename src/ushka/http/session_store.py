@@ -1,10 +1,16 @@
 """
 Where server-side sessions live.
 
-With `[session] store` set to ``"memory"`` or ``"database"`` (or an object you
-assign to ``app.session_store``) the session cookie carries only an opaque,
+With `[session] store = "database"` (or an object you assign to
+``app.session_store``) the session cookie carries only an opaque,
 signed id and the data stays here. Deleting a record revokes the session for
 real: a stolen cookie stops working.
+
+The database store needs a database: ``[database] url`` (or ``DATABASE_URL``)
+must be set and SQLAlchemy installed (``ushka[orm]``). Without one the app
+keeps using signed cookies and says so in the log. There is no in-process store
+on purpose: it would log users out at random as soon as there is more than one
+worker.
 
 A store is a small class, `SessionStore`. Subclass it to keep sessions in
 Redis or anywhere else; the framework only calls the methods below.
@@ -14,6 +20,7 @@ Nothing in a store is ever logged.
 from __future__ import annotations
 
 import asyncio
+import importlib.util
 import logging
 import re
 from dataclasses import dataclass
@@ -24,9 +31,9 @@ log = logging.getLogger("ushka")
 __all__ = [
     "SessionRecord",
     "SessionStore",
-    "MemoryStore",
     "DatabaseStore",
     "get_store",
+    "no_database_reason",
     "revoke_user_sessions",
 ]
 
@@ -86,50 +93,6 @@ class SessionStore:
         """Removes expired records (created before `created_before` or idle
         since `seen_before`; None means no such limit). Returns the count."""
         return 0
-
-
-class MemoryStore(SessionStore):
-    """Sessions in the process memory. For development and tests.
-
-    Lost on restart and not shared between workers: with more than one worker
-    a user would be logged out at random. Use ``"database"`` in production.
-    """
-
-    def __init__(self) -> None:
-        self._records: dict[str, SessionRecord] = {}
-
-    async def load(self, key: str) -> SessionRecord | None:
-        rec = self._records.get(key)
-        return None if rec is None else SessionRecord(rec.key, rec.data, rec.user_id, rec.created_at, rec.last_seen)
-
-    async def save(self, record: SessionRecord) -> None:
-        self._records[record.key] = SessionRecord(
-            record.key, record.data, record.user_id, record.created_at, record.last_seen
-        )
-
-    async def touch(self, key: str, last_seen: float) -> None:
-        if key in self._records:
-            self._records[key].last_seen = last_seen
-
-    async def delete(self, key: str) -> None:
-        self._records.pop(key, None)
-
-    async def delete_user(self, user_id: str) -> int:
-        doomed = [k for k, r in self._records.items() if r.user_id == user_id]
-        for k in doomed:
-            del self._records[k]
-        return len(doomed)
-
-    async def purge(self, created_before: float | None, seen_before: float | None) -> int:
-        doomed = [
-            k
-            for k, r in self._records.items()
-            if (created_before is not None and r.created_at < created_before)
-            or (seen_before is not None and r.last_seen < seen_before)
-        ]
-        for k in doomed:
-            del self._records[k]
-        return len(doomed)
 
 
 _IDENT = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{0,62}$")
@@ -252,19 +215,27 @@ def get_store(app: Any) -> SessionStore | None:
     kind = str(app.config.get("session_store", "cookie") or "cookie").lower()
     if kind == "cookie":
         return None
-    if kind == "memory":
-        if int(app.config.get("server_workers", 1) or 1) > 1:
-            log.warning('[session] store = "memory" is not shared between workers: use "database".')
-        store = MemoryStore()
-    elif kind == "database":
-        store = DatabaseStore(
-            app.config.get("database_url") or "sqlite:///ushka.db",
-            app.config.get("session_table", "ushka_sessions"),
-        )
-    else:
-        raise ValueError(f'[session] store must be "cookie", "memory" or "database", got {kind!r}')
+    if kind != "database":
+        raise ValueError(f'[session] store must be "cookie" or "database", got {kind!r}')
+    reason = no_database_reason(app.config)
+    if reason:
+        if not getattr(app, "_session_fallback_logged", False):
+            app._session_fallback_logged = True
+            log.warning('[session] store = "database" needs a database, so sessions stay signed cookies '
+                        "(not revocable on the server): %s.", reason)
+        return None
+    store = DatabaseStore(app.config.get("database_url"), app.config.get("session_table", "ushka_sessions"))
     app.session_store = store
     return store
+
+
+def no_database_reason(config: Any) -> str:
+    """Why server-side sessions cannot use a database, or an empty string when they can."""
+    if config.source_of("database_url") == "default":
+        return "no database is configured: set [database] url or DATABASE_URL"
+    if importlib.util.find_spec("sqlalchemy") is None:
+        return "SQLAlchemy is not installed: pip install 'ushka[orm]'"
+    return ""
 
 
 async def revoke_user_sessions(target: Any, user_id: Any) -> int:
@@ -277,7 +248,7 @@ async def revoke_user_sessions(target: Any, user_id: Any) -> int:
     app = getattr(target, "app", target)
     store = get_store(app)
     if store is None:
-        raise RuntimeError('revoke_user_sessions needs a server-side store: set [session] store to "memory" or "database".')
+        raise RuntimeError('revoke_user_sessions needs server-side sessions: set [session] store = "database" and configure a database.')
     count = await store.delete_user(str(user_id))
     session = getattr(target, "_cached_data", {}).get("session")
     if session is not None and hasattr(session, "revoke") and session.user_id == str(user_id):

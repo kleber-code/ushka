@@ -1,4 +1,4 @@
-"""Server-side (revocable) sessions: `[session] store = "memory" | "database"`."""
+"""Server-side (revocable) sessions: `[session] store = "database"`, and the cookie fallback."""
 
 from __future__ import annotations
 
@@ -7,9 +7,44 @@ import time
 
 import pytest
 
-from ushka.http.session_store import MemoryStore, SessionStore, revoke_user_sessions
+from ushka.http.session_store import SessionRecord, SessionStore, revoke_user_sessions
 
 KEY = "k" * 48
+
+
+class MemoryStore(SessionStore):
+    """A test double: the framework ships no in-process store (it breaks with several workers)."""
+
+    def __init__(self):
+        self._records = {}
+
+    async def load(self, key):
+        rec = self._records.get(key)
+        return None if rec is None else SessionRecord(rec.key, rec.data, rec.user_id, rec.created_at, rec.last_seen)
+
+    async def save(self, record):
+        self._records[record.key] = SessionRecord(record.key, record.data, record.user_id, record.created_at, record.last_seen)
+
+    async def touch(self, key, last_seen):
+        if key in self._records:
+            self._records[key].last_seen = last_seen
+
+    async def delete(self, key):
+        self._records.pop(key, None)
+
+    async def delete_user(self, user_id):
+        doomed = [k for k, r in self._records.items() if r.user_id == user_id]
+        for k in doomed:
+            del self._records[k]
+        return len(doomed)
+
+    async def purge(self, created_before, seen_before):
+        doomed = [k for k, r in self._records.items()
+                  if (created_before is not None and r.created_at < created_before)
+                  or (seen_before is not None and r.last_seen < seen_before)]
+        for k in doomed:
+            del self._records[k]
+        return len(doomed)
 
 
 def cookie_of(res):
@@ -24,8 +59,12 @@ def cookie_of(res):
 def setup(workdir, make_app, monkeypatch):
     def build(store="memory", extra="", routes=True):
         monkeypatch.setenv("USHKA_APP_SECRET_KEY", KEY)
-        (workdir / "ushka.toml").write_text(f'[session]\nstore = "{store}"\n{extra}')
+        # "memory" is the test double above, plugged in like any custom store
+        toml_store = "cookie" if store == "memory" else store
+        (workdir / "ushka.toml").write_text(f'[session]\nstore = "{toml_store}"\n{extra}')
         app = make_app()
+        if store == "memory":
+            app.session_store = MemoryStore()
         if routes:
             add_routes(app)
         return app
@@ -333,8 +372,6 @@ def test_database_table_name_is_validated(workdir):
 
 
 async def test_memory_store_is_isolated_from_callers():
-    from ushka.http.session_store import SessionRecord
-
     store = MemoryStore()
     rec = SessionRecord("k", "{}", None, 1.0, 1.0)
     await store.save(rec)
@@ -373,8 +410,9 @@ def test_settings_defaults_keep_the_cookie_behaviour():
 
 def test_missing_secret_still_explains(workdir, make_app, monkeypatch):
     monkeypatch.delenv("USHKA_APP_SECRET_KEY", raising=False)
-    (workdir / "ushka.toml").write_text('[session]\nstore = "memory"\n')
+    (workdir / "ushka.toml").write_text('[session]\nstore = "cookie"\n')
     app = make_app()
+    app.session_store = MemoryStore()
     from ushka.http.request import Request
 
     async def receive():
@@ -385,3 +423,47 @@ def test_missing_secret_still_explains(workdir, make_app, monkeypatch):
     asyncio.run(req.load_session())  # must not raise
     with pytest.raises(RuntimeError, match="secret key"):
         _ = req.session
+
+
+# --- no database, no server-side sessions ---------------------------------------
+
+
+async def test_database_store_without_a_database_falls_back_to_cookies(workdir, make_app, call, monkeypatch, caplog):
+    import logging
+
+    from ushka.http.session_store import get_store
+
+    monkeypatch.setenv("USHKA_APP_SECRET_KEY", KEY)
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    monkeypatch.delenv("USHKA_DB_URL", raising=False)
+    (workdir / "ushka.toml").write_text('[session]\nstore = "database"\n')  # no [database] url
+    app = make_app()
+    add_routes(app)
+    with caplog.at_level(logging.WARNING):
+        assert get_store(app) is None and get_store(app) is None
+    warnings = [r for r in caplog.records if "needs a database" in r.getMessage()]
+    assert len(warnings) == 1, "warned once, not on every request"
+    cookie = await login(call, app)
+    assert cookie.count(".") == 2  # a signed cookie, not an id
+    assert (await me(call, app, cookie))["user"] == 7
+    with pytest.raises(RuntimeError, match="database"):
+        await revoke_user_sessions(app, 7)
+
+
+async def test_a_configured_database_turns_server_sessions_on(workdir, make_app, call, monkeypatch):
+    from ushka.http.session_store import DatabaseStore, get_store
+
+    monkeypatch.setenv("USHKA_APP_SECRET_KEY", KEY)
+    monkeypatch.setenv("DATABASE_URL", f"sqlite:///{workdir}/env.db")  # the environment counts too
+    (workdir / "ushka.toml").write_text('[session]\nstore = "database"\n')
+    app = make_app()
+    assert isinstance(get_store(app), DatabaseStore)
+
+
+def test_the_memory_store_is_gone_from_the_settings(workdir, make_app, monkeypatch):
+    from ushka.http.session_store import get_store
+
+    monkeypatch.setenv("USHKA_APP_SECRET_KEY", KEY)
+    (workdir / "ushka.toml").write_text('[session]\nstore = "memory"\n')
+    with pytest.raises(ValueError, match='"cookie" or "database"'):
+        get_store(make_app())

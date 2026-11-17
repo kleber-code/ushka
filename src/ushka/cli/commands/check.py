@@ -14,6 +14,7 @@ from urllib.parse import urlsplit
 from ushka.cli import ui
 from ushka.core.config import Config
 from ushka.guard import TEMPLATES_SUPPORTED
+from ushka.http.session_store import no_database_reason
 from ushka.pwa import icons as pwa_icons
 
 SETTINGS = (
@@ -146,6 +147,16 @@ def check(production: bool = False) -> int:
         else:
             problems += 1
             ui.error(".env exists but is not in .gitignore")
+
+    if str(config.get("session_store", "cookie")).lower() == "database":
+        reason = no_database_reason(config)
+        if not reason:
+            ui.ok("sessions: revocable, kept in the database")
+        elif production:
+            problems += 1
+            ui.error(f"[session] store = \"database\" has no database, so sessions stay signed cookies: {reason}")
+        else:
+            ui.warn(f"[session] store = \"database\" has no database, so sessions stay signed cookies: {reason}")
 
     if config.get("seo_enable", True):
         if config.get("seo_url"):

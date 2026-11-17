@@ -41,7 +41,7 @@ data stays on the server. It is **off by default** (`store = "cookie"`).
 ```toml
 # ushka.toml
 [session]
-store = "database"      # "cookie" (default), "memory" or "database"
+store = "database"      # "cookie" (default) or "database"
 max_age = 1209600       # absolute lifetime, in seconds (0 = no limit)
 idle_timeout = 1800     # end the session after 30 idle minutes (0 = off)
 user_key = "user_id"    # the session key that holds the user id
@@ -80,11 +80,14 @@ async def change_password(request):
 - **Safe at rest.** The id is `secrets.token_urlsafe(32)`, checked with a
   constant-time comparison, and the store keeps only its SHA-256, so a leaked
   database does not hand out working sessions. Cookie flags are as above.
-- **Stores.** `"database"` uses `[database] url` and creates the table named in
-  `[session] table` on first use (needs the `orm` extra). `"memory"` is for
-  development and tests: it is lost on restart and **not shared between
-  workers**, so do not use it in production. Expired rows are removed from time to
-  time.
+- **It needs a database.** `"database"` uses `[database] url` (or `DATABASE_URL`)
+  and creates the table named in `[session] table` on first use. It needs the
+  `orm` extra for SQLAlchemy. **Without a configured database, or without
+  SQLAlchemy, Ushka keeps using signed cookies** and logs a warning, and
+  `ushka check --production` reports it, so you never believe sessions are
+  revocable when they are not. There is deliberately no in-memory store: with more
+  than one worker it would log people out at random, and a database is shared by
+  all of them. Expired rows are removed from time to time.
 - **Your own store.** Subclass `SessionStore` (`load`, `save`, `touch`, `delete`,
   `delete_user`, optional `purge`) and assign it: `app.session_store = RedisStore(...)`.
 - Reading `request.session` still needs the secret key. Session contents are

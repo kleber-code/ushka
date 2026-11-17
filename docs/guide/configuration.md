@@ -111,7 +111,7 @@ Sessions: a signed cookie by default, or revocable sessions kept on the server. 
 
 | Key | Default | Meaning |
 | --- | --- | --- |
-| `store` | `"cookie"` | Where sessions live: "cookie" (signed, in the browser), "memory" (development only) or "database" (revocable, no size limit). |
+| `store` | `"cookie"` | Where sessions live: "cookie" (signed, in the browser) or "database" (revocable, no size limit; needs [database] url, else cookies are used). |
 | `cookie_name` | `"_ushka_session"` | Name of the session cookie. |
 | `max_age` | `1209600` | Seconds a session lasts, counted from its creation (14 days). 0 means no limit. |
 | `idle_timeout` | `0` | Server-side stores only: seconds without a request after which a session ends. 0 turns it off. |

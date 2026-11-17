@@ -77,7 +77,7 @@ SCHEMA: dict[str, dict[str, Setting]] = {
         "cache_control": _s("public, max-age=3600", "Cache-Control sent with every static file."),
     },
     "session": {
-        "store": _s("cookie", 'Where sessions live: "cookie" (signed, in the browser), "memory" (development only) or "database" (revocable, no size limit).'),
+        "store": _s("cookie", 'Where sessions live: "cookie" (signed, in the browser) or "database" (revocable, no size limit; needs [database] url, else cookies are used).'),
         "cookie_name": _s("_ushka_session", "Name of the session cookie."),
         "max_age": _s(1209600, "Seconds a session lasts, counted from its creation (14 days). 0 means no limit."),
         "idle_timeout": _s(0, "Server-side stores only: seconds without a request after which a session ends. 0 turns it off."),
