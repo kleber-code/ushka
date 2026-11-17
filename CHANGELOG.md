@@ -5,6 +5,10 @@ All notable changes to Ushka. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **Server-side sessions you can revoke** (`ushka.http.session_store`, guide: Sessions). `[session] store = "memory" | "database"` keeps the data on the server and puts only a random, signed id in the cookie, so `session.clear()` / `session.revoke()` really ends the session (a stolen cookie stops working), there is no 4 KB limit, `session.rotate()` (and the first login on an existing id) changes the id against fixation, `revoke_user_sessions(request_or_app, user_id)` logs a user out everywhere, and `[session] max_age` / `idle_timeout` expire sessions. Ids are stored hashed, the database table is created on first use, and `app.session_store` accepts your own `SessionStore` (Redis, ...). Off by default: the signed cookie behaves exactly as before. New `[session]` settings: `store`, `cookie_name`, `max_age`, `idle_timeout`, `user_key`, `table`.
+
 ## [0.7.0] - 2026-11-16
 
 ### Added

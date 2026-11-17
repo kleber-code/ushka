@@ -86,6 +86,7 @@ modules = [
     "ushka.http.validation",
     "ushka.http.cookies",
     "ushka.http.sessions",
+    "ushka.http.session_store",
     "ushka.http.redirect",
     "ushka.http.stream",
     "ushka.http.websocket",

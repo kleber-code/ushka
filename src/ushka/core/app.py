@@ -86,6 +86,9 @@ class Ushka:
         self.error_handler = ErrorHandler(self.config, self.log, self.router)
         #: Always outermost; configured in ``[security]``.
         self.security = SecurityMiddleware(self.config)
+        #: A `ushka.http.session_store.SessionStore` of your own (Redis, ...);
+        #: when None, ``[session] store`` decides.
+        self.session_store = None
         #: ``{path: handler}`` for GET pages Ushka ships (robots.txt, the PWA files...).
         #: They answer only when no route of yours matches, so yours always win.
         self._builtin_routes: dict = {}
@@ -221,6 +224,7 @@ class Ushka:
         """
         request = Request(self, scope, receive)
         try:
+            await request.load_session()
             response = await self._run_chain(request)
         except Exception as e:
             response = await self._error_response(e, request)
