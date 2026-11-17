@@ -1,7 +1,6 @@
 # Command-Line Interface
 
-Installing Ushka gives you the `ushka` command. It is built on the standard
-library (`argparse`), so it adds no dependencies.
+Installing Ushka gives you the `ushka` command (standard library `argparse`, no dependencies).
 
 <!-- termynal -->
 ```console
@@ -29,12 +28,8 @@ options:
   -V, --version  show program's version number and exit
 ```
 
-Every command has its own `--help` (`ushka dev --help`, `ushka db make --help`).
-`ushka --version` prints the installed version. Errors are printed with a short
-explanation and exit with status 1.
-
-Run the commands from your project directory: `dev`, `run`, `check`, `routes`
-and `db` read `ushka.toml`, `.env`, `routes/` and `app.py` from there.
+Every command has its own `--help`. Errors print a short explanation and exit 1.
+Run `dev`, `run`, `check`, `routes` and `db` from the project directory.
 
 ## `ushka new`
 
@@ -42,23 +37,10 @@ and `db` read `ushka.toml`, `.env`, `routes/` and `app.py` from there.
 ushka new my_project
 ```
 
-Creates `my_project/` with a runnable, secure-by-default layout:
-
-| File | Contents |
-| --- | --- |
-| `app.py` | `app = Ushka()` and `app.run()` under `__main__`. |
-| `ushka.toml` | App name, `debug = false`, a SQLite URL and static files on. |
-| `.env` | A freshly generated `USHKA_APP_SECRET_KEY`. |
-| `.env.example` | The same keys, empty, safe to commit. |
-| `.gitignore` | Excludes `.env`, `*.db`, caches and virtualenvs. |
-| `AGENTS.md` | Rules for AI coding agents working on the project (layout, Ushka Guard, sanitisers). |
-| `routes/index.py` | `GET /`, rendering the template. |
-| `templates/index.html` | The welcome page. |
-| `static/style.css` | Its stylesheet. |
-
-The name must start with a letter and contain only letters, digits, `-` and
-`_` (up to 64 characters). The command refuses to overwrite an existing
-directory.
+Creates `my_project/` with a runnable, secure-by-default layout (see [Project structure](project-structure.md)):
+a short `ushka.toml`, a `.env` with a fresh `USHKA_APP_SECRET_KEY`, `AGENTS.md` for coding agents, and a
+route, service, template and test. The name starts with a letter and uses letters, digits, `-`, `_`.
+It never overwrites an existing directory.
 
 ## `ushka dev`
 
@@ -68,14 +50,8 @@ ushka dev --host 0.0.0.0 --port 5000
 ushka dev myapp.main:application   # another module:attribute
 ```
 
-```text
-usage: ushka dev [-h] [--host HOST] [--port PORT] [app]
-```
-
-The development server: it reloads when your code changes and turns
-**debug on** (it sets `USHKA_APP_DEBUG=true` for the process), so you get the
-debug error page and a per-process secret key if you have none. Host and port
-default to `[server] host` and `port` (`127.0.0.1:8000`).
+Reloads on changes and turns **debug on** for the process, so you get the debug page and a
+temporary secret key if you have none. Host and port default to `[server]` (`127.0.0.1:8000`).
 
 ## `ushka run`
 
@@ -84,12 +60,7 @@ ushka run
 ushka run --host 0.0.0.0 --port 8080
 ```
 
-```text
-usage: ushka run [-h] [--host HOST] [--port PORT] [app]
-```
-
-The production server: no reload, debug taken from your configuration, and
-`[server] workers` worker processes:
+The production server: no reload, debug from your configuration, `[server] workers` processes:
 
 ```toml
 # ushka.toml
@@ -99,14 +70,8 @@ port = 8080
 workers = 4
 ```
 
-It warns when debug is on or when `USHKA_APP_SECRET_KEY` is missing. Run
-`ushka check --production` before deploying to turn those warnings into a
-failing check.
-
-`ushka run` uses Ushka's own server loop on top of Uvicorn (`uvloop` and
-`httptools` included), which stays asleep when idle and does not kill workers
-that are slow to start. See [Performance](performance.md#idle-cost) and
-[Deploy](deploy.md).
+It warns when debug is on or the secret key is missing; `ushka check --production` makes that a
+failing check. See [Performance](performance.md#idle-cost) and [Deploy](deploy.md).
 
 ## `ushka verify`
 
@@ -219,17 +184,16 @@ step or a pre-deploy gate:
 ## `ushka config`
 
 ```bash
-ushka config                  # every setting, its value and where it came from
-ushka config security         # one section
-ushka config --describe       # plus what each does and its environment variable
+ushka config                  # the common settings, their value and where it came from
+ushka config security         # one section (--describe adds meanings and variables)
+ushka config --all            # plus the advanced ones
 ushka config --template       # a complete, annotated ushka.toml
 ```
 
-Lists **every** setting Ushka reads (see [Configuration](configuration.md#all-settings)),
-with the layer each value came from: `default`, `ushka.toml`, `.env` or
-`environment`. Secrets show only `(set)` or `(not set)`. It exits with status 1 and
-names the key when `ushka.toml` has a key Ushka does not know or a value of the
-wrong type, so it also works in CI.
+Each value shows its layer: `default`, `ushka.toml`, `.env` or `environment`; secrets show
+only `(set)` or `(not set)`. Exits 1 and names the key when `ushka.toml` has an unknown key or a
+value of the wrong type, so it works in CI. See [Configuration](configuration.md) and
+[All settings](settings.md).
 
 ## `ushka docs`
 

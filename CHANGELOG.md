@@ -19,6 +19,13 @@ All notable changes to Ushka. The format follows
 ### Fixed
 
 - Docs theme: the accent bar of the current page in the sidebar followed the rounded corners of the item and looked bent; it is now straight, with the rounding only on the right.
+- **`advanced=True` on a setting.** `ushka config` lists the common settings of each section and counts the rest (`+17 advanced (ushka config --all)`); an advanced key you changed is still shown. `ushka config --all` lists everything, and `--template` and `--markdown` stay complete (the markdown separates Common from Advanced). No section has more than 8 common settings.
+- **All settings** page (`docs/guide/settings.md`), the generated reference, apart from the short Configuration page.
+
+### Changed
+
+- **`ushka new` writes a short `ushka.toml`**: the app name, `debug = false`, the database and static, about 12 lines with one comment pointing to `ushka config` and `ushka config --template`, instead of 470 lines with every setting. `ushka config --template` still prints the complete annotated file. The generated `AGENTS.md` is about 40 lines and `app.py` shows `@app.middleware` in a comment.
+- The Configuration guide is a one-screen page (about 280 words, down from 2,700); the settings tables moved to All settings. `cli.md` and `project-structure.md` lose repeated explanations.
 
 ## [0.8.0b4] - 2026-11-17
 

@@ -7,7 +7,7 @@ import secrets
 from pathlib import Path
 
 from ushka.cli import ui
-from ushka.core.settings import render_toml
+from ushka.core.settings import toml_value
 
 _NAME = re.compile(r"^[A-Za-z][A-Za-z0-9_-]{0,63}$")
 
@@ -15,37 +15,30 @@ APP_PY = '''\
 from ushka import Ushka
 
 app = Ushka()
+# @app.middleware  # one decorator adds a middleware: async def mw(request, call_next)
 
 if __name__ == "__main__":
     app.run()
 '''
 
-USHKA_TOML_HEADER = """\
-# Ushka configuration for {name}.
-#
-# EVERY setting Ushka reads is listed below with its default and what it does,
-# so nothing is hidden: change a value here, or override it without touching
-# this file with an environment variable (or a line in .env) named
-# USHKA_<SECTION>_<KEY>, for example USHKA_APP_DEBUG=true.
-# Order of precedence: defaults < ushka.toml < .env < environment.
-#
-# Secrets never go here: the session key lives in .env (USHKA_APP_SECRET_KEY).
-# `ushka config` shows the values in use and where each came from;
-# `ushka check` validates them. Reference: https://ushka.satela.com.br/docs/guide/configuration/
+USHKA_TOML = """\
+# Only what differs from the defaults is here. `ushka config` lists the settings,
+# `ushka config --template` prints every key, annotated. Secrets go in .env.
+[app]
+name = {name}
+debug = false
+
+[database]
+url = {url}
+
+[static]
+enable = true
 """
 
 
 def ushka_toml(name: str) -> str:
-    """The complete ``ushka.toml`` of a new project: every setting, annotated."""
-    return render_toml(
-        {
-            "app": {"name": name, "debug": False},
-            "database": {"url": f"sqlite:///{name}.db"},
-            "static": {"enable": True},
-            "seo": {"description": f"{name}, built with Ushka."},
-        },
-        header=USHKA_TOML_HEADER.format(name=name),
-    )
+    """The ``ushka.toml`` of a new project: a few lines, not every setting."""
+    return USHKA_TOML.format(name=toml_value(name), url=toml_value(f"sqlite:///{name}.db"))
 
 
 DOTENV = '''\
@@ -154,68 +147,45 @@ code { background: #fde4f0; padding: .1rem .35rem; border-radius: .3rem; }
 AGENTS_MD = '''\
 # AGENTS.md
 
-Instructions for AI coding agents working on this {name} project.
-It uses **Ushka**, an async Python web framework with filesystem routing and
+{name} uses **Ushka**, an async Python web framework with filesystem routing and
 **Ushka Guard** (request data is `Untrusted`; dangerous sinks refuse it).
 
 ## Layout
 
-The root holds `app.py` and config only. Code goes in folders by role, and each
-domain (billing, leads, accounts...) is one module in each folder that needs it:
+Only `app.py` and config in the root. Code goes in folders by role, one module per
+domain (billing, leads...) in each:
 
-- `routes/` — the web layer, one file per URL (`routes/index.py` → `/`,
-  `routes/users/[user_id].py` → `/users/<user_id>`). Export async functions named
-  after HTTP methods: `async def get(request): ...`. **Keep handlers thin**: read the
-  request, call a service, return a response. One host name with its own routes
-  gets `routes_<name>/` and an entry in `[routes] hosts`.
-- `services/` — business rules as plain functions, one module per domain
-  (`services/billing.py`). **No `request`, no templates, no `redirect` in here.**
-- `models/` — ORM models, one module per domain (`models/billing.py`), imported in
-  `models/__init__.py`. Never one big `models.py`.
-- `integrations/` — everything that talks to the outside world, one module per
-  vendor (`integrations/stripe.py`): the client and the webhook signature check.
-- `deps/` — `Depends` functions (current user, permissions), one concern per file.
-- `templates/` — Jinja2, autoescaped, grouped by area (`templates/billing/invoice.html`);
-  `render(request, "billing/invoice.html", {{...}})` from `ushka.templating`.
-- `static/` (served at `/static/`), `locale/`, `migrations/`, `scripts/` (one-off
-  tools), `tests/` (mirrors the folders above).
-- `ushka.toml` — settings (no secrets); your own settings go in a section of your
-  own (`[{name}]`), not in a config module. `.env` — secrets, not committed.
+- `routes/` — one file per URL (`routes/users/[user_id].py` → `/users/<user_id>`),
+  async functions named after the method: `async def get(request)`. Keep them thin:
+  read the request, call a service, return a response.
+- `services/` — business rules as plain functions. No `request`, no templates, no `redirect`.
+- `models/` — ORM models, imported in `models/__init__.py`. `integrations/` — one module per
+  outside vendor. `deps/` — `Depends` functions. `templates/` — Jinja2, autoescaped.
+- `static/`, `locale/`, `migrations/`, `scripts/`, `tests/` (mirrors the folders above).
+- `ushka.toml` — settings, no secrets; your own go in a `[{name}]` section. `.env` — secrets.
 
 ## Where does new code go?
 
-- A new URL → a file in `routes/`, calling a service.
-- A rule, calculation or workflow → a function in `services/<domain>.py`.
-- A table → `models/<domain>.py`.
-- A call to an outside system → `integrations/<vendor>.py`, called by a service.
-- Never add a `.py` file to the root, and name files after the domain (`billing`,
-  `leads`), never after a grab-bag (`utils`, `helpers`, `core`, `manager`).
-- Direction of imports: `routes` → `services` → `models` / `integrations`. A service
-  never imports a route or `ushka.http`.
-- A file over about 500 lines is more than one domain: split it.
-- `ushka check` warns when the layout drifts.
+- A URL → `routes/`. A rule or workflow → `services/<domain>.py`. A table → `models/<domain>.py`.
+  An outside call → `integrations/<vendor>.py`, called by a service.
+- Imports flow `routes` → `services` → `models` / `integrations`. Never a `.py` in the root;
+  name files after the domain, not `utils`/`helpers`; split a file over ~500 lines.
+- Middleware: `@app.middleware`. `ushka check` warns when the layout drifts.
 
 ## Rules
 
-- Values from `request.query`, `form()`, `json()`, headers, cookies and path
-  parameters are `Untrusted`. Do not bypass the guard; use a sanitiser:
-  - redirect: `redirect(safe.url(value, allow=["/"], default="/"))`
-  - file path: `safe.path(value, root=...)`
-  - numbers: `safe.integer(value, min=..., max=...)`
-  - fixed options (sort column...): `safe.choice(value, [...])`
-  - HTML: render a template; never `|safe` on request data.
-  - SQL: ORM methods, or `db.text("... :id", id=value)`; never build SQL strings.
-  `from ushka.guard import safe`.
-- Mark language-model output with `guard.llm(text)` before using it.
-- An `UnsafeValueError` (`USHKA-G00x`) explains the risk and the fix: apply
-  the fix, do not silence it. Docs: https://ushka.satela.com.br/docs/guide/guard/
+- `request.query`, `form()`, `json()`, headers, cookies and path parameters are `Untrusted`.
+  Do not bypass the guard; use `from ushka.guard import safe`:
+  `redirect(safe.url(v, allow=["/"], default="/"))`, `safe.path(v, root=...)`,
+  `safe.integer(v, min=, max=)`, `safe.choice(v, [...])`.
+  HTML: render a template, never `|safe` on request data. SQL: ORM or `db.text("... :id", id=v)`.
+- Mark language-model output with `guard.llm(text)`.
+- An `UnsafeValueError` (`USHKA-G00x`) names the fix: apply it, do not silence it.
+  https://ushka.satela.com.br/docs/guide/guard/
 
 ## Commands
 
-- `ushka dev` — development server with reload (debug on).
-- `ushka check` — validate configuration and security settings.
-- `ushka config` — every setting, its value and where it came from.
-- `ushka routes list` — show all routes.
+`ushka dev` (reload) · `ushka check` · `ushka config` (settings and their source) · `ushka routes list`
 '''
 
 

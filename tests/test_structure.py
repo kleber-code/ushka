@@ -127,8 +127,9 @@ def test_new_creates_the_layout(new_project):
 def test_the_generated_agents_md_teaches_the_layout(new_project):
     text = (new_project / "AGENTS.md").read_text("utf-8")
     for needle in ("Where does new code go?", "`services/`", "`models/`", "`integrations/`", "No `request`, no templates",
-                   "Never add a `.py` file to the root", "routes` → `services` → `models`", "[shop]"):
+                   "Never a `.py` in the root", "`@app.middleware`", "safe.url", "routes` → `services` → `models`", "[shop]"):
         assert needle in text, needle
+    assert len(text.splitlines()) <= 45
 
 
 def test_the_generated_route_calls_the_service(new_project):

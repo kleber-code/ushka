@@ -51,7 +51,7 @@ and `.env`. That is how you configure a container without baking secrets in:
 | `USHKA_MCP_TOKEN` | Bearer token for [agent tools](agents.md). |
 | `USHKA_SECURITY_TRUSTED_PROXIES` | Comma-separated IPs or CIDRs of your reverse proxies. See [behind a proxy](#behind-a-proxy). |
 
-See [Configuration](configuration.md) for all settings.
+See [All settings](settings.md).
 
 ## Workers
 

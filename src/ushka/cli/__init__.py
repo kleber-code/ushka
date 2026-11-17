@@ -54,6 +54,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("config", help="list every setting, its value and where it came from")
     p.add_argument("section", nargs="?", default="", help="only this section, e.g. security")
     p.add_argument("--describe", action="store_true", help="also explain each setting and its environment variable")
+    p.add_argument("--all", action="store_true", help="also list the advanced (rarely changed) settings")
     p.add_argument("--template", action="store_true", help="print a complete, annotated ushka.toml")
     p.add_argument("--markdown", action="store_true", help="print the settings reference as Markdown (used by the docs)")
 
@@ -158,7 +159,7 @@ def main(argv: list[str] | None = None) -> None:
     elif args.command == "config":
         from ushka.cli.commands.config import show
 
-        if show(args.section, args.describe, args.template, args.markdown):
+        if show(args.section, args.describe, args.template, args.markdown, args.all):
             raise SystemExit(1)
 
     elif args.command == "verify":

@@ -6,7 +6,7 @@ saved", shown once on the page you are redirected to, then gone.
 ## Before you start: sessions
 
 Flash messages are stored in the session, a signed cookie, so they need a
-[secret key](configuration.md#the-secret-key):
+[secret key](configuration.md#env-and-secrets):
 
 * Projects created with `ushka new` already have one in `.env`.
 * `ushka dev` (debug on) generates a temporary key if none is set.
