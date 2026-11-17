@@ -123,6 +123,8 @@ def check(production: bool = False) -> int:
 
     secret_source = config.source_of("app_secret_key")
     if production:
+        if not config.get("security_allowed_hosts"):
+            ui.warn("[security] allowed_hosts is empty: any Host header is accepted (set your domains)")
         if config.get("app_debug"):
             problems += 1
             ui.error("debug is on: visitors would see tracebacks and local variables")

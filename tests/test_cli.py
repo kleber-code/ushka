@@ -249,3 +249,20 @@ def test_check_csp_scan_respects_a_custom_or_disabled_policy(workdir, monkeypatc
     main(["check"])
     text = (lambda o: o.out + o.err)(capsys.readouterr())
     assert "blocked" not in text
+
+
+def test_check_production_warns_about_open_allowed_hosts(workdir, capsys):
+    from ushka.cli.commands.check import check
+
+    (workdir / "ushka.toml").write_text('[app]\ndebug = false\n')
+    check(production=True)
+    out = capsys.readouterr()
+    assert "allowed_hosts is empty" in out.out + out.err
+    (workdir / "ushka.toml").write_text('[app]\ndebug = false\n[security]\nallowed_hosts = ["example.com"]\n')
+    from ushka.core.config import Config
+
+    Config._instance = None
+    Config._initialized = False
+    check(production=True)
+    out = capsys.readouterr()
+    assert "allowed_hosts is empty" not in out.out + out.err

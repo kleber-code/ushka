@@ -5,6 +5,27 @@ All notable changes to Ushka. The format follows
 
 ## [Unreleased]
 
+## [0.8.0b1] - 2026-11-17
+
+First beta of 0.8 (`pip install --pre ushka`). The 0.7 line stays the default install until 0.8 is final. This release adds server-side sessions, internationalisation, HTML forms, a test client, ORM transactions and strict templates (below), and reorganises the code by who uses it.
+
+### Changed in the code layout
+
+The top-level API (`from ushka import Ushka, render, Depends, Form, safe, _ ...`) does not change. Imports of modules by path do:
+
+| Before | Now |
+| --- | --- |
+| `ushka.http.sessions`, `ushka.http.session_store` | `ushka.sessions` (`.session`, `.stores`) |
+| `ushka.seo`, `ushka.pwa`, `ushka.i18n` | `ushka.web.seo`, `ushka.web.pwa`, `ushka.web.i18n` |
+| `ushka.openapi`, `ushka.mcp` | `ushka.api.openapi`, `ushka.api.mcp` |
+| `ushka.verify` | `ushka.security.verify` |
+| `ushka.utils.flash` | `ushka.templating.flash` |
+| `ushka.core.exceptions` | removed (its only used class, `ContentToJsonParserFailed`, is in `ushka.http.exceptions`) |
+
+- `ushka check --production` warns when `[security] allowed_hosts` is empty (any `Host` header is accepted).
+- Type annotations and imports modernised across the code (`ruff`), with no change in behaviour.
+- Docs: the features page says what is established, new and experimental, the API reference is grouped by area, and the architecture page matches the new layout.
+
 ### Added
 
 - **Server-side sessions you can revoke** (`ushka.http.session_store`, guide: Sessions). `[session] store = "database"` keeps the data on the server and puts only a random, signed id in the cookie, so `session.clear()` / `session.revoke()` really ends the session (a stolen cookie stops working), there is no 4 KB limit, `session.rotate()` (and the first login on an existing id) changes the id against fixation, `revoke_user_sessions(request_or_app, user_id)` logs a user out everywhere, and `[session] max_age` / `idle_timeout` expire sessions. Ids are stored hashed, the database table is created on first use, and `app.session_store` accepts your own `SessionStore` (Redis, ...). It needs a database: without a configured `[database] url` (or `DATABASE_URL`), or without SQLAlchemy, Ushka keeps the signed cookie and logs a warning (`ushka check --production` reports it); there is no in-memory store, since it would log people out at random with several workers. Off by default: the signed cookie behaves exactly as before. New `[session]` settings: `store`, `cookie_name`, `max_age`, `idle_timeout`, `user_key`, `table`.

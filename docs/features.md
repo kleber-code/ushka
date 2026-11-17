@@ -2,6 +2,44 @@
 
 The short tour. Each section links to the page that goes deep.
 
+## What to use, and how settled it is
+
+Ushka has one aim: an app that is **easy to write and secure without trying**.
+Everything below is judged against that. The first group is the path we
+recommend and is on from the first request; the second is opt-in; the third is
+tooling around your app.
+
+**Status.** *Established*: shipped in 0.6 or earlier and in use on the project's
+own website. *New*: arrived in 0.7 or 0.8, tested but with little time in the
+field; feedback shapes it. *Experimental*: the API may still change.
+
+| Feature | What it gives you | Status |
+| --- | --- | --- |
+| [Ushka Guard](guide/guard.md) | Client data cannot reach a dangerous sink silently. The reason Ushka exists. | Established |
+| [Security middleware](guide/security.md) | CSRF, CSP, HSTS, CORS and trusted hosts, with nothing to configure. | Established |
+| [Typed parameters and validation](guide/validation.md) | `item_id: int`, bodies as dataclasses, 422 with every error. | Established |
+| [HTML forms](guide/validation.md) | A whole `<form>` as a dataclass, and the page again with the errors. | New |
+| [Routing, templates, static files](guide/routing.md) | Files are URLs; autoescaped Jinja2; `ETag`/`304`. | Established |
+| [Cookie sessions](guide/sessions.md) | Signed, `HttpOnly`, no setup. | Established |
+| [Settings you can see](guide/configuration.md) | Every setting listed; `ushka config` and `ushka check` find typos. | New |
+| [Production server](guide/deploy.md) | `ushka run`: fast (`uvloop`, `httptools`) and quiet when idle. | New |
+| | **Opt-in, when your app needs them** | |
+| [Server-side sessions](guide/sessions.md) | Logout that really ends a session. Needs a database; without one you keep cookies. | New |
+| [Async ORM](guide/orm.md) | Active Record on SQLAlchemy, with transactions and automatic timestamps. | Established, transactions new |
+| [SEO](guide/seo.md) | Meta tags, `robots.txt`, `sitemap.xml`. Passive until you add `{{ seo() }}`. | New |
+| [Internationalisation](guide/i18n.md) | gettext catalogs and `{% trans %}`. Off until `[i18n] enable`. | New |
+| [Progressive Web App](guide/pwa.md) | Manifest, a service worker that never caches pages, offline page. Off by default. | Experimental |
+| | **Tooling** | |
+| [`ushka verify`](guide/verify.md) | Attacks your own routes with hostile input and reports what got through. | Established |
+| [Test client](guide/testing.md) | In-process client with lifespan and cookies. | New |
+| OpenAPI | An API description from your signatures, so it cannot drift. | Established |
+| [Agents (MCP)](guide/agents.md) | Routes as tools for AI agents, with a token and approvals. | Experimental |
+| [Ushka Docs](guide/docs.md) | A Markdown folder becomes a docs site (this one). | Established |
+
+If you only learn five things, learn the ones at the top: Guard, the middleware,
+typed parameters, forms and sessions. Everything else can wait until you need it,
+and none of it weakens those five.
+
 ## Ushka Guard
 
 Everything that comes from outside your program arrives as `Untrusted`: query,
