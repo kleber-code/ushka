@@ -247,4 +247,23 @@ def install(app: Ushka) -> None:
         app.add_builtin_route(path_of("pwa_offline_path", "/offline"), offline_view)
 
 
-__all__ = ["install", "manifest", "pwa", "service_worker"]
+class Pwa:
+    """``app.use(Pwa(name="Shop", icons=["/static/icon-512.png"], theme_color="#1b1720"))``.
+
+    Using it turns the PWA on (no ``enable = true``); ``ushka.toml`` and the environment
+    still win, so ``enable = false`` there switches it off. ``**options`` are any other
+    keys of ``[pwa]``.
+    """
+
+    name = "pwa"
+
+    def __init__(self, name: str | None = None, icons: list | None = None, theme_color: str | None = None, **options: Any) -> None:
+        given = {"name": name, "icons": icons, "theme_color": theme_color}
+        self.options = {"enable": True, **{k: v for k, v in given.items() if v is not None}, **options}
+
+    def install(self, app: Ushka) -> None:
+        app.config.defaults("pwa", **self.options)
+        install(app)
+
+
+__all__ = ["Pwa", "install", "manifest", "pwa", "service_worker"]

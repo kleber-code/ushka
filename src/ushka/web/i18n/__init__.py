@@ -139,8 +139,8 @@ class Catalogs:
         return chain
 
 
-class I18n:
-    """The translation settings of one app (``[i18n]``) and the language choice."""
+class Translator:
+    """The translation settings of one app (``[i18n]``) and the language choice (``app.i18n``)."""
 
     def __init__(self, config: Any, workdir: Path) -> None:
         self.enabled = bool(config.get("i18n_enable"))
@@ -231,8 +231,31 @@ class I18n:
             _current.reset(token)
 
 
-#: ``(I18n, locale)`` of the request being served in this task, else ``None``.
-_current: ContextVar[tuple[I18n, str] | None] = ContextVar("ushka_i18n", default=None)
+#: ``(Translator, locale)`` of the request being served in this task, else ``None``.
+_current: ContextVar[tuple[Translator, str] | None] = ContextVar("ushka_i18n", default=None)
+
+
+class I18n:
+    """``app.use(I18n(locales=["en", "pt"], default="en"))``: translations on, in one line.
+
+    Using it turns i18n on (no ``enable = true``); ``ushka.toml`` and the environment still
+    win. ``default`` is ``default_locale``; ``**options`` are any other keys of ``[i18n]``.
+    """
+
+    name = "i18n"
+
+    def __new__(cls, *args: Any, **options: Any):
+        if len(args) == 2 and isinstance(args[1], Path):  # I18n(config, workdir): what ``app.i18n`` used to be
+            return Translator(*args)
+        return super().__new__(cls)
+
+    def __init__(self, locales: list[str] | None = None, default: str | None = None, **options: Any) -> None:
+        given = {"locales": locales, "default_locale": default}
+        self.options = {"enable": True, **{k: v for k, v in given.items() if v is not None}, **options}
+
+    def install(self, app: Any) -> None:
+        app.config.defaults("i18n", **self.options)
+        app.i18n = Translator(app.config, app.workdir)
 
 
 def get_locale() -> str | None:
@@ -374,6 +397,7 @@ __all__ = [
     "Catalogs",
     "I18n",
     "LazyString",
+    "Translator",
     "get_locale",
     "gettext",
     "lazy_gettext",

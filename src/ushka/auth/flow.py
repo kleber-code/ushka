@@ -143,17 +143,29 @@ def _domain_ok(identity: Any, domains: list[str]) -> bool:
     return not (identity.provider == "google" and domain != "gmail.com" and identity.hd != domain)
 
 
-def install(app: Ushka) -> None:
-    """Registers the login and callback routes of every provider that has credentials (yours win)."""
-    config = app.config
-    names = enabled_providers(config)
-    if not names:
-        return
+def check_origin(config: Any) -> None:
     if redirect_origin(None, config) is None and not (config.get("app_debug") or _list(config.get("security_allowed_hosts"))):
         raise RuntimeError(
             "OAuth login needs a trusted address for the redirect URI. Set [oauth] redirect_base "
             '(or [seo] url) to your public origin, such as "https://example.com"; the Host header is never trusted.'
         )
+
+
+def install_piece(app: Ushka) -> None:
+    """`install` for ``app.use(Google())``: the address is checked at startup, so ``Seo(url=...)`` may come later."""
+    if enabled_providers(app.config):
+        app.on_startup(lambda: check_origin(app.config))
+    install(app, check=False)
+
+
+def install(app: Ushka, check: bool = True) -> None:
+    """Registers the login and callback routes of every provider that has credentials (yours win)."""
+    config = app.config
+    names = enabled_providers(config)
+    if not names:
+        return
+    if check:
+        check_origin(config)
     prefix = prefix_of(config)
     for name in names:
         app.add_builtin_route(f"{prefix}/{name}/login", _login_view(name, config))

@@ -316,7 +316,8 @@ def install(app: Ushka) -> None:
     config = app.config
     if not config.get("seo_enable", True):
         return
-    app._sitemap_sources = []
+    if not hasattr(app, "_sitemap_sources"):
+        app._sitemap_sources = []  # kept when a piece installs again
 
     def sitemap_source(func):
         """Adds pages from code (a database, say): a function returning paths or ``(path, lastmod)``."""
@@ -345,4 +346,24 @@ def install(app: Ushka) -> None:
         app.add_builtin_route("/sitemap.xml", sitemap)
 
 
-__all__ = ["install", "robots_txt", "seo", "sitemap_xml", "tags"]
+class Seo:
+    """``app.use(Seo(url="https://shop.example", description="Handmade shoes"))``.
+
+    The same as the ``[seo]`` section of ``ushka.toml``, in one line: the file and the
+    environment still win. ``**options`` are any other keys of that section.
+    SEO is already on without it; the piece only sets the defaults.
+    """
+
+    name = "seo"
+
+    def __init__(self, url: str | None = None, description: str | None = None, image: str | None = None, **options: Any) -> None:
+        given = {"url": url, "description": description, "image": image}
+        self.options = {**{k: v for k, v in given.items() if v is not None}, **options}
+
+    def install(self, app: Ushka) -> None:
+        if self.options:
+            app.config.defaults("seo", **self.options)
+        install(app)
+
+
+__all__ = ["Seo", "install", "robots_txt", "seo", "sitemap_xml", "tags"]
