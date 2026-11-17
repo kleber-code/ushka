@@ -93,6 +93,30 @@ async def change_password(request):
 - Reading `request.session` still needs the secret key. Session contents are
   never logged.
 
+## Forging a session for tests
+
+To test a route that needs a logged-in user, do not reach into the internals:
+
+```python
+from ushka.sessions import forge_session_cookie, aforge_session_cookie
+
+cookie = forge_session_cookie(app, {"uid": 1, "admin": True})   # "_ushka_session=..."
+res = await client.get("/account", headers={"cookie": cookie})
+
+cookie = await aforge_session_cookie(app, {"uid": 1})            # also for store = "database"
+```
+
+`forge_session_cookie` signs a cookie with the app's secret key (`app` or its
+config; the cookie name follows `[session] cookie_name`). With
+`[session] store = "database"` the session lives in the store, so use the
+coroutine `aforge_session_cookie`, which creates the record there (in a test
+database). `ushka session --set uid=1` prints the same cookie for `curl`, and
+`ushka verify --as-session uid=1` probes as that user.
+
+It is a testing tool: whoever can run it can become any user, so keep the key in
+the environment or `.env`, and do not run it with the key of a real deployment.
+Session values are never logged.
+
 ## Cookies
 
 Read cookies from `request.cookies` (they are `Untrusted`) and set them there too:

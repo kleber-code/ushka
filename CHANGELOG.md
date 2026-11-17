@@ -9,6 +9,17 @@ All notable changes to Ushka. The format follows
 
 First beta of 0.8 (`pip install --pre ushka`). The 0.7 line stays the default install until 0.8 is final. This release adds server-side sessions, internationalisation, HTML forms, a test client, ORM transactions and strict templates (below), and reorganises the code by who uses it.
 
+### Added (verify and sessions)
+
+- **A supported way to forge a session for tests** (`ushka.sessions`, guides: Sessions, `ushka session`, ushka verify): `forge_session_cookie(app, {"uid": 1})` returns `"name=value"` signed with the app's secret key (`aforge_session_cookie` is the coroutine that also works with `[session] store = "database"` and creates the record). `parse_session_pairs` turns `["uid=1", "admin=true"]` into typed data.
+  - `ushka verify --as-session uid=1` (repeatable) probes as that user, so routes behind a login are really attacked; `--cookie NAME=VALUE` sends a cookie you already have. Only session keys are reported, never values, and a forged server-side record is removed at the end.
+  - `ushka session --set uid=1 [--app app:app]` prints `name=value` for `curl`. It needs a key from the environment or `.env` (never from the command line), and refuses when debug is off unless `--allow-non-debug`.
+
+### Fixed (verify)
+
+- **`ushka verify` probes the routes exempt from CSRF** (`[security] csrf_exempt_paths`), the webhooks and machine APIs, with the same method rules as the others (`--include-writes` for writes), marks them as exempt in the report, and no longer prints a "not probed" note for them. `--skip-exempt` leaves them out. The cross-site CSRF probe is not sent to them, since accepting it is their purpose.
+- **A redirect is no longer a finding by itself.** Open redirect is reported only when the `Location` reflects the probe: its host is the probe's (high), or the probe is the destination in a parameter such as `next` (medium). The probe buried in the visitor's own URL is ignored, and the body of a 3xx response is not scanned for markup.
+
 ### Changed in the code layout
 
 The top-level API (`from ushka import Ushka, render, Depends, Form, safe, _ ...`) does not change. Imports of modules by path do:
