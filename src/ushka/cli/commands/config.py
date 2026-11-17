@@ -1,7 +1,8 @@
-"""``ushka config``: every setting Ushka reads, its value and where it came from.
+"""``ushka config``: the settings Ushka reads, their values and where each came from.
 
 Nothing is hidden: the list comes from the same schema that provides the
-defaults, the annotated ``ushka.toml`` of ``ushka new`` and the docs table.
+defaults, ``ushka config --template`` and the docs. The rarely changed
+("advanced") keys are counted, and listed with ``--all``.
 """
 
 from __future__ import annotations
@@ -28,7 +29,7 @@ def _shown(setting, value) -> str:
     return repr(value)
 
 
-def show(section: str = "", describe: bool = False, template: bool = False, markdown: bool = False) -> int:
+def show(section: str = "", describe: bool = False, template: bool = False, markdown: bool = False, show_all: bool = False) -> int:
     """Prints the settings. Returns the number of mistakes found in ``ushka.toml``."""
     if template:
         sys.stdout.write(render_toml(header="# Ushka configuration: every setting, with its default."))
@@ -49,15 +50,22 @@ def show(section: str = "", describe: bool = False, template: bool = False, mark
         if section and name != section:
             continue
         ui.line(f"\n  [{name}]  {SECTIONS[name]}")
+        hidden = 0
         for key, setting in keys.items():
             value = config.get(f"{name}_{key}")
             source = config.source_of(f"{name}_{key}")
+            # An advanced key you changed is shown anyway: it is part of what is in use.
+            if setting.advanced and not show_all and source == "default":
+                hidden += 1
+                continue
             ui.info(f"{key} = {_shown(setting, value)}  " + ui.code(f"[{source}]"))
             if describe:
                 ui.line(f"        {setting.help}")
                 aliases = ENV_ALIASES.get(env_name(name, key), ())
                 names = ", ".join((env_name(name, key), *aliases))
                 ui.line(f"        environment: {names}")
+        if hidden:
+            ui.line(f"        +{hidden} advanced (ushka config --all)")
     if not section:
         ui.line("\n  [ushka]  Read-only information Ushka adds itself.")
         for key, text in RUNTIME.items():

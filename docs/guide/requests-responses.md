@@ -23,7 +23,7 @@ Handlers declare what they need and Ushka passes it in:
 | `request.query` | Query string as a `dict`. A repeated key (`?tag=a&tag=b`) gives a list. |
 | `request.headers` | Headers as a `dict` with **lower-case** names: `request.headers["user-agent"]`. |
 | `request.cookies` | Cookies. Also used to set them: see [Sessions and cookies](sessions.md). |
-| `request.session` | Signed cookie session (`dict`). Needs a [secret key](configuration.md#the-secret-key). |
+| `request.session` | Signed cookie session (`dict`). Needs a [secret key](configuration.md#env-and-secrets). |
 | `await request.body()` | Raw body (`bytes`). |
 | `await request.text()` | Body decoded as UTF-8. |
 | `await request.json()` | Parsed JSON. |
@@ -34,7 +34,7 @@ Handlers declare what they need and Ushka passes it in:
 | `request.app` | The `Ushka` app (for `request.app.config`). |
 
 Invalid JSON, invalid UTF-8 or a malformed form answers **400 Bad Request**; a
-body larger than the [`[limits]`](configuration.md#all-settings) answers
+body larger than the [`[limits]`](settings.md) answers
 **413 Payload Too Large**. You do not need to catch those yourself.
 
 Everything read from the request is [`Untrusted`](guard.md#sources-what-is-untrusted).

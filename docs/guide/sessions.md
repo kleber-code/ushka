@@ -17,7 +17,7 @@ It is saved on whatever response you return. Things to know:
 
 - **It needs a secret key.** `ushka new` writes `USHKA_APP_SECRET_KEY` to `.env`.
   Debug mode makes a throwaway key; production without one raises a `RuntimeError`
-  that says how to create it. See [the secret key](configuration.md#the-secret-key).
+  that says how to create it. See [the secret key](configuration.md#env-and-secrets).
 - **Signed, not encrypted.** The client can read the contents, but cannot change
   them. Never store a secret (a token, a password, personal data) in a cookie session.
   Ushka does not encrypt it on purpose: encryption needs a cryptography library and the

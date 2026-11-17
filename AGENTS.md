@@ -14,8 +14,9 @@
   templates, SQLAlchemy-style attributes (`__tablename__`). Avoid Django idioms (nested `class Meta`, managers, tag
   libraries, one big settings module) in new APIs.
 - **Nothing hidden.** A new setting is added to `SCHEMA` in `src/ushka/core/settings.py` (default and description) and
-  nowhere else: `ushka new`, `ushka config` and the table in `docs/guide/configuration.md` are generated from it
-  (run `ushka config --markdown` and paste it between the markers). `tests/test_settings.py` fails when code reads
+  nowhere else: `ushka config`, `ushka config --template` and the table in `docs/guide/settings.md` are generated from it
+  (run `ushka config --markdown` and paste it between the markers). Mark a rarely changed key `advanced=True`:
+  `ushka config` hides it unless `--all`, and each section keeps at most 8 common keys. `ushka new` writes a short file on purpose. `tests/test_settings.py` fails when code reads
   an undeclared setting or the docs drift.
 - **Secure by default.** New sinks must call a `ushka.guard.check_*` function;
   new request data sources must be wrapped in `Untrusted`.

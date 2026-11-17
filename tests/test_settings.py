@@ -59,28 +59,51 @@ def test_the_code_reads_no_setting_that_is_not_declared():
 
 
 def test_docs_table_is_generated_from_the_schema():
-    text = (ROOT / "docs/guide/configuration.md").read_text("utf-8")
+    text = (ROOT / "docs/guide/settings.md").read_text("utf-8")
     block = text.split("<!-- settings:start", 1)[1].split("-->", 1)[1].split("<!-- settings:end -->", 1)[0]
     assert block.strip() == render_markdown().strip(), "run `ushka config --markdown` and paste it between the markers"
     for section, name in SECTION_DOCS.items():
         assert (ROOT / "docs/guide" / name).is_file(), f"{section}: {name} does not exist"
 
 
-def test_a_new_project_lists_every_setting():
+def test_a_new_project_has_a_short_ushka_toml():
     from ushka.cli.commands.new import ushka_toml
 
     text = ushka_toml("shop")
+    data = tomllib.loads(text)
+    real = [ln for ln in text.splitlines() if ln.strip() and not ln.startswith("#") and not ln.startswith("[")]
+    assert len(real) <= 12 and len(text.splitlines()) <= 20
+    assert "ushka config --template" in text and "ushka config" in text
+    assert data == {"app": {"name": "shop", "debug": False}, "database": {"url": "sqlite:///shop.db"}, "static": {"enable": True}}
+    assert not problems_in(data)
+
+
+def test_the_template_lists_every_setting_with_secrets_commented_out():
+    text = render_toml()
     data = tomllib.loads(text)
     for section, keys in SCHEMA.items():
         for key, setting in keys.items():
             if setting.secret:
                 assert f"# {key} = " in text and key not in data.get(section, {}), f"{key} must be commented out"
             else:
-                assert key in data[section], f"[{section}] {key} missing from the generated ushka.toml"
+                assert key in data[section], f"[{section}] {key} missing from the template"
                 assert f"# {setting.help.split()[0]}" in text
-    assert data["app"]["name"] == "shop" and data["database"]["url"] == "sqlite:///shop.db"
-    assert data["static"]["enable"] is True and data["app"]["debug"] is False
     assert not problems_in(data)
+
+
+def test_each_section_shows_at_most_eight_common_settings():
+    for section, keys in SCHEMA.items():
+        assert sum(not s.advanced for s in keys.values()) <= 8, section
+    assert any(s.advanced for keys in SCHEMA.values() for s in keys.values())
+    assert not any(s.advanced and s.secret for keys in SCHEMA.values() for s in keys.values())
+
+
+def test_the_markdown_separates_common_and_advanced():
+    md = render_markdown()
+    seo = md.split("### `[seo]`")[1].split("### `[pwa]`")[0]
+    common, advanced = seo.split("**Advanced**")
+    assert "`url`" in common and "`sitemap_paths`" not in common and "`sitemap_paths`" in advanced
+    assert "**Advanced**" not in md.split("### `[database]`")[1].split("### `[server]`")[0]  # nothing advanced there
 
 
 def test_the_template_round_trips_to_the_defaults():
@@ -114,10 +137,15 @@ def test_check_counts_those_problems(workdir):
     assert check() >= 1
 
 
-def test_ushka_config_lists_everything(workdir):
+def test_ushka_config_lists_the_common_settings_and_all_lists_everything(workdir):
     out = _cli(workdir, "config").stdout
     for section, keys in SCHEMA.items():
         assert f"[{section}]" in out
+        for key, setting in keys.items():
+            assert (f" {key} = " in out) == (not setting.advanced), f"{section}.{key}"
+    assert "+17 advanced (ushka config --all)" in out  # pwa
+    out = _cli(workdir, "config", "--all").stdout
+    for section, keys in SCHEMA.items():
         for key in keys:
             assert f"{key} = " in out, f"{section}.{key}"
     template = _cli(workdir, "config", "--template").stdout
@@ -137,3 +165,9 @@ def test_database_url_aliases_are_documented(name):
     from ushka.core.settings import ENV_ALIASES
 
     assert "DATABASE_URL" in ENV_ALIASES["USHKA_DATABASE_URL"]
+
+
+def test_an_advanced_setting_you_changed_is_shown_anyway(workdir):
+    (workdir / "ushka.toml").write_text("[security]\nhsts_seconds = 60\n")
+    out = _cli(workdir, "config", "security").stdout
+    assert "hsts_seconds = 60" in out and "frame_options" not in out and "advanced (ushka config --all)" in out

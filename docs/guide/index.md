@@ -61,6 +61,7 @@ validates. Read [Ushka Guard](guard.md) for the full story.
 ## Ship it
 
 - [Configuration](configuration.md): `ushka.toml`, `.env`, environment variables.
+- [All settings](settings.md): every key, common and advanced.
 - [Deploy](deploy.md): checklist, Docker, workers, health checks, proxies.
 - [Performance](performance.md): what is fast by default, and how to measure.
 - [Ushka Docs](docs.md): turn a folder of Markdown into a docs site, like this one.
@@ -68,7 +69,7 @@ validates. Read [Ushka Guard](guard.md) for the full story.
 ## Reference
 
 - [CLI](cli.md): `new`, `dev`, `run`, `check`, `verify`, `docs`, `routes`, `db`.
-- [Configuration settings](configuration.md#all-settings) and [error codes](guard.md#sinks-what-refuses-untrusted-data).
+- [All settings](settings.md) and [error codes](guard.md#sinks-what-refuses-untrusted-data).
 - The API reference, generated from the docstrings, is in the navigation.
 
 Prefer to learn by building? Try the [Simple API tutorial](tutorial_simple_api.md).

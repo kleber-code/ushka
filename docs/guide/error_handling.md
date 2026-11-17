@@ -15,7 +15,7 @@ exceptions become a 500 that shows details only in debug mode.
 | A typed parameter or body does not [validate](validation.md) | 422 Unprocessable Entity, with every problem in JSON |
 | A cross-site write, or a wrong `Origin` ([security middleware](security.md)) | 403 Forbidden |
 | `Host` not in `allowed_hosts` | 400 Bad Request |
-| Body larger than the [`[limits]`](configuration.md#all-settings) | 413 Payload Too Large |
+| Body larger than the [`[limits]`](settings.md) | 413 Payload Too Large |
 | Missing static file | 404 Not Found |
 | Any other exception, including `UnsafeValueError` from [Ushka Guard](guard.md) | 500 Internal Server Error |
 

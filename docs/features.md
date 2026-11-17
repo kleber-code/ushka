@@ -21,7 +21,7 @@ field; feedback shapes it. *Experimental*: the API may still change.
 | [HTML forms](guide/validation.md) | A whole `<form>` as a dataclass, and the page again with the errors. | New |
 | [Routing, templates, static files](guide/routing.md) | Files are URLs; autoescaped Jinja2; `ETag`/`304`. | Established |
 | [Cookie sessions](guide/sessions.md) | Signed, `HttpOnly`, no setup. | Established |
-| [Settings you can see](guide/configuration.md) | Every setting listed; `ushka config` and `ushka check` find typos. | New |
+| [Settings you can see](guide/settings.md) | Every setting listed; `ushka config` and `ushka check` find typos. | New |
 | [Production server](guide/deploy.md) | `ushka run`: fast (`uvloop`, `httptools`) and quiet when idle. | New |
 | | **Opt-in, when your app needs them** | |
 | [Server-side sessions](guide/sessions.md) | Logout that really ends a session. Needs a database; without one you keep cookies. | New |
@@ -136,10 +136,10 @@ catalogs with no extra packages. See [Internationalisation](guide/i18n.md).
 ## Configuration without extra packages, with nothing hidden
 
 Defaults, then `ushka.toml`, then `.env`, then environment variables, all without
-extra packages. **Every setting is listed with its meaning**: `ushka new` writes
-them all into your `ushka.toml`, `ushka config` shows the value in use and where it
-came from, and `ushka check` catches typos and wrong types. `DATABASE_URL` works
-out of the box. See [Configuration](guide/configuration.md).
+extra packages. **Every setting is listed with its meaning**: your `ushka.toml`
+holds only what you changed, `ushka config` shows the value in use and where it
+came from (`--template` prints every key, annotated), and `ushka check` catches typos and wrong types. `DATABASE_URL` works
+out of the box. See [Configuration](guide/configuration.md) and [All settings](guide/settings.md).
 
 ## Fast, and quiet when idle
 

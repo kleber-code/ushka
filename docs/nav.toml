@@ -51,6 +51,7 @@ pages = [
 title = "Run"
 pages = [
     "guide/configuration.md",
+    "guide/settings.md",
     "guide/deploy.md",
     "guide/performance.md",
     "guide/cli.md",

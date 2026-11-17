@@ -38,6 +38,9 @@ def test_new_writes_the_config_file_the_framework_reads(workdir):
     assert config["app"]["debug"] is False  # `ushka dev` turns it on by itself
     assert "secret_key" not in config["app"]  # secrets live in .env
     assert config["database"]["url"] == "sqlite:///demo.db"
+    text = (project / "ushka.toml").read_text(encoding="utf-8")
+    assert len(text.splitlines()) <= 20 and "ushka config --template" in text  # short; the full list is one command away
+    assert "[seo]" not in text and "[pwa]" not in text
 
 
 def test_new_refuses_to_overwrite_an_existing_directory(workdir, capsys):

@@ -23,10 +23,12 @@ class Setting:
     help: str
     #: Never written to ``ushka.toml``: it belongs in ``.env`` or the environment.
     secret: bool = False
+    #: Rarely changed: `ushka config` hides it unless you pass `--all`, and the docs list it apart.
+    advanced: bool = False
 
 
-def _s(default: Any, help: str, secret: bool = False) -> Setting:
-    return Setting(default, help, secret)
+def _s(default: Any, help: str, secret: bool = False, advanced: bool = False) -> Setting:
+    return Setting(default, help, secret, advanced)
 
 
 #: ``{section: description}``, in the order they are written and documented.
@@ -82,15 +84,15 @@ SCHEMA: dict[str, dict[str, Setting]] = {
         "enable": _s(False, "Serve the static folder under `url`."),
         "url": _s("/static", "URL prefix of the static files."),
         "dir": _s("static", "Folder with the files, relative to the app directory or absolute."),
-        "cache_control": _s("public, max-age=3600", "Cache-Control sent with every static file."),
+        "cache_control": _s("public, max-age=3600", "Cache-Control sent with every static file.", advanced=True),
     },
     "session": {
         "store": _s("cookie", 'Where sessions live: "cookie" (signed, in the browser) or "database" (revocable, no size limit; needs [database] url, else cookies are used).'),
-        "cookie_name": _s("_ushka_session", "Name of the session cookie."),
+        "cookie_name": _s("_ushka_session", "Name of the session cookie.", advanced=True),
         "max_age": _s(1209600, "Seconds a session lasts, counted from its creation (14 days). 0 means no limit."),
         "idle_timeout": _s(0, "Server-side stores only: seconds without a request after which a session ends. 0 turns it off."),
-        "user_key": _s("user_id", "Server-side stores only: the session key that holds the user id, used to revoke all of a user's sessions."),
-        "table": _s("ushka_sessions", 'Table used by store = "database". Created on first use.'),
+        "user_key": _s("user_id", "Server-side stores only: the session key that holds the user id, used to revoke all of a user's sessions.", advanced=True),
+        "table": _s("ushka_sessions", 'Table used by store = "database". Created on first use.', advanced=True),
     },
     "limits": {
         "max_request_body_size_in_KB": _s(2048, "Largest request body, in KB. Bigger bodies get 413."),
@@ -98,82 +100,82 @@ SCHEMA: dict[str, dict[str, Setting]] = {
         "websocket_max_message_in_KB": _s(1024, "Largest WebSocket message, in KB. Bigger ones close the socket with 1009."),
     },
     "security": {
-        "taint": _s(True, "Ushka Guard: request data arrives as `Untrusted` and dangerous sinks refuse it. Turning it off is a migration aid, not a mode."),
+        "taint": _s(True, "Ushka Guard: request data arrives as `Untrusted` and dangerous sinks refuse it. Turning it off is a migration aid, not a mode.", advanced=True),
         "headers": _s(True, "Security headers on every response (nosniff, frame options, referrer policy, CSP, HSTS)."),
         "csp": _s("", 'Content-Security-Policy. Empty is the strict default policy; "off" sends none.'),
-        "frame_options": _s("DENY", "X-Frame-Options."),
-        "referrer_policy": _s("strict-origin-when-cross-origin", "Referrer-Policy."),
-        "hsts_seconds": _s(31536000, "Strict-Transport-Security max-age, sent on https requests only. 0 turns it off."),
+        "frame_options": _s("DENY", "X-Frame-Options.", advanced=True),
+        "referrer_policy": _s("strict-origin-when-cross-origin", "Referrer-Policy.", advanced=True),
+        "hsts_seconds": _s(31536000, "Strict-Transport-Security max-age, sent on https requests only. 0 turns it off.", advanced=True),
         "csrf": _s(True, "CSRF protection for writes from browsers, without tokens."),
         "csrf_trusted_origins": _s([], "Other origins allowed to send writes."),
         "csrf_exempt_paths": _s([], "Paths that skip the CSRF check (webhooks, for example)."),
         "allowed_hosts": _s([], "Accepted Host headers. Empty means any host: set it in production."),
         "trusted_proxies": _s([], "IPs and CIDRs of your reverse proxies (Caddy, nginx). Only these may set X-Forwarded-For, -Proto and -Host. Empty trusts no one."),
         "cors_origins": _s([], "Origins allowed by CORS. Empty means no CORS headers."),
-        "cors_methods": _s(["GET", "POST", "PUT", "PATCH", "DELETE"], "Methods CORS allows."),
-        "cors_headers": _s([], "Request headers CORS allows. Empty echoes what the preflight asks for."),
-        "cors_credentials": _s(False, 'Let other origins send cookies. Refused together with "*".'),
-        "cors_max_age": _s(600, "Seconds a browser may cache the preflight answer."),
+        "cors_methods": _s(["GET", "POST", "PUT", "PATCH", "DELETE"], "Methods CORS allows.", advanced=True),
+        "cors_headers": _s([], "Request headers CORS allows. Empty echoes what the preflight asks for.", advanced=True),
+        "cors_credentials": _s(False, 'Let other origins send cookies. Refused together with "*".', advanced=True),
+        "cors_max_age": _s(600, "Seconds a browser may cache the preflight answer.", advanced=True),
     },
     "i18n": {
         "enable": _s(False, "Pick a language for every request and translate with `_()`, `{% trans %}` and `gettext`."),
         "default_locale": _s("en", "Language of the source texts and the one used when nothing else matches."),
         "locales": _s([], 'Languages the app accepts, such as ["en", "pt-BR"]. Anything else a client asks for is ignored. The default is always included.'),
         "catalog_dir": _s("locale", "Folder with the catalogs, relative to the app directory: <dir>/<lang>/LC_MESSAGES/<domain>.mo."),
-        "domain": _s("messages", "Name of the catalog file (messages.mo). Django catalogs are django.mo."),
+        "domain": _s("messages", "Name of the catalog file (messages.mo). Django catalogs are django.mo.", advanced=True),
         "order": _s(["query", "cookie", "header"], "Where the language comes from, first match wins: query (?lang=), cookie and header (Accept-Language)."),
-        "query_param": _s("lang", "Query parameter that picks the language."),
-        "cookie": _s("lang", "Cookie that remembers the language."),
-        "remember": _s(True, "Store a language chosen with the query parameter in the cookie."),
+        "query_param": _s("lang", "Query parameter that picks the language.", advanced=True),
+        "cookie": _s("lang", "Cookie that remembers the language.", advanced=True),
+        "remember": _s(True, "Store a language chosen with the query parameter in the cookie.", advanced=True),
     },
     "seo": {
         "enable": _s(True, "`{{ seo() }}` tags, /robots.txt and /sitemap.xml. false turns all of it off."),
         "url": _s("", 'Public origin, such as "https://example.com". Needed for canonical links and the sitemap.'),
         "site_name": _s("", "Site name in titles and social cards. Empty uses [app] name."),
         "title": _s("", "Title of pages that set none (usually the home page)."),
-        "title_template": _s("{title} · {site_name}", "How a page title is combined with the site name."),
+        "title_template": _s("{title} · {site_name}", "How a page title is combined with the site name.", advanced=True),
         "description": _s("", "Default meta and social description."),
         "image": _s("", "Default social preview image, a path or a URL."),
-        "image_alt": _s("", "Alternative text of that image."),
-        "locale": _s("en_US", "Open Graph locale."),
-        "type": _s("website", "Default Open Graph type."),
+        "image_alt": _s("", "Alternative text of that image.", advanced=True),
+        "locale": _s("en_US", "Open Graph locale.", advanced=True),
+        "type": _s("website", "Default Open Graph type.", advanced=True),
         "robots": _s("index, follow", 'Robots rule. "noindex, nofollow" keeps a staging site out of search.'),
-        "author": _s("", "Default author."),
-        "twitter_site": _s("", 'Twitter/X handle of the site, such as "@example".'),
-        "twitter_card": _s("summary_large_image", "Twitter/X card type when there is an image."),
-        "jsonld": _s(True, "Structured data: WebSite on the home page, Article for articles."),
-        "robots_txt": _s(True, "Serve /robots.txt."),
+        "author": _s("", "Default author.", advanced=True),
+        "twitter_site": _s("", 'Twitter/X handle of the site, such as "@example".', advanced=True),
+        "twitter_card": _s("summary_large_image", "Twitter/X card type when there is an image.", advanced=True),
+        "jsonld": _s(True, "Structured data: WebSite on the home page, Article for articles.", advanced=True),
+        "robots_txt": _s(True, "Serve /robots.txt.", advanced=True),
         "robots_disallow": _s([], "Paths written as Disallow lines in robots.txt."),
-        "sitemap": _s(True, "Serve /sitemap.xml."),
-        "sitemap_paths": _s([], "Extra paths to list in the sitemap (pages with parameters)."),
-        "sitemap_exclude": _s(["/api/*", "/admin/*", "/_*"], "Patterns left out of the sitemap. Plain GET pages are listed otherwise."),
+        "sitemap": _s(True, "Serve /sitemap.xml.", advanced=True),
+        "sitemap_paths": _s([], "Extra paths to list in the sitemap (pages with parameters).", advanced=True),
+        "sitemap_exclude": _s(["/api/*", "/admin/*", "/_*"], "Patterns left out of the sitemap. Plain GET pages are listed otherwise.", advanced=True),
     },
     "pwa": {
         "enable": _s(False, "Serve the manifest, service worker and offline page."),
         "name": _s("", "App name. Empty uses [seo] site_name, then [app] name."),
         "short_name": _s("", "Short name under the home-screen icon (12 characters work best)."),
         "description": _s("", "Empty uses [seo] description."),
-        "start_url": _s("/", "Where the installed app opens."),
-        "scope": _s("/", "Which URLs the installed app and the service worker control."),
+        "start_url": _s("/", "Where the installed app opens.", advanced=True),
+        "scope": _s("/", "Which URLs the installed app and the service worker control.", advanced=True),
         "display": _s("standalone", "standalone, fullscreen, minimal-ui or browser."),
-        "orientation": _s("", 'Optional lock, such as "portrait" or "landscape".'),
+        "orientation": _s("", 'Optional lock, such as "portrait" or "landscape".', advanced=True),
         "theme_color": _s("#1b1720", "Colour of the title bar."),
         "background_color": _s("#ffffff", "Colour of the splash screen."),
-        "lang": _s("", "Language of the manifest, such as pt-BR."),
-        "id": _s("", "Stable identity of the app. Empty uses start_url."),
-        "categories": _s([], 'Store categories, such as ["productivity"].'),
+        "lang": _s("", "Language of the manifest, such as pt-BR.", advanced=True),
+        "id": _s("", "Stable identity of the app. Empty uses start_url.", advanced=True),
+        "categories": _s([], 'Store categories, such as ["productivity"].', advanced=True),
         "icons": _s([], 'Paths, or [[pwa.icons]] tables with src, sizes, type and purpose. Chrome wants 192x192 and 512x512 PNGs.'),
-        "shortcuts": _s([], "[[pwa.shortcuts]] tables with name and url, shown on long-press."),
-        "offline": _s(True, "Show an offline page when a navigation fails for lack of network."),
-        "offline_title": _s("You are offline", "Title of the built-in offline page."),
-        "offline_message": _s("Check your connection and try again.", "Text of the built-in offline page."),
-        "precache": _s([], "Extra URLs fetched when the worker installs. They must all exist."),
-        "cache_paths": _s([], "Extra URL prefixes cached at runtime. [static] is always included."),
-        "cache_version": _s("1", "Change it to drop every cache on the next visit."),
-        "manifest_path": _s("/manifest.webmanifest", "Where the manifest is served."),
-        "sw_path": _s("/sw.js", "Where the service worker is served."),
-        "script_path": _s("/pwa.js", "Where the script that registers the worker is served."),
-        "offline_path": _s("/offline", "Where the offline page is served."),
+        "shortcuts": _s([], "[[pwa.shortcuts]] tables with name and url, shown on long-press.", advanced=True),
+        "offline": _s(True, "Show an offline page when a navigation fails for lack of network.", advanced=True),
+        "offline_title": _s("You are offline", "Title of the built-in offline page.", advanced=True),
+        "offline_message": _s("Check your connection and try again.", "Text of the built-in offline page.", advanced=True),
+        "precache": _s([], "Extra URLs fetched when the worker installs. They must all exist.", advanced=True),
+        "cache_paths": _s([], "Extra URL prefixes cached at runtime. [static] is always included.", advanced=True),
+        "cache_version": _s("1", "Change it to drop every cache on the next visit.", advanced=True),
+        "manifest_path": _s("/manifest.webmanifest", "Where the manifest is served.", advanced=True),
+        "sw_path": _s("/sw.js", "Where the service worker is served.", advanced=True),
+        "script_path": _s("/pwa.js", "Where the script that registers the worker is served.", advanced=True),
+        "offline_path": _s("/offline", "Where the offline page is served.", advanced=True),
     },
     "mcp": {
         "token": _s("", "Bearer token of the MCP endpoint. Use USHKA_MCP_TOKEN, never this file.", secret=True),
@@ -290,10 +292,18 @@ def render_markdown() -> str:
         out += [f"### `[{section}]`", "", SECTIONS[section]]
         if section in SECTION_DOCS:
             out[-1] += f" See [{SECTION_DOCS[section].removesuffix('.md').replace('_', ' ')}]({SECTION_DOCS[section]})."
-        out += ["", "| Key | Default | Meaning |", "| --- | --- | --- |"]
-        for key, setting in keys.items():
-            default = "*(set it in the environment)*" if setting.secret else f"`{toml_value(setting.default)}`"
-            meaning = setting.help.replace("|", "\\|")
-            out.append(f"| `{key}` | {default} | {meaning} |")
+        common = {k: s for k, s in keys.items() if not s.advanced}
+        advanced = {k: s for k, s in keys.items() if s.advanced}
         out.append("")
+        for label, group in (("Common", common), ("Advanced", advanced)):
+            if not group:
+                continue
+            if advanced:
+                out += [f"**{label}**", ""]
+            out += ["| Key | Default | Meaning |", "| --- | --- | --- |"]
+            for key, setting in group.items():
+                default = "*(set it in the environment)*" if setting.secret else f"`{toml_value(setting.default)}`"
+                meaning = setting.help.replace("|", "\\|")
+                out.append(f"| `{key}` | {default} | {meaning} |")
+            out.append("")
     return "\n".join(out).rstrip("\n") + "\n"
