@@ -36,7 +36,7 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: pdm install --check -d -G orm -G docs
+        run: pdm install --check -d -G orm -G docs -G crypto
 
       - name: Run tests
         run: pdm run pytest
@@ -99,7 +99,7 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: pdm install --check -d -G orm -G docs
+        run: pdm install --check -d -G orm -G docs -G crypto
 
       # Ushka Docs renders every page and fails on broken links, anchors or
       # nav entries (the API reference is generated from the docstrings).

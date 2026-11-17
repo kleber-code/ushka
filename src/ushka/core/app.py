@@ -101,6 +101,11 @@ class Ushka:
             for pattern, folder in (self.config.get("ROUTES_HOSTS") or {}).items():
                 self.router.add_host(pattern, folder)
             self.router.autodiscover()
+        if self.config.get("SESSION_ENCRYPT"):
+            # Fail at startup, not on the first request: the extra, the key.
+            from ushka.crypto.fernet import validate_config
+
+            validate_config(self.config)
         self.error_handler = ErrorHandler(self.config, self.log, self.router)
         #: Always outermost; configured in ``[security]``.
         self.security = SecurityMiddleware(self.config)

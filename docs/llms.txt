@@ -15,6 +15,7 @@ Rules for generating Ushka code:
 - Mark model output with `guard.llm(text)` (`from ushka import guard`) so it is `Untrusted` too.
 - Config: `ushka.toml` (no secrets) < `.env` < env vars `USHKA_<SECTION>_<KEY>` (lists as `a,b`). Secret: `USHKA_APP_SECRET_KEY`. Every setting is listed with its meaning in `ushka.toml` made by `ushka new`, in the Configuration page, and by `ushka config` (add `--describe`); `ushka check` reports unknown keys and wrong types (`csrf = "false"` is a string, not off). Production: `debug = false`, set `[security] allowed_hosts`, run `ushka check --production`.
 - Sessions: `request.session["user_id"] = 1` is a signed cookie by default (readable by the client, not encrypted, so no secrets in it; about 4 KB; a stolen copy survives logout). For sessions you can end, set `[session] store = "database"` together with `[database] url` (without a database Ushka keeps cookies and warns): then `session.clear()` / `session.revoke()` end it for real, call `session.rotate()` at login, and `await revoke_user_sessions(request, user_id)` (`from ushka.sessions import revoke_user_sessions`) logs a user out everywhere.
+- Encryption needs `pip install "ushka[crypto]"` (Fernet, never your own cipher): `from ushka.crypto import encrypt, decrypt, DecryptionError`; `[session] encrypt = true` makes the session cookie unreadable; `db.Encrypted()` is a column stored encrypted (not filterable by value). Keys: `USHKA_CRYPTO_KEYS` (newest first, make one with `ushka crypto genkey`); without it a key is derived from the secret key.
 - Request data in a redirect goes in as parts: `redirect("/projects/{id}/", id=pid, query={"tab": tab})` (percent-encoded, no `safe.url` needed); `redirect(f"/projects/{pid}/")` is refused (USHKA-G003) because the f-string keeps the mark. Use `safe.url` only when the whole target comes from the client.
 - Redirect from anywhere with `raise HTTPRedirect(url)` (`from ushka import HTTPRedirect`): flash messages, session and cookies set before it are kept. The URL still goes through the guard; use `safe.url`. A `Depends` function can stop the request the same way, with `HTTPRedirect(url)` or `raise HTTPResponse(Response(...))`, which is how `login_required` is written.
 - Several hostnames in one app: `[routes] hosts = { "api.*" = "routes_api" }` (a folder of route files per host) or `@app.host("api.*").get("/status")`; the host is `request.host`, so combine it with `[security] allowed_hosts`.
@@ -34,7 +35,7 @@ Rules for generating Ushka code:
 
 - [Documentation home](https://ushka.satela.com.br/docs/): where to begin
 - [Introduction](https://ushka.satela.com.br/docs/guide/): the guide by topic
-- [Installation](https://ushka.satela.com.br/docs/guide/install/): pip, extras (orm, postgres, mysql, docs, full), the install script
+- [Installation](https://ushka.satela.com.br/docs/guide/install/): pip, extras (orm, crypto, postgres, mysql, docs, full), the install script
 - [Quickstart](https://ushka.satela.com.br/docs/guide/quickstart/): a running app in five minutes
 - [Project structure](https://ushka.satela.com.br/docs/guide/project-structure/): what `ushka new` creates
 - [Application structure](https://ushka.satela.com.br/docs/guide/app-structure/): the layout for a real app (routes, services, models, integrations, deps), the rules, where new code goes, tidying a flat project
@@ -66,6 +67,7 @@ Rules for generating Ushka code:
 
 - [Ushka Guard](https://ushka.satela.com.br/docs/guide/guard/): sources, sinks, sanitisers, error codes USHKA-G001 to G005, limits
 - [Security middleware](https://ushka.satela.com.br/docs/guide/security/): CSRF, headers, CSP (and what it blocks), CORS, trusted hosts, trusted proxies, your own middleware
+- [Encryption](https://ushka.satela.com.br/docs/guide/crypto/): Fernet `encrypt`/`decrypt`, keys and rotation, encrypted session cookies, `db.Encrypted` columns, `ushka crypto genkey`
 - [ushka verify](https://ushka.satela.com.br/docs/guide/verify/): attack your own routes, CSRF-exempt ones included, as an anonymous or a logged-in user
 - [Guard on FastAPI, Starlette, Django](https://ushka.satela.com.br/docs/guide/guard-frameworks/): the same protection in other frameworks
 
@@ -74,7 +76,7 @@ Rules for generating Ushka code:
 - [Configuration](https://ushka.satela.com.br/docs/guide/configuration/): every setting with its default and meaning (nothing hidden), `ushka config` to inspect them, `ushka new` writes them all, .env and environment variables
 - [Deploy](https://ushka.satela.com.br/docs/guide/deploy/): checklist, Docker, workers, health check, `trusted_proxies` behind Caddy or nginx
 - [Performance](https://ushka.satela.com.br/docs/guide/performance/): uvloop and httptools, idle CPU, benchmarks, how to measure
-- [CLI](https://ushka.satela.com.br/docs/guide/cli/): new, dev, run, check, config, session, verify, docs, routes, db, i18n
+- [CLI](https://ushka.satela.com.br/docs/guide/cli/): new, dev, run, check, config, session, verify, crypto, docs, routes, db, i18n
 
 ## Learn
 

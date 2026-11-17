@@ -6,6 +6,7 @@ deploy (``ushka check --production``).
 
 from __future__ import annotations
 
+import os
 import re
 import sys
 from pathlib import Path
@@ -87,6 +88,25 @@ def csp_findings(workdir: Path, csp: str) -> list[tuple[str, int, str]]:
     return found
 
 
+_CRYPTO_USE = re.compile(r"\bEncrypted\(|ushka\.crypto|from ushka import [^\n]*\bcrypto\b")
+_SKIP_DIRS = {"node_modules", "site-packages", "__pycache__", "build", "dist"}
+
+
+def _uses_crypto(workdir: Path) -> bool:
+    """True when the app's own code uses ``db.Encrypted`` or ``ushka.crypto``."""
+    for root, dirs, files in os.walk(workdir):
+        dirs[:] = [d for d in dirs if not d.startswith(".") and d not in _SKIP_DIRS and not d.startswith(("venv", "env"))]
+        for name in files:
+            if not name.endswith(".py"):
+                continue
+            try:
+                if _CRYPTO_USE.search((Path(root) / name).read_text("utf-8", errors="replace")):
+                    return True
+            except OSError:
+                continue
+    return False
+
+
 def check(production: bool = False) -> int:
     """Prints a report and returns the number of problems found."""
     workdir = Path.cwd()
@@ -111,6 +131,10 @@ def check(production: bool = False) -> int:
             ui.error("ushka.toml contains secret_key: move it to .env / USHKA_APP_SECRET_KEY")
     else:
         ui.warn("no ushka.toml: using defaults")
+
+    if config.source_of("crypto_keys") == "ushka.toml":
+        problems += 1
+        ui.error("ushka.toml contains [crypto] keys: move them to .env / USHKA_CRYPTO_KEYS")
 
     for mistake in config.problems:
         problems += 1
@@ -145,6 +169,25 @@ def check(production: bool = False) -> int:
         ui.warn(
             "[server] host is 0.0.0.0 and [security] trusted_proxies is empty: behind Caddy or nginx, "
             "request.client_ip is the proxy and X-Forwarded-* is ignored"
+        )
+
+    if config.get("session_encrypt"):
+        from ushka.crypto.fernet import INSTALL_HINT, is_available, validate_config
+
+        if not is_available():
+            problems += 1
+            ui.error(f"[session] encrypt = true: {INSTALL_HINT}")
+        else:
+            try:
+                validate_config(config)
+            except (RuntimeError, ValueError) as exc:
+                problems += 1
+                ui.error(f"[session] encrypt = true: {exc}")
+    if production and not config.get("crypto_keys") and (config.get("session_encrypt") or _uses_crypto(workdir)):
+        ui.warn(
+            "encryption uses a key derived from [app] secret_key, so rotating the secret key would make "
+            "everything encrypted unreadable: make a dedicated key with `ushka crypto genkey` "
+            "and set USHKA_CRYPTO_KEYS"
         )
 
     gitignore = workdir / ".gitignore"

@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from .session import ServerSession, Session
+from .session import ServerSession, Session, cookie_keys
 
 __all__ = ["aforge_session_cookie", "forge_session_cookie", "parse_session_pairs"]
 
@@ -59,7 +59,11 @@ def forge_session_cookie(app_or_config: Any, data: dict[str, Any]) -> str:
     if _uses_server_store(app_or_config):
         raise RuntimeError('This app keeps sessions in a store ([session] store = "database"): use "await aforge_session_cookie(app, data)".')
     config = _config(app_or_config)
-    session = Session(_secret(config), max_age=int(config.get("session_max_age", 1209600)))
+    session = Session(
+        _secret(config),
+        max_age=int(config.get("session_max_age", 1209600)),
+        encrypt_keys=cookie_keys(config),
+    )
     session.update(data)
     return f"{_name(config)}={session._encode()}"
 

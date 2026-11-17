@@ -4,7 +4,8 @@ for the Ushka framework.
 
 It implements HMAC-SHA256 for data integrity and timestamp-based validation
 to prevent replay attacks, ensuring that session data stored in cookies is
-tamper-proof and has a defined lifespan.
+tamper-proof and has a defined lifespan. With ``[session] encrypt = true`` the
+cookie is a Fernet token instead: tamper-proof, expiring and unreadable.
 """
 import base64
 import hashlib
@@ -16,6 +17,16 @@ import time
 from typing import Any
 
 log = logging.getLogger("ushka")
+
+
+def cookie_keys(config: Any) -> list[str] | None:
+    """The Fernet keys that encrypt the session cookie, or None when
+    ``[session] encrypt`` is off (the cookie is only signed)."""
+    if not config.get("session_encrypt", False):
+        return None
+    from ushka.crypto.fernet import keys_from_config
+
+    return keys_from_config(config)
 
 
 class Session(dict):
@@ -55,6 +66,7 @@ class Session(dict):
         max_age: int = 1209600,  # 14 days in seconds
         secure: bool = True,
         samesite: str = "lax",
+        encrypt_keys: list[str] | None = None,
     ):
         """Initializes a new Session instance.
 
@@ -70,8 +82,13 @@ class Session(dict):
             If `True`, the session cookie will only be transmitted over HTTPS.
         samesite : str, optional
             The `SameSite` attribute for the session cookie.
+        encrypt_keys : list of str, optional
+            Fernet keys (the first encrypts, all decrypt). When given, the
+            cookie holds an encrypted token instead of a signed payload
+            (``[session] encrypt``); see `cookie_keys`.
         """
         self._secret_key = secret_key.encode("utf-8")
+        self._encrypt_keys = list(encrypt_keys) if encrypt_keys else None
         self._modified = False
         self._accessed = False
 
@@ -209,6 +226,10 @@ class Session(dict):
             Returns an empty string if serialization fails.
         """
         try:
+            if self._encrypt_keys:
+                from ushka.crypto import encrypt
+
+                return encrypt(json.dumps(self, separators=(",", ":")), key=self._encrypt_keys)
             # 1. Serialize data to JSON
             json_data = json.dumps(self, separators=(",", ":"))
             b64_payload = base64.urlsafe_b64encode(json_data.encode("utf-8"))
@@ -256,6 +277,9 @@ class Session(dict):
         if not cookie_value:
             return {}
 
+        if self._encrypt_keys:
+            return self._decode_encrypted(cookie_value, max_age)
+
         try:
             cookie_bytes = cookie_value.encode("utf-8")
 
@@ -296,6 +320,17 @@ class Session(dict):
         except (ValueError, KeyError, json.JSONDecodeError, IndexError, TypeError):
             # Any parsing error (garbage in the cookie) results in a new empty session
             return {}
+
+    def _decode_encrypted(self, cookie_value: str, max_age: int) -> dict:
+        """The data of an encrypted cookie; ``{}`` for anything that is not a
+        fresh token of ours (an old signed cookie, a changed one, another key)."""
+        from ushka.crypto import DecryptionError, decrypt
+
+        try:
+            data = json.loads(decrypt(cookie_value, key=self._encrypt_keys, ttl=max_age if max_age > 0 else None))
+        except (DecryptionError, ValueError, TypeError):
+            return {}
+        return data if isinstance(data, dict) else {}
 
     # --- HTTP Response Contract ---
 

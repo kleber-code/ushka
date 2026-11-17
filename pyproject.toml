@@ -90,6 +90,13 @@ docs = [
     "griffe>=1.5",
 ]
 
+# pip install ushka[crypto] -> Ushka Crypto (ushka.crypto): Fernet encryption,
+# encrypted session cookies and the `db.Encrypted` column. The cipher is the
+# audited `cryptography` package; Ushka never implements its own.
+crypto = [
+    "cryptography>=43",
+]
+
 # pip install ushka[postgres]
 postgres = [
     "ushka[orm]",
@@ -112,6 +119,7 @@ standard = [
 full = [
     "ushka[standard]",
     "ushka[docs]",
+    "ushka[crypto]",
     "asyncpg>=0.29.0",
     "aiomysql>=0.2.0",
 ]

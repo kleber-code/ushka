@@ -5,6 +5,13 @@ All notable changes to Ushka. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **Fernet encryption**, as the optional extra `ushka[crypto]` (the cipher is the audited `cryptography` package; Ushka implements none, and `import ushka` never imports it). `ushka.crypto` has `encrypt`/`decrypt` (and `encrypt_bytes`/`decrypt_bytes`) with an optional `ttl`, `generate_key`, `derive_key` and `DecryptionError`, whose message never leaks the content or the reason. Keys are `[crypto] keys` (`USHKA_CRYPTO_KEYS`, comma separated, never in `ushka.toml`): the first key encrypts, all decrypt, so keys rotate. With no keys, one is derived from `[app] secret_key` with HKDF-SHA256 (info `ushka-fernet-v1`); `ushka check --production` warns when the app encrypts with it. Decrypted values are plain `str`, not `Untrusted`.
+- **`[session] encrypt = true`** turns the cookie session into an encrypted Fernet token instead of a signed payload, so the browser cannot read it. Old, changed or foreign cookies become an empty session. Without the extra or a usable key the app fails at startup, not on the first request. Server-side sessions are unchanged.
+- **`db.Encrypted()`**, an ORM column that stores a `str` as a Fernet token and reads it back decrypted (not filterable by value; key rotation works).
+- **`ushka crypto genkey`** prints a new key and nothing else.
+
 ## [0.8.0b4] - 2026-11-17
 
 Fourth beta of 0.8: a layout for real applications.

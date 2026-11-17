@@ -18,10 +18,11 @@ It is saved on whatever response you return. Things to know:
 - **It needs a secret key.** `ushka new` writes `USHKA_APP_SECRET_KEY` to `.env`.
   Debug mode makes a throwaway key; production without one raises a `RuntimeError`
   that says how to create it. See [the secret key](configuration.md#the-secret-key).
-- **Signed, not encrypted.** The client can read the contents, but cannot change
-  them. Never store a secret (a token, a password, personal data) in a cookie session.
-  Ushka does not encrypt it on purpose: encryption needs a cryptography library and the
-  core carries none. When the contents must stay private, or the session must be
+- **Signed, not encrypted, unless you ask.** By default the client can read the
+  contents, but cannot change them, so never store a secret (a token, a password,
+  personal data) in it. Set `[session] encrypt = true` and the cookie becomes a Fernet
+  token the client can neither read nor change (needs `ushka[crypto]`; see
+  [Encryption](crypto.md#encrypted-session-cookies)). When the session must also be
   revocable, use [server-side sessions](#server-side-sessions): the cookie then holds
   only a random id.
 - **About 4 KB.** It lives in a cookie. Store an id and keep the data in a database.

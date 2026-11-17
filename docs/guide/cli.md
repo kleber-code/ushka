@@ -141,6 +141,18 @@ only signs with a key that comes from the environment or `.env` (there is no way
 to type the key on the command line), refuses when `debug` is off unless you pass
 `--allow-non-debug`, and prints nothing but the cookie.
 
+## `ushka crypto`
+
+```bash
+ushka crypto genkey
+```
+
+Prints a new encryption key, and nothing else, for `USHKA_CRYPTO_KEYS`. Needs
+`ushka[crypto]`. See [Encryption](crypto.md#keys).
+
+With `--production`, `ushka check` also warns (it is not a problem) when the app
+encrypts something with the key derived from `secret_key` instead of a dedicated one.
+
 ## `ushka i18n`
 
 ```console
@@ -189,6 +201,8 @@ It reports a problem when:
 * `ushka.toml` contains `secret_key` (it belongs in `.env`);
 * [Ushka Guard](guard.md) is turned off (`[security] taint = false`);
 * `.env` exists but is not listed in `.gitignore`;
+* `[crypto] keys` is in `ushka.toml` (they belong in `USHKA_CRYPTO_KEYS`);
+* `[session] encrypt = true` but the `crypto` extra or a usable key is missing;
 * with `--production`: debug is on, or the secret key is missing, only
   generated for debug, or shorter than 32 characters.
 

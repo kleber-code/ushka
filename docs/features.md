@@ -24,6 +24,7 @@ field; feedback shapes it. *Experimental*: the API may still change.
 | [Settings you can see](guide/configuration.md) | Every setting listed; `ushka config` and `ushka check` find typos. | New |
 | [Production server](guide/deploy.md) | `ushka run`: fast (`uvloop`, `httptools`) and quiet when idle. | New |
 | | **Opt-in, when your app needs them** | |
+| [Encryption](guide/crypto.md) | Fernet `encrypt`/`decrypt` with key rotation, encrypted session cookies and `db.Encrypted` columns. Needs `ushka[crypto]`. | New |
 | [Server-side sessions](guide/sessions.md) | Logout that really ends a session. Needs a database; without one you keep cookies. | New |
 | [Async ORM](guide/orm.md) | Active Record on SQLAlchemy, with transactions and automatic timestamps. | Established, transactions new |
 | [SEO](guide/seo.md) | Meta tags, `robots.txt`, `sitemap.xml`. Passive until you add `{{ seo() }}`. | New |
@@ -116,6 +117,14 @@ Jinja2 with autoescaping, project templates that override the built-in ones,
 [signed cookie sessions](guide/sessions.md), [flash messages](guide/flashing.md),
 [uploads](guide/uploads.md) (`UploadFile`, safe `save()`, size limits), and [static files](guide/static_files.md) with
 `ETag`/`304` and any folder you mount. See [Templates](guide/templates.md).
+
+## Encryption
+
+`ushka.crypto` encrypts text and bytes with Fernet (authenticated, with key
+rotation), `[session] encrypt = true` makes the session cookie unreadable and
+`db.Encrypted()` stores a column encrypted. The cipher is the audited
+`cryptography` package, installed with `pip install "ushka[crypto]"`; the core
+still needs no cipher. See [Encryption](guide/crypto.md).
 
 ## SEO and PWA, from `ushka.toml`
 

@@ -73,6 +73,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--app", default="app:app", help="module:attribute (default: app:app)")
     p.add_argument("--allow-non-debug", action="store_true", help="sign even when debug is off (only for a key that belongs to a test deployment)")
 
+    crypto = sub.add_parser("crypto", help="encryption keys (needs ushka[crypto])")
+    csub = crypto.add_subparsers(dest="crypto_command", metavar="<action>")
+    csub.add_parser("genkey", help="print a new encryption key, for USHKA_CRYPTO_KEYS")
+
     docs = sub.add_parser("docs", help="check or preview Markdown docs (needs ushka[docs])")
     docsub = docs.add_subparsers(dest="docs_command", metavar="<action>")
     for name, help_text in (("check", "verify links, anchors and nav (exit 1 on problems)"),
@@ -124,7 +128,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--schema", default=None, help="database schema to read (default: the connection's)")
     p.add_argument("--models", action="append", default=[], metavar="MODULE", help="module that defines the models (default: app.models, models, app, main)")
 
-    parser.set_defaults(_i18n=i18n, _routes=routes, _db=db, _docs=docs)
+    parser.set_defaults(_i18n=i18n, _routes=routes, _db=db, _docs=docs, _crypto=crypto)
     return parser
 
 
@@ -168,6 +172,15 @@ def main(argv: list[str] | None = None) -> None:
 
         if session(args.app, args.items, args.allow_non_debug):
             raise SystemExit(1)
+
+    elif args.command == "crypto":
+        if args.crypto_command == "genkey":
+            from ushka.cli.commands.crypto import genkey
+
+            if genkey():
+                raise SystemExit(1)
+        else:
+            args._crypto.print_help()
 
     elif args.command == "docs":
         from ushka.cli.commands import docs as docs_command

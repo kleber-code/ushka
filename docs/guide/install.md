@@ -34,6 +34,7 @@ Everything beyond the core is opt-in, so you only install what you use.
 | `ushka[orm]` | SQLAlchemy, Alembic, `aiosqlite` | The [ORM](orm.md) and `ushka db` |
 | `ushka[postgres]` | the ORM and `asyncpg` | PostgreSQL |
 | `ushka[mysql]` | the ORM and `aiomysql` | MySQL |
+| `ushka[crypto]` | `cryptography` | [Encryption](crypto.md): `ushka.crypto`, encrypted sessions, `db.Encrypted` |
 | `ushka[docs]` | `markdown-it-py`, `pygments`, `griffe` | [Ushka Docs](docs.md) |
 | `ushka[full]` | all of the above | Trying everything |
 
