@@ -20,11 +20,13 @@ pages = [
     "guide/routing.md",
     "guide/requests-responses.md",
     "guide/validation.md",
+    "guide/testing.md",
     "guide/dependency_injection.md",
     "guide/templates.md",
     "guide/static_files.md",
     "guide/sessions.md",
     "guide/uploads.md",
+    "guide/i18n.md",
     "guide/seo.md",
     "guide/pwa.md",
     "guide/flashing.md",
@@ -73,7 +75,8 @@ modules = [
     "ushka.core.router",
     "ushka.core.config",
     "ushka.core.error_handler",
-    "ushka.core.exceptions",
+    "ushka.core.settings",
+    "ushka.core.server",
     "ushka.core.log",
 ]
 
@@ -86,7 +89,6 @@ modules = [
     "ushka.http.params",
     "ushka.http.validation",
     "ushka.http.cookies",
-    "ushka.http.sessions",
     "ushka.http.redirect",
     "ushka.http.stream",
     "ushka.http.websocket",
@@ -96,9 +98,14 @@ modules = [
 ]
 
 [[api.group]]
+title = "Sessions"
+description = "The signed-cookie session and revocable server-side sessions."
+modules = ["ushka.sessions.session", "ushka.sessions.stores", "ushka.sessions.forge"]
+
+[[api.group]]
 title = "Security"
 description = "The security middleware that is on by default: CSRF, headers, CORS and trusted hosts."
-modules = ["ushka.security.middleware"]
+modules = ["ushka.security.middleware", "ushka.security.verify"]
 
 [[api.group]]
 title = "Guard"
@@ -128,13 +135,18 @@ modules = [
     "ushka.orm.database",
     "ushka.templating.engine",
     "ushka.static.files",
-    "ushka.utils.flash",
+    "ushka.templating.flash",
 ]
+
+[[api.group]]
+title = "Web: SEO, PWA and i18n"
+description = "What browsers and search engines see."
+modules = ["ushka.web.seo", "ushka.web.pwa", "ushka.web.i18n", "ushka.web.i18n.tools"]
 
 [[api.group]]
 title = "Agents and tooling"
 description = "Routes as MCP tools, OpenAPI from signatures, and `ushka verify`."
-modules = ["ushka.mcp", "ushka.openapi", "ushka.verify"]
+modules = ["ushka.api.openapi", "ushka.api.mcp", "ushka.testing"]
 
 [[api.group]]
 title = "CLI commands"

@@ -2,7 +2,7 @@
 
 import pytest
 
-from ushka import verify as engine
+from ushka.security import verify as engine
 
 
 def write_routes(workdir, files: dict):

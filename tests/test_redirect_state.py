@@ -2,10 +2,10 @@
 
 import pytest
 
-from ushka import HTTPRedirect, Request
+from ushka import HTTPRedirect, Request, UploadFile
 from ushka.guard import UnsafeValueError, Untrusted
 from ushka.http.exceptions import HTTPForbidden
-from ushka.utils import flash, get_flashed_messages
+from ushka.templating.flash import flash, get_flashed_messages
 
 
 @pytest.fixture(autouse=True)
@@ -98,3 +98,49 @@ async def test_untouched_request_sets_no_cookie_on_redirect(app, call):
 def test_redirect_to_untrusted_url_is_refused():
     with pytest.raises(UnsafeValueError):
         HTTPRedirect(Untrusted("https://evil.example", "query:next"))
+
+
+async def test_server_side_session_survives_raise_redirect_with_flash_and_upload(workdir, make_app, call):
+    """Database sessions + `raise HTTPRedirect` + flash + a multipart upload, in one request."""
+    import json
+
+    (workdir / "ushka.toml").write_text(
+        f'[session]\nstore = "database"\n[database]\nurl = "sqlite:///{workdir}/s.db"\n'
+    )
+    app = make_app()
+
+    @app.post("/upload")
+    async def upload(request: Request, doc: UploadFile):
+        request.session["next"] = "/after"
+        flash(request, f"Saved {doc.size} bytes")
+        raise HTTPRedirect("/done")
+
+    @app.get("/done")
+    async def done(request: Request):
+        return {"next": request.session.get("next"), "messages": get_flashed_messages(request)}
+
+    @app.post("/crash")
+    async def crash(request: Request):
+        request.session["ghost"] = 1
+        raise RuntimeError("boom")
+
+    boundary = "xBx"
+    body = (
+        f'--{boundary}\r\nContent-Disposition: form-data; name="doc"; filename="a.txt"\r\n'
+        f"Content-Type: text/plain\r\n\r\nhello\r\n--{boundary}--\r\n"
+    ).encode()
+    headers = {"content-type": f"multipart/form-data; boundary={boundary}"}
+
+    first = await call(app, "POST", "/upload", body=body, headers=headers)
+    assert first["status"] == 302 and first["headers"]["location"] == "/done"
+    cookie = first["headers"]["set-cookie"].split(";")[0]
+    assert "after" not in cookie  # only an id travels; the data is in the database
+
+    second = await call(app, "GET", "/done", headers={"cookie": cookie})
+    data = json.loads(second["body"])
+    assert data["next"] == "/after" and data["messages"] == ["Saved 5 bytes"]
+
+    crashed = await call(app, "POST", "/crash", headers={"cookie": cookie})
+    assert crashed["status"] == 500
+    again = await call(app, "GET", "/done", headers={"cookie": cookie})
+    assert "ghost" not in again["body"]

@@ -11,8 +11,9 @@ import importlib.util
 import inspect
 import logging
 import re
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
+from typing import Any
 
 from ushka.core.config import Config
 from ushka.guard import Untrusted
@@ -21,8 +22,8 @@ from ushka.http.request import Request
 from ushka.http.response import Response
 
 # Types for readability
-RouteHandler = Callable[..., Union[Response, Any]]
-DependencyMap = Dict[str, Any]
+RouteHandler = Callable[..., Response | Any]
+DependencyMap = dict[str, Any]
 
 
 class Router:
@@ -51,7 +52,7 @@ class Router:
     """
 
     # Valid HTTP verbs (Set is O(1) for lookup)
-    HTTP_METHODS: Set[str] = {
+    HTTP_METHODS: set[str] = {
         "WEBSOCKET",  # a pseudo-method: the handshake is routed like a request
         "GET",
         "POST",
@@ -81,13 +82,13 @@ class Router:
         self.host = host
 
         # Structure: method -> path -> (handler, dependencies)
-        self.static_routes: Dict[
-            str, Dict[str, Tuple[RouteHandler, DependencyMap]]
+        self.static_routes: dict[
+            str, dict[str, tuple[RouteHandler, DependencyMap]]
         ] = {}
 
         # Structure: method -> list of dynamic route tuples
-        self.dynamic_routes: Dict[
-            str, List[Tuple[re.Pattern, List[str], RouteHandler, DependencyMap, str]]
+        self.dynamic_routes: dict[
+            str, list[tuple[re.Pattern, list[str], RouteHandler, DependencyMap, str]]
         ] = {}
 
     def _normalize_path(self, path: str) -> str:
@@ -140,7 +141,7 @@ class Router:
 
     def _resolve_dependencies(
         self, request: Request, required_deps: DependencyMap
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Instantiates the necessary objects for the route handler.
 
         Parameters
@@ -266,7 +267,7 @@ class Router:
 
     def get_route(
         self, request: Request
-    ) -> Tuple[Optional[RouteHandler], Dict[str, Any]]:
+    ) -> tuple[RouteHandler | None, dict[str, Any]]:
         """Searches for the route matching the request method and path.
 
         It prioritizes static routes over dynamic routes.
@@ -318,7 +319,7 @@ class Router:
             return True
         return any(r[0].match(path) for r in self.dynamic_routes.get(method, []))
 
-    def allowed_methods(self, path: str) -> List[str]:
+    def allowed_methods(self, path: str) -> list[str]:
         """Returns the methods registered for `path` (used to answer 405)."""
         path = self._normalize_path(path)
         found = {m for m, routes in self.static_routes.items() if path in routes}
@@ -412,7 +413,7 @@ class Router:
 
     def get_urls(
         self, host: str = "127.0.0.1", port: int = 8000, with_host: bool = True
-    ) -> List[str]:
+    ) -> list[str]:
         """Generates a list of registered routes for display in the terminal.
 
         Parameters
@@ -430,7 +431,7 @@ class Router:
             A sorted list of strings, where each string represents a route
             and its supported methods (e.g., 'http://127.0.0.1:8000/users - GET, POST').
         """
-        url_map: Dict[str, List[str]] = {}
+        url_map: dict[str, list[str]] = {}
 
         # Collect static
         for method, routes in self.static_routes.items():

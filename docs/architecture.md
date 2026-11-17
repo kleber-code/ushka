@@ -6,28 +6,45 @@ are enforced by `tests/test_architecture.py` and `tests/test_supply_chain.py`.
 
 ## Code tree
 
-About 8,200 lines in 60 modules (Python 3.10 to 3.14).
+About 13,800 lines in 71 modules (Python 3.10 to 3.14). The folders follow who
+uses the code: the core everything depends on, what browsers and search engines
+see, what machines consume, and tooling.
 
 ```text
 src/ushka/
-├── guard/            taint core: Untrusted, sinks, sanitisers, rewrite      1,063 lines
+│  the core: what every app uses
+├── guard/            taint core: Untrusted, sinks, sanitisers, rewrite      1,414 lines
 │   └── integrations/ FastAPI, Starlette, Django adapters (framework imported lazily)
-├── core/             app (ASGI entry, middleware chain), router, config,    1,525
-│                     error handler, logging, server (`ushka run`)
-├── http/             request, response, streaming/SSE, WebSocket,           2,134
-│                     params (Depends), validation, cookies, sessions, multipart
-├── security/         security middleware: CSRF, headers, CORS, hosts          155
-├── templating/       Jinja2 engine with the guarded |safe                      164
-├── static/ utils/    static files, flash messages                              182
-├── orm/              async Active Record on SQLAlchemy (extra)                 661
-├── docs/             Ushka Docs: Markdown site generator (extra)               598
-├── cli/              new, dev, run, check, verify, docs, routes, db            810
-├── openapi.py        OpenAPI 3.1 from handler signatures                       177
-├── mcp.py            routes as MCP tools, capabilities, approval               318
-└── verify.py         `ushka verify`: hostile probes against your own app       378
+├── core/             app (ASGI entry, middleware chain), router, config      2,341
+│                     and its settings schema, error handler, logging, the
+│                     production server (`ushka run`)
+├── http/             request, response, streaming/SSE, WebSocket, params     2,576
+│                     (Depends), validation and forms, cookies, multipart
+├── security/         security middleware (CSRF, headers, CORS, hosts) and      639
+│                     `ushka verify`, the hostile probes against your own app
+├── sessions/         signed-cookie sessions and revocable server-side          804
+│                     sessions (database store)
+├── templating/       Jinja2 engine with the guarded |safe, flash messages      365
+├── static/           static files with ETag and 304                            110
+│  what browsers and search engines see (each has its own [section])
+├── web/              seo (meta tags, robots.txt, sitemap.xml), pwa            1,265
+│                     (manifest, service worker), i18n (gettext catalogs)
+│  what machines consume
+├── api/              openapi (OpenAPI 3.1 from signatures), mcp (routes as     596
+│                     tools for AI agents)
+│  batteries and tooling
+├── orm/              async Active Record on SQLAlchemy (extra)               1,015
+├── docs/             Ushka Docs: Markdown site generator (extra)             1,023
+├── cli/              new, dev, run, check, config, verify, docs, routes,     1,336
+│                     db, i18n
+└── testing.py        `TestClient`: in-process ASGI client with lifespan and cookies
 site/                 ushka.satela.com.br, served by Ushka itself
 benchmarks/           reproducible load test
 ```
+
+The top-level `ushka` package exports what an app needs (`Ushka`, `Request`,
+`Response`, `render`, `Depends`, `Form`, `safe`, `_`...). Anything else is
+imported from its folder: `ushka.sessions`, `ushka.web.seo`, `ushka.api.openapi`.
 
 ## Dependencies
 

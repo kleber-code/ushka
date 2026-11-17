@@ -21,7 +21,6 @@ history: Shows the full migration history.
 import os
 import sys
 from datetime import datetime
-from typing import Optional
 
 from alembic import command
 from alembic.config import Config as AlembicConfig
@@ -220,7 +219,7 @@ def init():
         print(f"Error during initialization: {e}")
 
 
-def make(message: Optional[str] = None):
+def make(message: str | None = None):
     """Generates a new migration script based on model changes.
 
     If no message is provided, an auto-generated timestamped message is used.

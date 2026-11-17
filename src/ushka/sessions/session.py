@@ -11,8 +11,9 @@ import hashlib
 import hmac
 import json
 import logging
+import secrets
 import time
-from typing import Any, List, Tuple
+from typing import Any
 
 log = logging.getLogger("ushka")
 
@@ -303,7 +304,7 @@ class Session(dict):
         """Indicates if the cookie needs to be re-sent to the client."""
         return self._modified
 
-    def get_response_headers(self) -> List[Tuple[bytes, bytes]]:
+    def get_response_headers(self) -> list[tuple[bytes, bytes]]:
         """Generates the Set-Cookie header ready for the WSGI/ASGI server."""
 
         # If the session is empty, but was modified (e.g., session.clear()),
@@ -334,7 +335,187 @@ class Session(dict):
 
         return [(b"set-cookie", "; ".join(parts).encode("latin-1"))]
 
-    def _expire_cookie(self) -> List[Tuple[bytes, bytes]]:
+    def _expire_cookie(self) -> list[tuple[bytes, bytes]]:
         """Generates an instruction for the browser to delete the cookie."""
         expired = f"{self.COOKIE_NAME}=; Path=/; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT"
         return [(b"set-cookie", expired.encode("latin-1"))]
+
+
+class ServerSession(Session):
+    """A session whose data lives in a `SessionStore`, not in the cookie.
+
+    The cookie holds only ``<id>.<signature>``: an unguessable random id signed
+    with the secret key. Revoking the session deletes the record, so a copied
+    cookie stops working at once. There is no 4 KB limit, and values must be
+    JSON serializable.
+
+    Create it with `ServerSession.load()`; the response saves it (`commit`).
+    Use `revoke()` (or `clear()`) to log out, `rotate()` to change the id at
+    login, and `revoke_user_sessions()` to log a user out everywhere.
+    """
+
+    def __init__(
+        self,
+        store: Any,
+        secret_key: str,
+        max_age: int = 1209600,
+        idle_timeout: int = 0,
+        user_key: str = "user_id",
+        secure: bool = True,
+        samesite: str = "lax",
+    ):
+        dict.__init__(self)
+        self._secret_key = secret_key.encode("utf-8")
+        self._modified = False
+        self._accessed = False
+        self._max_age = max_age
+        self._secure = secure
+        self._samesite = samesite
+        self._store = store
+        self._idle = idle_timeout
+        self._user_key = user_key
+        self._sid: str | None = None
+        self._created = 0.0
+        self._last_seen = 0.0
+        self._loaded_user: str | None = None
+        self._rotate = False
+        self._doomed: list[str] = []  # store keys to delete on commit
+        self._cookie_dirty = False
+
+    # --- ids ---
+
+    @staticmethod
+    def _key(sid: str) -> str:
+        return hashlib.sha256(sid.encode("utf-8")).hexdigest()
+
+    def _parse_cookie(self, raw: str) -> str | None:
+        """The session id of a cookie value, or None if it is not ours."""
+        sid, dot, signature = raw.partition(".")
+        if not dot or not sid or not signature:
+            return None
+        if not hmac.compare_digest(signature.encode("utf-8"), self._sign(sid.encode("utf-8"))):
+            return None
+        return sid
+
+    @classmethod
+    async def load(cls, store: Any, raw_cookie_value: str | None, **options: Any) -> "ServerSession":
+        """Builds the session of a request: from the store when the cookie is
+        valid, empty otherwise (forged, unknown, revoked or expired)."""
+        session = cls(store, **options)
+        sid = session._parse_cookie(str(raw_cookie_value)) if raw_cookie_value else None
+        if sid is None:
+            return session
+        key = cls._key(sid)
+        record = await store.load(key)
+        if record is None:
+            return session
+        now = time.time()
+        expired = (session._max_age > 0 and now - record.created_at > session._max_age) or (
+            session._idle > 0 and now - record.last_seen > session._idle
+        )
+        if expired:
+            await store.delete(key)
+            return session
+        try:
+            data = json.loads(record.data)
+        except ValueError:
+            return session
+        if not isinstance(data, dict):
+            return session
+        dict.update(session, data)
+        session._sid = sid
+        session._created = record.created_at
+        session._last_seen = record.last_seen
+        session._loaded_user = record.user_id
+        return session
+
+    # --- the API of a server-side session ---
+
+    @property
+    def user_id(self) -> str | None:
+        """The owner of the session: ``str(self[user_key])``, or None."""
+        value = self.get(self._user_key)
+        return None if value is None else str(value)
+
+    def revoke(self) -> None:
+        """Ends the session: the record is deleted and the cookie expired.
+        Anything written afterwards starts a new session with a new id."""
+        if self._sid is not None:
+            self._doomed.append(self._key(self._sid))
+            self._sid = None
+        dict.clear(self)
+        self._modified = True
+        self._cookie_dirty = True
+
+    def clear(self) -> None:
+        """Same as `revoke()`: logging out really invalidates the session."""
+        self.revoke()
+
+    def rotate(self) -> None:
+        """Gives the session a new id and keeps its data. Call it at login, so
+        an id planted beforehand (session fixation) is worthless. The first
+        time ``[session] user_key`` is set on a session, it rotates by itself."""
+        if self._sid is not None:
+            self._rotate = True
+            self._modified = True
+
+    # --- HTTP contract ---
+
+    @property
+    def should_save(self) -> bool:
+        return self._cookie_dirty
+
+    def _encode(self) -> str:
+        if self._sid is None:
+            return ""
+        return f"{self._sid}.{self._sign(self._sid.encode('utf-8')).decode('ascii')}"
+
+    async def commit(self) -> None:
+        """Writes the changes to the store. The response calls it. A session
+        nobody changed costs one read, plus an occasional ``last_seen``
+        update when there is an idle timeout."""
+        store = self._store
+        user = self.user_id
+        if self._sid is not None and user is not None and user != self._loaded_user:
+            self._rotate = True  # login on an existing id: change the id
+        if self._rotate and self._sid is not None:
+            self._doomed.append(self._key(self._sid))
+            self._sid = None
+            self._cookie_dirty = True
+        self._rotate = False
+        for key in self._doomed:
+            await store.delete(key)
+        self._doomed = []
+        now = time.time()
+        if not self:
+            if self._sid is not None and self._modified:  # emptied key by key
+                await store.delete(self._key(self._sid))
+                self._sid = None
+                self._cookie_dirty = True
+            return
+        if self._sid is None or self._modified:
+            try:
+                data = json.dumps(self, separators=(",", ":"))
+            except (TypeError, ValueError):
+                # Never log the contents: they may hold user data or tokens.
+                raise TypeError(
+                    f"Session values must be JSON serializable (keys: {sorted(map(str, self.keys()))})"
+                ) from None
+            if self._sid is None:
+                self._sid = secrets.token_urlsafe(32)
+                self._created = now
+                self._cookie_dirty = True
+                if secrets.randbelow(100) == 0:  # housekeeping, now and then
+                    await store.purge(
+                        now - self._max_age if self._max_age > 0 else None,
+                        now - self._idle if self._idle > 0 else None,
+                    )
+            self._last_seen = now
+            from ushka.sessions.stores import SessionRecord
+
+            await store.save(SessionRecord(self._key(self._sid), data, user, self._created, now))
+            self._loaded_user = user
+            self._modified = False
+        elif self._idle > 0 and now - self._last_seen >= min(60, self._idle / 4):
+            self._last_seen = now
+            await store.touch(self._key(self._sid), now)

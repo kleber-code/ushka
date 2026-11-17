@@ -7,8 +7,9 @@ for a low-level multipart parser, and `parse_multipart_asgi` for integrating
 with ASGI requests.
 """
 
+from collections.abc import Callable
 from tempfile import SpooledTemporaryFile
-from typing import TYPE_CHECKING, Any, Callable, Dict, Union
+from typing import TYPE_CHECKING, Any
 
 from python_multipart.multipart import MultipartParser as LowLevelParser
 from python_multipart.multipart import parse_options_header
@@ -56,22 +57,22 @@ class MultiPartCollector:
             Exceeding this raises `HTTPPayloadTooLarge`. Defaults to 64 KB.
         """
         self.charset = charset
-        self.form_data: Dict[str, Any] = {}
+        self.form_data: dict[str, Any] = {}
         #: The last file of each field (`request.files()`).
-        self.files: Dict[str, UploadFile] = {}
+        self.files: dict[str, UploadFile] = {}
         #: Every file of each field, in order (a repeated field or ``multiple``).
-        self.uploads: Dict[str, list[UploadFile]] = {}
+        self.uploads: dict[str, list[UploadFile]] = {}
         self.taint = taint
 
         self.max_ram_size = int(max_ram_size_kb * 1024)
         self.max_file_size = int(max_file_size_kb * 1024)
         self.max_text_size = int(max_text_field_size_kb * 1024)
 
-        self._current_headers: Dict[str, bytes] = {}
+        self._current_headers: dict[str, bytes] = {}
         self._current_header_name: bytearray = bytearray()
         self._current_header_value: bytearray = bytearray()
         self._current_field_name: str = ""
-        self._current_file: Union[SpooledTemporaryFile, None] = None
+        self._current_file: SpooledTemporaryFile | None = None
         self._is_file: bool = False
         self._data_buffer: bytearray = bytearray()
 
@@ -228,11 +229,15 @@ class MultiPartCollector:
             self.files[field] = upload
             self.uploads.setdefault(field, []).append(upload)
         else:
-            self.form_data[self._current_field_name] = self._data_buffer.decode(
-                self.charset
-            )
+            value = self._data_buffer.decode(self.charset)
+            name = self._current_field_name
+            if name in self.form_data:  # a repeated field is a list, as in urlencoded forms
+                seen = self.form_data[name]
+                self.form_data[name] = [*seen, value] if isinstance(seen, list) else [seen, value]
+            else:
+                self.form_data[name] = value
 
-    def get_callbacks(self) -> Dict[str, Callable]:
+    def get_callbacks(self) -> dict[str, Callable]:
         """Returns a dictionary of callback functions for the multipart parser.
 
         These callbacks are used by the `python-multipart` library to process

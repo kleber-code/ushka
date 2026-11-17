@@ -5,16 +5,58 @@ All notable changes to Ushka. The format follows
 
 ## [Unreleased]
 
-## [0.8.0b1]
+## [0.8.0b1] - 2026-11-17
+
+First beta of 0.8 (`pip install --pre ushka`). The 0.7 line stays the default install until 0.8 is final. This release adds server-side sessions, internationalisation, HTML forms, a test client, ORM transactions and strict templates (below), and reorganises the code by who uses it.
+
+### Added (verify and sessions)
+
+- **A supported way to forge a session for tests** (`ushka.sessions`, guides: Sessions, `ushka session`, ushka verify): `forge_session_cookie(app, {"uid": 1})` returns `"name=value"` signed with the app's secret key (`aforge_session_cookie` is the coroutine that also works with `[session] store = "database"` and creates the record). `parse_session_pairs` turns `["uid=1", "admin=true"]` into typed data.
+  - `ushka verify --as-session uid=1` (repeatable) probes as that user, so routes behind a login are really attacked; `--cookie NAME=VALUE` sends a cookie you already have. Only session keys are reported, never values, and a forged server-side record is removed at the end.
+  - `ushka session --set uid=1 [--app app:app]` prints `name=value` for `curl`. It needs a key from the environment or `.env` (never from the command line), and refuses when debug is off unless `--allow-non-debug`.
+
+### Fixed (verify)
+
+- **`ushka verify` probes the routes exempt from CSRF** (`[security] csrf_exempt_paths`), the webhooks and machine APIs, with the same method rules as the others (`--include-writes` for writes), marks them as exempt in the report, and no longer prints a "not probed" note for them. `--skip-exempt` leaves them out. The cross-site CSRF probe is not sent to them, since accepting it is their purpose.
+- **A redirect is no longer a finding by itself.** Open redirect is reported only when the `Location` reflects the probe: its host is the probe's (high), or the probe is the destination in a parameter such as `next` (medium). The probe buried in the visitor's own URL is ignored, and the body of a 3xx response is not scanned for markup.
+
+### Changed in the code layout
+
+The top-level API (`from ushka import Ushka, render, Depends, Form, safe, _ ...`) does not change. Imports of modules by path do:
+
+| Before | Now |
+| --- | --- |
+| `ushka.http.sessions`, `ushka.http.session_store` | `ushka.sessions` (`.session`, `.stores`) |
+| `ushka.seo`, `ushka.pwa`, `ushka.i18n` | `ushka.web.seo`, `ushka.web.pwa`, `ushka.web.i18n` |
+| `ushka.openapi`, `ushka.mcp` | `ushka.api.openapi`, `ushka.api.mcp` |
+| `ushka.verify` | `ushka.security.verify` |
+| `ushka.utils.flash` | `ushka.templating.flash` |
+| `ushka.core.exceptions` | removed (its only used class, `ContentToJsonParserFailed`, is in `ushka.http.exceptions`) |
+
+- `ushka check --production` warns when `[security] allowed_hosts` is empty (any `Host` header is accepted).
+- Type annotations and imports modernised across the code (`ruff`), with no change in behaviour.
+- Docs: the features page says what is established, new and experimental, the API reference is grouped by area, and the architecture page matches the new layout.
 
 ### Added
 
+- **Server-side sessions you can revoke** (`ushka.http.session_store`, guide: Sessions). `[session] store = "database"` keeps the data on the server and puts only a random, signed id in the cookie, so `session.clear()` / `session.revoke()` really ends the session (a stolen cookie stops working), there is no 4 KB limit, `session.rotate()` (and the first login on an existing id) changes the id against fixation, `revoke_user_sessions(request_or_app, user_id)` logs a user out everywhere, and `[session] max_age` / `idle_timeout` expire sessions. Ids are stored hashed, the database table is created on first use, and `app.session_store` accepts your own `SessionStore` (Redis, ...). It needs a database: without a configured `[database] url` (or `DATABASE_URL`), or without SQLAlchemy, Ushka keeps the signed cookie and logs a warning (`ushka check --production` reports it); there is no in-memory store, since it would log people out at random with several workers. Off by default: the signed cookie behaves exactly as before. New `[session]` settings: `store`, `cookie_name`, `max_age`, `idle_timeout`, `user_key`, `table`.
+- **ORM transactions**: `async with db.transaction():` (alias `db.atomic()`) runs several operations atomically. `Model.create/save/delete/get/all/first/filter` and `db.execute` share one session (kept in a context variable, so requests and tasks never share it), committed at the end and rolled back on an exception. Nested blocks use a `SAVEPOINT` (`savepoint=False` joins the outer one); `db.in_transaction` reports the state. Outside a block nothing changes. On SQLite the driver now issues `BEGIN` explicitly so savepoints work.
+- **Automatic timestamps**: `db.DateTime(auto_now_add=True)` (insert) and `db.DateTime(auto_now=True)` (insert and every update, including bulk `update()` through `db.execute`), in UTC and timezone-aware (`timestamptz` on PostgreSQL, read back as UTC on SQLite and MySQL; `timezone=False` for a naive column). `ushka.orm.utcnow()`.
+- **ORM schema options**: `class Meta: extend_existing = True` to mirror a table already in the metadata; `db.BaseModel`, a base without the default `id`; declaring `id = db.UUID(primary_key=True)` replaces the default key; `db.ForeignKey(..., use_alter=True)` and `db.Relationship(..., post_update=True)` for cyclic foreign keys, which removes the `Cannot correctly sort tables` warning. How UUID columns are stored on SQLite and MySQL is documented.
+- **A whole HTML form as a dataclass.** `Annotated[Lead, Form()]` fills the dataclass (or `TypedDict`) from `application/x-www-form-urlencoded` and `multipart/form-data` with the same conversion, limits and body-size checks as a JSON body. An unchecked checkbox is `False`, an unchecked group is `[]`, an empty number or date input is "not filled in", repeated fields (`a=1&a=2`) are a list, and fields the model does not declare are dropped (no mass assignment). Multipart text fields that repeat are now a list too, as in urlencoded forms. A `dict` field receives an uploaded file's info.
+- **Answer an invalid form yourself.** `@app.post("/lead", on_invalid=show)` (or `@on_invalid(show)` on a file route) runs `show` instead of the JSON 422. It is an ordinary handler and takes `errors: RequestValidationError`, which now has `.fields` (messages by field name) and `.values` (what was typed, still `Untrusted`, so a template escapes it) to draw the form again. Without it the answer stays a JSON 422 that never echoes the input.
+- **`ushka.testing.TestClient`**, with no new dependency: `async with TestClient(app) as client` runs `on_startup` and `on_shutdown` (which `httpx.ASGITransport` does not), keeps cookies between requests, and offers `get/post/put/patch/delete/head/options` with `json=`, `data=`, `files=`, `params=`, `headers=`, `cookies=` and `follow_redirects=`. `TestClient(app, browser=True)` sends `Sec-Fetch-Site` and `Origin` like a same-origin browser for CSRF tests. Guide: Testing.
+- **`ushka check` warns about what the Content-Security-Policy blocks**: `<script src>` and stylesheet `<link>` from another site and inline `<script>` in `templates/`, with `file:line` and how to fix it. Warnings only; it stays quiet when `[security] csp` is `"off"`, names the host, or allows inline code. The Security guide shows how to allow a CDN.
+- **Internationalisation, from standard gettext catalogs** (`ushka.i18n`, guide: Internationalisation), with no new dependency. `[i18n]` in `ushka.toml` turns it on; `{{ _("x") }}`, `gettext`, `ngettext`, `pgettext`, `{% trans %}` (with plurals and escaped variables) and the `lang`/`locale` template variables work in templates, and `from ushka import gettext, lazy_gettext, translate` in Python, bound to the language of the request being served (a contextvar, so concurrent requests never mix). The language comes from `?lang=`, a cookie and `Accept-Language` (parsed with `q` values), in the order of `[i18n] order`, and is only ever matched against `[i18n] locales`, never used as a path. `.mo` files from Django or `msgfmt` work as they are, are cached in memory (reloaded in debug), and a missing catalog or message returns the original text. `og:locale` follows the active language. `ushka i18n extract` writes the `.pot` (Python and templates) and `ushka i18n compile` turns `.po` into `.mo` with a small built-in compiler.
+- **Strict templates.** In debug a variable missing from a template raises `UndefinedError` instead of rendering empty, and the debug page names the template file and line. `[app] strict_templates = true` does the same outside debug. Production keeps Jinja's tolerant default, and the mode is set again by every app, so it never leaks between apps or tests.
 - **`UploadFile`** (`from ushka import UploadFile`, guide: Uploads). `request.files()` now returns `UploadFile` objects with `filename` and `content_type` (both `Untrusted`: the client wrote them), `size`, `file` (spooled, seekable), `safe_filename`, `extension`, `read()`, `head()` for magic bytes, `save(directory, name=None, extensions=None, overwrite=False)` and `close()`. `save` takes only a plain file name chosen by you (or generates a random one), refuses `../`, a disallowed extension, an existing file and a symlink, and returns the `Path`. `upload["filename"]`, `["content_type"]` and `["file"]` keep working. `await request.uploads()` gives every file of a repeated field. A handler parameter typed `UploadFile`, `UploadFile | None` or `list[UploadFile]`, and `UploadFile` fields in a dataclass declared as `Annotated[Model, Form()]`, receive the files; an empty file input counts as no file. Temporary files are closed when the request ends.
 - **`[security] trusted_proxies`** (guide: Deploy, behind a proxy) and `request.client_ip`, `request.scheme`, `request.is_secure`, `request.host`. `X-Forwarded-For`, `-Proto` and `-Host` are believed only when the direct peer is a listed IP or CIDR (empty, the default, trusts no one). The address list is read from the right, skipping trusted proxies, so a forged left-most entry never wins; a malformed header falls back to the peer. HSTS and the SEO origin use `request.is_secure` / `request.host`. `ushka check --production` warns about a `0.0.0.0` bind without trusted proxies.
 - **`HTTPRedirect(url, status_code=302)`**: raise it from a helper or a dependency to redirect, with the same URL check as `redirect()`.
 
 ### Changed
 
+- `db.DateTime(auto_now=True)` now also refreshes the column on update (it only set a default on insert); use `auto_now_add=True` for a creation date. Automatic columns are timezone-aware, so an existing one needs a migration or `timezone=False`.
+- Repeated text fields in a multipart form now become a list (as in a urlencoded form) instead of keeping only the last value.
 - **The built-in servers start Uvicorn with `proxy_headers=False`** (`ushka run`, `ushka dev`, `app.run()`), so `X-Forwarded-*` is interpreted once, by `[security] trusted_proxies`. Uvicorn's own `FORWARDED_ALLOW_IPS` (and its implicit trust of `127.0.0.1`) no longer applies: behind Caddy or nginx, set `trusted_proxies`.
 - An unexpected exception (500) no longer saves cookie and session changes the handler made before failing. Redirects and 4xx errors still save what the handler changed.
 

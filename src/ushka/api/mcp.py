@@ -2,7 +2,7 @@
 
 Mark the routes an agent may use, declare what each one touches, and serve them::
 
-    from ushka.mcp import tool
+    from ushka.api.mcp import tool
 
     @tool(reads=["orders"], description="Look up an order")
     async def get(order_id: int): ...                     # routes/orders/[order_id].py
@@ -38,10 +38,10 @@ from collections.abc import Awaitable, Callable
 from typing import Any
 from urllib.parse import quote, urlencode
 
+from ushka.api.openapi import _PATH_SEGMENT, _required, _Schemas, _specs
 from ushka.http.params import Param
-from ushka.openapi import _PATH_SEGMENT, _required, _Schemas, _specs
 
-log = logging.getLogger("ushka.mcp")
+log = logging.getLogger("ushka.api.mcp")
 
 PROTOCOLS = ("2025-06-18", "2025-03-26", "2024-11-05")
 SAFE_METHODS = {"GET", "HEAD"}

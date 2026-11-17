@@ -40,12 +40,28 @@ class RequestValidationError(HTTPError):
     """422: the request did not match what the handler declared.
 
     `errors` is a list of ``{"loc": [...], "msg": str, "type": str}``. The
-    client's input is deliberately not echoed back.
+    client's input is deliberately not echoed back by the default 422 answer.
+
+    For an HTML form, `fields` maps each field name to its messages and
+    `values` holds what the visitor typed (still `Untrusted`, so a template
+    escapes it): what a route's ``on_invalid`` handler needs to draw the form again.
     """
 
-    def __init__(self, errors: list[dict]) -> None:
+    def __init__(self, errors: list[dict], values: dict | None = None) -> None:
         super().__init__("error.html", 422, "Unprocessable Entity")
         self.errors = errors
+        self.values = values if values is not None else {}
+
+    @property
+    def fields(self) -> dict[str, list[str]]:
+        """``{"email": ["Field required"], ...}``: messages by field name (the
+        path element after ``form`` / ``body`` / ``query``...)."""
+        out: dict[str, list[str]] = {}
+        for err in self.errors:
+            loc = err.get("loc") or []
+            key = str(loc[1]) if len(loc) > 1 else (str(loc[0]) if loc else "")
+            out.setdefault(key, []).append(err["msg"])
+        return out
 
 
 class Field:
@@ -224,6 +240,8 @@ def coerce(value: Any, tp: Any, loc: list, errors: list) -> Any:
         return kind(items) if kind in (set, frozenset, tuple) else items
 
     if origin is dict or tp is dict:
+        if isinstance(value, UploadFile):
+            value = dict(value)  # the old shape: filename, content_type, size, file
         if not isinstance(value, dict):
             return fail("dict_type", "Input should be a valid object")
         val_tp = args[1] if len(args) == 2 else Any
@@ -281,3 +299,65 @@ def _build_model(value, tp, loc, errors, fail):
         return tp(**out)
     except (ValueError, TypeError) as exc:
         return fail("value_error", str(exc) or "Invalid value")
+
+
+def is_model(tp: Any) -> bool:
+    """True for a dataclass or ``TypedDict`` type (a whole-object parameter)."""
+    return (dataclasses.is_dataclass(tp) and isinstance(tp, type)) or typing.is_typeddict(tp)
+
+
+def _unwrap(tp: Any) -> tuple[Any, bool]:
+    """Strips ``Annotated`` and ``Optional``: returns ``(inner, was_optional)``."""
+    optional = False
+    while True:
+        origin = typing.get_origin(tp)
+        if origin is typing.Annotated:
+            tp = typing.get_args(tp)[0]
+        elif origin in (typing.Union, types.UnionType):
+            members = [a for a in typing.get_args(tp) if a is not type(None)]
+            optional = optional or len(members) != len(typing.get_args(tp))
+            if len(members) != 1:
+                return tp, optional
+            tp = members[0]
+        else:
+            return tp, optional
+
+
+def _has_default(tp: Any, name: str) -> bool:
+    if typing.is_typeddict(tp):
+        return name not in getattr(tp, "__required_keys__", frozenset())
+    for f in dataclasses.fields(tp):
+        if f.name == name:
+            return f.default is not dataclasses.MISSING or f.default_factory is not dataclasses.MISSING
+    return False
+
+
+def form_to_model_input(raw: Any, tp: Any) -> dict:
+    """Shapes parsed form data for `coerce` as the dataclass / ``TypedDict`` `tp`.
+
+    A browser form differs from JSON in three ways, handled here so the same
+    conversion, limits and no-mass-assignment rule apply afterwards:
+
+    * an unchecked checkbox sends nothing: a missing ``bool`` field is ``False``;
+    * an unchecked group of checkboxes sends nothing: a missing list field is ``[]``;
+    * an empty number/date input sends ``""``: for a non-``str`` field that means
+      "not filled in" (the default, or ``None`` for an ``Optional``).
+
+    Fields the model does not declare are left for `coerce` to drop.
+    """
+    data = dict(raw)
+    for name, hint in hints_of(tp).items():
+        inner, optional = _unwrap(hint)
+        origin = typing.get_origin(inner) or inner
+        if name not in data:
+            if inner is bool:
+                data[name] = False
+            elif origin in (list, set, frozenset, tuple):
+                data[name] = []
+        elif isinstance(data[name], str) and data[name] == "" and inner is not Any:
+            textual = isinstance(inner, type) and issubclass(inner, str)
+            if not textual and inner is not bool:
+                del data[name]  # not filled in: the default, None, or "Field required"
+                if optional and not _has_default(tp, name):
+                    data[name] = None
+    return data

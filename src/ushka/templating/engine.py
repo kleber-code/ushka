@@ -8,16 +8,24 @@ import inspect
 import typing
 from pathlib import Path
 
-from jinja2 import ChoiceLoader, Environment, FileSystemLoader, select_autoescape
+from jinja2 import (
+    ChoiceLoader,
+    Environment,
+    FileSystemLoader,
+    StrictUndefined,
+    Undefined,
+    select_autoescape,
+)
 
 from ushka.guard import check_markup
-from ushka.utils.flash import get_flashed_messages
+from ushka.templating.flash import get_flashed_messages
+from ushka.web import i18n
 
 if typing.TYPE_CHECKING:
     from ushka.http.request import Request
 
 ContextProcessor = typing.Callable[
-    ["Request"], typing.Awaitable[typing.Dict[str, typing.Any]]
+    ["Request"], typing.Awaitable[dict[str, typing.Any]]
 ]
 
 
@@ -30,7 +38,7 @@ class UshkaTemplates:
     directory and Ushka's internal default templates.
     """
 
-    def __init__(self, context_processors: typing.List[ContextProcessor] = None):
+    def __init__(self, context_processors: list[ContextProcessor] = None):
         """Initializes the UshkaTemplates engine.
 
         Sets up the Jinja2 environment with a `ChoiceLoader` to prioritize
@@ -57,7 +65,20 @@ class UshkaTemplates:
             loader=self.loader,
             autoescape=select_autoescape(["html", "xml"]),
             enable_async=True,
+            extensions=["jinja2.ext.i18n"],
         )
+        # `_()`, `gettext`, `ngettext` and `{% trans %}` follow the language of
+        # the request being served (a contextvar), never a global one.
+        self.env.install_gettext_callables(
+            i18n.template_gettext,
+            i18n.template_ngettext,
+            newstyle=True,
+            pgettext=i18n.template_pgettext,
+            npgettext=i18n.template_npgettext,
+        )
+        #: Whether a missing variable raises (see `configure`).
+        self.strict = False
+        self._configured_for: typing.Any = None
 
         # Ushka Guard: `{{ value|safe }}` on client data is the classic way to
         # reintroduce XSS into an autoescaped template; refuse it.
@@ -71,7 +92,21 @@ class UshkaTemplates:
 
         self.context_processors = context_processors or []
 
-    def set_project_dir(self, path: typing.Union[str, Path]) -> None:
+    def configure(self, config: typing.Any) -> None:
+        """Applies the settings that belong to the engine.
+
+        A variable that does not exist raises ``UndefinedError`` (with the
+        template and line in the traceback) when ``[app] strict_templates`` is
+        on or the app runs in debug mode; otherwise it renders as empty, as
+        Jinja does by default. The app calls this when it starts, and `render`
+        repeats it when a different app renders, so the mode never leaks from
+        one app (or test) to the next.
+        """
+        self.strict = bool(config.get("app_strict_templates") or config.get("app_debug"))
+        self.env.undefined = StrictUndefined if self.strict else Undefined
+        self._configured_for = config
+
+    def set_project_dir(self, path: str | Path) -> None:
         """Points the project loader at `path` (the app calls this with
         ``<app dir>/templates``). Framework templates stay as the fallback."""
         self._project_loader.searchpath = [str(path)]
@@ -123,7 +158,7 @@ class UshkaTemplates:
         self,
         request: "Request",
         template_name: str,
-        context: typing.Dict[str, typing.Any] = None,
+        context: dict[str, typing.Any] = None,
     ) -> str:
         """Renders a Jinja2 template with the given context and request data.
 
@@ -148,6 +183,11 @@ class UshkaTemplates:
             context = {}
 
         context["request"] = request
+        config = getattr(getattr(request, "app", None), "config", None)
+        if config is not None and config is not self._configured_for:
+            self.configure(config)
+        for name, value in i18n.template_variables().items():
+            context.setdefault(name, value)
 
         # Context Processors
         for processor in self.context_processors:
@@ -185,7 +225,7 @@ engine = _engine
 
 
 async def render(
-    request: "Request", template_name: str, context: typing.Dict[str, typing.Any] = None
+    request: "Request", template_name: str, context: dict[str, typing.Any] = None
 ) -> str:
     """Renders an HTML template using the global templating engine instance.
 

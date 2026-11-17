@@ -1,6 +1,6 @@
 """Guards the minimum Python version the package claims to support.
 
-`import ushka` was broken on 3.10 because `ushka.utils.flash` imported
+`import ushka` was broken on 3.10 because `ushka.templating.flash` imported
 `enum.StrEnum`, which only exists from 3.11 on. The failure was invisible
 locally (development happens on a newer interpreter) and only showed up on the
 oldest entry of the CI matrix.
@@ -19,7 +19,7 @@ from pathlib import Path
 
 import yaml
 
-from ushka.utils.flash import Category
+from ushka.templating.flash import Category
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PYPROJECT = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))

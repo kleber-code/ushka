@@ -1,7 +1,8 @@
 """This module defines the `Request` class for handling incoming HTTP requests."""
 
 import json
-from typing import TYPE_CHECKING, Any, AsyncGenerator, Callable, Coroutine, Dict
+from collections.abc import AsyncGenerator, Callable, Coroutine
+from typing import TYPE_CHECKING, Any
 from urllib.parse import parse_qs
 
 from ushka.guard import Untrusted, taint_deep
@@ -9,8 +10,8 @@ from ushka.http.cookies import Cookies
 from ushka.http.exceptions import HTTPBadRequest, HTTPPayloadTooLarge
 import ushka.http.proxy as proxy
 from ushka.http.multipart import parse_multipart_asgi
-from ushka.http.sessions import Session
 from ushka.http.uploads import UploadFile
+from ushka.sessions.session import ServerSession, Session
 
 if TYPE_CHECKING:
     from ushka.core.app import Ushka
@@ -48,11 +49,13 @@ class Request:
         self.scope = scope
         self.method = str(scope["method"]).upper()
         self.path = str(scope["path"])
+        #: Language chosen for this request (``[i18n]``), e.g. ``"pt-BR"``.
+        self.locale: str = ""
 
         self._receive = receive
         #: Values captured from the URL (``[item_id]``); set by the router.
-        self.path_params: Dict[str, Any] = {}
-        self._cached_data: Dict[str, Any] = {}
+        self.path_params: dict[str, Any] = {}
+        self._cached_data: dict[str, Any] = {}
 
         # Configs
         self.max_body_size_in_KB = int(
@@ -69,7 +72,7 @@ class Request:
         """Wraps client-supplied data in `Untrusted` when the guard is on."""
         return taint_deep(value, source) if self.taint_enabled else value
 
-    def _mark_mapping(self, data: Dict[str, Any], kind: str) -> Dict[str, Any]:
+    def _mark_mapping(self, data: dict[str, Any], kind: str) -> dict[str, Any]:
         if not self.taint_enabled:
             return data
         return {
@@ -80,14 +83,14 @@ class Request:
     # This data is already in the connection 'scope', no I/O needed.
 
     @property
-    def headers(self) -> Dict[str, str]:
+    def headers(self) -> dict[str, str]:
         """The request headers as a dictionary.
 
         Headers are lazily decoded from the ASGI scope and cached upon first access.
 
         Returns
         -------
-        Dict[str, str]
+        dict[str, str]
             A dictionary where keys are header names (lowercase) and values are
             header values.
         """
@@ -100,7 +103,7 @@ class Request:
         return self._cached_data["headers"]
 
     @property
-    def query(self) -> Dict[str, Any]:
+    def query(self) -> dict[str, Any]:
         """The parsed query parameters from the request URL.
 
         Query parameters are lazily parsed from the ASGI scope and cached upon first access.
@@ -108,7 +111,7 @@ class Request:
 
         Returns
         -------
-        Dict[str, Any]
+        dict[str, Any]
             A dictionary where keys are query parameter names and values are
             either single strings or lists of strings.
         """
@@ -145,25 +148,64 @@ class Request:
             )
         return self._cached_data["cookies"]
 
+    def _session_secret(self) -> str:
+        # In debug mode Config generates a per-process key when none is set.
+        secret = self.app.config.get("APP_SECRET_KEY")
+        if not secret:
+            raise RuntimeError(
+                "Sessions need a secret key. Set USHKA_APP_SECRET_KEY in the "
+                "environment or in .env (generate one with: "
+                'python -c "import secrets; print(secrets.token_urlsafe(48))").'
+            )
+        return secret
+
+    def _server_session_options(self) -> dict:
+        config = self.app.config
+        return {
+            "secret_key": self._session_secret(),
+            "max_age": int(config.get("session_max_age", 1209600)),
+            "idle_timeout": int(config.get("session_idle_timeout", 0)),
+            "user_key": config.get("session_user_key", "user_id"),
+            "secure": not self._is_debug,
+        }
+
+    async def load_session(self) -> None:
+        """Reads a server-side session from its store. The app calls this
+        before the route runs, because stores are asynchronous. It does
+        nothing for signed-cookie sessions."""
+        from ushka.sessions.stores import get_store
+
+        store = get_store(self.app)
+        if store is None or "session" in self._cached_data:
+            return
+        if not self.app.config.get("APP_SECRET_KEY"):
+            return  # `request.session` explains the missing key when it is used
+        name = self.app.config.get("session_cookie_name", Session.COOKIE_NAME)
+        session = await ServerSession.load(store, self.cookies.get(name), **self._server_session_options())
+        session.COOKIE_NAME = name
+        self._cached_data["session"] = session
+
     @property
     def session(self) -> Session:
         """Session is a property as it depends on the Cookie (Header), not the Body."""
         if "session" not in self._cached_data:
-            # In debug mode Config generates a per-process key when none is set.
-            secret = self.app.config.get("APP_SECRET_KEY")
-            if not secret:
-                raise RuntimeError(
-                    "Sessions need a secret key. Set USHKA_APP_SECRET_KEY in the "
-                    "environment or in .env (generate one with: "
-                    'python -c "import secrets; print(secrets.token_urlsafe(48))").'
-                )
+            from ushka.sessions.stores import get_store
 
-            raw_session_value = self.cookies.get(Session.COOKIE_NAME)
-            self._cached_data["session"] = Session(
-                secret_key=secret,
-                raw_cookie_value=raw_session_value,
-                secure=not self._is_debug,
-            )
+            secret = self._session_secret()
+            name = self.app.config.get("session_cookie_name", Session.COOKIE_NAME)
+            store = get_store(self.app)
+            if store is not None:
+                # The app loads it before the route; this is the empty fallback.
+                session = ServerSession(store, **self._server_session_options())
+            else:
+                session = Session(
+                    secret_key=secret,
+                    raw_cookie_value=self.cookies.get(name),
+                    max_age=int(self.app.config.get("session_max_age", 1209600)),
+                    secure=not self._is_debug,
+                )
+            session.COOKIE_NAME = name
+            self._cached_data["session"] = session
         return self._cached_data["session"]
 
     # --- WHO IS CALLING (behind a reverse proxy) ---
@@ -331,7 +373,7 @@ class Request:
             self._cached_data["json"] = self._mark(parsed, "json")
         return self._cached_data["json"]
 
-    async def form(self) -> Dict[str, Any]:
+    async def form(self) -> dict[str, Any]:
         """Reads and returns the request body as parsed form data.
 
         This method handles both `application/x-www-form-urlencoded` and
@@ -341,7 +383,7 @@ class Request:
 
         Returns
         -------
-        Dict[str, Any]
+        dict[str, Any]
             A dictionary of form fields. For `application/x-www-form-urlencoded`,
             values are automatically unwrapped from lists if there's only one.
 
@@ -375,7 +417,7 @@ class Request:
                 self._cached_data["files"] = {}
         return self._cached_data["form"]
 
-    async def files(self) -> Dict[str, UploadFile]:
+    async def files(self) -> dict[str, UploadFile]:
         """Reads and returns the uploaded files, by form field name.
 
         This method implicitly calls `request.form()` if the body has not been
@@ -383,7 +425,7 @@ class Request:
 
         Returns
         -------
-        Dict[str, UploadFile]
+        dict[str, UploadFile]
             Field name to `UploadFile`. When a field was sent more than once
             (``<input type="file" multiple>``) this holds the last file; use
             `uploads` to get all of them. For code written against the old
@@ -402,7 +444,7 @@ class Request:
             await self.form()
         return self._cached_data["files"]
 
-    async def uploads(self) -> Dict[str, list[UploadFile]]:
+    async def uploads(self) -> dict[str, list[UploadFile]]:
         """Like `files`, but every field maps to the list of all its files."""
         if "files" not in self._cached_data:
             await self.form()

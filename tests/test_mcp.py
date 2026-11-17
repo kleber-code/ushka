@@ -6,7 +6,7 @@ import json
 import pytest
 
 from ushka import Depends, Header
-from ushka.mcp import ApprovalQueue, tool
+from ushka.api.mcp import ApprovalQueue, tool
 
 TOKEN = "s3cret"
 AUTH = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}

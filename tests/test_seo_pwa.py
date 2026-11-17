@@ -258,6 +258,6 @@ async def test_check_wants_installable_icons(make_app, workdir, monkeypatch, cap
 @pytest.mark.parametrize("raw,expected", [("/static/a.png", "/static/a.png"), ("//evil.example/x", ""), ("javascript:x", ""),
                                           ("https://cdn.example/a.png", "https://cdn.example/a.png"), ("data:text/html,x", "")])
 def test_safe_url(raw, expected):
-    from ushka.seo import safe_url
+    from ushka.web.seo import safe_url
 
     assert safe_url(raw) == expected

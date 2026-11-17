@@ -14,16 +14,17 @@ import traceback
 from datetime import datetime
 from pathlib import Path
 from types import FrameType
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from ushka.core.config import Config
-from ushka.templating import render
 from ushka.guard import RejectedValueError, UnsafeValueError
 from ushka.http.exceptions import HTTPBadRequest, HTTPError, HTTPRedirect
 from ushka.http.redirect import redirect
 from ushka.http.request import Request
 from ushka.http.response import Response
 from ushka.http.validation import RequestValidationError
+from ushka.templating import render
+
 from .router import Router
 
 DEFAULT_SENSITIVE_KEYS = {
@@ -69,7 +70,7 @@ class _TracebackInspector:
             return f"<{type(obj).__name__} repr_failed: {e}>"
 
     @classmethod
-    def get_safe_locals(cls, frame: FrameType) -> Dict[str, str]:
+    def get_safe_locals(cls, frame: FrameType) -> dict[str, str]:
         """Extracts local variables from a frame, redacting sensitive keys.
 
         Sensitive keys are determined by `DEFAULT_SENSITIVE_KEYS`.
@@ -98,7 +99,7 @@ class _TracebackInspector:
     @staticmethod
     def get_context_lines(
         filename: str, lineno: int, context: int = 7
-    ) -> List[Tuple[int, str]]:
+    ) -> list[tuple[int, str]]:
         """Retrieves surrounding lines of code from a file based on line number.
 
         Uses `linecache` for efficient file reading.
@@ -129,7 +130,7 @@ class _TracebackInspector:
         return lines
 
     @classmethod
-    def extract_frames(cls, exc: Exception) -> List[Dict[str, Any]]:
+    def extract_frames(cls, exc: Exception) -> list[dict[str, Any]]:
         """Extracts detailed information from the traceback associated with an exception.
 
         This includes file paths, line numbers, function names, code context,
@@ -181,7 +182,7 @@ class ErrorHandler:
     """
 
     def __init__(
-        self, config: Config, log: logging.Logger, router: Optional[Router] = None
+        self, config: Config, log: logging.Logger, router: Router | None = None
     ) -> None:
         """Initializes the ErrorHandler.
 
@@ -325,7 +326,17 @@ class ErrorHandler:
             The HTTP response object with status code 500 and debug content.
         """
         frames = _TracebackInspector.extract_frames(exc)
+        # A Jinja error carries the template's own file and line in its traceback.
+        template_error = next(
+            (
+                {"file": f["filepath"], "line": f["line"], "name": f["function_name"]}
+                for f in reversed(frames)
+                if not str(f["filepath"]).endswith(".py")
+            ),
+            None,
+        )
         context = {
+            "template_error": template_error,
             "exception_type": type(exc).__name__,
             "exception_message": str(exc),
             "frames": frames,
@@ -356,7 +367,7 @@ class ErrorHandler:
         content = await render(request, "error.html", context)
         return Response(content, status_code=500)
 
-    def _get_debug_routes(self) -> List[Tuple[str, str]]:
+    def _get_debug_routes(self) -> list[tuple[str, str]]:
         """Helper to list available routes for display on debug error screens (e.g., 404).
 
         Returns

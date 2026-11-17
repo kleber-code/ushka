@@ -73,6 +73,7 @@ Your application.
 | --- | --- | --- |
 | `name` | `"Ushka App"` | Display name. Used in page titles, the SEO site name and the PWA name. |
 | `debug` | `false` | Debug pages with tracebacks and local variables. Never turn it on in production. |
+| `strict_templates` | `false` | A variable missing from a template raises an error instead of rendering empty. Always on when debug is on. |
 | `auto_discover` | `true` | Load route files from the routes/ folder. |
 | `secret_key` | *(set it in the environment)* | Signs the session cookie. Use USHKA_APP_SECRET_KEY in .env, never this file. |
 
@@ -104,6 +105,19 @@ Serving static files. See [static files](static_files.md).
 | `url` | `"/static"` | URL prefix of the static files. |
 | `dir` | `"static"` | Folder with the files, relative to the app directory or absolute. |
 | `cache_control` | `"public, max-age=3600"` | Cache-Control sent with every static file. |
+
+### `[session]`
+
+Sessions: a signed cookie by default, or revocable sessions kept on the server. See [sessions](sessions.md).
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `store` | `"cookie"` | Where sessions live: "cookie" (signed, in the browser) or "database" (revocable, no size limit; needs [database] url, else cookies are used). |
+| `cookie_name` | `"_ushka_session"` | Name of the session cookie. |
+| `max_age` | `1209600` | Seconds a session lasts, counted from its creation (14 days). 0 means no limit. |
+| `idle_timeout` | `0` | Server-side stores only: seconds without a request after which a session ends. 0 turns it off. |
+| `user_key` | `"user_id"` | Server-side stores only: the session key that holds the user id, used to revoke all of a user's sessions. |
+| `table` | `"ushka_sessions"` | Table used by store = "database". Created on first use. |
 
 ### `[limits]`
 
@@ -137,6 +151,22 @@ Ushka Guard and the security middleware, all on by default. See [security](secur
 | `cors_headers` | `[]` | Request headers CORS allows. Empty echoes what the preflight asks for. |
 | `cors_credentials` | `false` | Let other origins send cookies. Refused together with "*". |
 | `cors_max_age` | `600` | Seconds a browser may cache the preflight answer. |
+
+### `[i18n]`
+
+Translations from gettext catalogs: `_()`, `{% trans %}` and the language of each request (off by default). See [i18n](i18n.md).
+
+| Key | Default | Meaning |
+| --- | --- | --- |
+| `enable` | `false` | Pick a language for every request and translate with `_()`, `{% trans %}` and `gettext`. |
+| `default_locale` | `"en"` | Language of the source texts and the one used when nothing else matches. |
+| `locales` | `[]` | Languages the app accepts, such as ["en", "pt-BR"]. Anything else a client asks for is ignored. The default is always included. |
+| `catalog_dir` | `"locale"` | Folder with the catalogs, relative to the app directory: <dir>/<lang>/LC_MESSAGES/<domain>.mo. |
+| `domain` | `"messages"` | Name of the catalog file (messages.mo). Django catalogs are django.mo. |
+| `order` | `["query", "cookie", "header"]` | Where the language comes from, first match wins: query (?lang=), cookie and header (Accept-Language). |
+| `query_param` | `"lang"` | Query parameter that picks the language. |
+| `cookie` | `"lang"` | Cookie that remembers the language. |
+| `remember` | `true` | Store a language chosen with the query parameter in the cookie. |
 
 ### `[seo]`
 

@@ -123,7 +123,7 @@ async def test_unknown_path_is_still_404(app, call):
 
 
 def test_session_encode_failure_does_not_log_contents(caplog):
-    from ushka.http.sessions import Session
+    from ushka.sessions.session import Session
 
     s = Session("k" * 32)
     s["password"] = "hunter2"
@@ -136,8 +136,8 @@ def test_session_encode_failure_does_not_log_contents(caplog):
 def test_flash_with_pending_messages_marks_the_session_modified():
     from types import SimpleNamespace
 
-    from ushka.http.sessions import Session
-    from ushka.utils.flash import flash
+    from ushka.sessions.session import Session
+    from ushka.templating.flash import flash
 
     signed = Session("k" * 32)
     signed["_flashes"] = [["info", "older"]]

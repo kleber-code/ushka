@@ -60,6 +60,82 @@ async def post(item: Item):
 Only the fields you declare reach the handler, so a client cannot set
 `is_admin` by adding it to the JSON (no mass assignment).
 
+## HTML forms
+
+A browser form sends `application/x-www-form-urlencoded` or `multipart/form-data`,
+not JSON. Mark the dataclass with `Form()` and the whole object is filled from
+the form, with the **same** types, `Field` limits, body-size limits and
+no-mass-assignment rule as a JSON body:
+
+```python
+# routes/lead.py
+from dataclasses import dataclass, field
+from datetime import date
+from typing import Annotated, Optional
+from ushka import Field, Form, RequestValidationError, Response, render, on_invalid
+
+@dataclass
+class Lead:
+    name: Annotated[str, Field(min_length=2, max_length=80)]
+    email: str
+    age: Optional[int] = None
+    newsletter: bool = False                    # a checkbox
+    interests: list[str] = field(default_factory=list)   # <input name="interests"> repeated
+    born: Optional[date] = None
+
+async def show(request, errors: RequestValidationError):
+    html = await render(request, "lead.html", {"errors": errors.fields, "values": errors.values})
+    return Response(html, status_code=422)
+
+@on_invalid(show)
+async def post(lead: Annotated[Lead, Form()]):
+    ...
+    return redirect("/thanks")
+```
+
+(With decorators: `@app.post("/lead", on_invalid=show)`.)
+
+How a form differs from JSON, and what Ushka does about it:
+
+| The browser sends | You get |
+| --- | --- |
+| nothing for an unchecked checkbox | a `bool` field is `False` |
+| nothing for a group of unchecked boxes | a `list` field is `[]` |
+| `a=1&a=2` | `["1", "2"]` (one value is a list of one) |
+| `""` from an empty number or date input | "not filled in": the default, `None` for `Optional`, else `Field required` |
+| a field you did not declare (`is_admin=1`) | dropped: never reaches the object |
+| a file in `multipart/form-data` | a `dict` field gets `filename`, `content_type` and the file object |
+
+`str` fields stay `Untrusted`, like a JSON string. Only flat models are
+supported in forms (no nested dataclass).
+
+### Draw the form again with the errors
+
+Without `on_invalid`, a bad form answers the JSON **422** above (without
+echoing the input), which is right for an API client. With it, your function
+runs instead. It is an ordinary handler: it can take `request`, `Depends(...)`
+and `errors: RequestValidationError`, and it returns whatever you like. Set
+the status yourself (`Response(html, status_code=422)`, or return `(html, 422)`).
+
+- `errors.fields` is `{"email": ["Field required"], ...}`: the messages for each field.
+- `errors.values` is what the visitor typed. These are client strings (`Untrusted`):
+  put them in a template and the autoescape handles them.
+- `errors.errors` is the full list with locations, as in the JSON answer.
+
+```html
+<!-- templates/lead.html -->
+<input name="email" value="{{ values.email }}">
+{% for message in errors.email %}<p class="error">{{ message }}</p>{% endfor %}
+```
+
+The error messages never contain the client's input, so it is safe to show
+them. If the handler itself fails validation (a missing `Depends`), that error
+is answered as usual.
+
+!!! warning
+    Do not mark `errors.values` with `|safe` or build HTML from it by hand:
+    Ushka Guard refuses an `Untrusted` value there for a reason.
+
 ## Validation is also sanitising
 
 This is how it fits with [Ushka Guard](guard.md):

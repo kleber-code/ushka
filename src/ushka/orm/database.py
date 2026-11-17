@@ -6,22 +6,29 @@ It includes the `UshkaDB` manager for engine and session handling, a dynamically
 generated `BaseModel` with Active Record-style CRUD operations, and helper
 methods for defining common SQLAlchemy column types.
 """
-import os
-import uuid
+from __future__ import annotations
+
+import asyncio
+import contextlib
+import contextvars
+import datetime as _dt
 import enum
+import uuid
+from collections.abc import AsyncIterator
+from typing import Any, TypeVar
+
 import sqlalchemy.types as sqltypes
-from sqlalchemy import Column, ForeignKey, inspect, select, MetaData, text
+from sqlalchemy import Column, ForeignKey, MetaData, event, inspect, select, text
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
+from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.sql import func
 
 from ushka.guard import check_sql, is_template
 from ushka.guard.templates import sql as template_to_sql
-from sqlalchemy.orm import declarative_base, relationship
-from sqlalchemy.sql import func
-from sqlalchemy.ext.asyncio import (
-    create_async_engine,
-    async_sessionmaker,
-    AsyncSession,
-)
-from typing import Optional, List, TypeVar, Type, Any
 
 # =============================================================================
 # NAMING CONVENTION
@@ -41,6 +48,59 @@ _Base = declarative_base(metadata=_metadata)
 # Type variable bound to _Base, allows for generic typing of the dynamic
 # BaseModel while avoiding 'undefined name' (F821) linting errors.
 T = TypeVar("T", bound=_Base)
+
+
+def utcnow() -> _dt.datetime:
+    """The current time as an aware ``datetime`` in UTC (what ``auto_now`` stores)."""
+    return _dt.datetime.now(_dt.timezone.utc)
+
+
+def _utcnow_naive() -> _dt.datetime:
+    return utcnow().replace(tzinfo=None)
+
+
+class UTCDateTime(sqltypes.TypeDecorator):
+    """A timezone-aware ``DateTime`` that always reads back as UTC.
+
+    PostgreSQL stores ``timestamptz``. SQLite and MySQL drop the offset, so a
+    naive value read from them is taken as UTC and given ``tzinfo=UTC``;
+    an aware value is converted to UTC before it is written.
+    """
+
+    impl = sqltypes.DateTime(timezone=True)
+    cache_ok = True
+
+    def process_bind_param(self, value, dialect):
+        if isinstance(value, _dt.datetime) and value.tzinfo is not None:
+            value = value.astimezone(_dt.timezone.utc)
+            if dialect.name in ("sqlite", "mysql", "mariadb"):
+                value = value.replace(tzinfo=None)
+        return value
+
+    def process_result_value(self, value, dialect):
+        if isinstance(value, _dt.datetime):
+            if value.tzinfo is None:
+                return value.replace(tzinfo=_dt.timezone.utc)
+            return value.astimezone(_dt.timezone.utc)
+        return value
+
+
+def _sqlite_explicit_begin(engine) -> None:
+    """Make SQLite begin transactions when SQLAlchemy says so.
+
+    The sqlite3 driver only opens a transaction before the first INSERT,
+    UPDATE or DELETE, so a SAVEPOINT that comes first would be the outermost
+    one and its RELEASE would commit. This is the recipe from the SQLAlchemy
+    docs ("Serializable isolation / Savepoints / Transactional DDL").
+    """
+
+    @event.listens_for(engine, "connect")
+    def _connect(dbapi_connection, _record):
+        dbapi_connection.isolation_level = None
+
+    @event.listens_for(engine, "begin")
+    def _begin(conn):
+        conn.exec_driver_sql("BEGIN")
 
 
 class UshkaDB:
@@ -69,7 +129,9 @@ class UshkaDB:
     metadata : sqlalchemy.MetaData
         The metadata object used by the declarative base.
     Model : Type[_Base]
-        The dynamic BaseModel class with CRUD methods.
+        The model base: CRUD methods and a default ``id`` primary key.
+    BaseModel : Type[_Base]
+        The same base without the default ``id`` (declare your own key).
     """
 
     CASCADE = "CASCADE"
@@ -84,7 +146,7 @@ class UshkaDB:
         "mysql": "mysql+aiomysql",
     }
 
-    def __init__(self, url: Optional[str] = None):
+    def __init__(self, url: str | None = None):
         """
         Initializes the database manager.
 
@@ -97,8 +159,12 @@ class UshkaDB:
         self._url = url
         self._engine = None
         self._session_factory = None
+        # (session, owning task) of the open `transaction()` of this context.
+        self._tx: contextvars.ContextVar = contextvars.ContextVar(
+            f"ushka_orm_tx_{id(self)}", default=None
+        )
         self.metadata = _Base.metadata
-        self.Model = self._create_model_base()
+        self.BaseModel, self.Model = self._create_model_base()
 
     @classmethod
     def to_async_url(cls, url: str) -> str:
@@ -127,6 +193,8 @@ class UshkaDB:
         """The `AsyncEngine`, created on first access."""
         if self._engine is None:
             self._engine = create_async_engine(self.url, echo=False)
+            if self._engine.dialect.name == "sqlite":
+                _sqlite_explicit_begin(self._engine.sync_engine)
         return self._engine
 
     @property
@@ -139,7 +207,7 @@ class UshkaDB:
         return self._session_factory
 
     @property
-    def Session(self):  # noqa: N802 - public name kept for compatibility
+    def Session(self):
         """Factory of new `AsyncSession` objects: ``async with db.Session() as s:``.
 
         Each call opens an independent session. (A task-scoped registry was used
@@ -147,6 +215,89 @@ class UshkaDB:
         nested calls in the same task closed each other's session.)
         """
         return self.session_factory
+
+    # --- TRANSACTIONS ---
+
+    def _active(self):
+        """The session of the open `transaction()` in this task, or None.
+
+        A task spawned inside the block (``asyncio.gather``, ``create_task``)
+        inherits the context variable, but an `AsyncSession` must not be
+        used by two tasks at once, so only the task that opened the block
+        sees it; the others keep using a session per call.
+        """
+        state = self._tx.get()
+        if state is None:
+            return None
+        session, owner = state
+        return session if owner is asyncio.current_task() else None
+
+    @property
+    def in_transaction(self) -> bool:
+        """True inside ``async with db.transaction()`` (in the task that opened it)."""
+        return self._active() is not None
+
+    @contextlib.asynccontextmanager
+    async def _use_session(self) -> AsyncIterator[AsyncSession]:
+        """The transaction's session when there is one, else a short-lived one."""
+        session = self._active()
+        if session is not None:
+            yield session
+        else:
+            async with self.Session() as own:
+                yield own
+
+    async def _commit(self, session: AsyncSession) -> None:
+        """Commit a call-scoped session; only flush one owned by `transaction()`."""
+        if session is self._active():
+            await session.flush()
+        else:
+            await session.commit()
+
+    @contextlib.asynccontextmanager
+    async def transaction(self, *, savepoint: bool = True) -> AsyncIterator[AsyncSession]:
+        """Runs several operations as one atomic unit.
+
+        ``async with db.transaction():`` opens one session; inside it
+        ``Model.create/save/delete/get/filter/...`` and ``db.execute`` all use
+        it. The block commits when it ends and rolls everything back when it
+        raises. Outside a block each call still opens and commits its own session.
+
+        Nested blocks run in a SAVEPOINT: if the inner block raises, only its
+        changes are undone, and the outer transaction carries on if you catch
+        the error. Pass ``savepoint=False`` to join the outer transaction
+        instead (the inner block then neither commits nor rolls back by itself).
+
+        The session lives in a context variable, so concurrent requests and
+        tasks never see each other's transaction; a task spawned inside the
+        block does not use it either.
+
+        Yields
+        ------
+        AsyncSession
+            The transaction's session, for anything the Active Record methods
+            do not cover.
+        """
+        outer = self._active()
+        if outer is not None:
+            if savepoint:
+                async with outer.begin_nested():
+                    yield outer
+            else:
+                yield outer
+            return
+        async with self.Session() as session:
+            token = self._tx.set((session, asyncio.current_task()))
+            try:
+                yield session
+                await session.commit()
+            except BaseException:
+                await session.rollback()
+                raise
+            finally:
+                self._tx.reset(token)
+
+    atomic = transaction
 
     def _create_model_base(self):
         """
@@ -161,21 +312,35 @@ class UshkaDB:
 
         class BaseModel(_Base):
             """
-            Base ORM Model with built-in async CRUD operations.
+            Model base without a default key: declare your own primary key.
 
             This class provides Active Record pattern methods for persistence
             and querying using asynchronous SQLAlchemy 2.0 style.
+
+            ``class Meta: extend_existing = True`` lets a model describe a table
+            that is already in the metadata (a mirrored or reflected schema).
             """
 
             __abstract__ = True
-            # SQLite only auto-increments an `INTEGER PRIMARY KEY`; a BIGINT
-            # key stays NULL and every insert fails. 64-bit elsewhere.
-            id = Column(
-                sqltypes.BigInteger().with_variant(sqltypes.Integer(), "sqlite"),
-                primary_key=True,
-                index=True,
-                autoincrement=True,
-            )
+
+            def __init_subclass__(cls, **kw):
+                super().__init_subclass__(**kw)
+                meta = getattr(cls, "Meta", None)
+                if (
+                    cls.__dict__.get("__abstract__")
+                    or not getattr(meta, "extend_existing", False)
+                ):
+                    return
+                args = getattr(cls, "__table_args__", None)
+                if args is None:
+                    args = {}
+                if isinstance(args, dict):
+                    args = {**args, "extend_existing": True}
+                else:
+                    tail = args[-1] if args and isinstance(args[-1], dict) else {}
+                    head = args[:-1] if tail else tuple(args)
+                    args = (*head, {**tail, "extend_existing": True})
+                cls.__table_args__ = args
 
             # --- INSTANCE METHODS ---
 
@@ -191,9 +356,9 @@ class UshkaDB:
                 T
                     The refreshed instance of the model.
                 """
-                async with db.Session() as session:
+                async with db._use_session() as session:
                     session.add(self)
-                    await session.commit()
+                    await db._commit(session)
                     await session.refresh(self)
                     return self
 
@@ -201,9 +366,9 @@ class UshkaDB:
                 """
                 Removes the current instance from the database.
                 """
-                async with db.Session() as session:
+                async with db._use_session() as session:
                     await session.delete(self)
-                    await session.commit()
+                    await db._commit(session)
 
             def to_dict(self) -> dict:
                 """
@@ -233,7 +398,7 @@ class UshkaDB:
                 return data
 
             @classmethod
-            async def create(cls: Type[T], **kwargs) -> T:
+            async def create(cls: type[T], **kwargs) -> T:
                 """
                 Creates a new instance and saves it to the database.
 
@@ -253,7 +418,7 @@ class UshkaDB:
             # --- QUERY METHODS ---
 
             @classmethod
-            async def all(cls: Type[T]) -> List[T]:
+            async def all(cls: type[T]) -> list[T]:
                 """
                 Returns all records for this model.
 
@@ -262,12 +427,12 @@ class UshkaDB:
                 List[T]
                     A list of all model instances.
                 """
-                async with db.Session() as session:
+                async with db._use_session() as session:
                     result = await session.execute(select(cls))
                     return result.scalars().all()
 
             @classmethod
-            async def get(cls: Type[T], id: Any) -> Optional[T]:
+            async def get(cls: type[T], id: Any) -> T | None:
                 """
                 Retrieves a single record by its Primary Key.
 
@@ -281,11 +446,11 @@ class UshkaDB:
                 Optional[T]
                     The model instance if found, otherwise None.
                 """
-                async with db.Session() as session:
+                async with db._use_session() as session:
                     return await session.get(cls, id)
 
             @classmethod
-            async def first(cls: Type[T], **kwargs) -> Optional[T]:
+            async def first(cls: type[T], **kwargs) -> T | None:
                 """
                 Returns the first record matching the filters.
 
@@ -299,13 +464,13 @@ class UshkaDB:
                 Optional[T]
                     The first matching model instance if found, otherwise None.
                 """
-                async with db.Session() as session:
+                async with db._use_session() as session:
                     stmt = select(cls).filter_by(**kwargs)
                     result = await session.execute(stmt)
                     return result.scalars().first()
 
             @classmethod
-            async def filter(cls: Type[T], **kwargs) -> List[T]:
+            async def filter(cls: type[T], **kwargs) -> list[T]:
                 """
                 Returns a list of records matching the filters.
 
@@ -319,7 +484,7 @@ class UshkaDB:
                 List[T]
                     A list of matching model instances.
                 """
-                async with db.Session() as session:
+                async with db._use_session() as session:
                     stmt = select(cls).filter_by(**kwargs)
                     result = await session.execute(stmt)
                     return result.scalars().all()
@@ -344,10 +509,28 @@ class UshkaDB:
                 """
                 Returns a string representation of the model instance.
                 """
-                pk = getattr(self, "id", "No-ID")
+                try:
+                    ident = inspect(self).identity
+                except Exception:
+                    ident = None
+                pk = ", ".join(map(str, ident)) if ident else "No-ID"
                 return f"<{self.__class__.__name__} {pk}>"
 
-        return BaseModel
+        class Model(BaseModel):
+            """Model base with an auto-incrementing ``id`` primary key."""
+
+            __abstract__ = True
+            # SQLite only auto-increments an `INTEGER PRIMARY KEY`; a BIGINT
+            # key stays NULL and every insert fails. 64-bit elsewhere.
+            # A subclass that declares its own `id` replaces this column.
+            id = Column(
+                sqltypes.BigInteger().with_variant(sqltypes.Integer(), "sqlite"),
+                primary_key=True,
+                index=True,
+                autoincrement=True,
+            )
+
+        return BaseModel, Model
 
     # --- EXECUTION HELPERS ---
 
@@ -397,7 +580,7 @@ class UshkaDB:
             stmt = text(query).bindparams(**params)
         elif isinstance(stmt, str):
             stmt = self.text(stmt)
-        async with self.Session() as session:
+        async with self._use_session() as session:
             return await session.execute(stmt)
 
     # --- TYPE HELPERS ---
@@ -597,27 +780,44 @@ class UshkaDB:
         """
         return Column(sqltypes.Boolean, nullable=nullable, default=default)
 
-    def DateTime(self, auto_now=False, nullable=False) -> Column:
+    def DateTime(
+        self,
+        auto_now=False,
+        nullable=False,
+        auto_now_add=False,
+        timezone: bool | None = None,
+    ) -> Column:
         """
         Defines a SQLAlchemy DateTime column.
 
         Parameters
         ----------
         auto_now : bool, optional
-            If True, sets the default value to the current database time (func.now()).
-            By default False.
+            If True, the ORM sets the current UTC time on insert and again on
+            every update (an ``updated_at`` column). By default False.
+        auto_now_add : bool, optional
+            If True, the ORM sets the current UTC time on insert only (a
+            ``created_at`` column). By default False.
         nullable : bool, optional
             If True, allows NULL values. By default False.
+        timezone : bool, optional
+            Store a timezone-aware value (``timestamptz`` on PostgreSQL; read
+            back as UTC everywhere). Defaults to True for the automatic
+            columns and False for a plain one.
 
         Returns
         -------
         sqlalchemy.Column
             The configured Column object.
         """
+        auto = auto_now or auto_now_add
+        aware = auto if timezone is None else timezone
+        stamp = utcnow if aware else _utcnow_naive
         return Column(
-            sqltypes.DateTime,
+            UTCDateTime() if aware else sqltypes.DateTime,
             nullable=nullable,
-            default=func.now() if auto_now else None,
+            default=stamp if auto else None,
+            onupdate=stamp if auto_now else None,
         )
 
     def Date(self, auto_now=False, nullable=False) -> Column:
@@ -680,12 +880,12 @@ class UshkaDB:
             default_val = dict
         elif isinstance(default, (dict, list)):
             snapshot = default
-            default_val = lambda: type(snapshot)(snapshot)  # noqa: E731
+            default_val = lambda: type(snapshot)(snapshot)
         else:
             default_val = default
         return Column(sqltypes.JSON, nullable=nullable, default=default_val)
 
-    def Enum(self, enum_cls: Type[enum.Enum], nullable=False, default=None) -> Column:
+    def Enum(self, enum_cls: type[enum.Enum], nullable=False, default=None) -> Column:
         """
         Defines a SQLAlchemy Enum column based on a Python Enum class.
 
@@ -730,6 +930,7 @@ class UshkaDB:
         dtype: Any = None,
         on_delete: str = CASCADE,
         nullable: bool = False,
+        use_alter: bool = False,
     ) -> Column:
         """
         Defines a SQLAlchemy Column that acts as a Foreign Key.
@@ -749,6 +950,11 @@ class UshkaDB:
         nullable : bool, optional
             If True, allows NULL values. Overridden if on_delete='SET NULL'.
             By default False.
+        use_alter : bool, optional
+            Create the constraint with ``ALTER TABLE`` after both tables exist.
+            Set it on one side of a cycle of foreign keys (``app`` -> ``release``
+            -> ``app``) so the tables can be sorted without an ``SAWarning``.
+            By default False.
 
         Returns
         -------
@@ -761,10 +967,14 @@ class UshkaDB:
         if isinstance(column_type, Column):
             column_type = column_type.type
         return Column(
-            column_type, ForeignKey(target, ondelete=on_delete), nullable=nullable
+            column_type,
+            ForeignKey(target, ondelete=on_delete, use_alter=use_alter),
+            nullable=nullable,
         )
 
-    def Relationship(self, model: str, back_populates: str = None) -> Any:
+    def Relationship(
+        self, model: str, back_populates: str = None, post_update: bool = False
+    ) -> Any:
         """
         Defines a SQLAlchemy relationship property.
 
@@ -778,13 +988,21 @@ class UshkaDB:
         back_populates : str, optional
             The name of the relationship property on the target model.
             By default None.
+        post_update : bool, optional
+            Write the foreign key with a separate ``UPDATE`` after the rows
+            exist. Needed on one side of a cyclic relationship. By default False.
 
         Returns
         -------
         sqlalchemy.orm.RelationshipProperty
             The configured relationship object.
         """
-        return relationship(model, back_populates=back_populates, passive_deletes=True)
+        return relationship(
+            model,
+            back_populates=back_populates,
+            passive_deletes=True,
+            post_update=post_update,
+        )
 
 
 db = UshkaDB()

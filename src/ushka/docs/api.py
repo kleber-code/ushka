@@ -7,10 +7,11 @@ one section per class or function (signature, parameters table, examples).
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
 from html import escape
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import griffe
 
@@ -89,7 +90,7 @@ def _sig_block(obj: griffe.Function, *, method: bool = False) -> str:
 def _rst_to_markdown(text: str) -> str:
     """Docstrings use a little reST: ``code`` and "Example::" literal blocks."""
     text = re.sub(r"``([^`]+)``", r"`\1`", text)
-    return re.sub(r"::[ \t]*$", ":", text, flags=re.M)
+    return re.sub(r"::[ \t]*$", ":", text, flags=re.MULTILINE)
 
 
 def _plain(text: str) -> str:

@@ -59,11 +59,62 @@ code runs). To probe them too, use a **test database**:
 $ USHKA_DATABASE_URL=sqlite:///test.db ushka verify app:app --include-writes
 ```
 
+## Routes exempt from CSRF
+
+Webhooks (Mercado Pago, GitHub, Stripe) and machine APIs are listed in
+`[security] csrf_exempt_paths`. They are the routes strangers can call without a
+browser, so they are probed like any other, with the **same method rules**: `GET`
+always, `POST`/`PUT`/`PATCH`/`DELETE` only with `--include-writes`. The report
+says which ones are exempt (`exempt` in `--json`, `(exempt from CSRF)` next to a
+finding). `--skip-exempt` leaves them out.
+
+The one probe they do not get is the cross-site CSRF check: an exempt route is
+meant to accept a request from another site, so a `200` there is not a finding.
+The payload probes carry no cross-site headers, so the CSRF check cannot hide
+what they find, and they cannot be blamed on it either.
+
+## Redirects
+
+A redirect is not a finding by itself: a protected route sends you to the login
+page. `verify` reports an open redirect only when the `Location` reflects the probe:
+
+| `Location` | Result |
+| --- | --- |
+| `/login?next=/dashboard` | nothing |
+| `/login?next=/dashboard?q=//evil.example` (the probe inside the visitor's own URL) | nothing |
+| `//evil.example/x`, `https://evil.example/x` | **high**: the visitor lands on another site |
+| `/login?next=//evil.example/x` (the probe *is* the `next` value) | **medium**: an open redirect unless the login page checks `next` |
+
+The body of a redirect is not checked for markup, since a browser never shows it.
+
+## Probing as a logged-in user
+
+Without a session, a protected route only ever answers with a redirect to the
+login, so its handler is never attacked. Give `verify` a visitor:
+
+```console
+$ USHKA_APP_SECRET_KEY=... ushka verify app:app --as-session uid=1 --as-session role=admin
+$ ushka verify app:app --cookie "_ushka_session=..."      # a cookie you already have
+```
+
+`--as-session KEY=VALUE` (repeatable; `1` is an integer, `true` a boolean, the rest
+text) forges a session signed with the app's secret key and sends it with every
+probe, and with `[session] store = "database"` it creates the record in the store
+and removes it when the run ends. Only the keys of the session are printed, never
+the values. It is a test tool: keep the key in the environment or `.env`, use a
+development key and a test database. The same cookie is available to your own
+tests as `ushka.sessions.forge_session_cookie` (see
+[Sessions](sessions.md#forging-a-session-for-tests)) and to `curl` as
+[`ushka session`](cli.md#ushka-session).
+
 ## Options
 
 | Option | |
 | --- | --- |
 | `--include-writes` | Also probe `POST`, `PUT`, `PATCH` and `DELETE` routes. |
+| `--skip-exempt` | Leave out the routes exempt from CSRF (they are probed by default). |
+| `--as-session KEY=VALUE` | Probe as a logged-in user: forge a session with this item (repeatable). |
+| `--cookie NAME=VALUE` | Send this cookie with every probe. |
 | `--param NAME` | Also probe this query parameter (repeatable). |
 | `--json` | Print the report as JSON. |
 | `--fail-on high\|medium\|none` | Lowest severity that makes the exit status 1. Default `medium`: vulnerabilities and crashes fail, guard refusals do not. |

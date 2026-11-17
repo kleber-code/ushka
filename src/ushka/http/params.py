@@ -4,7 +4,8 @@ A handler states what it needs in its signature and Ushka resolves it, then
 validates it (see `ushka.http.validation`):
 
 * a path parameter whose name is in the route (``[item_id]``) is converted to its annotation;
-* ``Query()``, ``Header()``, ``Cookie()``, ``Body()``, ``Form()`` and ``Path()`` pick the source explicitly;
+* ``Query()``, ``Header()``, ``Cookie()``, ``Body()``, ``Form()`` and ``Path()`` pick the source explicitly
+  (``Annotated[Signup, Form()]`` fills a whole dataclass from an HTML form);
 * a plain scalar annotation (``limit: int = 10``) is a query parameter;
 * a dataclass, ``TypedDict``, ``dict`` or ``list`` annotation is the JSON body;
 * an ``UploadFile`` (or ``list[UploadFile]``) annotation is a file of a multipart form;
@@ -31,7 +32,9 @@ from ushka.http.validation import (
     Field,
     RequestValidationError,
     coerce,
+    form_to_model_input,
     hints_of,
+    is_model,
 )
 from ushka.http.websocket import WebSocket
 
@@ -78,6 +81,25 @@ class Form(Param):
     source = "form"
 
 
+def on_invalid(handler: Callable[..., Any]) -> Callable[[Callable], Callable]:
+    """Names the function that answers when a route's parameters fail validation.
+
+    For file routes (``@app.post("/x", on_invalid=fn)`` does the same)::
+
+        @on_invalid(show_form)
+        async def post(lead: Annotated[Lead, Form()]): ...
+
+    `handler` is an ordinary handler: it may take ``request``, ``Depends(...)``
+    and ``errors: RequestValidationError`` (with ``.fields`` and ``.values``).
+    """
+
+    def mark(func: Callable) -> Callable:
+        func.__ushka_on_invalid__ = handler
+        return func
+
+    return mark
+
+
 @dataclasses.dataclass(frozen=True)
 class Depends:
     """``user = Depends(current_user)``: call `dependency` and inject its result.
@@ -97,7 +119,7 @@ class Depends:
 class _Spec:
     name: str
     annotation: Any
-    kind: str  # request response config depends path query header cookie body form
+    kind: str  # request response config errors depends path query header cookie body form
     marker: Param | None = None
     default: Any = _REQUIRED
     depends: Depends | None = None
@@ -111,6 +133,8 @@ def _special(name: str, ann: Any, method: str = "") -> str | None:
         return "websocket"
     if name == "request" or ann is Request:
         return "request"
+    if ann is RequestValidationError:
+        return "errors"
     if name == "response" or ann is Response:
         return "response"
     if name == "config" or ann is Config:
@@ -123,11 +147,6 @@ def wants_upload(tp: Any) -> bool:
     if tp is UploadFile:
         return True
     return any(wants_upload(a) for a in typing.get_args(tp) if a is not type(None))
-
-
-def _is_model(tp: Any) -> bool:
-    tp = typing.get_args(tp)[0] if typing.get_origin(tp) is typing.Annotated else tp
-    return (dataclasses.is_dataclass(tp) and isinstance(tp, type)) or typing.is_typeddict(tp)
 
 
 def _is_body_type(tp: Any) -> bool:
@@ -192,6 +211,10 @@ def build_plan(func: Callable, path_names: frozenset, method: str) -> list[_Spec
     return plan
 
 
+def _inner(ann: Any) -> Any:
+    return typing.get_args(ann)[0] if typing.get_origin(ann) is typing.Annotated else ann
+
+
 class Resolver:
     """Per-request state: the dependency cache and what to clean up afterwards."""
 
@@ -199,6 +222,7 @@ class Resolver:
         self.request = request
         self.response = response
         self.websocket: WebSocket | None = None
+        self.errors: RequestValidationError | None = None  # set while an ``on_invalid`` handler runs
         self.cache: dict[Any, Any] = {}
         self.stack = contextlib.AsyncExitStack()
 
@@ -230,7 +254,9 @@ class Resolver:
             if value is not _MISSING:
                 kwargs[spec.name] = value
         if errors:
-            raise RequestValidationError(errors)
+            cached = self.request._cached_data
+            values = dict(cached["form"]) if "form" in cached and any(s.kind == "form" for s in plan) else {}
+            raise RequestValidationError(errors, values)
         return kwargs
 
     async def _value(self, spec: _Spec, body_specs: list, errors: list) -> Any:
@@ -245,6 +271,8 @@ class Resolver:
             return req.app.config
         if spec.kind == "websocket":
             return self.websocket
+        if spec.kind == "errors":
+            return self.errors
         if spec.kind == "depends":
             return await self._depends(spec.depends, errors)
         name = (spec.marker.alias if spec.marker and spec.marker.alias else spec.name)
@@ -258,12 +286,21 @@ class Resolver:
             loc = ["header", name]
         elif spec.kind == "cookie":
             raw, loc = req.cookies.get(name, _MISSING), ["cookie", name]
+        elif spec.kind == "form" and is_model(_inner(spec.annotation)):
+            # the whole dataclass from the form: same coercion and limits as a JSON body
+            form = await req.form()
+            data = {**form, **await req.files()}
+            for field, hint in hints_of(_inner(spec.annotation)).items():
+                if wants_upload(hint):  # every file of the field, none for a blank input
+                    data.pop(field, None)
+                    found = await self._upload_value(hint, field)
+                    if found is not _MISSING:
+                        data[field] = found
+            return self._convert(spec, form_to_model_input(data, _inner(spec.annotation)), ["form"], errors)
         elif spec.kind == "form":
             form = await req.form()
             if wants_upload(spec.annotation):
                 raw, loc = await self._upload_value(spec.annotation, name), ["form", name]
-            elif _is_model(spec.annotation):
-                raw, loc = await self._form_model(form, spec.annotation), ["form"]
             else:
                 raw, loc = form.get(name, _MISSING), ["form", name]
         else:  # body
@@ -286,17 +323,6 @@ class Resolver:
         if not found:
             return _MISSING
         return found if _wants_list(tp) else found[-1]
-
-    async def _form_model(self, form: dict, model: Any) -> dict:
-        """The whole form as a dict for a dataclass/TypedDict: text fields plus files."""
-        model = typing.get_args(model)[0] if typing.get_origin(model) is typing.Annotated else model
-        data = dict(form)
-        for field, hint in hints_of(model).items():
-            if wants_upload(hint):
-                value = await self._upload_value(hint, field)
-                if value is not _MISSING:
-                    data[field] = value
-        return data
 
     @staticmethod
     def _convert(spec: _Spec, raw: Any, loc: list, errors: list) -> Any:

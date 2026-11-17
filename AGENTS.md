@@ -22,11 +22,18 @@
 - `src/ushka/guard/` — taint core. Must not import anything else from `ushka`
   (enforced by `tests/test_guard.py` and `tests/test_architecture.py`), so it can ship standalone.
   `guard/integrations/` adapts it to Starlette, FastAPI and Django (framework imported lazily).
-- `src/ushka/core/` — app, router, config (read-only layered config), error handler, logging.
-- `src/ushka/http/` — request, response, streaming/SSE, WebSocket, cookies, sessions, multipart,
-  redirect, `params.py` (typed parameters, `Depends`) and `validation.py` (stdlib-only validation).
-- `src/ushka/security/` — the security middleware (CSRF, headers, CORS, trusted hosts), on by default.
-- `src/ushka/openapi.py`, `mcp.py`, `verify.py` — OpenAPI from signatures, routes as MCP tools, `ushka verify`.
+- `src/ushka/core/` — app, router, config, `settings.py` (the schema of every setting), error handler,
+  logging and `server.py` (the production server).
+- `src/ushka/http/` — request, response, streaming/SSE, WebSocket, cookies, multipart, redirect,
+  `params.py` (typed parameters, `Depends`, forms) and `validation.py` (stdlib-only validation).
+- `src/ushka/security/` — the security middleware (CSRF, headers, CORS, trusted hosts), on by default,
+  and `verify.py` (`ushka verify`).
+- `src/ushka/sessions/` — signed-cookie sessions and revocable server-side sessions (database store).
+- `src/ushka/templating/` (Jinja2 engine, flash), `static/` (static files).
+- `src/ushka/web/` — what browsers and search engines see: `seo.py`, `pwa.py`, `i18n/`. Each has its own
+  `[section]` in the schema and is off, or passive, until used.
+- `src/ushka/api/` — what machines consume: `openapi.py` and `mcp.py` (routes as MCP tools).
+- `src/ushka/orm/`, `docs/`, `testing.py` — batteries and tooling.
 - `src/ushka/cli/` — argparse CLI; output through `ushka.cli.ui`; errors exit 1.
 - `docs/` — Ushka Docs sources; `docs/guide/guard.md` documents error codes `USHKA-G00x`
   (anchors are linked from `UnsafeValueError.docs`). `docs/architecture.md` is the map of the code.
