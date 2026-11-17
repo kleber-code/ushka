@@ -18,6 +18,7 @@ from collections.abc import AsyncIterator
 from typing import Any
 
 from ushka.http.request import Request
+from ushka.http.jsonenc import dumps
 
 
 class WebSocketDisconnect(Exception):
@@ -117,7 +118,7 @@ class WebSocket:
         await self._send_frame({"type": "websocket.send", "bytes": bytes(data)})
 
     async def send_json(self, data: Any) -> None:
-        await self.send_text(json.dumps(data))
+        await self.send_text(dumps(data))
 
     async def _send_frame(self, message: dict) -> None:
         if self.state != "connected":

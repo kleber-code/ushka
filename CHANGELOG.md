@@ -11,6 +11,7 @@ All notable changes to Ushka. The format follows
 
 ### Fixed
 
+- **JSON responses serialize `datetime`, `date`, `time`, `Decimal` and `UUID`** (ISO 8601 text; `Decimal` and `UUID` as strings, like Django's `JsonResponse`). They used to answer 500 (`TypeError`). Also applies to `send_json` and SSE data.
 - **`db.execute()` now commits.** Writes made through it (`UPDATE`, `INSERT`, `DELETE`) used to be rolled back when the session closed, without any error.
 
 ## [0.7.0] - 2026-11-16

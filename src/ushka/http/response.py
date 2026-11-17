@@ -4,12 +4,12 @@ The `Response` class ensures correct formatting for ASGI compatibility and
 automatically handles Cookie and Session persistence if a Request object is provided.
 """
 
-import json
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
 
 from ushka.core.exceptions import ContentToJsonParserFailed
 from ushka.guard import check_html, is_template
 from ushka.guard.templates import html as render_template_html
+from ushka.http.jsonenc import dumps
 
 if TYPE_CHECKING:
     from ushka.http.request import Request
@@ -197,14 +197,14 @@ class Response:
         elif isinstance(value, (dict, list)):
             self.media_type = "application/json"
             try:
-                self._body = json.dumps(value)
+                self._body = dumps(value)
             except Exception as e:
                 raise ContentToJsonParserFailed(str(e)) from e
 
         elif isinstance(value, (bool, float)) or value is None:
             # JSON scalars: `true`, `1.5`, `null`.
             self.media_type = "application/json"
-            self._body = json.dumps(value)
+            self._body = dumps(value)
 
         elif isinstance(value, int):
             self._body = str(value)

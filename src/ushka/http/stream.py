@@ -17,12 +17,12 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import dataclasses
-import json
 import re
 from collections.abc import AsyncIterable, Callable, Iterable
 from typing import Any
 
 from ushka.http.response import Response
+from ushka.http.jsonenc import dumps
 
 _LINES = re.compile(r"\r\n|\r|\n")
 _FIELD_FORBIDDEN = re.compile(r"[\r\n\x00]")
@@ -121,7 +121,7 @@ class ServerSentEvent:
         if self.retry is not None:
             out.append(f"retry: {int(self.retry)}")
         if self.data != "" or self.comment is None:
-            text = self.data if isinstance(self.data, str) else json.dumps(self.data)
+            text = self.data if isinstance(self.data, str) else dumps(self.data)
             out += [f"data: {line}" for line in _LINES.split(text)]
         return ("\n".join(out) + "\n\n").encode("utf-8")
 
