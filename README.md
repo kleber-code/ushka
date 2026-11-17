@@ -129,7 +129,7 @@ ushka run                  # the production server (see "workers" in ushka.toml)
 
 ## Documentation
 
-Everything is at **https://ushka.satela.com.br/docs/**. The site is built with
+Everything is at **[ushka.satela.com.br/docs](https://ushka.satela.com.br/docs/)**. The site is built with
 Ushka itself, and its docs are rendered by Ushka Docs.
 
 - [Installation](https://ushka.satela.com.br/docs/guide/install/) and the [Quickstart](https://ushka.satela.com.br/docs/guide/quickstart/)
@@ -151,7 +151,7 @@ see whenever the guard stops something.
 
 Bug reports, ideas and pull requests are welcome. See the
 [contributing guidelines](https://github.com/kleber-code/ushka/blob/main/.github/CONTRIBUTING.md)
-and the [security policy](https://github.com/kleber-code/ushka/blob/main/SECURITY.md).
+and the [security policy](https://github.com/kleber-code/ushka/blob/main/.github/SECURITY.md).
 
 ## License
 
