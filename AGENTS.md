@@ -1,4 +1,4 @@
-# AGENTS.md — working on the Ushka framework itself
+# AGENTS.md: working on the Ushka framework itself
 
 ## Principles
 
@@ -16,6 +16,9 @@
   folders and names (as routes do) instead of listing things by hand; keep `ushka.toml` for what changes per
   environment (database, port, keys, domain). More than about five parameters, or a section with a dozen keys, is a
   sign the default is wrong. Be brief in code, messages and docs: the answer first, no ceremony.
+- **Plain, professional text.** No em dashes and no emoji in docs, templates, messages, comments or generated files
+  (`✓` and `✗` in command output are fine). Use a colon, a comma or a full stop. Write in a direct, neutral tone,
+  without jokes or cute phrasing. `tests/test_style.py` enforces it.
 - **Flask and Mako, not Django.** Syntax stays explicit and Pythonic: decorators, plain functions, Jinja2 in
   templates, SQLAlchemy-style attributes (`__tablename__`). Avoid Django idioms (nested `class Meta`, managers, tag
   libraries, one big settings module) in new APIs.
@@ -29,32 +32,32 @@
 
 ## Layout
 
-- `src/ushka/guard/` — taint core. Must not import anything else from `ushka`
+- `src/ushka/guard/`: taint core. Must not import anything else from `ushka`
   (enforced by `tests/test_guard.py` and `tests/test_architecture.py`), so it can ship standalone.
   `guard/integrations/` adapts it to Starlette, FastAPI and Django (framework imported lazily).
-- `src/ushka/core/` — app, router, config, `settings.py` (the schema of every setting), error handler,
+- `src/ushka/core/`: app, router, config, `settings.py` (the schema of every setting), error handler,
   logging and `server.py` (the production server).
-- `src/ushka/http/` — request, response, streaming/SSE, WebSocket, cookies, multipart, redirect,
+- `src/ushka/http/`: request, response, streaming/SSE, WebSocket, cookies, multipart, redirect,
   `params.py` (typed parameters, `Depends`, forms) and `validation.py` (stdlib-only validation).
-- `src/ushka/security/` — the security middleware (CSRF, headers, CORS, trusted hosts), on by default,
+- `src/ushka/security/`: the security middleware (CSRF, headers, CORS, trusted hosts), on by default,
   and `verify.py` (`ushka verify`).
-- `src/ushka/sessions/` — signed-cookie sessions and revocable server-side sessions (database store).
-- `src/ushka/crypto/` — Fernet `encrypt`/`decrypt`, keys and rotation. The only place that may import
+- `src/ushka/sessions/`: signed-cookie sessions and revocable server-side sessions (database store).
+- `src/ushka/crypto/`: Fernet `encrypt`/`decrypt`, keys and rotation. The only place that may import
   `cryptography` (the `crypto` extra), and only lazily; never write a cipher of our own.
-- `src/ushka/auth/` — login with OAuth 2.0 / OpenID Connect (`providers.py`, `flow.py`, the API in
+- `src/ushka/auth/`: login with OAuth 2.0 / OpenID Connect (`providers.py`, `flow.py`, the API in
   `__init__.py`), `[oauth]` in the schema; imported only by apps that configure a provider.
 - `src/ushka/templating/` (Jinja2 engine, flash), `static/` (static files).
-- `src/ushka/web/` — what browsers and search engines see: `seo.py`, `pwa.py`, `i18n/`. Each has its own
+- `src/ushka/web/`: what browsers and search engines see: `seo.py`, `pwa.py`, `i18n/`. Each has its own
   `[section]` in the schema and is off, or passive, until used.
-- `src/ushka/mail/` — `imap.py`: `ImapClient` (stdlib `imaplib` in `asyncio.to_thread`, one lock). Everything from
+- `src/ushka/mail/`: `imap.py`: `ImapClient` (stdlib `imaplib` in `asyncio.to_thread`, one lock). Everything from
   an e-mail is `Untrusted`; values going into IMAP commands are quoted and control characters refused. Not imported
   by `import ushka`; it has its own `[imap]` section in the schema.
-- `src/ushka/api/` — what machines consume: `openapi.py` and `mcp.py` (routes as MCP tools).
-- `src/ushka/orm/`, `docs/`, `testing.py` — batteries and tooling.
-- `src/ushka/cli/` — argparse CLI; output through `ushka.cli.ui`; errors exit 1.
-- `docs/` — Ushka Docs sources; `docs/guide/guard.md` documents error codes `USHKA-G00x`
+- `src/ushka/api/`: what machines consume: `openapi.py` and `mcp.py` (routes as MCP tools).
+- `src/ushka/orm/`, `docs/`, `testing.py`: batteries and tooling.
+- `src/ushka/cli/`: argparse CLI; output through `ushka.cli.ui`; errors exit 1.
+- `docs/`: Ushka Docs sources; `docs/guide/guard.md` documents error codes `USHKA-G00x`
   (anchors are linked from `UnsafeValueError.docs`). `docs/architecture.md` is the map of the code.
-- `benchmarks/` — reproducible load test against Starlette and FastAPI (see its README).
+- `benchmarks/`: reproducible load test against Starlette and FastAPI (see its README).
 
 ## Commands
 

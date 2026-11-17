@@ -463,8 +463,8 @@ class Ushka:
             The port the server is listening on.
         """
         version = self.config.get("USHKA_VERSION", "dev")
-        self.log.info(f"🐱 Ushka Framework v{version}")
-        self.log.info(f"🚀 Server running at http://{host}:{port}")
+        self.log.info(f"Ushka v{version}")
+        self.log.info(f"Serving at http://{host}:{port}")
         self.log.info("--- Mapped Routes ---")
 
         routes = self.router.get_urls(host, port)

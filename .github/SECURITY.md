@@ -1,56 +1,28 @@
-# 🛡️ Ushka's Security Policy: Keeping Things Safe & Sound! 💖
+# Security policy
 
-(Or: How We Keep Our Little Framework from Getting into Trouble)
+If you believe you found a vulnerability in Ushka, please report it privately. Do not open a public issue.
 
-At Ushka, we take security seriously. While we strive to be as cute and minimalist as possible, that doesn't mean we compromise on keeping our little framework safe for everyone who uses it. If you believe you've found a vulnerability, we appreciate your help in disclosing it responsibly.
+## Reporting a vulnerability
 
----
+Write to [kleber.code@gmail.com](mailto:kleber.code@gmail.com) with:
 
-## 🚨 Reporting a Vulnerability: Found a Chink in Our Armor?
+- a description of the vulnerability and its impact;
+- the steps to reproduce it, ideally a minimal app;
+- the Ushka version affected;
+- a suggested fix, if you have one.
 
-If you've discovered a security vulnerability in Ushka, please *do not* open a public issue. We kindly request that you report it to us privately first.
+We acknowledge a report within **2 business days** and send an initial assessment, then keep you
+informed until it is fixed. You are credited in the release notes if you wish.
 
-**Here's how to report:**
+## Responsible disclosure
 
-*   **Email Us:** Send a detailed report to [kleber.code@gmail.com](mailto:kleber.code@gmail.com).
-*   **Be Specific:** In your report, please include:
-    *   A clear description of the vulnerability.
-    *   Steps to reproduce the vulnerability (this is super helpful!).
-    *   Any potential impact or exploit scenarios.
-    *   The version of Ushka you've identified the vulnerability in.
-    *   Any suggested mitigations (if you have them!).
+Please:
 
----
+- keep the vulnerability private until a fix is released;
+- avoid accessing or changing data that is not yours;
+- avoid denial-of-service testing against systems you do not own.
 
-## ⏳ Our Response Time (We're Pretty Speedy, Promise!)
-
-We aim to acknowledge your report within **2 business days** and provide an initial assessment. Our team will work diligently to investigate and address the vulnerability as quickly as possible. We appreciate your patience as we fix things up!
-
----
-
-## 🌟 Responsible Disclosure (Being a Good Citizen)
-
-We kindly ask that you:
-
-*   **Do not disclose the vulnerability publicly** until we have had a reasonable amount of time to address it.
-*   **Avoid accessing or modifying data** that doesn't belong to you.
-*   **Do not engage in denial-of-service attacks** or other disruptive activities.
-
----
-
-## ✅ Our Commitment (We've Got Your Back!)
-
-When you report a security issue to us in good faith, we commit to:
-
-*   Responding to your report promptly.
-*   Keeping you informed about the progress of the fix.
-*   Giving you credit for responsible disclosure (if you wish).
-
-Thank you for helping us keep Ushka safe and sound for everyone! Your vigilance makes our community stronger. 💖
-
----
-
-## 🔐 Verifying a Release
+## Verifying a release
 
 Every release is built by a GitHub Actions workflow and published to PyPI with
 trusted publishing (no stored token). You can check that what you downloaded is

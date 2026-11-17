@@ -79,7 +79,7 @@ if ushka_cfg.APP_AUTO_DISCOVER:
         except ImportError:
             continue
     if not discovered:
-         print("⚠️  [Ushka] Warning: Could not auto-discover models.")
+         ui.warn("Could not auto-discover models.")
 
 target_metadata = db.metadata
 
@@ -173,7 +173,7 @@ def _get_alembic_config():
         return AlembicConfig(ini_path)
 
     if not os.path.exists(ini_path):
-        print("❌ alembic.ini not found. Run 'ushka db init' first.")
+        ui.error("alembic.ini not found. Run 'ushka db init' first.")
         sys.exit(1)
 
     alembic_cfg = AlembicConfig(ini_path)
@@ -184,7 +184,7 @@ def _get_alembic_config():
         ushka_cfg = UshkaConfig().load_from_file()
         alembic_cfg.set_main_option("sqlalchemy.url", ushka_cfg.DATABASE_URL)
     except Exception as e:
-        print(f"❌ Error loading Ushka config: {e}")
+        ui.error(f"Could not load the Ushka config: {e}")
         sys.exit(1)
 
     return alembic_cfg
@@ -205,7 +205,7 @@ def init():
     --------
     USHKA_ENV_TEMPLATE : The custom template injected into `env.py`.
     """
-    print("📦 Initializing Ushka Database environment...")
+    ui.info("Initializing the database environment...")
 
     migrations_dir = "migrations"
     env_path = os.path.join(migrations_dir, "env.py")
@@ -219,9 +219,9 @@ def init():
         with open(env_path, "w", encoding="utf-8") as f:
             f.write(USHKA_ENV_TEMPLATE)
 
-        print("✅ Structure created!")
-        print(f"✅ Auto-Batch configuration injected into '{env_path}'")
-        print("✅ Target metadata set to 'ushka.orm.database.db.metadata'")
+        ui.ok("Structure created")
+        ui.ok(f"Migration configuration written to '{env_path}'")
+        ui.ok("Target metadata set to 'ushka.orm.database.db.metadata'")
 
     except Exception as e:
         print(f"Error during initialization: {e}")
@@ -244,9 +244,9 @@ def make(message: str | None = None):
         # Generate a timestamp slug: auto_20231015_120000
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         message = f"auto_{timestamp}"
-        print(f"ℹ️  No message provided. Using: '{message}'")
+        print(f"ℹ  No message provided. Using: '{message}'")
 
-    print(f"🔨 Creating migration: {message}")
+    ui.info(f"Creating migration: {message}")
     command.revision(_get_alembic_config(), message=message, autogenerate=True)
 
 
@@ -256,7 +256,7 @@ def migrate():
     This command upgrades the database schema to the latest revision,
     applying any migration scripts that have not yet been run.
     """
-    print("🚀 Applying changes (upgrade head)...")
+    ui.info("Applying migrations (upgrade head)...")
     command.upgrade(_get_alembic_config(), "head")
 
 
@@ -285,7 +285,7 @@ def status():
     This command reports the revision identifier of the latest migration
     applied to the database.
     """
-    print("📍 Current Revision:")
+    ui.info("Current revision:")
     command.current(_get_alembic_config(), verbose=True)
 
 
@@ -295,7 +295,7 @@ def history():
     This command lists all available migration scripts, including their
     revision identifiers, timestamps, and messages.
     """
-    print("📜 Migration History:")
+    ui.info("Migration history:")
     command.history(_get_alembic_config(), verbose=True)
 
 

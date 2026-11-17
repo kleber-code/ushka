@@ -155,14 +155,14 @@ AGENTS_MD = '''\
 Only `app.py` and config in the root. Code goes in folders by role, one module per
 domain (billing, leads...) in each:
 
-- `routes/` — one file per URL (`routes/users/[user_id].py` → `/users/<user_id>`),
+- `routes/`: one file per URL (`routes/users/[user_id].py` → `/users/<user_id>`),
   async functions named after the method: `async def get(request)`. Keep them thin:
   read the request, call a service, return a response.
-- `services/` — business rules as plain functions. No `request`, no templates, no `redirect`.
-- `models/` — ORM models, imported in `models/__init__.py`. `integrations/` — one module per
-  outside vendor. `deps/` — `Depends` functions. `templates/` — Jinja2, autoescaped.
+- `services/`: business rules as plain functions. No `request`, no templates, no `redirect`.
+- `models/`: ORM models, imported in `models/__init__.py`. `integrations/`: one module per
+  outside vendor. `deps/`: `Depends` functions. `templates/`: Jinja2, autoescaped.
 - `static/`, `locale/`, `migrations/`, `scripts/`, `tests/` (mirrors the folders above).
-- `ushka.toml` — settings, no secrets; your own go in a `[{name}]` section. `.env` — secrets.
+- `ushka.toml`: settings, no secrets; your own go in a `[{name}]` section. `.env`: secrets.
 
 ## Where does new code go?
 

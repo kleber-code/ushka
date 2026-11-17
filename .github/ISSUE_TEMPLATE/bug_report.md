@@ -1,48 +1,33 @@
 ---
-name: 🐛 Bug Report
-about: Found a little critter? Help us squish it!
+name: Bug report
+about: Something does not work as documented
 title: '[BUG] '
 labels: 'bug'
 assignees: ''
 ---
 
-## 🐛 Describe the Bug (What's the little mischief-maker doing?)
+## What happens
 
-A clear and concise description of what the bug is. Please be specific, Ushka isn't a mind-reader (yet!).
+<!-- A clear, specific description. -->
 
----
+## Steps to reproduce
 
-## Reproduce the Cuteness (or lack thereof) 😿
+1.
+2.
+3.
 
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error (or lack of expected cuteness)
+A minimal app or route that shows it is the most useful thing you can attach.
 
----
+## Expected behaviour
 
-## Expected Behavior (What Ushka *should* be doing)
+<!-- What you expected instead. -->
 
-A clear and concise description of what you expected to happen.
+## Environment
 
----
+- Ushka version (`ushka --version`):
+- Python version:
+- OS:
 
-## Screenshots (If it's pretty, or horribly broken) 📸
+## Additional context
 
-If applicable, add screenshots to help explain your problem. Bonus points for screenshots of "Ushka Panic!" pages!
-
----
-
-## Environment (Where did this happen?) 💻
-
-*   **OS:** [e.g., macOS, Windows, Linux]
-*   **Python Version:** [e.g., 3.10, 3.11]
-*   **Ushka Version:** [e.g., 0.2.1, main branch commit hash]
-*   **Browser:** [e.g., Chrome, Firefox, Safari]
-
----
-
-## Additional Context (Anything else we should know?) 🤔
-
-Add any other context about the problem here. Logs, configuration files (`ushka.toml`), or anything that might help us understand the bug's cozy little home.
+<!-- Logs, the error output, and your `ushka.toml` without secrets. -->
