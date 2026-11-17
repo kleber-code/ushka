@@ -1,6 +1,6 @@
 [project]
 name = "ushka"
-version = "0.6.0"
+version = "0.7.0"
 description = "The async Python web framework where insecure code - yours or your AI's - does not run silently: untrusted data is a type, dangerous sinks refuse it."
 authors = [
     { name = "kleber-code", email = "kleber.code@gmail.com" },
@@ -37,9 +37,15 @@ classifiers = [
 # - jinja2: templates; the built-in error pages use it on every import.
 # - python-multipart: a hardened multipart parser. Parsing untrusted uploads
 #   is security-critical, so it is not reimplemented here.
+# - uvloop and httptools: the fast event loop and HTTP parser, in C. Uvicorn
+#   picks them up by itself when installed, which is about 2.3x the requests
+#   per second of the pure-Python loop and parser (see benchmarks/README.md).
+#   uvloop has no Windows or PyPy build, so those fall back to asyncio and h11.
 # - tomli: TOML reader, only on Python 3.10 (3.11+ ships `tomllib`).
 dependencies = [
     "uvicorn>=0.38.0",
+    "uvloop>=0.21.0; sys_platform != 'win32' and platform_python_implementation == 'CPython'",
+    "httptools>=0.6.4",
     "jinja2>=3.1.6",
     "python-multipart>=0.0.20",
     "tomli>=2.0; python_version < '3.11'",

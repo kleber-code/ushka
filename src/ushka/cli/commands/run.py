@@ -49,15 +49,13 @@ def serve(app_path: str, host: str, port: int, *, dev: bool) -> None:
             ui.info(f"{workers} workers")
     ui.hint("press Ctrl+C to stop")
 
-    uvicorn.run(
-        app_path,
-        host=host,
-        port=port,
-        reload=dev,
-        workers=None if dev else workers,
-        lifespan="on",
-        log_config=get_log_config(),
-    )
+    if dev:
+        uvicorn.run(app_path, host=host, port=port, reload=True, lifespan="on", log_config=get_log_config())
+        return
+    # Production: a server that stays asleep when idle (see ushka.core.server).
+    from ushka.core.server import run_server
+
+    run_server(app_path, host=host, port=port, workers=workers, log_config=get_log_config())
 
 
 def run(app_path: str, host: str, port: int) -> None:

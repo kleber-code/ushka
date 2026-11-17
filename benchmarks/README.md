@@ -1,11 +1,14 @@
 # Benchmarks
 
 A small, reproducible load test: Ushka against Starlette and FastAPI, each as a
-single uvicorn worker (h11, no uvloop) with the same three routes.
+single uvicorn worker with the same three routes. By default uvicorn uses
+`uvloop` and `httptools` when installed, and `pip install ushka` installs them.
+Set `LOOP=asyncio HTTP=h11` to measure the pure-Python loop and parser instead.
 
 ```console
 $ export PYTHON=.venv/bin/python        # a venv with ushka, starlette, fastapi
 $ ./run.sh ushka ushka_app
+$ LOOP=asyncio HTTP=h11 ./run.sh ushka-pure-python ushka_app
 $ ./run.sh ushka-no-security ushka_app USHKA_SECURITY_HEADERS=false USHKA_SECURITY_CSRF=false
 $ ./run.sh starlette starlette_app
 $ ./run.sh fastapi fastapi_app

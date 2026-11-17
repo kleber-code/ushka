@@ -3,7 +3,7 @@
 PY=${PYTHON:-python}
 label=$1; mod=$2; shift 2
 cd "$(dirname "$0")"
-env "$@" taskset -c 2 $PY -c "import uvicorn;uvicorn.run('$mod:app',port=8810,log_level='error',access_log=False)" >/dev/null 2>&1 &
+env "$@" taskset -c 2 $PY -c "import uvicorn;uvicorn.run('$mod:app',port=8810,log_level='error',access_log=False,loop='${LOOP:-auto}',http='${HTTP:-auto}')" >/dev/null 2>&1 &
 pid=$!
 for i in $(seq 40); do curl -s -o /dev/null localhost:8810/ && break; sleep 0.25; done
 rss=$(ps -o rss= -p $pid | awk '{printf "%.0f", $1/1024}')
