@@ -600,7 +600,7 @@ class UshkaDB:
         """
         return Column(sqltypes.Boolean, nullable=nullable, default=default)
 
-    def DateTime(self, auto_now=False, nullable=False) -> Column:
+    def DateTime(self, auto_now=False, nullable=False, tz=False) -> Column:
         """
         Defines a SQLAlchemy DateTime column.
 
@@ -611,6 +611,10 @@ class UshkaDB:
             By default False.
         nullable : bool, optional
             If True, allows NULL values. By default False.
+        tz : bool, optional
+            If True, the column is timezone-aware (``TIMESTAMP WITH TIME ZONE``
+            on PostgreSQL) and accepts ``datetime`` values with a ``tzinfo``.
+            By default False (naive datetimes, as before).
 
         Returns
         -------
@@ -618,7 +622,7 @@ class UshkaDB:
             The configured Column object.
         """
         return Column(
-            sqltypes.DateTime,
+            sqltypes.DateTime(timezone=tz),
             nullable=nullable,
             default=func.now() if auto_now else None,
         )
