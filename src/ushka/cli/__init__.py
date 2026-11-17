@@ -47,6 +47,7 @@ def build_parser() -> argparse.ArgumentParser:
         p.add_argument("--port", type=int, default=0, help="port (default: [server] port)")
 
     p = sub.add_parser("check", help="validate configuration and security settings")
+    p.add_argument("app", nargs="?", default="app:app", help="module:attribute to import, so options set in code count (default: app:app)")
     p.add_argument(
         "--production", action="store_true", help="also require debug off and a secret key"
     )
@@ -153,7 +154,7 @@ def main(argv: list[str] | None = None) -> None:
     elif args.command == "check":
         from ushka.cli.commands.check import check
 
-        if check(production=args.production):
+        if check(production=args.production, app_path=args.app):
             raise SystemExit(1)
 
     elif args.command == "config":

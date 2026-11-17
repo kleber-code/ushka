@@ -72,7 +72,8 @@ Ushka asks for `read:user` and `user:email`, and uses the **primary, verified** 
 ## The redirect address
 
 The `redirect_uri` sent to the provider is `redirect_base` + `/auth/<provider>/callback`.
-It never comes from the `Host` header, which a client can write. Set `redirect_base`
+If the console already lists another path, set `[oauth] callback_path`, for example
+`"/oauth/{provider}/callback"` (`{provider}` is `google` or `github`). It never comes from the `Host` header, which a client can write. Set `redirect_base`
 (`USHKA_OAUTH_REDIRECT_BASE`) or the `url` of `Seo`. In debug mode, or when `[security] allowed_hosts` is set, the address of
 the request is used when neither is set. Without a trusted address the app refuses to
 start (a piece checks at startup, so `Seo(url=...)` may come after it) and `ushka check` says so.
@@ -93,6 +94,23 @@ start (a piece checks at startup, so `Seo(url=...)` may come after it) and `ushk
 5. The session gets only `provider`, `sub`, `email`, `name` and `picture` under
    `[oauth] session_key` (default `user`), its id is rotated, and the visitor goes
    to the stored `next` (or `[oauth] after_login`).
+
+## After a login: `on_login`
+
+`@app.on_login` runs once the provider's answer is verified, just before the user goes in the session.
+It gets the request and a copy of the profile (`provider`, `sub`, `email`, `email_verified`, `name`,
+`given_name`, `family_name`, `picture`; the last two names come from Google, GitHub leaves them empty).
+Create the account here:
+
+```python
+@app.on_login
+async def welcome(request, profile):
+    user = await find_or_create(profile["email"], profile["given_name"])
+    return {**profile, "user_id": user.id}   # a dict replaces the profile; None keeps it; False refuses
+```
+
+Returning `False` ends in `?login_error=denied`. A hook may be sync or async and may raise `HTTPRedirect`
+(for an onboarding page). `email_verified` is always true: an unverified address never gets this far.
 
 Any failure (the user said no, a bad `state`, the provider is down or slow, an unverified
 e-mail, a wrong domain) redirects to `[oauth] login_error_path` with a short code,

@@ -103,6 +103,7 @@ SCHEMA: dict[str, dict[str, Setting]] = {
     },
     "crypto": {
         "keys": _s([], "Fernet keys, newest first: the first encrypts, all decrypt (key rotation). Make one with `ushka crypto genkey`. Use USHKA_CRYPTO_KEYS (comma separated), never this file. Empty derives a key from [app] secret_key.", secret=True),
+        "keep_derived": _s(False, "Also accept the key derived from [app] secret_key when decrypting, after the first key. Turn it on when you move from the derived key to a dedicated one in `keys`, so old data stays readable.", advanced=True),
     },
     "limits": {
         "max_request_body_size_in_KB": _s(2048, "Largest request body, in KB. Bigger bodies get 413."),
@@ -138,6 +139,7 @@ SCHEMA: dict[str, dict[str, Setting]] = {
         "after_login": _s("/", "Where a visitor lands after signing in when no valid next page was asked for.", advanced=True),
         "login_error_path": _s("/", "Where a failed login sends the visitor, with `?login_error=<code>` (denied, state, network, token, profile, unverified, domain, provider, config).", advanced=True),
         "login_prefix": _s("/auth", "URL prefix of the login routes: `<prefix>/<provider>/login` and `<prefix>/<provider>/callback`."),
+        "callback_path": _s("", 'Path of the callback, when the provider console already lists another one, such as "/oauth/{provider}/callback". `{provider}` is the provider name. Empty uses `<login_prefix>/<provider>/callback`.', advanced=True),
     },
     "i18n": {
         "enable": _s(False, "Pick a language for every request and translate with `_()`, `{% trans %}` and `gettext`."),

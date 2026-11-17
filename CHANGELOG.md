@@ -5,6 +5,23 @@ All notable changes to Ushka. The format follows
 
 ## [Unreleased]
 
+## [0.8.0b6] - 2026-11-17
+
+### Added
+- OAuth: `[oauth] callback_path` (with `{provider}`) for a callback the provider console already lists, and
+  `@app.on_login`, a hook that runs before the user is stored and can extend the profile, refuse the login
+  (`?login_error=denied`) or redirect.
+- The Google profile carries `given_name`, `family_name` and `email_verified` (always true).
+- `[crypto] keep_derived`: keeps the key derived from `[app] secret_key` as a decrypt-only last key, to move to
+  a dedicated key without losing data.
+- `ImapClient` takes the host of a well-known provider from the address (`you@gmail.com`) or a name
+  (`host = "gmail"`); `search(oldest=True)` and `unseen(mark_refused=True)`.
+
+### Changed
+- `ushka check` imports `app:app` so options set in code with `app.use(...)` are checked and the pieces are listed.
+- `ImapClient.unseen(limit=n)` returns the oldest `n` unread messages (it returned the newest), so a queue drains
+  from the front.
+
 ## [0.8.0b5] - 2026-11-17
 
 Fifth beta of 0.8: every feature plugs in with `app.use(...)`, configuration is short, and sign-in, encryption and IMAP arrive.

@@ -219,6 +219,22 @@ async def test_unseen_iterator_uses_uids_and_skips_refused(server):
             [m async for m in mail.unseen()]
 
 
+async def test_unseen_limit_takes_the_oldest_and_refused_can_be_marked_read(server):
+    for uid in (1, 2, 3, 4):
+        server.add(uid, simple(str(uid)))
+    server.sizes[1] = 50 * 1024 * 1024
+    refused = []
+    async with client() as mail:
+        assert await mail.search(limit=2, oldest=True) == [1, 2]
+        # without mark_refused the refused message takes a place in `limit` forever
+        assert [m.uid async for m in mail.unseen(limit=2, on_error=lambda u, e: refused.append(u))] == [2]
+        assert [m.uid async for m in mail.unseen(limit=2, on_error=lambda u, e: refused.append(u))] == [2]
+        assert refused == [1, 1]
+        assert [m.uid async for m in mail.unseen(limit=2, on_error=lambda u, e: refused.append(u), mark_refused=True)] == [2]
+        assert refused == [1, 1, 1]
+        assert [m.uid async for m in mail.unseen(limit=2)] == [2, 3]  # 1 is read now: it no longer blocks the queue
+
+
 async def test_fetch_of_a_missing_uid(server):
     async with client() as mail:
         with pytest.raises(MessageNotFound):
@@ -807,3 +823,14 @@ def test_importing_ushka_does_not_load_the_mail_client():
     code = "import sys, ushka; print('ushka.mail' in sys.modules, 'imaplib' in sys.modules)"
     out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True).stdout.split()
     assert out[0] == "False"
+
+
+def test_the_host_comes_from_a_well_known_provider(workdir, monkeypatch):
+    monkeypatch.setenv("USHKA_IMAP_PASSWORD", PASSWORD)
+    (workdir / "ushka.toml").write_text("")
+    assert ImapClient(user="ana@gmail.com").host == "imap.gmail.com"
+    assert ImapClient(user="Ana@Hotmail.com").host == "outlook.office365.com"
+    assert ImapClient("icloud", user="ana@example.org").host == "imap.mail.me.com"
+    assert ImapClient("mail.example.org", user="ana@gmail.com").host == "mail.example.org"  # explicit wins
+    with pytest.raises(ImapError, match="no IMAP host"):
+        ImapClient(user="ana@example.org")  # no guessing where to send a password

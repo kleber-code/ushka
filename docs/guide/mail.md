@@ -30,7 +30,10 @@ USHKA_IMAP_PASSWORD=...
 
 `ImapClient()` reads `[imap]`; what you pass wins, and the rest still comes from there:
 `ImapClient(folder="Leads")`, `ImapClient("imap.other.com", "me@other.com", password)`.
-`ImapClient.from_config()` is the same call. A misspelt option is a `TypeError`
+`ImapClient.from_config()` is the same call. With no `host`, it comes from the user's address when that is at a
+well-known provider (`you@gmail.com` is `imap.gmail.com`; also outlook, icloud, yahoo, fastmail, zoho), and
+`host = "gmail"` names one too (`PROVIDER_HOSTS`). Any other domain needs its host: Ushka does not guess where
+to send a password. A misspelt option is a `TypeError`
 that suggests the right name. Options are the keys of the [`[imap]` table](configuration.md)
 (`port`, `ssl`, `starttls`, `allow_insecure`, `folder`, `timeout`, `max_message_kb`,
 `max_parts`) and three that exist only in code: `ssl_context`, `taint` and `max_depth`.
@@ -57,7 +60,7 @@ async def collect_leads(save_lead) -> int:
         log.warning("message %s refused: %s", uid, error)
 
     async with ImapClient() as mail:
-        async for msg in mail.unseen(limit=50, on_error=refused):
+        async for msg in mail.unseen(limit=50, on_error=refused, mark_refused=True):
             await save_lead(
                 sender=msg.from_address,   # Untrusted: the ORM stores it as data
                 subject=msg.subject,

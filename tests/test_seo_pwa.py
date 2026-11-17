@@ -261,3 +261,26 @@ def test_safe_url(raw, expected):
     from ushka.web.seo import safe_url
 
     assert safe_url(raw) == expected
+
+
+def test_check_sees_the_options_given_to_app_use(workdir, monkeypatch, capsys):
+    from ushka.cli.commands.check import check
+    from ushka.core.config import Config
+
+    (workdir / "ushka.toml").write_text("[app]\nauto_discover = false\n")
+    (workdir / "check_app_a.py").write_text(
+        "from ushka import Ushka\nfrom ushka.web import Seo\napp = Ushka()\napp.use(Seo(url='https://example.com', description='A site'))\n"
+    )
+    monkeypatch.chdir(workdir)
+    Config._instance = None
+    Config._initialized = False
+    check(app_path="check_app_a:app")
+    out = capsys.readouterr().out
+    assert "pieces in use: seo" in out and "SEO: public URL is https://example.com" in out
+    assert "[seo] url is not set" not in out
+
+    (workdir / "check_app_b.py").write_text("raise RuntimeError('boom')\n")
+    Config._instance = None
+    Config._initialized = False
+    check(app_path="check_app_b:app")
+    assert "could not import check_app_b:app" in capsys.readouterr().out

@@ -114,11 +114,19 @@ def _multi(keys: tuple):
 
 
 def keys_from_config(config: Any) -> list[str]:
-    """The keys of an app: ``[crypto] keys``, or the one derived from ``[app] secret_key``."""
+    """The keys of an app: ``[crypto] keys``, or the one derived from ``[app] secret_key``.
+
+    With ``[crypto] keep_derived`` the derived key is also kept, last, so data written before
+    the move to a dedicated key can still be read.
+    """
     configured = [str(k).strip() for k in (config.get("crypto_keys") or []) if str(k).strip()]
-    if configured:
-        return configured
     secret = config.get("app_secret_key")
+    if configured:
+        if config.get("crypto_keep_derived") and secret:
+            derived = derive_key(secret)  # last: it only decrypts what was written before the dedicated key
+            if derived not in configured:
+                configured.append(derived)
+        return configured
     if not secret:
         raise RuntimeError(
             "No encryption key. Set USHKA_CRYPTO_KEYS (make one with: ushka crypto genkey) "

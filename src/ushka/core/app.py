@@ -117,6 +117,7 @@ class Ushka:
         self._builtin_routes: dict = {}
         #: The pieces plugged in with `use`, by name (``app.pieces["docs"]``).
         self.pieces: dict = {}
+        self.login_hooks: list = []
         seo_module.install(self)
         pwa_module.install(self)
         if any(self.config.get(f"oauth_{n}_client_id") for n in ("google", "github")):
@@ -637,6 +638,22 @@ class Ushka:
         server refuses to start and logs the error.
         """
         self._startup.append(func)
+        return func
+
+    def on_login(self, func):
+        """Registers a function run after a successful OAuth login, before the user is stored.
+
+            @app.on_login
+            async def welcome(request, profile):
+                user = await find_or_create(profile["email"])
+                return {**profile, "user_id": user.id}
+
+        It gets the request and a copy of the profile (provider, sub, email, email_verified, name,
+        given_name, family_name, picture). Return a dict to store that instead, ``False`` to refuse the login
+        (the visitor lands on ``login_error_path`` with ``?login_error=denied``), or nothing to keep the
+        profile. It may be sync or async, and may raise ``HTTPRedirect``.
+        """
+        self.login_hooks.append(func)
         return func
 
     def on_shutdown(self, func):

@@ -135,6 +135,10 @@ waiting to exist), the modules over the size limit, and any service that imports
 
 ## What `ushka check` checks
 
+`ushka check` imports `app:app` when it exists (`ushka check mymodule:app` for another), so what you
+set in code with `app.use(Seo(url=...))` counts and the pieces in use are listed. If the import fails it
+says so and checks `ushka.toml`, `.env` and the environment only.
+
 These are warnings, never errors: a project in another shape still runs. Every number
 is in `ushka/cli/commands/structure.py`.
 

@@ -481,3 +481,22 @@ def test_check_refuses_keys_in_ushka_toml(workdir, capsys):
     (workdir / "ushka.toml").write_text(f'[crypto]\nkeys = ["{generate_key()}"]\n')
     assert check() >= 1
     assert "USHKA_CRYPTO_KEYS" in capsys.readouterr().err
+
+
+def test_keep_derived_reads_what_the_derived_key_wrote(monkeypatch):
+    from ushka.core.config import Config
+
+    monkeypatch.setenv("USHKA_APP_SECRET_KEY", SECRET)
+    old = encrypt("before the dedicated key")  # no keys: the derived key
+    dedicated = generate_key()
+    for keep, readable in (("false", False), ("true", True)):
+        Config._instance = None
+        Config._initialized = False
+        monkeypatch.setenv("USHKA_CRYPTO_KEYS", dedicated)
+        monkeypatch.setenv("USHKA_CRYPTO_KEEP_DERIVED", keep)
+        if readable:
+            assert decrypt(old) == "before the dedicated key"
+            assert decrypt(encrypt("new"), key=dedicated) == "new"  # new data uses the dedicated key
+        else:
+            with pytest.raises(DecryptionError):
+                decrypt(old)

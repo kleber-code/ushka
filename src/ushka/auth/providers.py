@@ -52,10 +52,24 @@ class Identity:
     picture: str = ""
     #: Google Workspace domain (the ``hd`` claim); empty for other accounts.
     hd: str = ""
+    given_name: str = ""
+    family_name: str = ""
 
-    def profile(self) -> dict[str, str]:
-        """The minimal profile kept in the session."""
-        return {"provider": self.provider, "sub": self.sub, "email": self.email, "name": self.name, "picture": self.picture}
+    def profile(self) -> dict[str, Any]:
+        """The minimal profile kept in the session.
+
+        ``email_verified`` is always true: a login with an unverified address is refused.
+        """
+        return {
+            "provider": self.provider,
+            "sub": self.sub,
+            "email": self.email,
+            "email_verified": True,
+            "name": self.name,
+            "given_name": self.given_name,
+            "family_name": self.family_name,
+            "picture": self.picture,
+        }
 
     @property
     def domain(self) -> str:
@@ -294,7 +308,10 @@ class Google(Provider):
         if info.get("email_verified") not in (True, "true"):
             raise OAuthError("unverified")
         picture = _https_url(info.get("picture"))
-        return Identity("google", sub, email, _text(info.get("name"), 200), picture, _text(info.get("hd"), 255).lower())
+        return Identity(
+            "google", sub, email, _text(info.get("name"), 200), picture, _text(info.get("hd"), 255).lower(),
+            _text(info.get("given_name"), 100), _text(info.get("family_name"), 100),
+        )
 
 
 class GitHub(Provider):

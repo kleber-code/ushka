@@ -11,7 +11,8 @@ The flow, step by step:
    by the server (the client secret never reaches the browser), the profile is
    fetched, the e-mail must be verified and in an allowed domain. Only then the
    minimal profile goes in the session, the session id is rotated and the visitor
-   is redirected to the stored ``next``.
+   is redirected to the stored ``next``. ``@app.on_login`` hooks run just before the profile is
+stored: they may add to it, or refuse the login.
 
 Whatever goes wrong ends in a redirect to ``[oauth] login_error_path`` with a
 short code (``?login_error=state``); text from the provider is never echoed.
@@ -20,6 +21,7 @@ short code (``?login_error=state``); text from the provider is never echoed.
 from __future__ import annotations
 
 import hmac
+import inspect
 import logging
 import time
 from typing import TYPE_CHECKING, Any
@@ -71,6 +73,16 @@ def prefix_of(config: Any) -> str:
     return (safe_url(_s(config.get("oauth_login_prefix") or "/auth")) or "/auth").rstrip("/")
 
 
+def callback_path(config: Any, name: str) -> str:
+    """Where the provider sends the browser back: ``[oauth] callback_path`` (``{provider}`` filled in), else ``<prefix>/<name>/callback``."""
+    custom = _s(config.get("oauth_callback_path"))
+    if custom:
+        path = safe_url(custom.replace("{provider}", name))
+        if path.startswith("/") and not path.startswith("//"):
+            return path
+    return f"{prefix_of(config)}/{name}/callback"
+
+
 def session_key(config: Any) -> str:
     return _s(config.get("oauth_session_key")) or "user"
 
@@ -104,6 +116,11 @@ def problems(config: Any, production: bool = False) -> list[tuple[str, str]]:
         return found
     if redirect_origin(None, config) is None and not (config.get("app_debug") or _list(config.get("security_allowed_hosts"))):
         found.append(("error", "[oauth] has no trusted address for the redirect URI: set [oauth] redirect_base (or [seo] url), e.g. \"https://example.com\""))
+    custom = _s(config.get("oauth_callback_path"))
+    if custom and (not custom.startswith("/") or custom.startswith("//")):
+        found.append(("error", f'[oauth] callback_path {custom!r} must be a path starting with "/"'))
+    elif custom and "{provider}" not in custom and len(active) > 1:
+        found.append(("error", f"[oauth] callback_path {custom!r} has no {{provider}} and {len(active)} providers are on: they would share one callback"))
     base = redirect_origin(None, config)
     if production and base and base.startswith("http://") and "localhost" not in base and "127.0.0.1" not in base:
         found.append(("warn", f"[oauth] redirect_base {base} is not https: providers and browsers expect https in production"))
@@ -169,14 +186,14 @@ def install(app: Ushka, check: bool = True) -> None:
     prefix = prefix_of(config)
     for name in names:
         app.add_builtin_route(f"{prefix}/{name}/login", _login_view(name, config))
-        app.add_builtin_route(f"{prefix}/{name}/callback", _callback_view(name, config))
+        app.add_builtin_route(callback_path(config, name), _callback_view(name, app))
 
 
 def _redirect_uri(request: Request, config: Any, name: str) -> str:
     origin = redirect_origin(request, config)
     if not origin:
         raise OAuthError("config")
-    return f"{origin}{prefix_of(config)}/{name}/callback"
+    return f"{origin}{callback_path(config, name)}"
 
 
 def _login_view(name: str, config: Any):
@@ -197,7 +214,22 @@ def _login_view(name: str, config: Any):
     return login
 
 
-def _callback_view(name: str, config: Any):
+async def _run_hooks(app: Ushka, request: Request, profile: dict[str, Any]) -> dict[str, Any] | None:
+    """Runs the ``on_login`` hooks. Returns the profile to keep, or None when a hook refused the login."""
+    for hook in app.login_hooks:
+        result = hook(request, dict(profile))
+        if inspect.isawaitable(result):
+            result = await result
+        if result is False:
+            return None
+        if isinstance(result, dict):
+            profile = result
+    return profile
+
+
+def _callback_view(name: str, app: Ushka):
+    config = app.config
+
     async def callback(request: Request):
         if request.method != "GET":
             raise HTTPMethodNotAllowed(["GET"])
@@ -228,7 +260,10 @@ def _callback_view(name: str, config: Any):
             raise _fail(config, name, "provider") from None
         if not _domain_ok(identity, domains_of(config)):
             raise _fail(config, name, "domain")
-        session[session_key(config)] = identity.profile()
+        profile = await _run_hooks(app, request, identity.profile())
+        if profile is None:
+            raise _fail(config, name, "denied")
+        session[session_key(config)] = profile
         rotate = getattr(session, "rotate", None)
         if rotate is not None:  # server-side sessions: a new id at login (session fixation)
             rotate()

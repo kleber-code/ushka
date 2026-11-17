@@ -44,7 +44,7 @@ class Fake:
         self.codes: dict[str, dict] = {}
         self.requests: list[dict] = []
         self.mode = "ok"
-        self.google = {"sub": "g-1", "email": "Ana@Example.com", "email_verified": True, "name": "Ana", "picture": "https://img.example/a.png", "hd": "example.com"}
+        self.google = {"sub": "g-1", "email": "Ana@Example.com", "email_verified": True, "name": "Ana", "given_name": "Ana", "family_name": "Souza", "picture": "https://img.example/a.png", "hd": "example.com"}
         self.github_user = {"id": 4242, "login": "ana", "name": "Ana G", "avatar_url": "https://img.example/gh.png"}
         self.github_emails = [{"email": "other@example.com", "primary": False, "verified": True}, {"email": "ana@example.com", "primary": True, "verified": True}]
         fake = self
@@ -232,7 +232,8 @@ async def test_google_login_end_to_end(build, fake):
         res = await client.get(fake.authorize(location))
         assert res.status_code == 302 and res.headers["location"] == "/"
         user = (await client.get("/me")).json()["user"]
-        assert user == {"provider": "google", "sub": "g-1", "email": "ana@example.com", "name": "Ana", "picture": "https://img.example/a.png"}
+        assert user == {"provider": "google", "sub": "g-1", "email": "ana@example.com", "email_verified": True, "name": "Ana",
+                        "given_name": "Ana", "family_name": "Souza", "picture": "https://img.example/a.png"}
         token_request = next(r for r in fake.requests if r["path"] == "/token")
         assert token_request["form"]["client_secret"] == CLIENT_SECRET  # server to server only
         assert any(r.get("auth") == f"Bearer {ACCESS_TOKEN}" and r["path"] == "/userinfo" for r in fake.requests)
@@ -244,7 +245,8 @@ async def test_github_login_uses_the_primary_verified_email(build, fake):
         res = await login(client, fake, "github")
         assert res.status_code == 302 and res.headers["location"] == "/"
         user = (await client.get("/me")).json()["user"]
-        assert user == {"provider": "github", "sub": "4242", "email": "ana@example.com", "name": "Ana G", "picture": "https://img.example/gh.png"}
+        assert user == {"provider": "github", "sub": "4242", "email": "ana@example.com", "email_verified": True, "name": "Ana G",
+                        "given_name": "", "family_name": "", "picture": "https://img.example/gh.png"}
 
 
 async def test_only_the_minimal_profile_is_kept_in_the_session(build, fake):
@@ -255,7 +257,7 @@ async def test_only_the_minimal_profile_is_kept_in_the_session(build, fake):
         await login(client, fake)
         session = (await client.get("/me")).json()["session"]
         assert set(session) == {"user"}
-        assert set(session["user"]) == {"provider", "sub", "email", "name", "picture"}
+        assert set(session["user"]) == {"provider", "sub", "email", "email_verified", "name", "given_name", "family_name", "picture"}
         assert ACCESS_TOKEN not in json.dumps(session)
 
 
@@ -679,3 +681,69 @@ def test_import_ushka_does_not_load_the_auth_package():
 
     code = "import sys, ushka; print('ushka.auth' in sys.modules)"
     assert subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True).stdout.strip() == "False"
+
+
+# -- callback path and on_login --------------------------------------------------------------
+
+
+async def test_the_callback_path_is_configurable(build, fake):
+    app = build(TOML.replace("[oauth]", '[oauth]\ncallback_path = "/oauth/{provider}/done"'))
+    async with TestClient(app) as client:
+        location = await start(client, fake)
+        assert parse_qs(urlsplit(location).query)["redirect_uri"] == [f"{BASE}/oauth/google/done"]
+        res = await client.get(fake.authorize(location))
+        assert res.status_code == 302 and res.headers["location"] == "/"
+        assert (await client.get("/auth/google/callback")).status_code == 404
+
+
+def test_a_shared_callback_path_with_two_providers_is_reported(workdir, monkeypatch):
+    from ushka.core.config import Config
+
+    for k, v in ENV.items():
+        monkeypatch.setenv(k, v)
+    (workdir / "ushka.toml").write_text(TOML.replace("[oauth]", '[oauth]\ncallback_path = "/cb"'))
+    found = problems(Config(workdir).load_from_file())
+    assert any("callback_path" in m and level == "error" for level, m in found)
+
+
+async def test_on_login_can_extend_the_profile(build, fake):
+    app = build()
+
+    @app.on_login
+    async def welcome(request, profile):
+        assert profile["email"] == "ana@example.com" and "given_name" in profile
+        return {**profile, "user_id": 7}
+
+    async with TestClient(app) as client:
+        await login(client, fake)
+        assert (await client.get("/me")).json()["user"]["user_id"] == 7
+
+
+async def test_on_login_can_refuse_and_a_sync_hook_works(build, fake):
+    app = build()
+    app.on_login(lambda request, profile: False)
+    async with TestClient(app) as client:
+        res = await login(client, fake)
+        assert error_of(res)[1] == "denied"
+        assert (await client.get("/me")).json()["user"] is None
+
+
+async def test_on_login_returning_nothing_keeps_the_profile_and_may_redirect(build, fake):
+    from ushka.http.exceptions import HTTPRedirect
+
+    app = build()
+    seen = []
+    app.on_login(lambda request, profile: seen.append(profile["sub"]))
+    async with TestClient(app) as client:
+        await login(client, fake)
+        assert seen == ["g-1"] and (await client.get("/me")).json()["user"]["sub"] == "g-1"
+
+    app = build()
+
+    @app.on_login
+    def onboarding(request, profile):
+        raise HTTPRedirect("/welcome")
+
+    async with TestClient(app) as client:
+        res = await login(client, fake)
+        assert res.headers["location"] == "/welcome"

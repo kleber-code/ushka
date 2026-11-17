@@ -78,12 +78,15 @@ To work with no setup, when `keys` is empty Ushka derives a key from
 itself. The cost: rotating the secret key (which you should be able to do) would
 make everything encrypted unreadable. `ushka check --production` warns about it
 when the app encrypts something, and suggests a dedicated key. Move to one without
-losing data by keeping the derived key as a second key:
+losing data: put the new key in `keys` and turn on `keep_derived`, which keeps the derived key as the last
+one, for decrypting only:
 
-```python
-from ushka.crypto import derive_key
-print(derive_key(secret_key))     # put it after your new key in USHKA_CRYPTO_KEYS
+```toml
+[crypto]
+keep_derived = true               # keys (USHKA_CRYPTO_KEYS) holds the new key
 ```
+
+`derive_key(secret_key)` still prints the derived key, if you prefer to list it in `USHKA_CRYPTO_KEYS`.
 
 ### Rotation
 

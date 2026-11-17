@@ -533,6 +533,32 @@ def _verified(context: ssl.SSLContext) -> ssl.SSLContext:
     return context
 
 
+#: IMAP servers of the big mail providers, by short name. ``host = "gmail"`` is ``imap.gmail.com``.
+PROVIDER_HOSTS = {
+    "gmail": "imap.gmail.com",
+    "outlook": "outlook.office365.com",
+    "icloud": "imap.mail.me.com",
+    "yahoo": "imap.mail.yahoo.com",
+    "fastmail": "imap.fastmail.com",
+    "zoho": "imap.zoho.com",
+}
+#: Address domains that map to a provider in `PROVIDER_HOSTS`.
+_DOMAINS = {
+    "gmail.com": "gmail", "googlemail.com": "gmail",
+    "outlook.com": "outlook", "hotmail.com": "outlook", "live.com": "outlook", "msn.com": "outlook",
+    "icloud.com": "icloud", "me.com": "icloud", "mac.com": "icloud",
+    "yahoo.com": "yahoo", "ymail.com": "yahoo",
+    "fastmail.com": "fastmail", "fastmail.fm": "fastmail",
+    "zoho.com": "zoho",
+}
+
+
+def host_for(address: str) -> str:
+    """The IMAP host of a well-known provider from an e-mail address, or "" (no guess for other domains)."""
+    provider = _DOMAINS.get(address.rpartition("@")[2].strip().lower())
+    return PROVIDER_HOSTS[provider] if provider else ""
+
+
 class ImapClient:
     """An asynchronous IMAP client with one connection, used as ``async with``.
 
@@ -547,6 +573,11 @@ class ImapClient:
 
     Whatever you do not pass comes from ``[imap]`` (and ``USHKA_IMAP_PASSWORD``), so
     ``ImapClient()`` is the client of ``ushka.toml``. A misspelt option raises `TypeError`.
+
+    With no host, it is taken from the user's address when that is at a well-known provider
+    (``you@gmail.com`` is ``imap.gmail.com``), and ``host="gmail"`` names a provider too
+    (see `PROVIDER_HOSTS`). Any other server needs its host: Ushka does not guess where to
+    send a password.
 
     Parameters
     ----------
@@ -588,8 +619,12 @@ class ImapClient:
         max_depth = values.get("max_depth", MAX_DEPTH)
         ssl_context = values.get("ssl_context")
         taint = values["taint"] if "taint" in values else config.get("security_taint", True) is not False
+        if not host and isinstance(user, str):
+            host = host_for(user)  # a well-known provider, from the address
+        elif isinstance(host, str) and host.lower() in PROVIDER_HOSTS:
+            host = PROVIDER_HOSTS[host.lower()]  # ImapClient("gmail")
         if not host:
-            raise ImapError("no IMAP host: set [imap] host or pass host=")
+            raise ImapError("no IMAP host: set [imap] host, pass host=, or use an address at a known provider (gmail, outlook, icloud, yahoo, fastmail, zoho)")
         for what, value in (("host", host), ("user", user), ("password", password)):
             if not isinstance(value, str) or _CONTROL.search(value):
                 raise ImapSecurityError(f"the IMAP {what} must be a str without control characters")
@@ -772,10 +807,11 @@ class ImapClient:
 
     # -- searching and reading ------------------------------------------------------------
 
-    async def search(self, *, limit: int | None = None, **criteria: Any) -> list[int]:
+    async def search(self, *, limit: int | None = None, oldest: bool = False, **criteria: Any) -> list[int]:
         """UIDs of the messages matching `criteria` (see `build_search`), oldest first.
 
-        With `limit`, only the newest `limit` UIDs.
+        With `limit`, only the newest `limit` UIDs, or the oldest ones with ``oldest=True``
+        (what a queue wants: the next ones to process).
         """
         tokens = build_search(**criteria)
         if any(b > 127 for t in tokens for b in t):
@@ -785,7 +821,9 @@ class ImapClient:
             data = self._ok("SEARCH", conn.uid("SEARCH", *tokens))
             found = b" ".join(d for d in data if isinstance(d, bytes))
             uids = sorted(int(x) for x in found.split() if x.isdigit())
-            return uids[-limit:] if limit else uids
+            if not limit:
+                return uids
+            return uids[:limit] if oldest else uids[-limit:]
 
         return await self._call("SEARCH", work)
 
@@ -824,16 +862,24 @@ class ImapClient:
         *,
         limit: int | None = None,
         on_error: Callable[[int, ImapError], Any] | None = None,
+        mark_refused: bool = False,
     ) -> AsyncIterator[Message]:
         """The unread messages of the selected folder, oldest first. They stay unread: call `mark_seen`.
 
+        With `limit`, the oldest `limit` unread messages: the next ones to process, so a queue
+        drains from the front.
+
         A refused message (too big, too many parts) raises `MessageRefused`, or, when
-        `on_error(uid, error)` is given, is passed to it and skipped.
+        `on_error(uid, error)` is given, is passed to it and skipped. It stays unread and comes
+        back on the next call, where it would take a place in `limit` again; with
+        ``mark_refused=True`` it is marked read first, so it is reported once.
         """
-        for uid in await self.search(unseen=True, limit=limit):
+        for uid in await self.search(unseen=True, limit=limit, oldest=True):
             try:
                 yield await self.fetch(uid)
             except (MessageRefused, MessageNotFound) as exc:
+                if mark_refused and isinstance(exc, MessageRefused):
+                    await self.mark_seen(uid)
                 if on_error is None:
                     raise
                 on_error(uid, exc)

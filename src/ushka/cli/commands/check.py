@@ -126,9 +126,31 @@ def imap_warnings(config: Config) -> list[str]:
     return out
 
 
-def check(production: bool = False) -> int:
-    """Prints a report and returns the number of problems found."""
+def load_app_quietly(workdir: Path, target: str):
+    """Imports ``module:attribute`` from `workdir` so the options given in code (``app.use(Seo(url=...))``)
+    are part of the report. Returns ``(app, "")``, or ``(None, reason)``; importing never stops the check."""
+    module_name, _, attr = target.partition(":")
+    if not (workdir / f"{module_name.replace('.', '/')}.py").exists() and not (workdir / module_name.replace(".", "/") / "__init__.py").exists():
+        return None, ""
+    import importlib
+
+    sys.path.insert(0, str(workdir))
+    try:
+        return getattr(importlib.import_module(module_name), attr or "app"), ""
+    except Exception as exc:  # noqa: BLE001 - the app is user code: whatever it raises is a finding, not a crash
+        return None, f"{type(exc).__name__}: {exc}"
+    finally:
+        if sys.path and sys.path[0] == str(workdir):
+            sys.path.pop(0)
+
+
+def check(production: bool = False, app_path: str = "app:app") -> int:
+    """Prints a report and returns the number of problems found.
+
+    The app (``app:app``) is imported when it exists, so what `app.use(...)` set from code counts too.
+    """
     workdir = Path.cwd()
+    app, import_error = load_app_quietly(workdir, app_path)
     try:
         config = Config(workdir).load_from_file()
     except ValueError as exc:
@@ -142,6 +164,11 @@ def check(production: bool = False) -> int:
         ui.info(f"{key} = {_display(key, config.get(key))}  " + ui.code(f"[{config.source_of(key)}]"))
 
     ui.line("\n  Checks")
+    if app is not None:
+        pieces = ", ".join(getattr(app, "pieces", {})) or "none"
+        ui.ok(f"{app_path} loaded: pieces in use: {pieces}; options set in code are included")
+    elif import_error:
+        ui.warn(f"could not import {app_path} ({import_error}): only ushka.toml, .env and the environment were checked")
     toml = workdir / "ushka.toml"
     if toml.exists():
         ui.ok("ushka.toml found")
