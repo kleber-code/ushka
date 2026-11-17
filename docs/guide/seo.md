@@ -1,13 +1,17 @@
 # SEO
 
-SEO is ready from the first request. Ushka writes the title, description,
-canonical link, Open Graph and Twitter tags and structured data for you, and
-serves `robots.txt` and `sitemap.xml`. You edit a few values in `ushka.toml` and,
-when a page needs something different, say so on that page.
+```python
+app.use(Seo(url="https://shop.example", description="Handmade shoes"))
+```
 
-## Set it up
+That is all. Every page gets a title, description, canonical link, robots rule, Open Graph and
+Twitter tags and structured data, and `/robots.txt` and `/sitemap.xml` are served. SEO is already on
+without that line: `Seo(...)` only gives the defaults, and `[seo]` in `ushka.toml` (or `USHKA_SEO_*`)
+still wins, so staging and production differ by file or variable, not by edit.
 
-Put `{{ seo() }}` in the `<head>` of your layout, **instead of `<title>`**:
+`Seo(url=, description=, image=, **options)`: `options` are any other key of the `[seo]` table below.
+
+Put `{{ seo() }}` in the `<head>` of your layout, **instead of `<title>`** (`ushka new` does):
 
 ```html
 <head>
@@ -16,129 +20,72 @@ Put `{{ seo() }}` in the `<head>` of your layout, **instead of `<title>`**:
 </head>
 ```
 
-`ushka new` already does this. Then fill in `[seo]`:
-
-```toml
-[seo]
-url = "https://example.com"        # your public address
-description = "Build secure web apps without the boilerplate."
-image = "/static/social.png"       # preview image for shared links
-twitter_site = "@example"
-```
-
-That is enough. Every page now has a title, a description, a canonical URL, a
-robots rule, Open Graph and Twitter tags, and the home page also carries
-`WebSite` structured data.
-
 !!! tip
-    Set `url`. Without it Ushka does not know your public address, so it leaves
-    the canonical link out and answers `404` for `sitemap.xml`. In debug mode, or
-    when `[security] allowed_hosts` is set, it uses the address of the request
-    instead. It never trusts a `Host` header nobody checked, because that would
-    let anyone put their own domain into your canonical links.
+    Set `url`. Without it there is no canonical link and `sitemap.xml` is a `404`. In debug mode, or
+    with `[security] allowed_hosts`, the address of the request is used instead; a `Host` header nobody
+    checked is never trusted.
 
-## Change one page
-
-Pass what differs, in the template:
+## One page
 
 ```html
 {{ seo(title="About us", description="Who we are and why.") }}
 ```
 
-or from the handler, with a `page_seo` dict:
+or from the handler:
 
 ```python
-async def get(request, slug: str):
-    post = await Post.get(slug=slug)
-    return await render(request, "post.html", {
-        "post": post,
-        "page_seo": {
-            "title": post.title,
-            "description": post.summary,
-            "image": post.cover,
-            "type": "article",
-            "published": post.created.isoformat(),
-            "author": post.author,
-        },
-    })
+return await render(request, "post.html", {
+    "post": post,
+    "page_seo": {"title": post.title, "description": post.summary, "type": "article",
+                 "published": post.created.isoformat(), "author": post.author},
+})
 ```
-
-A title goes through `title_template`, so "About us" becomes
-`About us · My Site`. Values are escaped, so client data in a title cannot break
-out of a tag, and URLs other than paths and `http(s)` are dropped.
 
 | Option | What it does |
 | --- | --- |
-| `title` | Page title; the site name is added by `title_template`. |
-| `description` | Meta and social description. |
-| `image`, `image_alt` | Social preview image, a path or a URL. |
-| `type` | `website` (default) or `article`, which adds `Article` structured data. |
+| `title` | Page title, put through `title_template` (`About us · My Site`). |
+| `description`, `image`, `image_alt` | Meta and social card. `image` is a path or a URL. |
+| `type` | `website` (default) or `article` (adds `Article` structured data). |
 | `published`, `modified`, `author` | For articles. |
-| `noindex=True` | `noindex, nofollow` for this page (login, thank-you pages). |
-| `robots` | Any other robots rule, such as `"noindex, follow"`. |
-| `canonical` | A different canonical URL, a path or a URL. |
+| `noindex=True` | `noindex, nofollow` for this page. `robots` takes any other rule. |
+| `canonical` | A different canonical URL. |
 | `alternates` | `{"pt-BR": "/pt/"}` writes the `hreflang` links. |
-| `jsonld` | Your own structured data, a dict or a list of dicts. |
-| `path`, `locale` | Override the path used for the canonical URL, or the Open Graph locale. |
+| `jsonld` | Your own structured data, a dict or a list. |
+| `path`, `locale` | Override the path of the canonical URL, or the Open Graph locale. |
 
-An unknown option is an error rather than silence, so a typo does not quietly
-lose your tags.
+Values are escaped and unsafe URLs are dropped. An unknown option is an error, so a typo does not
+quietly lose your tags.
 
-## All the settings
+## Settings, `[seo]`
 
 | Key | Default | Meaning |
 | --- | --- | --- |
-| `enable` | `true` | `seo()`, `robots.txt` and `sitemap.xml`. `false` turns it all off. |
+| `enable` | `true` | `false` turns off `seo()`, `robots.txt` and `sitemap.xml`. |
 | `url` | `""` | Public origin, such as `https://example.com`. |
-| `site_name` | `""` | Empty uses `[app] name`. |
-| `title` | `""` | Title of pages that set none (usually the home page). |
-| `title_template` | `"{title} · {site_name}"` | How a page title is combined with the site name. |
-| `description` | `""` | Default description. |
-| `image`, `image_alt` | `""` | Default social image. |
-| `locale` | `"en_US"` | Open Graph locale. |
-| `type` | `"website"` | Default Open Graph type. |
-| `robots` | `"index, follow"` | Use `"noindex, nofollow"` to keep a staging site out of search. |
-| `author` | `""` | Default author. |
-| `twitter_site`, `twitter_card` | `""`, `"summary_large_image"` | Twitter/X tags. |
-| `jsonld` | `true` | Structured data (`WebSite` on `/`, `Article` for articles). |
-| `robots_txt` | `true` | Serve `/robots.txt`. |
-| `robots_disallow` | `[]` | Paths for `Disallow:` lines. |
-| `sitemap` | `true` | Serve `/sitemap.xml`. |
-| `sitemap_paths` | `[]` | Extra paths to list. |
-| `sitemap_exclude` | `["/api/*", "/admin/*", "/_*"]` | Patterns left out of the sitemap. |
-
-Like every setting, they can come from the environment: `USHKA_SEO_URL=...`.
+| `site_name`, `title` | `""` | Site name (empty uses `[app] name`) and the title of pages with none. |
+| `title_template` | `"{title} · {site_name}"` | How a title and the site name combine. |
+| `description`, `image`, `image_alt` | `""` | Defaults for the card. |
+| `locale`, `type` | `"en_US"`, `"website"` | Open Graph locale and type. |
+| `robots` | `"index, follow"` | `"noindex, nofollow"` keeps a staging site out of search. |
+| `author`, `twitter_site`, `twitter_card` | | Author and Twitter/X tags. |
+| `jsonld` | `true` | `WebSite` on `/`, `Article` for articles. |
+| `robots_txt`, `robots_disallow` | `true`, `[]` | Serve `/robots.txt`; its `Disallow:` paths. |
+| `sitemap`, `sitemap_paths`, `sitemap_exclude` | `true`, `[]`, `["/api/*", "/admin/*", "/_*"]` | Serve `/sitemap.xml`; extra paths; patterns left out. |
 
 ## robots.txt and sitemap.xml
 
-`/robots.txt` allows everything (or disallows everything when `robots` contains
-`noindex`) and points to the sitemap.
+`/robots.txt` allows everything (or nothing when `robots` has `noindex`) and points to the sitemap.
+`/sitemap.xml` lists your plain `GET` pages without parameters, skipping static files, the API and
+anything that matches `sitemap_exclude`. **Check the list once**: a private page that is a plain `GET`
+route would be listed, so add it to `sitemap_exclude` (patterns end with `*`, such as `"/account/*"`).
 
-`/sitemap.xml` lists your plain `GET` pages, the ones without parameters. It
-skips the [static files](static_files.md), the API, `robots.txt` itself, anything
-with a file extension other than `.html`, and whatever matches
-`sitemap_exclude`. **Check the list once**: a private page that is a plain `GET`
-route would be listed, so add it to `sitemap_exclude` (patterns end with `*`,
-for example `"/account/*"`).
-
-Pages with parameters, such as blog posts, come from code:
+Pages with parameters come from code, sync or async, as paths or `(path, lastmod)` pairs:
 
 ```python
 @app.sitemap_source
 async def posts():
-    rows = await Post.all()
-    return [(f"/blog/{p.slug}", p.updated.date().isoformat()) for p in rows]
+    return [(f"/blog/{p.slug}", p.updated.date().isoformat()) for p in await Post.all()]
 ```
 
-Return paths, or `(path, lastmod)` pairs. The function may be sync or async. A few
-fixed extras can also go in `sitemap_paths`.
-
-## Your own routes win
-
-If you define `/robots.txt` or `/sitemap.xml` yourself, yours is used, with no
-warning. The same goes for the [PWA](pwa.md) files.
-
-## Check before going live
-
-`ushka check` warns when `url` is missing or `description` is empty, and
-`ushka check --production` also warns if `robots` says `noindex`.
+A route of yours at `/robots.txt` or `/sitemap.xml` wins, with no warning (as for the [PWA](pwa.md) files).
+`ushka check` warns when `url` or `description` is empty, and `--production` when `robots` says `noindex`.

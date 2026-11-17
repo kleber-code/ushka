@@ -36,7 +36,7 @@ from ushka.static import (
 )
 from ushka.templating import render
 from ushka.templating.engine import engine as template_engine
-from ushka.web.i18n import I18n
+from ushka.web.i18n import Translator
 
 from .router import Router
 
@@ -84,7 +84,7 @@ class Ushka:
         template_engine.set_project_dir(self.workdir / "templates")
         template_engine.configure(self.config)
         #: Translation settings and language choice, from ``[i18n]``.
-        self.i18n = I18n(self.config, self.workdir)
+        self.i18n = Translator(self.config, self.workdir)
 
         self._startup: list = []
         self._shutdown: list = []

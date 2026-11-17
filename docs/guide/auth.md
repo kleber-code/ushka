@@ -1,9 +1,23 @@
 # Sign in with Google and GitHub
 
-Ushka can sign users in with OAuth 2.0 / OpenID Connect: **Google** and **GitHub**,
-with no extra package (the standard library does the HTTP calls). A provider is on
-when it has a client id and a client secret; Ushka then serves two routes for it,
-and you protect pages with one dependency.
+```python
+app.use(Google(), GitHub())
+```
+
+Each provider you use is on, and Ushka serves `/auth/<provider>/login` and `/auth/<provider>/callback`
+for it. The credentials come from the environment (`.env` works), the secret only from there:
+
+```bash
+USHKA_OAUTH_GOOGLE_CLIENT_ID=1234-abc.apps.googleusercontent.com
+USHKA_OAUTH_GOOGLE_CLIENT_SECRET=...        # never in code or ushka.toml
+USHKA_OAUTH_REDIRECT_BASE=https://example.com
+```
+
+`Google(client_id=None, allowed_domains=None, **options)`; the same for `GitHub`. Give the id in code
+if you prefer (`Google(client_id="1234-abc...")`), restrict who may sign in with
+`Google(allowed_domains=["example.com"])`, and pass any other key of `[oauth]` as an option
+(`after_login="/home"`). A `client_secret` in code is a `TypeError`. `ushka.toml` and the environment win
+over code, and the file alone still works:
 
 ```toml
 [oauth]
@@ -12,10 +26,7 @@ redirect_base = "https://example.com"
 allowed_email_domains = ["example.com"]   # optional
 ```
 
-```bash
-# .env (never ushka.toml)
-USHKA_OAUTH_GOOGLE_CLIENT_SECRET=...
-```
+Protect pages with one dependency:
 
 ```python
 from ushka import Depends
@@ -31,8 +42,8 @@ async def bye(request):
     return "Signed out"
 ```
 
-In a template, `<a href="{{ login_url('google', next='/account') }}">Sign in</a>`
-works once you add `login_url` to your context (it is an ordinary function).
+In a template, `<a href="{{ login_url('google', next='/account') }}">Sign in</a>` works once you add
+`login_url` to your context.
 
 ## Google Cloud Console
 
@@ -46,25 +57,25 @@ works once you add `login_url` to your context (it is an ordinary function).
 4. **Authorized redirect URIs**: add exactly `https://your-domain/auth/google/callback`.
    It must match character by character (scheme, host, path, no trailing slash). For
    local work add `http://localhost:8000/auth/google/callback` as well.
-5. Copy the client ID to `[oauth] google_client_id` and the secret to
+5. Copy the client ID to `USHKA_OAUTH_GOOGLE_CLIENT_ID` (or `Google(client_id=...)`) and the secret to
    `USHKA_OAUTH_GOOGLE_CLIENT_SECRET`.
 
 ## GitHub
 
 1. **Settings, Developer settings, OAuth Apps, New OAuth App**.
 2. **Authorization callback URL**: exactly `https://your-domain/auth/github/callback`.
-3. Generate a client secret. Put the id in `[oauth] github_client_id` and the secret in
-   `USHKA_OAUTH_GITHUB_CLIENT_SECRET`.
+3. Generate a client secret. Put the id in `USHKA_OAUTH_GITHUB_CLIENT_ID` (or `GitHub(client_id=...)`) and the
+   secret in `USHKA_OAUTH_GITHUB_CLIENT_SECRET`.
 
 Ushka asks for `read:user` and `user:email`, and uses the **primary, verified** e-mail.
 
 ## The redirect address
 
 The `redirect_uri` sent to the provider is `redirect_base` + `/auth/<provider>/callback`.
-It never comes from the `Host` header, which a client can write. Set `[oauth] redirect_base`
-(or `[seo] url`). In debug mode, or when `[security] allowed_hosts` is set, the address of
+It never comes from the `Host` header, which a client can write. Set `redirect_base`
+(`USHKA_OAUTH_REDIRECT_BASE`) or the `url` of `Seo`. In debug mode, or when `[security] allowed_hosts` is set, the address of
 the request is used when neither is set. Without a trusted address the app refuses to
-start and `ushka check` says so.
+start (a piece checks at startup, so `Seo(url=...)` may come after it) and `ushka check` says so.
 
 ## What happens
 

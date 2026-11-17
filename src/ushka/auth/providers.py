@@ -155,9 +155,31 @@ class Provider:
     timeout = 10.0
     max_response_bytes = MAX_RESPONSE_BYTES
 
-    def __init__(self, client_id: str, client_secret: str) -> None:
+    def __init__(self, client_id: str = "", client_secret: str = "", *, allowed_domains: list[str] | None = None, **options: Any) -> None:
         self.client_id = client_id
         self._client_secret = client_secret
+        self.allowed_domains = allowed_domains
+        self.options = options
+
+    def install(self, app: Any) -> None:
+        """``app.use(Google())``: the provider is on and its login routes are served.
+
+        The id and the secret come from ``USHKA_OAUTH_<NAME>_CLIENT_ID`` and ``..._CLIENT_SECRET``
+        unless you give the id here. The secret is never accepted in code. `allowed_domains` is
+        ``[oauth] allowed_email_domains``; ``**options`` are any other keys of ``[oauth]``.
+        """
+        values = dict(self.options)
+        if self.client_id:
+            values[f"{self.name}_client_id"] = self.client_id
+        if self._client_secret:
+            values[f"{self.name}_client_secret"] = self._client_secret  # defaults() refuses it
+        if self.allowed_domains is not None:
+            values["allowed_email_domains"] = list(self.allowed_domains)
+        if values:
+            app.config.defaults("oauth", **values)
+        from ushka.auth.flow import install_piece
+
+        install_piece(app)
 
     def __repr__(self) -> str:  # the secret never shows up in a log or a traceback
         return f"<{type(self).__name__} client_id={self.client_id!r}>"

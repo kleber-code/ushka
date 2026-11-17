@@ -20,7 +20,7 @@ field; feedback shapes it. *Experimental*: the API may still change.
 | [Typed parameters and validation](guide/validation.md) | `item_id: int`, bodies as dataclasses, 422 with every error. | Established |
 | [HTML forms](guide/validation.md) | A whole `<form>` as a dataclass, and the page again with the errors. | New |
 | [Routing, templates, static files](guide/routing.md) | Files are URLs; autoescaped Jinja2; `ETag`/`304`. | Established |
-| [Sign in with Google and GitHub](guide/auth.md) | OAuth 2.0 / OpenID Connect with PKCE, `login_required`, no extra package. On when a provider has credentials. | New |
+| [Sign in with Google and GitHub](guide/auth.md) | OAuth 2.0 / OpenID Connect with PKCE, `login_required`, no extra package. `app.use(Google())`. | New |
 | [Cookie sessions](guide/sessions.md) | Signed, `HttpOnly`, no setup. | Established |
 | [Settings you can see](guide/settings.md) | Every setting listed; `ushka config` and `ushka check` find typos. | New |
 | [Production server](guide/deploy.md) | `ushka run`: fast (`uvloop`, `httptools`) and quiet when idle. | New |
@@ -28,10 +28,10 @@ field; feedback shapes it. *Experimental*: the API may still change.
 | [Encryption](guide/crypto.md) | Fernet `encrypt`/`decrypt` with key rotation, encrypted session cookies and `db.Encrypted` columns. Needs `ushka[crypto]`. | New |
 | [Server-side sessions](guide/sessions.md) | `app.use(Sessions("database"))`: logout that really ends a session. Needs a database; without one you keep cookies. | New |
 | [Async ORM](guide/orm.md) | Active Record on SQLAlchemy, with transactions and automatic timestamps. | Established, transactions new |
-| [SEO](guide/seo.md) | Meta tags, `robots.txt`, `sitemap.xml`. Passive until you add `{{ seo() }}`. | New |
+| [SEO](guide/seo.md) | Meta tags, `robots.txt`, `sitemap.xml`. Passive until you add `{{ seo() }}`; `app.use(Seo(url=...))` sets the defaults. | New |
 | [Reading e-mail (IMAP)](guide/mail.md) | `ImapClient()` for an app's inbox: verified TLS, safe search, size limits, every text `Untrusted`. Not loaded until imported. | New |
-| [Internationalisation](guide/i18n.md) | gettext catalogs and `{% trans %}`. Off until `[i18n] enable`. | New |
-| [Progressive Web App](guide/pwa.md) | Manifest, a service worker that never caches pages, offline page. Off by default. | Experimental |
+| [Internationalisation](guide/i18n.md) | gettext catalogs and `{% trans %}`. `app.use(I18n(...))` turns it on. | New |
+| [Progressive Web App](guide/pwa.md) | Manifest, a service worker that never caches pages, offline page. `app.use(Pwa(...))` turns it on. | Experimental |
 | | **Tooling** | |
 | [`ushka verify`](guide/verify.md) | Attacks your own routes with hostile input and reports what got through. | Established |
 | [Test client](guide/testing.md) | In-process client with lifespan and cookies. | New |
@@ -137,22 +137,25 @@ verification are on by default. See [Reading e-mail](guide/mail.md).
 
 ## Sign in with Google and GitHub
 
-Set a client id and secret in `[oauth]` and Ushka serves `/auth/google/login` and
+`app.use(Google(), GitHub())` with the credentials in the environment and Ushka serves `/auth/google/login` and
 `/auth/google/callback` (GitHub the same way): authorization code with PKCE, `state`,
 `nonce`, a verified e-mail, an optional domain allow-list, and a session id that
 changes at login. `Depends(login_required)` protects a route. The HTTP calls use the
 standard library. See [Sign in with Google and GitHub](guide/auth.md).
 
-## SEO and PWA, from `ushka.toml`
+## SEO and PWA, in one line each
+
+`app.use(Seo(url="https://shop.example"))` and `app.use(Pwa(name="Shop", icons=[...]))`, or the same in `ushka.toml`.
 
 `{{ seo() }}` writes the title, description, canonical link, Open Graph, Twitter
 tags and structured data for every page; `/robots.txt` and `/sitemap.xml` are
-served for you, and a page overrides anything it needs. Switch on `[pwa]` and the
-app gets a web manifest, a conservative service worker and an offline page. Both
-are configured in the file, with no extra packages. See [SEO](guide/seo.md) and
+served for you, and a page overrides anything it needs. `Pwa` switches the PWA on and the
+app gets a web manifest, a conservative service worker and an offline page. No extra packages. See [SEO](guide/seo.md) and
 [Progressive Web App](guide/pwa.md).
 
 ## Translations, from standard gettext catalogs
+
+`app.use(I18n(locales=["en", "pt"], default="en"))` turns them on.
 
 `{{ _("Welcome") }}`, `{% trans %}` and `gettext` in Python follow the language of
 each request (`?lang=`, cookie or `Accept-Language`, checked against your list),
