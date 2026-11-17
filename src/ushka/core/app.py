@@ -324,7 +324,15 @@ class Ushka:
 
         resolver = Resolver(request)
         try:
-            kwargs = await resolver.call(handler, params)
+            try:
+                kwargs = await resolver.call(handler, params)
+            except RequestValidationError as exc:
+                on_invalid = getattr(handler, "__ushka_on_invalid__", None)
+                if on_invalid is None:
+                    raise
+                # the route's own answer (usually the form again, with the errors)
+                resolver.errors, handler = exc, on_invalid
+                kwargs = await resolver.call(on_invalid, params)
             result = handler(**kwargs)
             if inspect.isawaitable(result):
                 result = await result
@@ -388,7 +396,7 @@ class Ushka:
 
     # --- Public API Decorators ---
 
-    def _add_route(self, method: str, path: str):
+    def _add_route(self, method: str, path: str, on_invalid=None):
         """Helper to avoid code repetition in HTTP method decorators.
 
         Parameters
@@ -418,6 +426,8 @@ class Ushka:
             callable
                 The original function (for chaining decorators).
             """
+            if on_invalid is not None:
+                func.__ushka_on_invalid__ = on_invalid
             self.router.add_route(method, path, func)
             return func
 
@@ -533,7 +543,7 @@ class Ushka:
         self._shutdown.append(func)
         return func
 
-    def get(self, path: str):
+    def get(self, path: str, *, on_invalid=None):
         """Decorator to register a function as a GET route handler.
 
         Parameters
@@ -546,9 +556,9 @@ class Ushka:
         callable
             The route registration decorator.
         """
-        return self._add_route("GET", path)
+        return self._add_route("GET", path, on_invalid)
 
-    def post(self, path: str):
+    def post(self, path: str, *, on_invalid=None):
         """Decorator to register a function as a POST route handler.
 
         Parameters
@@ -561,9 +571,9 @@ class Ushka:
         callable
             The route registration decorator.
         """
-        return self._add_route("POST", path)
+        return self._add_route("POST", path, on_invalid)
 
-    def put(self, path: str):
+    def put(self, path: str, *, on_invalid=None):
         """Decorator to register a function as a PUT route handler.
 
         Parameters
@@ -576,9 +586,9 @@ class Ushka:
         callable
             The route registration decorator.
         """
-        return self._add_route("PUT", path)
+        return self._add_route("PUT", path, on_invalid)
 
-    def patch(self, path: str):
+    def patch(self, path: str, *, on_invalid=None):
         """Decorator to register a function as a PATCH route handler.
 
         Parameters
@@ -591,9 +601,9 @@ class Ushka:
         callable
             The route registration decorator.
         """
-        return self._add_route("PATCH", path)
+        return self._add_route("PATCH", path, on_invalid)
 
-    def delete(self, path: str):
+    def delete(self, path: str, *, on_invalid=None):
         """Decorator to register a function as a DELETE route handler.
 
         Parameters
@@ -606,7 +616,7 @@ class Ushka:
         callable
             The route registration decorator.
         """
-        return self._add_route("DELETE", path)
+        return self._add_route("DELETE", path, on_invalid)
 
 
 def _bind(mw, call_next):

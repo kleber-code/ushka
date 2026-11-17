@@ -4,7 +4,8 @@ A handler states what it needs in its signature and Ushka resolves it, then
 validates it (see `ushka.http.validation`):
 
 * a path parameter whose name is in the route (``[item_id]``) is converted to its annotation;
-* ``Query()``, ``Header()``, ``Cookie()``, ``Body()``, ``Form()`` and ``Path()`` pick the source explicitly;
+* ``Query()``, ``Header()``, ``Cookie()``, ``Body()``, ``Form()`` and ``Path()`` pick the source explicitly
+  (``Annotated[Signup, Form()]`` fills a whole dataclass from an HTML form);
 * a plain scalar annotation (``limit: int = 10``) is a query parameter;
 * a dataclass, ``TypedDict``, ``dict`` or ``list`` annotation is the JSON body;
 * ``Depends(fn)`` runs ``fn`` first and passes you its result.
@@ -29,7 +30,9 @@ from ushka.http.validation import (
     Field,
     RequestValidationError,
     coerce,
+    form_to_model_input,
     hints_of,
+    is_model,
 )
 from ushka.http.websocket import WebSocket
 
@@ -76,6 +79,25 @@ class Form(Param):
     source = "form"
 
 
+def on_invalid(handler: Callable[..., Any]) -> Callable[[Callable], Callable]:
+    """Names the function that answers when a route's parameters fail validation.
+
+    For file routes (``@app.post("/x", on_invalid=fn)`` does the same)::
+
+        @on_invalid(show_form)
+        async def post(lead: Annotated[Lead, Form()]): ...
+
+    `handler` is an ordinary handler: it may take ``request``, ``Depends(...)``
+    and ``errors: RequestValidationError`` (with ``.fields`` and ``.values``).
+    """
+
+    def mark(func: Callable) -> Callable:
+        func.__ushka_on_invalid__ = handler
+        return func
+
+    return mark
+
+
 @dataclasses.dataclass(frozen=True)
 class Depends:
     """``user = Depends(current_user)``: call `dependency` and inject its result.
@@ -95,7 +117,7 @@ class Depends:
 class _Spec:
     name: str
     annotation: Any
-    kind: str  # request response config depends path query header cookie body form
+    kind: str  # request response config errors depends path query header cookie body form
     marker: Param | None = None
     default: Any = _REQUIRED
     depends: Depends | None = None
@@ -109,6 +131,8 @@ def _special(name: str, ann: Any, method: str = "") -> str | None:
         return "websocket"
     if name == "request" or ann is Request:
         return "request"
+    if ann is RequestValidationError:
+        return "errors"
     if name == "response" or ann is Response:
         return "response"
     if name == "config" or ann is Config:
@@ -176,6 +200,10 @@ def build_plan(func: Callable, path_names: frozenset, method: str) -> list[_Spec
     return plan
 
 
+def _inner(ann: Any) -> Any:
+    return typing.get_args(ann)[0] if typing.get_origin(ann) is typing.Annotated else ann
+
+
 class Resolver:
     """Per-request state: the dependency cache and what to clean up afterwards."""
 
@@ -183,6 +211,7 @@ class Resolver:
         self.request = request
         self.response = response
         self.websocket: WebSocket | None = None
+        self.errors: RequestValidationError | None = None  # set while an ``on_invalid`` handler runs
         self.cache: dict[Any, Any] = {}
         self.stack = contextlib.AsyncExitStack()
 
@@ -214,7 +243,9 @@ class Resolver:
             if value is not _MISSING:
                 kwargs[spec.name] = value
         if errors:
-            raise RequestValidationError(errors)
+            cached = self.request._cached_data
+            values = dict(cached["form"]) if "form" in cached and any(s.kind == "form" for s in plan) else {}
+            raise RequestValidationError(errors, values)
         return kwargs
 
     async def _value(self, spec: _Spec, body_specs: list, errors: list) -> Any:
@@ -229,6 +260,8 @@ class Resolver:
             return req.app.config
         if spec.kind == "websocket":
             return self.websocket
+        if spec.kind == "errors":
+            return self.errors
         if spec.kind == "depends":
             return await self._depends(spec.depends, errors)
         name = (spec.marker.alias if spec.marker and spec.marker.alias else spec.name)
@@ -242,6 +275,11 @@ class Resolver:
             loc = ["header", name]
         elif spec.kind == "cookie":
             raw, loc = req.cookies.get(name, _MISSING), ["cookie", name]
+        elif spec.kind == "form" and is_model(_inner(spec.annotation)):
+            # the whole dataclass from the form: same coercion and limits as a JSON body
+            form = await req.form()
+            data = {**form, **await req.files()}
+            return self._convert(spec, form_to_model_input(data, _inner(spec.annotation)), ["form"], errors)
         elif spec.kind == "form":
             raw, loc = (await req.form()).get(name, _MISSING), ["form", name]
         else:  # body

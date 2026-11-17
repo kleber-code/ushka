@@ -22,6 +22,7 @@ src/ushka/
 ├── orm/              async Active Record on SQLAlchemy (extra)                 661
 ├── docs/             Ushka Docs: Markdown site generator (extra)               598
 ├── cli/              new, dev, run, check, verify, docs, routes, db            810
+├── testing.py        `TestClient`: in-process ASGI client with lifespan and cookies
 ├── openapi.py        OpenAPI 3.1 from handler signatures                       177
 ├── mcp.py            routes as MCP tools, capabilities, approval               318
 └── verify.py         `ushka verify`: hostile probes against your own app       378

@@ -22,7 +22,13 @@ hosts. See [Security middleware](guide/security.md).
 
 `item_id: int`, `Query(ge=1)`, dataclass bodies and `Depends(...)`, with 422 errors
 that list every problem. No pydantic. OpenAPI 3.1 comes from the same signatures.
+HTML forms fill a whole dataclass, and a route can draw the form again with its errors.
 See [Validation and typed parameters](guide/validation.md).
+
+## Testing
+
+`ushka.testing.TestClient`: in-process, runs startup and shutdown, keeps cookies and can
+act as a browser for CSRF. See [Testing](guide/testing.md).
 
 ## WebSockets, SSE and agents
 

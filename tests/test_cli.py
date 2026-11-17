@@ -210,3 +210,42 @@ def test_check_passes_for_a_fresh_project(workdir, monkeypatch):
     new.create_project("demo")
     monkeypatch.chdir(workdir / "demo")
     main(["check", "--production"])  # no SystemExit
+
+
+def _csp_project(workdir, monkeypatch, toml=""):
+    for name in ("USHKA_APP_DEBUG", "USHKA_APP_SECRET_KEY", "USHKA_SECURITY_CSP"):
+        monkeypatch.delenv(name, raising=False)
+    (workdir / "templates").mkdir()
+    (workdir / "templates" / "base.html").write_text(
+        "<html>\n<link rel='stylesheet' href='https://cdn.example.com/a.css'>\n"
+        "<link rel='icon' href='https://img.example.com/i.png'>\n"
+        '<script src="https://cdn.jsdelivr.net/npm/x.js"></script>\n'
+        "<script src='/static/ok.js'></script>\n<script type='application/ld+json'>{}</script>\n"
+        "<script>alert(1)</script>\n<style>a{}</style>\n",
+        encoding="utf-8",
+    )
+    if toml:
+        (workdir / "ushka.toml").write_text(toml, encoding="utf-8")
+
+
+def test_check_warns_about_what_the_default_csp_blocks(workdir, monkeypatch, capsys):
+    _csp_project(workdir, monkeypatch)
+    main(["check"])  # warnings are not problems: no SystemExit
+    text = (lambda o: o.out + o.err)(capsys.readouterr())
+    assert "templates/base.html:2" in text and "cdn.example.com" in text
+    assert "templates/base.html:4" in text and "cdn.jsdelivr.net" in text
+    assert "templates/base.html:7: inline <script>" in text
+    assert "img.example.com" not in text and "ok.js" not in text and "ld+json" not in text
+    assert "[security] csp" in text
+
+
+def test_check_csp_scan_respects_a_custom_or_disabled_policy(workdir, monkeypatch, capsys):
+    _csp_project(workdir, monkeypatch, '[security]\ncsp = "default-src \'self\'; script-src \'self\' cdn.jsdelivr.net"\n')
+    main(["check"])
+    text = (lambda o: o.out + o.err)(capsys.readouterr())
+    assert "cdn.jsdelivr.net" not in text  # the policy names it
+    assert "cdn.example.com" in text  # not named by the policy
+    (workdir / "ushka.toml").write_text('[security]\ncsp = "off"\n', encoding="utf-8")
+    main(["check"])
+    text = (lambda o: o.out + o.err)(capsys.readouterr())
+    assert "blocked" not in text
