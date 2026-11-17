@@ -15,25 +15,28 @@ def _load():
     return Docs
 
 
-def check(directory: str, api: str | None, api_path: str) -> int:
+def check(directory: str, api: str | None, api_path: str | None) -> int:
     """Builds every page and reports broken links, anchors and nav entries."""
     Docs = _load()
-    docs = Docs(directory, api_package=api, api_path=Path(api_path).resolve())
+    docs = Docs(directory, api=api, **({"api_path": Path(api_path).resolve()} if api_path else {}))
     root = Path(directory)
     if not root.is_dir():
         ui.fail(f"Docs folder not found: {root}")
-    problems = docs.build(root.resolve())
+    try:
+        problems = docs.build(root.resolve())
+    except ValueError as exc:
+        ui.fail(str(exc))
     ui.title(f"Ushka Docs · {len(docs.pages)} page(s) in {root}")
     for problem in problems:
         ui.error(str(problem))
     if problems:
         ui.error(f"{len(problems)} problem(s) found")
     else:
-        ui.ok("all links, anchors and nav entries resolve")
+        ui.ok("all links and anchors resolve")
     return len(problems)
 
 
-def serve(directory: str, api: str | None, api_path: str, host: str, port: int) -> None:
+def serve(directory: str, api: str | None, api_path: str | None, host: str, port: int) -> None:
     """Serves the docs at http://host:port/docs/ for writing and previewing."""
     import uvicorn
 
@@ -44,7 +47,11 @@ def serve(directory: str, api: str | None, api_path: str, host: str, port: int) 
     setup_logging()
     app = Ushka()
     app.workdir = Path.cwd()
-    Docs(Path(directory).resolve(), api_package=api, api_path=Path(api_path).resolve()).mount(app)
+    options = {"api_path": Path(api_path).resolve()} if api_path else {}
+    try:
+        Docs(Path(directory).resolve(), api=api, cache=False, **options).mount(app)  # no cache: you are editing
+    except ValueError as exc:
+        ui.fail(str(exc))
 
     @app.get("/")
     async def home():

@@ -1,0 +1,7 @@
+# The brand of Ushka Docs (optional; read by ushka.docs). Arguments to Docs(...) win over this file.
+title = "Ushka"
+base_url = "https://ushka.satela.com.br"
+logo = "/docs/assets/logo.png"
+og_image = "https://ushka.satela.com.br/s/og.png"
+links = [["Ushka Guard", "/docs/guide/guard/"], ["GitHub", "https://github.com/kleber-code/ushka"]]
+edit_url = "https://github.com/kleber-code/ushka/edit/main/docs/"

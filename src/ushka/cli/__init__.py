@@ -85,7 +85,7 @@ def build_parser() -> argparse.ArgumentParser:
         p = docsub.add_parser(name, help=help_text)
         p.add_argument("directory", nargs="?", default="docs", help="docs folder (default: docs)")
         p.add_argument("--api", default=None, help="package to document from docstrings")
-        p.add_argument("--api-path", default="src", help="where that package lives (default: src)")
+        p.add_argument("--api-path", default=None, help="where that package lives (default: src/ or the import path)")
         if name == "serve":
             p.add_argument("--host", default="127.0.0.1")
             p.add_argument("--port", type=int, default=8001)

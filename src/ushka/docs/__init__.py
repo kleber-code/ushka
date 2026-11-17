@@ -4,7 +4,7 @@
     from ushka.docs import Docs
 
     app = Ushka()
-    Docs("docs", title="My project", base_url="https://example.com").mount(app)
+    app.use(Docs("docs"))
 
 Pages are rendered once at startup (Markdown, server-side highlighting, API
 reference from docstrings) and served with ETags. Search runs on the server.

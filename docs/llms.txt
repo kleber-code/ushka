@@ -27,6 +27,7 @@ Rules for generating Ushka code:
 - Translations: `[i18n] enable = true`, then `{{ _("Hello") }}` or `{% trans %}` in templates and `from ushka import _, ngettext` in code; catalogs are gettext files in `locale/`, built with `ushka i18n extract` and `ushka i18n compile`.
 - Page head: put `{{ seo() }}` in `<head>` instead of `<title>` (override per page with `seo(title=..., description=..., noindex=True)`); `/robots.txt` and `/sitemap.xml` are served; set `[seo] url`. For a PWA set `[pwa] enable = true`, add icons, and put `{{ pwa() }}` in `<head>`.
 - Sign in with Google or GitHub: set `[oauth] google_client_id`/`github_client_id` and `redirect_base`, the secret in `USHKA_OAUTH_GOOGLE_CLIENT_SECRET`; `/auth/<provider>/login` and `/callback` are built in. Protect a route with `user=Depends(login_required)` (`from ushka.auth import current_user, login_required, login_url, logout`); never write your own OAuth callback or take `redirect_uri` from the Host header.
+- Docs site: `from ushka.docs import Docs`; `app.use(Docs("docs"))` serves `docs/` at `/docs/` with no config. The menu comes from the folders: `index.md` first, a folder is a section, title from the first `# H1` or `title:`, order from `order:` or a `01-` prefix (not in the URL), names starting `_` or `.` are hidden. `Docs("docs", api="mypkg")` adds the API reference from docstrings; brand options go in an optional `docs/docs.toml` (title, logo, og_image, links, edit_url, base_url, extra_css); `docs/nav.toml` overrides the menu; `ushka docs check docs --api mypkg` in CI.
 - Tests: `from ushka.testing import TestClient`; `async with TestClient(app) as client: await client.post("/x", json={...})` runs startup and shutdown and keeps cookies.
 - Browser writes (`POST`, `PUT`, `PATCH`, `DELETE`) from another site get 403 (CSRF, no tokens). Allow origins with `[security] csrf_trusted_origins`.
 - WebSocket: `async def websocket(ws)` in `routes/`, or `@app.websocket("/ws")`. SSE: return `EventSourceResponse(async_generator)`.
@@ -66,7 +67,7 @@ Rules for generating Ushka code:
 - [ORM](https://ushka.satela.com.br/docs/guide/orm/): models, queries, transactions, automatic timestamps, UUID keys, existing databases (`ushka db inspect`), raw SQL, migrations
 - [WebSockets and SSE](https://ushka.satela.com.br/docs/guide/realtime/): sockets, events, streaming
 - [Routes as agent tools](https://ushka.satela.com.br/docs/guide/agents/): MCP, capabilities, human approval
-- [Ushka Docs](https://ushka.satela.com.br/docs/guide/docs/): documentation sites from Markdown, with a cache
+- [Ushka Docs](https://ushka.satela.com.br/docs/guide/docs/): `app.use(Docs("docs"))`; the menu comes from the folders (index.md opens, a folder is a section, title from the first H1 or `title:`, order from `01-` prefix or `order:`, `_`/`.` hidden), `api="pkg"` generates the API reference, optional `docs/docs.toml` for the brand, `nav.toml` overrides the menu, cache on by default
 
 ## Security
 

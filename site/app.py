@@ -43,22 +43,16 @@ engine.add_global("asset", asset)
 app = Ushka()
 app.mount_static("/s", HERE / "static", cache_control="public, max-age=86400, stale-while-revalidate=604800")
 
-docs = Docs(
-    REPO / "docs",
-    url="/docs",
-    title="Ushka",
-    base_url=ORIGIN,
-    api_package="ushka",
-    api_path=REPO / "src",
-    logo="/docs/assets/logo.png",
-    og_image=f"{ORIGIN}/s/og.png",
-    links=[("Ushka Guard", "/docs/guide/guard/"), ("GitHub", "https://github.com/kleber-code/ushka")],
-    edit_url="https://github.com/kleber-code/ushka/edit/main/docs/",
-    extra_css=[asset("docs-brand.css")],
-    # Rendered once (in the image build) instead of by every worker at startup.
-    cache=HERE / ".cache" / "docs.json",
+# Brand (title, logo, links...) is in ../docs/docs.toml; the menu comes from ../docs/nav.toml.
+docs = app.use(
+    Docs(
+        REPO / "docs",
+        api="ushka",
+        extra_css=[asset("docs-brand.css")],
+        # Rendered once (in the image build) instead of by every worker at startup.
+        cache=HERE / ".cache" / "docs.json",
+    )
 )
-docs.mount(app)
 
 
 def _volume() -> str:
