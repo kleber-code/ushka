@@ -175,7 +175,7 @@ class SecurityMiddleware:
         for name, value in self.headers.items():
             if name.lower() not in have:  # a route that set its own header wins
                 response.headers[name] = value
-        if request.scope.get("scheme") == "https" and "strict-transport-security" not in have:
+        if request.is_secure and "strict-transport-security" not in have:
             hsts = request.app.config.get("security_hsts_seconds", 31536000)
             if hsts:
                 response.headers["Strict-Transport-Security"] = f"max-age={int(hsts)}; includeSubDomains"

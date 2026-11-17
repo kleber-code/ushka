@@ -29,6 +29,7 @@ from decimal import Decimal, InvalidOperation
 from typing import Any
 
 from ushka.http.exceptions import HTTPError
+from ushka.http.uploads import UploadFile
 
 _MISSING = object()
 _TRUE = {"true", "1", "yes", "on"}
@@ -207,8 +208,8 @@ def coerce(value: Any, tp: Any, loc: list, errors: list) -> Any:
             return fail(f"{tp.__name__.lower()}_parsing", f"Input should be a valid {tp.__name__}")
 
     if origin in (list, set, frozenset, tuple, typing.Sequence, typing.Iterable) or tp in (list, set, frozenset, tuple):
-        if isinstance(value, str) or not isinstance(value, (list, tuple, set, frozenset)):
-            value = [value] if isinstance(value, str) else value  # ?tag=a: one item is a list of one
+        if isinstance(value, (str, UploadFile)) or not isinstance(value, (list, tuple, set, frozenset)):
+            value = [value] if isinstance(value, (str, UploadFile)) else value  # ?tag=a: one item is a list of one
         if not isinstance(value, (list, tuple, set, frozenset)):
             return fail("list_type", "Input should be a valid list")
         item_tp = args[0] if args and args[0] is not Ellipsis else Any

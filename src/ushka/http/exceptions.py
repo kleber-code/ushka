@@ -160,3 +160,24 @@ class HTTPForbidden(HTTPError):
         message: str = "Forbidden",
     ) -> None:
         super().__init__(template, status_code, message)
+
+
+class HTTPRedirect(HTTPError):
+    """Raised to redirect from anywhere, even deep inside a helper or dependency.
+
+    Equivalent to ``return redirect(url, status_code, request)``, with one
+    difference that matters: the redirect is built by the framework, which
+    already knows the request, so cookies, session values and flash messages
+    set before the ``raise`` are saved. Nothing else is saved on the way out:
+    only what the handler explicitly changed.
+
+    Raises `UnsafeValueError` straight away when `url` is `Untrusted` (validate
+    it first with ``safe.url(url, allow=["/"], default="/")``).
+    """
+
+    def __init__(self, url: str, status_code: int = 302) -> None:
+        from ushka.guard import check_redirect
+
+        check_redirect(url)
+        super().__init__("error.html", status_code, f"Redirect to {url}")
+        self.url = url

@@ -28,7 +28,8 @@ Handlers declare what they need and Ushka passes it in:
 | `await request.text()` | Body decoded as UTF-8. |
 | `await request.json()` | Parsed JSON. |
 | `await request.form()` | URL-encoded or multipart form fields. |
-| `await request.files()` | Uploaded files, see [Uploads](sessions.md#uploads). |
+| `await request.files()` | Uploaded files, see [Uploads](uploads.md). |
+| `request.client_ip` | The visitor's address; honours `X-Forwarded-For` only from [trusted proxies](deploy.md#behind-a-proxy). Also `request.scheme`, `request.is_secure`, `request.host`. |
 | `request.stream()` | Async iterator over body chunks, for large uploads. |
 | `request.app` | The `Ushka` app (for `request.app.config`). |
 

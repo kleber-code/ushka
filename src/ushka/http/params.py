@@ -7,6 +7,7 @@ validates it (see `ushka.http.validation`):
 * ``Query()``, ``Header()``, ``Cookie()``, ``Body()``, ``Form()`` and ``Path()`` pick the source explicitly;
 * a plain scalar annotation (``limit: int = 10``) is a query parameter;
 * a dataclass, ``TypedDict``, ``dict`` or ``list`` annotation is the JSON body;
+* an ``UploadFile`` (or ``list[UploadFile]``) annotation is a file of a multipart form;
 * ``Depends(fn)`` runs ``fn`` first and passes you its result.
 
 `request`, `response` and `config` keep working by name or annotation.
@@ -24,6 +25,7 @@ from typing import Any
 from ushka.core.config import Config
 from ushka.http.request import Request
 from ushka.http.response import Response
+from ushka.http.uploads import UploadFile
 from ushka.http.validation import (
     _MISSING,
     Field,
@@ -116,6 +118,18 @@ def _special(name: str, ann: Any, method: str = "") -> str | None:
     return None
 
 
+def wants_upload(tp: Any) -> bool:
+    """True for ``UploadFile``, ``UploadFile | None``, ``list[UploadFile]``, ``Annotated[...]`` of those."""
+    if tp is UploadFile:
+        return True
+    return any(wants_upload(a) for a in typing.get_args(tp) if a is not type(None))
+
+
+def _is_model(tp: Any) -> bool:
+    tp = typing.get_args(tp)[0] if typing.get_origin(tp) is typing.Annotated else tp
+    return (dataclasses.is_dataclass(tp) and isinstance(tp, type)) or typing.is_typeddict(tp)
+
+
 def _is_body_type(tp: Any) -> bool:
     tp = typing.get_args(tp)[0] if typing.get_origin(tp) is typing.Annotated else tp
     origin = typing.get_origin(tp) or tp
@@ -167,6 +181,8 @@ def build_plan(func: Callable, path_names: frozenset, method: str) -> list[_Spec
             kind = "path" if name in path_names and marker.source == "query" else marker.source
         elif name in path_names:
             kind = "path"
+        elif wants_upload(inner):
+            kind = "form"
         elif _is_body_type(inner) and method in _BODY_METHODS:
             kind = "body"
         else:
@@ -243,7 +259,13 @@ class Resolver:
         elif spec.kind == "cookie":
             raw, loc = req.cookies.get(name, _MISSING), ["cookie", name]
         elif spec.kind == "form":
-            raw, loc = (await req.form()).get(name, _MISSING), ["form", name]
+            form = await req.form()
+            if wants_upload(spec.annotation):
+                raw, loc = await self._upload_value(spec.annotation, name), ["form", name]
+            elif _is_model(spec.annotation):
+                raw, loc = await self._form_model(form, spec.annotation), ["form"]
+            else:
+                raw, loc = form.get(name, _MISSING), ["form", name]
         else:  # body
             data = await req.json()
             embed = len(body_specs) > 1 or bool(spec.marker and spec.marker.embed)
@@ -256,6 +278,25 @@ class Resolver:
             errors.append({"loc": loc, "msg": "Field required", "type": "missing"})
             return _MISSING
         return self._convert(spec, raw, loc, errors)
+
+    async def _upload_value(self, tp: Any, name: str) -> Any:
+        """The file(s) a field sent: a list for ``list[UploadFile]``, else the last one.
+        A browser sends an empty part for a file input left blank: that is no file."""
+        found = [u for u in (await self.request.uploads()).get(name, []) if u.filename or u.size]
+        if not found:
+            return _MISSING
+        return found if _wants_list(tp) else found[-1]
+
+    async def _form_model(self, form: dict, model: Any) -> dict:
+        """The whole form as a dict for a dataclass/TypedDict: text fields plus files."""
+        model = typing.get_args(model)[0] if typing.get_origin(model) is typing.Annotated else model
+        data = dict(form)
+        for field, hint in hints_of(model).items():
+            if wants_upload(hint):
+                value = await self._upload_value(hint, field)
+                if value is not _MISSING:
+                    data[field] = value
+        return data
 
     @staticmethod
     def _convert(spec: _Spec, raw: Any, loc: list, errors: list) -> Any:
@@ -282,3 +323,9 @@ class Resolver:
         if dep.use_cache:
             self.cache[func] = value
         return value
+
+
+def _wants_list(tp: Any) -> bool:
+    if typing.get_origin(tp) in (list, set, tuple, frozenset, typing.Sequence):
+        return True
+    return any(_wants_list(a) for a in typing.get_args(tp) if a is not type(None))

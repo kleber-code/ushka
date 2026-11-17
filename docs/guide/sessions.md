@@ -1,4 +1,4 @@
-# Sessions, cookies and uploads
+# Sessions and cookies
 
 ## Sessions
 
@@ -51,36 +51,6 @@ To read one as a typed parameter use `Cookie()`: see [Validation](validation.md)
 
 ## Uploads
 
-Send a `multipart/form-data` form and read the files with `request.files()`:
-
-```python
-# routes/avatar.py
-from pathlib import Path
-from ushka.guard import safe
-
-UPLOADS = Path("uploads")
-
-async def post(request):
-    upload = (await request.files())["avatar"]      # filename, content_type, file
-    name = Path(upload["filename"]).name
-    target = safe.path(name, root=UPLOADS, default=None)   # stays inside UPLOADS
-    if target is None:
-        return {"error": "bad file name"}, 400
-    UPLOADS.mkdir(exist_ok=True)
-    target.write_bytes(upload["file"].read())
-    return {"saved": name, "type": upload["content_type"]}, 201
-```
-
-Each file is a dict with `filename`, `content_type` and `file` (a spooled
-temporary file: up to 2 MB stays in memory, the rest goes to disk). Other form
-fields are in `await request.form()`.
-
-- **Limits.** `[limits] max_request_body_multipart_size_in_KB` (50 MB) caps each
-  uploaded file, and `max_request_body_size_in_KB` (2 MB) caps ordinary bodies
-  and the part of a file kept in memory. Beyond them the client gets **413**.
-- **The file name is client data.** It is `Untrusted`, and it can contain `../`.
-  Build the path with `safe.path()`, as above, or generate your own name.
-- **The content type is a claim.** Do not trust it. Check the bytes if it matters.
-- **Do not serve uploads from `routes/`.** Put them in a folder and expose it
-  with [`app.mount_static`](static_files.md#serving-any-folder), or hand them out
-  through a route that checks permissions.
+Files have their own page: [Uploads](uploads.md). In short,
+`request.files()` returns `UploadFile` objects (and a parameter typed
+`UploadFile` receives one), each with `save()`, `read()` and `size`.

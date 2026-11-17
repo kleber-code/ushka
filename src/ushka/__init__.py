@@ -22,8 +22,9 @@ from . import guard
 from .core import Router, Ushka
 from .core.config import Config
 from .guard import safe
-from .http import Request, Response, redirect
+from .http import HTTPRedirect, Request, Response, redirect
 from .http.params import Body, Cookie, Depends, Form, Header, Path, Query
+from .http.uploads import UploadFile
 from .http.stream import EventSourceResponse, ServerSentEvent, StreamingResponse
 from .http.validation import Field, RequestValidationError
 from .http.websocket import WebSocket, WebSocketDisconnect
@@ -36,6 +37,8 @@ __all__ = [
     "Response",
     "Router",
     "redirect",
+    "UploadFile",
+    "HTTPRedirect",
     "render",
     "guard",
     "safe",

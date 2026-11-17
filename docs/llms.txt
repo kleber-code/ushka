@@ -35,7 +35,8 @@ Rules for generating Ushka code:
 - [Dependency Injection](https://ushka.satela.com.br/docs/guide/dependency_injection/): request, response and config in a handler
 - [Templates](https://ushka.satela.com.br/docs/guide/templates/): Jinja2, filters, globals, context processors
 - [Static files](https://ushka.satela.com.br/docs/guide/static_files/): the static folder, caching, `app.mount_static`
-- [Sessions, cookies and uploads](https://ushka.satela.com.br/docs/guide/sessions/): signed sessions, cookies, multipart files
+- [Sessions and cookies](https://ushka.satela.com.br/docs/guide/sessions/): signed sessions, cookies
+- [Uploads](https://ushka.satela.com.br/docs/guide/uploads/): `UploadFile`, `request.files()`, `save()` with a safe name, limits, validating type and size
 - [SEO](https://ushka.satela.com.br/docs/guide/seo/): `{{ seo() }}` tags, robots.txt and sitemap.xml ready from `[seo]` in ushka.toml, per-page overrides
 - [Progressive Web App](https://ushka.satela.com.br/docs/guide/pwa/): `[pwa]` in ushka.toml serves the manifest, a conservative service worker and an offline page
 - [Flash messages](https://ushka.satela.com.br/docs/guide/flashing/): one-time messages between requests

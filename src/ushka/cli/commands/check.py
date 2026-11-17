@@ -83,6 +83,11 @@ def check(production: bool = False) -> int:
             ui.ok("secret key is set")
     elif not config.get("app_secret_key"):
         ui.warn("USHKA_APP_SECRET_KEY is not set (needed for sessions in production)")
+    if production and config.get("server_host") in ("0.0.0.0", "::") and not config.get("security_trusted_proxies"):
+        ui.warn(
+            "[server] host is 0.0.0.0 and [security] trusted_proxies is empty: behind Caddy or nginx, "
+            "request.client_ip is the proxy and X-Forwarded-* is ignored"
+        )
 
     gitignore = workdir / ".gitignore"
     if (workdir / ".env").exists():

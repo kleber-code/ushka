@@ -160,6 +160,10 @@ def run_server(app: str, *, host: str, port: int, workers: int, log_config: dict
         workers=workers if workers > 1 else None,
         lifespan="on",
         log_config=log_config,
+        # One reading of X-Forwarded-*: Ushka's own (`[security] trusted_proxies`,
+        # see ushka.http.proxy). Uvicorn trusting 127.0.0.1 on its own as well
+        # would rewrite scope["client"] and scope["scheme"] behind our back.
+        proxy_headers=False,
         timeout_worker_healthcheck=HEALTHCHECK_TIMEOUT,
     )
     server = QuietServer(config)

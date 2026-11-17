@@ -49,7 +49,7 @@ and `.env`. That is how you configure a container without baking secrets in:
 | `USHKA_SECURITY_CORS_ORIGINS`, `USHKA_SECURITY_CSRF_TRUSTED_ORIGINS` | Comma-separated origins. |
 | `DATABASE_URL` (or `USHKA_DATABASE_URL`) | The database. Plain `postgresql://` URLs work. |
 | `USHKA_MCP_TOKEN` | Bearer token for [agent tools](agents.md). |
-| `FORWARDED_ALLOW_IPS` | Uvicorn's list of proxies to trust for `X-Forwarded-*`. See [behind a proxy](#behind-a-proxy). |
+| `USHKA_SECURITY_TRUSTED_PROXIES` | Comma-separated IPs or CIDRs of your reverse proxies. See [behind a proxy](#behind-a-proxy). |
 
 See [Configuration](configuration.md) for all settings.
 
@@ -139,11 +139,29 @@ the new container, not inside every worker.
 Most platforms put a proxy (nginx, Caddy, a load balancer) in front of your
 container to end TLS. Two things follow:
 
-- **Trust its headers.** Uvicorn only believes `X-Forwarded-Proto` and
-  `X-Forwarded-For` from `127.0.0.1` by default. Inside a container the proxy has
-  another address, so set `FORWARDED_ALLOW_IPS` to the proxy's address (or `*` if
-  the container can only be reached through the proxy). Without it Ushka sees every
-  request as plain http, so it does not send HSTS.
+- **Say which proxies you trust.** List them in `[security] trusted_proxies`
+  (IPs or CIDRs; in Docker, the network's range such as `172.18.0.0/16`, or
+  `127.0.0.1` for Caddy on the same machine). Empty, the default, trusts no one:
+  `X-Forwarded-*` is ignored and `request.client_ip` is whoever connected.
+
+  ```toml
+  [security]
+  trusted_proxies = ["127.0.0.1", "10.0.0.0/8"]
+  ```
+
+  For a request that arrives from a trusted proxy Ushka reads
+  `X-Forwarded-For` from the right, skips your proxies and takes the first
+  other address as `request.client_ip`; the left-most entry is never believed,
+  because the client writes it. `request.scheme` / `request.is_secure` follow
+  `X-Forwarded-Proto` (so HSTS is sent) and `request.host` follows
+  `X-Forwarded-Host`, both from the nearest trusted proxy. A malformed header
+  falls back to the proxy's address. `ushka check --production` warns when the
+  server binds `0.0.0.0` and the list is empty.
+
+  Ushka's server (`ushka run`, `ushka dev`, `app.run()`) starts Uvicorn with
+  `proxy_headers=False`, so the headers are read once, by this rule, and
+  Uvicorn's own `FORWARDED_ALLOW_IPS` no longer applies. If you start Uvicorn
+  yourself, pass `--no-proxy-headers` for the same effect.
 - **Set `allowed_hosts`.** The proxy forwards the `Host` header, and Ushka will
   reject any not on your list.
 

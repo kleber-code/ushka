@@ -19,6 +19,7 @@ else:
     Request = None
 
 from ushka.http.exceptions import HTTPBadRequest, HTTPPayloadTooLarge
+from ushka.http.uploads import UploadFile
 
 
 class MultiPartCollector:
@@ -35,6 +36,7 @@ class MultiPartCollector:
         max_ram_size_kb=2048,
         max_file_size_kb=51200,
         max_text_field_size_kb=64,
+        taint=True,
     ):
         """Initializes the MultiPartCollector.
 
@@ -55,7 +57,11 @@ class MultiPartCollector:
         """
         self.charset = charset
         self.form_data: Dict[str, Any] = {}
-        self.files: Dict[str, Any] = {}
+        #: The last file of each field (`request.files()`).
+        self.files: Dict[str, UploadFile] = {}
+        #: Every file of each field, in order (a repeated field or ``multiple``).
+        self.uploads: Dict[str, list[UploadFile]] = {}
+        self.taint = taint
 
         self.max_ram_size = int(max_ram_size_kb * 1024)
         self.max_file_size = int(max_file_size_kb * 1024)
@@ -70,6 +76,15 @@ class MultiPartCollector:
         self._data_buffer: bytearray = bytearray()
 
         self._current_part_size = 0
+        self._current_upload: tuple[str, str, str] | None = None
+
+    def close(self) -> None:
+        """Closes every file collected so far (when parsing fails midway)."""
+        if self._current_file:
+            self._current_file.close()
+        for group in self.uploads.values():
+            for upload in group:
+                upload.close()
 
     def on_part_begin(self):
         """Callback invoked at the beginning of parsing a new multipart part.
@@ -81,6 +96,7 @@ class MultiPartCollector:
         self._current_header_name = bytearray()
         self._current_header_value = bytearray()
         self._current_file = None
+        self._current_upload = None
         self._is_file = False
         self._data_buffer = bytearray()
         self._current_part_size = 0
@@ -150,11 +166,7 @@ class MultiPartCollector:
                 max_size=self.max_ram_size, mode="w+b"
             )
 
-            self.files[self._current_field_name] = {
-                "filename": filename,
-                "content_type": content_type,
-                "file": self._current_file,
-            }
+            self._current_upload = (self._current_field_name, filename, content_type)
         else:
             self._is_file = False
 
@@ -187,7 +199,7 @@ class MultiPartCollector:
             # DISK ATTACK PROTECT
             if self._current_part_size > self.max_file_size:
                 raise HTTPPayloadTooLarge(
-                    f"File '{self._current_field_name}' exceeds limit of {self.max_file_size} bytes"
+                    message=f"File '{self._current_field_name}' exceeds limit of {self.max_file_size} bytes"
                 )
 
             if self._current_file:
@@ -196,7 +208,7 @@ class MultiPartCollector:
             # RAM ATTACK PROTECT
             if self._current_part_size > self.max_text_size:
                 raise HTTPPayloadTooLarge(
-                    f"Form field '{self._current_field_name}' exceeds limit of {self.max_text_size} bytes"
+                    message=f"Form field '{self._current_field_name}' exceeds limit of {self.max_text_size} bytes"
                 )
 
             self._data_buffer.extend(data[start:end])
@@ -207,8 +219,14 @@ class MultiPartCollector:
         If the part was a file, its temporary file handle is reset to the beginning.
         If it was a text field, its decoded value is stored in `form_data`.
         """
-        if self._is_file and self._current_file:
+        if self._is_file and self._current_file and self._current_upload:
             self._current_file.seek(0)
+            field, filename, content_type = self._current_upload
+            upload = UploadFile(
+                filename, content_type, self._current_file, self._current_part_size, taint=self.taint
+            )
+            self.files[field] = upload
+            self.uploads.setdefault(field, []).append(upload)
         else:
             self.form_data[self._current_field_name] = self._data_buffer.decode(
                 self.charset
@@ -259,8 +277,8 @@ async def parse_multipart_asgi(request: Request, max_ram_kb=2048, max_disk_kb=51
     tuple[dict, dict]
         A tuple containing two dictionaries:
         - `form_data`: Key-value pairs of standard form fields.
-        - `files`: Key-value pairs of uploaded files, where values are dictionaries
-          containing 'filename', 'content_type', and a `SpooledTemporaryFile` object.
+        - `files`: The uploaded files by field name, as `UploadFile` objects
+          (the last one when a field is repeated; see `request.uploads()`).
 
     Raises
     ------
@@ -274,10 +292,13 @@ async def parse_multipart_asgi(request: Request, max_ram_kb=2048, max_disk_kb=51
     ct_header, params = parse_options_header(content_type)
     boundary = params.get(b"boundary")
     if not boundary:
-        raise HTTPBadRequest("Multipart Boundary Not Found")
+        raise HTTPBadRequest(message="Multipart Boundary Not Found")
 
     collector = MultiPartCollector(
-        charset="utf-8", max_ram_size_kb=max_ram_kb, max_file_size_kb=max_disk_kb
+        charset="utf-8",
+        max_ram_size_kb=max_ram_kb,
+        max_file_size_kb=max_disk_kb,
+        taint=request.taint_enabled,
     )
 
     parser = LowLevelParser(boundary, callbacks=collector.get_callbacks())
@@ -285,11 +306,10 @@ async def parse_multipart_asgi(request: Request, max_ram_kb=2048, max_disk_kb=51
     try:
         async for chunk in request.stream():
             parser.write(chunk)
-    except HTTPBadRequest as e:
-        if collector._current_file:
-            collector._current_file.close()
-        raise e
+        parser.finalize()
+    except Exception:
+        collector.close()  # no temporary file outlives a failed upload
+        raise
 
-    parser.finalize()
-
+    request._cached_data["uploads"] = collector.uploads
     return collector.form_data, collector.files

@@ -5,6 +5,25 @@ All notable changes to Ushka. The format follows
 
 ## [Unreleased]
 
+## [0.8.0b1]
+
+### Added
+
+- **`UploadFile`** (`from ushka import UploadFile`, guide: Uploads). `request.files()` now returns `UploadFile` objects with `filename` and `content_type` (both `Untrusted`: the client wrote them), `size`, `file` (spooled, seekable), `safe_filename`, `extension`, `read()`, `head()` for magic bytes, `save(directory, name=None, extensions=None, overwrite=False)` and `close()`. `save` takes only a plain file name chosen by you (or generates a random one), refuses `../`, a disallowed extension, an existing file and a symlink, and returns the `Path`. `upload["filename"]`, `["content_type"]` and `["file"]` keep working. `await request.uploads()` gives every file of a repeated field. A handler parameter typed `UploadFile`, `UploadFile | None` or `list[UploadFile]`, and `UploadFile` fields in a dataclass declared as `Annotated[Model, Form()]`, receive the files; an empty file input counts as no file. Temporary files are closed when the request ends.
+- **`[security] trusted_proxies`** (guide: Deploy, behind a proxy) and `request.client_ip`, `request.scheme`, `request.is_secure`, `request.host`. `X-Forwarded-For`, `-Proto` and `-Host` are believed only when the direct peer is a listed IP or CIDR (empty, the default, trusts no one). The address list is read from the right, skipping trusted proxies, so a forged left-most entry never wins; a malformed header falls back to the peer. HSTS and the SEO origin use `request.is_secure` / `request.host`. `ushka check --production` warns about a `0.0.0.0` bind without trusted proxies.
+- **`HTTPRedirect(url, status_code=302)`**: raise it from a helper or a dependency to redirect, with the same URL check as `redirect()`.
+
+### Changed
+
+- **The built-in servers start Uvicorn with `proxy_headers=False`** (`ushka run`, `ushka dev`, `app.run()`), so `X-Forwarded-*` is interpreted once, by `[security] trusted_proxies`. Uvicorn's own `FORWARDED_ALLOW_IPS` (and its implicit trust of `127.0.0.1`) no longer applies: behind Caddy or nginx, set `trusted_proxies`.
+- An unexpected exception (500) no longer saves cookie and session changes the handler made before failing. Redirects and 4xx errors still save what the handler changed.
+
+### Fixed
+
+- Cookies, session values and flash messages set before `raise HTTPRedirect(...)` are saved with the redirect.
+- A multipart upload over the size limit, or without a boundary, answered 500 instead of 413 / 400 (the message was passed as the template name).
+- A multipart field sent twice no longer leaks the first temporary file; files are closed when parsing fails.
+
 ## [0.7.0] - 2026-11-16
 
 ### Added

@@ -26,8 +26,8 @@ Every response gets these, unless your route already set the same header:
 
 The default CSP blocks inline scripts and third-party scripts, images and
 fonts. If your pages load from a CDN, set `csp` to your own policy, or to
-`"off"` to send none. Behind a proxy that ends TLS, tell the server which
-proxy to trust so Ushka sees `https` (see [Deploy](deploy.md#behind-a-proxy)).
+`"off"` to send none. Behind a proxy that ends TLS, list it in `[security] trusted_proxies` so
+Ushka sees `https` (see [Deploy](deploy.md#behind-a-proxy)).
 
 ## CSRF
 

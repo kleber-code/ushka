@@ -19,7 +19,8 @@ from typing import Any, Dict, List, Optional, Tuple
 from ushka.core.config import Config
 from ushka.templating import render
 from ushka.guard import RejectedValueError, UnsafeValueError
-from ushka.http.exceptions import HTTPBadRequest, HTTPError
+from ushka.http.exceptions import HTTPBadRequest, HTTPError, HTTPRedirect
+from ushka.http.redirect import redirect
 from ushka.http.request import Request
 from ushka.http.response import Response
 from ushka.http.validation import RequestValidationError
@@ -224,10 +225,18 @@ class ErrorHandler:
         if isinstance(exc, RequestValidationError):
             return Response({"detail": exc.errors}, status_code=422, media_type="application/json")
 
+        if isinstance(exc, HTTPRedirect):
+            # Tied to the request so the session, cookies and flash messages
+            # changed before the `raise` are saved, like `redirect(..., request)`.
+            return redirect(exc.url, exc.status_code, request)
+
         if isinstance(exc, HTTPError):
             return await self._handle_http_error(exc, request)
 
-        return await self._handle_server_error(exc, request)
+        response = await self._handle_server_error(exc, request)
+        # A crash must not half-save what the handler touched before failing.
+        response.persist = False
+        return response
 
     async def _handle_http_error(self, exc: HTTPError, request: Request) -> Response:
         """Handles expected errors (4xx status codes, e.g., 404, 405).

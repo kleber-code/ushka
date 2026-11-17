@@ -221,31 +221,36 @@ class Ushka:
         """
         request = Request(self, scope, receive)
         try:
-            response = await self._run_chain(request)
-        except Exception as e:
-            response = await self._error_response(e, request)
-        # Lets the response persist cookie/session changes, even on errors.
-        response.request = request
+            try:
+                response = await self._run_chain(request)
+            except Exception as e:
+                response = await self._error_response(e, request)
+            # Lets the response persist cookie/session changes, also on 4xx errors
+            # and redirects raised by the handler (not on 500s: see Response.persist).
+            if response.persist:
+                response.request = request
 
-        if request.method == "HEAD":
-            response.head_only = True
+            if request.method == "HEAD":
+                response.head_only = True
 
-        started = False
+            started = False
 
-        async def tracked_send(message):
-            nonlocal started
-            started = started or message["type"] == "http.response.start"
-            await send(message)
+            async def tracked_send(message):
+                nonlocal started
+                started = started or message["type"] == "http.response.start"
+                await send(message)
 
-        try:
-            await response(tracked_send)
-        except Exception:
-            if started:
-                raise  # the status line is gone: only the server can abort now
-            # Building the response failed (for example a header value with a
-            # line break): answer with a clean 500 instead of leaking the error to the server.
-            self.log.exception("Could not send the response")
-            await Response("Internal Server Error", 500)(send)
+            try:
+                await response(tracked_send)
+            except Exception:
+                if started:
+                    raise  # the status line is gone: only the server can abort now
+                # Building the response failed (for example a header value with a
+                # line break): answer with a clean 500 instead of leaking the error to the server.
+                self.log.exception("Could not send the response")
+                await Response("Internal Server Error", 500)(send)
+        finally:
+            request._close_uploads()  # temporary files of any uploads
 
     async def _error_response(self, exc: Exception, request: Request) -> Response:
         try:
@@ -253,7 +258,9 @@ class Ushka:
         except Exception:
             # The error page itself failed: never leave the client hanging.
             self.log.exception("Error handler failed")
-            return Response("Internal Server Error", 500)
+            failed = Response("Internal Server Error", 500)
+            failed.persist = False
+            return failed
 
     async def _dispatch_safely(self, request: Request) -> Response:
         """The route, with errors already turned into responses, so every
@@ -357,6 +364,7 @@ class Ushka:
             port=port,
             log_config=get_log_config(level=log_level),
             lifespan="on",
+            proxy_headers=False,  # X-Forwarded-* is read by Ushka: [security] trusted_proxies
         )
 
     def _print_banner(self, host, port):

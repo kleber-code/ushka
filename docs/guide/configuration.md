@@ -131,6 +131,7 @@ Ushka Guard and the security middleware, all on by default. See [security](secur
 | `csrf_trusted_origins` | `[]` | Other origins allowed to send writes. |
 | `csrf_exempt_paths` | `[]` | Paths that skip the CSRF check (webhooks, for example). |
 | `allowed_hosts` | `[]` | Accepted Host headers. Empty means any host: set it in production. |
+| `trusted_proxies` | `[]` | IPs and CIDRs of your reverse proxies (Caddy, nginx). Only these may set X-Forwarded-For, -Proto and -Host. Empty trusts no one. |
 | `cors_origins` | `[]` | Origins allowed by CORS. Empty means no CORS headers. |
 | `cors_methods` | `["GET", "POST", "PUT", "PATCH", "DELETE"]` | Methods CORS allows. |
 | `cors_headers` | `[]` | Request headers CORS allows. Empty echoes what the preflight asks for. |
