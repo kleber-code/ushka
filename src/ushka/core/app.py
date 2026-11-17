@@ -19,6 +19,7 @@ from ushka.http.params import Resolver
 from ushka.http.validation import RequestValidationError
 from ushka.http.websocket import WebSocket, WebSocketDisconnect
 from ushka.http.request import Request
+from ushka.i18n import I18n
 import ushka.pwa as pwa_module
 import ushka.seo as seo_module
 from ushka.security import SecurityMiddleware
@@ -72,6 +73,9 @@ class Ushka:
         # Templates are looked up next to the app, not in whatever directory
         # the process happened to start in.
         template_engine.set_project_dir(self.workdir / "templates")
+        template_engine.configure(self.config)
+        #: Translation settings and language choice, from ``[i18n]``.
+        self.i18n = I18n(self.config, self.workdir)
 
         self._startup: list = []
         self._shutdown: list = []
@@ -223,6 +227,14 @@ class Ushka:
             The ASGI send channel callable.
         """
         request = Request(self, scope, receive)
+        token = self.i18n.activate(request)
+        try:
+            await self._serve_http(request, send)
+        finally:
+            self.i18n.deactivate(token)
+
+    async def _serve_http(self, request, send):
+        """`_handle_http` with the request's language already set."""
         try:
             await request.load_session()
             response = await self._run_chain(request)

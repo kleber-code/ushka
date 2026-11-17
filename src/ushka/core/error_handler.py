@@ -316,7 +316,17 @@ class ErrorHandler:
             The HTTP response object with status code 500 and debug content.
         """
         frames = _TracebackInspector.extract_frames(exc)
+        # A Jinja error carries the template's own file and line in its traceback.
+        template_error = next(
+            (
+                {"file": f["filepath"], "line": f["line"], "name": f["function_name"]}
+                for f in reversed(frames)
+                if not str(f["filepath"]).endswith(".py")
+            ),
+            None,
+        )
         context = {
+            "template_error": template_error,
             "exception_type": type(exc).__name__,
             "exception_message": str(exc),
             "frames": frames,

@@ -12,6 +12,9 @@
       </div>
     </header>
 
+    {% if template_error %}
+    <p class="small" role="note"><span class="tag">template</span> The error is in <code>{{ template_error.file }}</code> at <strong>line {{ template_error.line }}</strong>{% if exception_type == 'UndefinedError' %}. A variable the template uses was not given to it (strict templates are on while debugging): pass it from the handler or write <code>{% raw %}{{ name|default("") }}{% endraw %}</code>{% endif %}.</p>
+    {% endif %}
     <pre class="err-box" aria-label="Exception message"><strong>{{ exception_type }}</strong>{% if exception_message %}: {{ exception_message }}{% endif %}</pre>
 
     <section aria-labelledby="trace-title">
