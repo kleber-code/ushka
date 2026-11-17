@@ -107,6 +107,25 @@ def _uses_crypto(workdir: Path) -> bool:
     return False
 
 
+def imap_warnings(config: Config) -> list[str]:
+    """What is wrong with ``[imap]`` once a host is set (the section is off without one)."""
+    out = []
+    if config.source_of("imap_password") == "ushka.toml":
+        out.append("[imap] password is in ushka.toml: move it to .env as USHKA_IMAP_PASSWORD")
+    elif not config.get("imap_password"):
+        out.append("[imap] host is set but USHKA_IMAP_PASSWORD is not")
+    if not config.get("imap_ssl"):
+        if config.get("imap_starttls"):
+            out.append("[imap] ssl = false: the connection starts in plain text and is upgraded with STARTTLS; make sure the server requires it")
+        elif config.get("imap_allow_insecure"):
+            out.append("[imap] STRONG WARNING: allow_insecure = true sends the password and every message in plain text; use it only for a local test server")
+        else:
+            out.append("[imap] ssl = false without starttls or allow_insecure: ImapClient will refuse to connect")
+    elif config.get("imap_allow_insecure"):
+        out.append("[imap] allow_insecure = true has no effect while ssl = true; remove it")
+    return out
+
+
 def check(production: bool = False) -> int:
     """Prints a report and returns the number of problems found."""
     workdir = Path.cwd()
@@ -189,6 +208,9 @@ def check(production: bool = False) -> int:
             "everything encrypted unreadable: make a dedicated key with `ushka crypto genkey` "
             "and set USHKA_CRYPTO_KEYS"
         )
+    if config.get("imap_host"):
+        for message in imap_warnings(config):
+            ui.warn(message)
 
     gitignore = workdir / ".gitignore"
     if (workdir / ".env").exists():

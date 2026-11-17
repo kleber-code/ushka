@@ -28,6 +28,7 @@ field; feedback shapes it. *Experimental*: the API may still change.
 | [Server-side sessions](guide/sessions.md) | Logout that really ends a session. Needs a database; without one you keep cookies. | New |
 | [Async ORM](guide/orm.md) | Active Record on SQLAlchemy, with transactions and automatic timestamps. | Established, transactions new |
 | [SEO](guide/seo.md) | Meta tags, `robots.txt`, `sitemap.xml`. Passive until you add `{{ seo() }}`. | New |
+| [Reading e-mail (IMAP)](guide/mail.md) | `ImapClient` for an app's inbox: verified TLS, safe search, size limits, every text `Untrusted`. Not loaded until imported. | New |
 | [Internationalisation](guide/i18n.md) | gettext catalogs and `{% trans %}`. Off until `[i18n] enable`. | New |
 | [Progressive Web App](guide/pwa.md) | Manifest, a service worker that never caches pages, offline page. Off by default. | Experimental |
 | | **Tooling** | |
@@ -125,6 +126,13 @@ rotation), `[session] encrypt = true` makes the session cookie unreadable and
 `db.Encrypted()` stores a column encrypted. The cipher is the audited
 `cryptography` package, installed with `pip install "ushka[crypto]"`; the core
 still needs no cipher. See [Encryption](guide/crypto.md).
+
+## Reading e-mail
+
+`ushka.mail.ImapClient` reads an inbox (support, leads, receipts) with the
+standard library only. Messages come back with every text `Untrusted`,
+attachments save like uploads, and the limits (size, parts, depth) and TLS
+verification are on by default. See [Reading e-mail](guide/mail.md).
 
 ## SEO and PWA, from `ushka.toml`
 

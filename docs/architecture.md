@@ -31,6 +31,9 @@ src/ushka/
 │  what browsers and search engines see (each has its own [section])
 ├── web/              seo (meta tags, robots.txt, sitemap.xml), pwa            1,265
 │                     (manifest, service worker), i18n (gettext catalogs)
+│  what an app reads
+├── mail/             imap (`ImapClient`: IMAP over TLS, safe search,           930
+│                     Untrusted messages and attachments; loaded on import)
 │  what machines consume
 ├── api/              openapi (OpenAPI 3.1 from signatures), mcp (routes as     596
 │                     tools for AI agents)
